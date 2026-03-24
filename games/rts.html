@@ -33,9 +33,9 @@ canvas{display:block;border-radius:0 0 8px 8px;}
 </div>
 <canvas id="c"></canvas>
 <div id="controls">
-  <button class="ubtn" onclick="spawnUnit('sword')">⚔️ 검사<br><span class="cost">50골드</span></button>
-  <button class="ubtn" onclick="spawnUnit('archer')">🏹 궁수<br><span class="cost">80골드</span></button>
-  <button class="ubtn" onclick="spawnUnit('knight')">🛡️ 기사<br><span class="cost">150골드</span></button>
+  <button class="ubtn" onclick="spawnUnit('sword')">⚔️ 검사<br><span class="cost">30골드</span></button>
+  <button class="ubtn" onclick="spawnUnit('archer')">🏹 궁수<br><span class="cost">50골드</span></button>
+  <button class="ubtn" onclick="spawnUnit('knight')">🛡️ 기사<br><span class="cost">100골드</span></button>
 </div>
 
 <div id="overlay">
@@ -52,9 +52,9 @@ const CH=Math.min(window.innerHeight-120,350);
 canvas.width=CW;canvas.height=CH;
 
 const UNIT_TYPES={
-  sword:{name:'검사',hp:60,atk:12,speed:1.2,range:20,cost:50,size:10,color:'#4a9aff',atkSpeed:30},
-  archer:{name:'궁수',hp:35,atk:15,speed:0.9,range:80,cost:80,size:9,color:'#4aff7a',atkSpeed:40},
-  knight:{name:'기사',hp:150,atk:25,speed:0.7,range:22,cost:150,size:14,color:'#ffd740',atkSpeed:35}
+  sword:{name:'검사',hp:80,atk:14,speed:1.3,range:20,cost:30,size:10,color:'#4a9aff',atkSpeed:25},
+  archer:{name:'궁수',hp:45,atk:18,speed:1.0,range:90,cost:50,size:9,color:'#4aff7a',atkSpeed:35},
+  knight:{name:'기사',hp:200,atk:30,speed:0.8,range:22,cost:100,size:14,color:'#ffd740',atkSpeed:30}
 };
 
 let units,projectiles,playerBase,enemyBase,gold,goldRate,round,roundsWon,gameRunning,aiTimer;
@@ -70,10 +70,10 @@ function startGame(){
 
 function startRound(){
   units=[];projectiles=[];
-  playerBase={x:40,y:CH/2,hp:500,maxHp:500,team:'player'};
-  enemyBase={x:CW-40,y:CH/2,hp:400+round*100,maxHp:400+round*100,team:'enemy'};
-  gold=200;
-  goldRate=2+round*0.5;
+  playerBase={x:40,y:CH/2,hp:800,maxHp:800,team:'player'};
+  enemyBase={x:CW-40,y:CH/2,hp:200+round*50,maxHp:200+round*50,team:'enemy'};
+  gold=300;
+  goldRate=4+round*0.5;
   aiTimer=0;
   gameRunning=true;
   document.getElementById('roundNum').textContent=round;
@@ -90,14 +90,14 @@ function spawnUnit(type){
 
 function spawnEnemy(type){
   let t=UNIT_TYPES[type];
-  let diff=1+round*0.15;
+  let diff=0.7+round*0.1;
   let yOff=(Math.random()-0.5)*100;
   units.push({x:enemyBase.x-30,y:CH/2+yOff,hp:t.hp*diff,maxHp:t.hp*diff,atk:t.atk*diff,speed:t.speed,range:t.range,size:t.size,color:'#ff4a5a',team:'enemy',atkCd:0,atkSpeed:t.atkSpeed,type});
 }
 
 function aiSpawn(){
   aiTimer++;
-  let interval=Math.max(40,120-round*10);
+  let interval=Math.max(60,180-round*10);
   if(aiTimer%interval===0){
     let r=Math.random();
     if(r<0.5) spawnEnemy('sword');
