@@ -47,7 +47,8 @@ canvas{border-radius:8px;margin-top:4px;touch-action:none}
 </div>
 <canvas id="board" class="hidden"></canvas>
 <div id="controls" class="hidden">
-<button class="btn btn-pass" onclick="playerPass()">패스</button>
+<button class="btn btn-pass" onclick="playerPass()">패스 (더 둘 곳 없을 때)</button>
+<button class="btn btn-pass" onclick="showScorePreview()" style="background:linear-gradient(135deg,#2196F3,#1976D2)">현재 점수 보기</button>
 </div>
 
 <script>
@@ -165,6 +166,15 @@ function countTerritory(){
   return territory;
 }
 
+function showScorePreview(){
+  const terr=countTerritory();
+  const bs=terr[0]+capturedB;
+  const ws=terr[1]+capturedW+6.5;
+  const diff=bs-ws;
+  const msg=diff>0?`흑 ${bs} vs 백 ${ws}\n현재 ${diff.toFixed(1)}점 이기고 있습니다!\n더 둘 곳이 없으면 패스하세요.`:`흑 ${bs} vs 백 ${ws}\n현재 ${Math.abs(diff).toFixed(1)}점 지고 있습니다.\n집을 더 만들어보세요!`;
+  alert(msg);
+}
+
 function endGame(){
   gameActive=false;
   const terr=countTerritory();
@@ -256,7 +266,9 @@ function handleClick(x,y){
 function updateUI(){
   document.getElementById('turn').textContent=turn===1?'⚫ 내 차례 (흑)':'⚪ AI 차례 (백)';
   document.getElementById('turn').style.background=turn===1?'rgba(100,100,100,0.3)':'rgba(200,200,200,0.2)';
-  document.getElementById('score').textContent='흑 잡은돌:'+capturedB+' | 백 잡은돌:'+capturedW;
+  const terr=countTerritory();
+  const bs=terr[0]+capturedB, ws=terr[1]+capturedW+6.5;
+  document.getElementById('score').textContent=`흑 ${bs} vs 백 ${ws.toFixed(1)} (잡은돌:흑${capturedB}/백${capturedW})`;
 }
 
 function resize(){
