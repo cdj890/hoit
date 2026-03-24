@@ -24,6 +24,23 @@ h1{font-size:32px;margin-bottom:10px;text-shadow:0 0 20px #f59e0b}
 #shop{position:fixed;top:0;left:0;width:100%;height:100%;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(15,15,30,0.93);z-index:200}
 .shop-btn{margin:6px;padding:12px 20px;font-size:14px;width:80%;max-width:320px;text-align:left}
 #floorMsg{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:28px;font-weight:bold;z-index:150;pointer-events:none;opacity:0;transition:opacity 0.3s}
+#weaponSelect{position:fixed;top:0;left:0;width:100%;height:100%;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(15,15,30,0.97);z-index:300}
+#weaponSelect h1{font-size:24px;margin-bottom:8px}
+.weapon-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:10px;max-width:420px;width:90%}
+.weapon-card{background:rgba(255,255,255,0.08);border:2px solid rgba(255,255,255,0.15);border-radius:12px;padding:10px 6px;text-align:center;cursor:pointer;touch-action:manipulation;transition:border-color 0.2s,transform 0.1s}
+.weapon-card:active{transform:scale(0.95)}
+.weapon-card.selected{border-color:#f59e0b;background:rgba(245,158,11,0.15)}
+.weapon-card .wicon{font-size:28px;display:block}
+.weapon-card .wname{font-size:11px;margin-top:4px;display:block}
+.weapon-card .wstats{font-size:9px;color:#aaa;margin-top:2px;display:block}
+#weaponDesc{color:#ccc;font-size:13px;margin:12px 0;text-align:center;min-height:36px;padding:0 20px}
+#skillBar{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);display:none;gap:10px;z-index:60;pointer-events:auto}
+.skill-btn{width:52px;height:52px;border-radius:14px;background:rgba(0,0,0,0.7);border:2px solid rgba(255,255,255,0.3);color:#fff;font-size:22px;display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;touch-action:manipulation}
+.skill-btn.locked{opacity:0.3;pointer-events:none}
+.skill-btn .cd-overlay{position:absolute;bottom:0;left:0;width:100%;background:rgba(0,0,0,0.7);border-radius:0 0 12px 12px;font-size:10px;text-align:center;color:#fbbf24}
+#buffBar{position:fixed;top:85px;left:0;width:100%;display:flex;justify-content:center;gap:6px;z-index:55;pointer-events:none;flex-wrap:wrap;padding:0 10px}
+.buff-icon{background:rgba(0,0,0,0.6);border-radius:8px;padding:2px 7px;font-size:12px;display:flex;align-items:center;gap:3px}
+.buff-icon .buff-timer{font-size:10px;color:#fbbf24}
 </style>
 </head>
 <body>
@@ -46,8 +63,10 @@ h1{font-size:32px;margin-bottom:10px;text-shadow:0 0 20px #f59e0b}
 </div>
 <div id="hud" style="display:none">
 <div class="hud-row">
+<span id="weaponHud">🗡️검</span>
 <span>⚔️ <span id="floorDisp">1층</span></span>
 <span>Lv.<span id="lvlDisp">1</span></span>
+<span>💀<span id="killDisp">0</span></span>
 <span>💰 <span id="goldDisp">0</span>G</span>
 </div>
 <div class="hud-row">
@@ -57,6 +76,19 @@ h1{font-size:32px;margin-bottom:10px;text-shadow:0 0 20px #f59e0b}
 <div class="xp-outer"><div class="xp-inner" id="xpBar" style="width:0%"></div></div>
 </div>
 <div id="floorMsg"></div>
+<div id="weaponSelect">
+<h1>⚔️ 무기 선택</h1>
+<p class="sub">무기를 선택하고 던전에 도전하세요!</p>
+<div class="weapon-grid" id="weaponGrid"></div>
+<p id="weaponDesc">무기를 선택하세요</p>
+<button class="btn" id="weaponConfirmBtn" style="opacity:0.4" disabled>선택 완료</button>
+</div>
+<div id="skillBar">
+<button class="skill-btn locked" id="skill0" onclick="useSkill(0)"><span>💥</span><div class="cd-overlay" id="cd0"></div></button>
+<button class="skill-btn locked" id="skill1" onclick="useSkill(1)"><span>☄️</span><div class="cd-overlay" id="cd1"></div></button>
+<button class="skill-btn locked" id="skill2" onclick="useSkill(2)"><span>🛡️</span><div class="cd-overlay" id="cd2"></div></button>
+</div>
+<div id="buffBar"></div>
 
 <a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
 <script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
@@ -70,10 +102,41 @@ canvas.width=W;canvas.height=H;
 const ROOM=W;
 let state='menu',floor=1,paused=false;
 let player={x:W/2,y:H/2,hp:100,maxHp:100,atk:10,def:2,speed:2.8,atkRange:45,atkCd:0,atkSpeed:25,level:1,xp:0,xpNeeded:10,gold:0};
-let enemies=[],particles=[],slashEffects=[];
+let enemies=[],particles=[],slashEffects=[],droppedItems=[];
 let joyActive=false,joyX=0,joyY=0,joyStartX=0,joyStartY=0;
 let screenShake=0;
 let floorClearCelebration=0;
+let killCount=0;
+let selectedWeaponIdx=-1;
+
+const WEAPONS=[
+  {icon:'🗡️',name:'검',dmg:10,spd:25,range:45,desc:'균형잡힌 기본 검'},
+  {icon:'🪓',name:'도끼',dmg:14,spd:35,range:40,desc:'느리지만 강력한 도끼'},
+  {icon:'🔱',name:'창',dmg:9,spd:22,range:65,desc:'긴 사거리의 창'},
+  {icon:'🏹',name:'활',dmg:8,spd:18,range:90,desc:'빠르고 먼 거리 공격'},
+  {icon:'🔮',name:'지팡이',dmg:12,spd:30,range:70,desc:'마법 공격 지팡이'},
+  {icon:'💠',name:'수리검',dmg:7,spd:12,range:55,desc:'매우 빠른 연속 공격'},
+  {icon:'🔥',name:'화염검',dmg:13,spd:28,range:45,desc:'불꽃이 타오르는 검'},
+  {icon:'🧊',name:'얼음지팡이',dmg:11,spd:32,range:70,desc:'적을 느리게 만듦'},
+  {icon:'⚡',name:'번개봉',dmg:10,spd:20,range:60,desc:'번개로 주변 적 타격'},
+  {icon:'💀',name:'사신낫',dmg:16,spd:40,range:50,desc:'치명적이지만 느린 낫'},
+];
+
+const SKILLS=[
+  {name:'대시',icon:'💥',desc:'적을 관통하며 대시',cd:300,unlockLv:3,duration:15,active:false,timer:0,cdTimer:0},
+  {name:'메테오',icon:'☄️',desc:'주변 광역 데미지',cd:480,unlockLv:6,duration:1,active:false,timer:0,cdTimer:0},
+  {name:'보호막',icon:'🛡️',desc:'일시적 무적',cd:600,unlockLv:9,duration:120,active:false,timer:0,cdTimer:0},
+];
+
+const DROP_TABLE=[
+  {icon:'❤️',name:'체력포션',type:'heal',value:30,duration:0},
+  {icon:'⚔️',name:'공격력부스트',type:'atkBuff',value:0.5,duration:1800},
+  {icon:'🛡️',name:'방어력부스트',type:'defBuff',value:5,duration:1800},
+  {icon:'💰',name:'골드x2',type:'goldBuff',value:2,duration:1800},
+  {icon:'⭐',name:'경험치x2',type:'xpBuff',value:2,duration:1800},
+];
+
+let buffs=[];// {type,icon,name,remaining,value}
 
 const SHOP_ITEMS=[
   {name:'❤️ HP포션',desc:'HP 전체 회복',cost:20,apply:p=>{p.hp=p.maxHp}},
@@ -85,34 +148,39 @@ const SHOP_ITEMS=[
 ];
 
 function spawnFloorEnemies(){
-  enemies=[];
+  enemies=[];droppedItems=[];
   const isBoss=floor%5===0;
   if(isBoss){
     enemies.push({
       x:W/2,y:H*0.3,hp:50+floor*20,maxHp:50+floor*20,
       atk:8+floor*2,speed:0.8,r:25,color:'#dc2626',type:'boss',
-      name:'보스',hitCd:0,goldVal:15+floor*2,xpVal:10+floor*2
+      name:'보스',hitCd:0,goldVal:15+floor*2,xpVal:10+floor*2,
+      elite:false,pattern:'idle',patternTimer:0,patternCd:90,summonCd:0
     });
   }else{
     const count=3+Math.floor(floor*0.8);
     for(let i=0;i<count;i++){
       const isSkele=Math.random()<0.3+floor*0.03;
+      const isElite=floor>3&&Math.random()<0.15;
       const mult=1+floor*0.15;
-      enemies.push({
+      const eliteMult=isElite?3:1;
+      const e={
         x:50+Math.random()*(W-100),
         y:50+Math.random()*(H-150),
-        hp:Math.floor((isSkele?25:15)*mult),
-        maxHp:Math.floor((isSkele?25:15)*mult),
-        atk:Math.floor((isSkele?8:5)*mult),
-        speed:isSkele?0.7:1,
-        r:isSkele?13:11,
+        hp:Math.floor((isSkele?25:15)*mult*eliteMult),
+        maxHp:Math.floor((isSkele?25:15)*mult*eliteMult),
+        atk:Math.floor((isSkele?8:5)*mult*(isElite?1.5:1)),
+        speed:(isSkele?0.7:1)*(isElite?1.3:1),
+        r:(isSkele?13:11)*(isElite?1.4:1),
         color:isSkele?'#d4d4d8':'#22c55e',
         type:isSkele?'skeleton':'slime',
-        name:isSkele?'스켈레톤':'슬라임',
+        name:(isElite?'엘리트 ':'')+(isSkele?'스켈레톤':'슬라임'),
         hitCd:0,
-        goldVal:isSkele?5:3,
-        xpVal:isSkele?4:2
-      });
+        goldVal:(isSkele?5:3)*(isElite?3:1),
+        xpVal:(isSkele?4:2)*(isElite?3:1),
+        elite:isElite
+      };
+      enemies.push(e);
     }
   }
 }
@@ -125,12 +193,47 @@ function showFloorMsg(text){
 
 function startGame(){
   document.getElementById('startScreen').classList.add('hidden');
+  showWeaponSelect();
+}
+
+function showWeaponSelect(){
+  selectedWeaponIdx=-1;
+  const ws=document.getElementById('weaponSelect');
+  ws.style.display='flex';
+  const grid=document.getElementById('weaponGrid');
+  grid.innerHTML='';
+  WEAPONS.forEach((w,i)=>{
+    const card=document.createElement('div');
+    card.className='weapon-card';
+    card.innerHTML=`<span class="wicon">${w.icon}</span><span class="wname">${w.name}</span><span class="wstats">ATK:${w.dmg} SPD:${Math.round(60/w.spd*10)/10}</span>`;
+    card.onclick=()=>{
+      document.querySelectorAll('.weapon-card').forEach(c=>c.classList.remove('selected'));
+      card.classList.add('selected');
+      selectedWeaponIdx=i;
+      document.getElementById('weaponDesc').textContent=`${w.icon} ${w.name} — ${w.desc} (사거리:${w.range})`;
+      const btn=document.getElementById('weaponConfirmBtn');
+      btn.disabled=false;btn.style.opacity='1';
+    };
+    grid.appendChild(card);
+  });
+  document.getElementById('weaponConfirmBtn').onclick=()=>{
+    if(selectedWeaponIdx<0)return;
+    document.getElementById('weaponSelect').style.display='none';
+    beginGame(selectedWeaponIdx);
+  };
+}
+
+function beginGame(wIdx){
+  const w=WEAPONS[wIdx];
   document.getElementById('hud').style.display='block';
-  state='playing';floor=1;
-  player={x:W/2,y:H*0.7,hp:100,maxHp:100,atk:10,def:2,speed:2.8,atkRange:45,atkCd:0,atkSpeed:25,level:1,xp:0,xpNeeded:10,gold:0};
-  enemies=[];particles=[];slashEffects=[];
+  document.getElementById('skillBar').style.display='flex';
+  state='playing';floor=1;killCount=0;buffs=[];
+  player={x:W/2,y:H*0.7,hp:100,maxHp:100,atk:w.dmg,def:2,speed:2.8,atkRange:w.range,atkCd:0,atkSpeed:w.spd,level:1,xp:0,xpNeeded:10,gold:0,weaponIdx:wIdx};
+  enemies=[];particles=[];slashEffects=[];droppedItems=[];
+  SKILLS.forEach(s=>{s.active=false;s.timer=0;s.cdTimer=0;});
   spawnFloorEnemies();
   showFloorMsg('⚔️ 1층');
+  updateSkillButtons();
   requestAnimationFrame(gameLoop);
 }
 
@@ -193,7 +296,7 @@ function addXP(val){
 function endGame(){
   state='over';
   _hub('hackslash',floor);
-  document.getElementById('goStats').textContent=`도달 층: ${floor}층 | 레벨: ${player.level}`;
+  document.getElementById('goStats').textContent=`도달 층: ${floor}층 | 레벨: ${player.level} | 처치: ${killCount}`;
   document.getElementById('gameOver').classList.remove('hidden');
 }
 
@@ -214,24 +317,221 @@ canvas.addEventListener('pointermove',e=>{
 canvas.addEventListener('pointerup',()=>{joyActive=false;joyX=0;joyY=0;});
 canvas.addEventListener('pointercancel',()=>{joyActive=false;joyX=0;joyY=0;});
 
+function useSkill(idx){
+  const s=SKILLS[idx];
+  if(player.level<s.unlockLv||s.cdTimer>0||s.active)return;
+  s.active=true;s.timer=s.duration;s.cdTimer=s.cd;
+  if(idx===0){// dash
+    const dx=joyX||0,dy=joyY||0;
+    const mag=Math.hypot(dx,dy);
+    const dirX=mag>0?dx/mag:0,dirY=mag>0?dy/mag:1;
+    player.dashDx=dirX;player.dashDy=dirY;
+    enemies.forEach(e=>{
+      const ex=e.x-player.x,ey=e.y-player.y;
+      if(Math.hypot(ex,ey)<80){
+        const dmg=Math.floor(player.atk*1.5);
+        e.hp-=dmg;
+        particles.push({x:e.x,y:e.y-10,t:0,text:'-'+dmg+'💥',color:'#f97316'});
+      }
+    });
+    enemies=enemies.filter(e=>{
+      if(e.hp<=0){killEnemy(e);return false;}return true;
+    });
+  }
+  if(idx===1){// meteor
+    const cx=player.x,cy=player.y;
+    for(let i=0;i<15;i++){
+      const a=Math.random()*Math.PI*2,d=Math.random()*80;
+      particles.push({x:cx+Math.cos(a)*d,y:cy+Math.sin(a)*d,t:0,text:'🔥',color:'#f97316'});
+    }
+    screenShake=12;
+    enemies.forEach(e=>{
+      if(Math.hypot(e.x-cx,e.y-cy)<100){
+        const dmg=Math.floor(player.atk*2.5);
+        e.hp-=dmg;
+        particles.push({x:e.x,y:e.y-10,t:0,text:'-'+dmg+'☄️',color:'#f97316'});
+      }
+    });
+    enemies=enemies.filter(e=>{
+      if(e.hp<=0){killEnemy(e);return false;}return true;
+    });
+  }
+  if(idx===2){// shield
+    particles.push({x:player.x,y:player.y-20,t:0,text:'🛡️ 보호막!',color:'#60a5fa'});
+  }
+  updateSkillButtons();
+}
+
+function updateSkillButtons(){
+  SKILLS.forEach((s,i)=>{
+    const btn=document.getElementById('skill'+i);
+    const cd=document.getElementById('cd'+i);
+    if(player.level>=s.unlockLv){
+      btn.classList.remove('locked');
+      if(s.cdTimer>0){
+        cd.textContent=Math.ceil(s.cdTimer/60)+'s';
+        btn.style.opacity='0.5';
+      }else{
+        cd.textContent='';
+        btn.style.opacity='1';
+      }
+    }else{
+      btn.classList.add('locked');
+      cd.textContent='Lv'+s.unlockLv;
+    }
+  });
+}
+
+function killEnemy(e){
+  player.gold+=Math.floor(e.goldVal*getBuffMult('goldBuff'));
+  const xpMult=getBuffMult('xpBuff');
+  addXP(Math.floor(e.xpVal*xpMult));
+  killCount++;
+  particles.push({x:e.x,y:e.y,t:0,text:'+'+e.goldVal+'G',color:'#fbbf24'});
+  // item drop
+  const dropChance=e.elite?0.35:0.1;
+  if(Math.random()<dropChance){
+    const drop=DROP_TABLE[Math.floor(Math.random()*DROP_TABLE.length)];
+    droppedItems.push({x:e.x,y:e.y,icon:drop.icon,name:drop.name,type:drop.type,value:drop.value,duration:drop.duration,t:0});
+  }
+}
+
+function getBuffMult(type){
+  const b=buffs.find(b=>b.type===type);
+  return b?b.value:1;
+}
+
+function applyDrop(item){
+  if(item.type==='heal'){
+    player.hp=Math.min(player.maxHp,player.hp+item.value);
+    particles.push({x:player.x,y:player.y-20,t:0,text:'+'+item.value+'HP',color:'#4ade80'});
+  }else{
+    // buff
+    const existing=buffs.find(b=>b.type===item.type);
+    if(existing){existing.remaining=item.duration;}
+    else{buffs.push({type:item.type,icon:item.icon,name:item.name,remaining:item.duration,value:item.value});}
+    particles.push({x:player.x,y:player.y-20,t:0,text:item.icon+item.name+'!',color:'#a855f7'});
+  }
+}
+
+function updateBuffs(){
+  buffs.forEach(b=>b.remaining--);
+  buffs=buffs.filter(b=>b.remaining>0);
+  // apply atk/def buff effects are checked in combat via getBuffMult
+  const bar=document.getElementById('buffBar');
+  bar.innerHTML='';
+  buffs.forEach(b=>{
+    const div=document.createElement('div');
+    div.className='buff-icon';
+    div.innerHTML=b.icon+' <span class="buff-timer">'+Math.ceil(b.remaining/60)+'s</span>';
+    bar.appendChild(div);
+  });
+}
+
+function updateBossAI(e){
+  if(e.type!=='boss')return;
+  e.patternCd--;
+  if(e.patternCd<=0&&e.pattern==='idle'){
+    const roll=Math.random();
+    if(roll<0.35){
+      e.pattern='charge';e.patternTimer=30;
+      const dx=player.x-e.x,dy=player.y-e.y;
+      const d=Math.hypot(dx,dy)||1;
+      e.chargeDx=dx/d;e.chargeDy=dy/d;
+    }else if(roll<0.7){
+      e.pattern='spin';e.patternTimer=45;
+    }else{
+      e.pattern='summon';e.patternTimer=20;
+    }
+  }
+  if(e.pattern==='charge'){
+    e.x+=e.chargeDx*5;e.y+=e.chargeDy*5;
+    e.patternTimer--;
+    if(Math.hypot(player.x-e.x,player.y-e.y)<e.r+18){
+      const dmg=Math.max(1,e.atk*2-player.def);
+      if(!SKILLS[2].active){player.hp-=dmg;screenShake=10;
+      particles.push({x:player.x,y:player.y-10,t:0,text:'-'+dmg+'💥',color:'#f44'});}
+      if(player.hp<=0)endGame();
+    }
+    if(e.patternTimer<=0){e.pattern='idle';e.patternCd=60+Math.random()*60;}
+  }else if(e.pattern==='spin'){
+    e.patternTimer--;
+    // damage nearby player
+    if(e.patternTimer%10===0&&Math.hypot(player.x-e.x,player.y-e.y)<e.r+40){
+      const dmg=Math.max(1,Math.floor(e.atk*1.3)-player.def);
+      if(!SKILLS[2].active){player.hp-=dmg;screenShake=6;
+      particles.push({x:player.x,y:player.y-10,t:0,text:'-'+dmg+'🌀',color:'#f44'});}
+      if(player.hp<=0)endGame();
+    }
+    if(e.patternTimer<=0){e.pattern='idle';e.patternCd=50+Math.random()*40;}
+  }else if(e.pattern==='summon'){
+    e.patternTimer--;
+    if(e.patternTimer===10){
+      for(let i=0;i<2;i++){
+        const a=Math.random()*Math.PI*2;
+        enemies.push({
+          x:e.x+Math.cos(a)*40,y:e.y+Math.sin(a)*40,
+          hp:10+floor*3,maxHp:10+floor*3,atk:3+floor,speed:1.2,r:9,
+          color:'#f97316',type:'slime',name:'소환수',hitCd:0,goldVal:2,xpVal:1,elite:false
+        });
+      }
+      particles.push({x:e.x,y:e.y-15,t:0,text:'소환!',color:'#dc2626'});
+    }
+    if(e.patternTimer<=0){e.pattern='idle';e.patternCd=90+Math.random()*60;}
+  }
+}
+
 function updateHUD(){
   document.getElementById('floorDisp').textContent=floor+'층';
   document.getElementById('lvlDisp').textContent=player.level;
-  document.getElementById('goldDisp').textContent=player.gold;
-  document.getElementById('atkDisp').textContent=player.atk;
-  document.getElementById('defDisp').textContent=player.def;
+  document.getElementById('goldDisp').textContent=Math.floor(player.gold);
+  document.getElementById('killDisp').textContent=killCount;
+  const w=WEAPONS[player.weaponIdx||0];
+  document.getElementById('weaponHud').textContent=w.icon+w.name;
+  const atkBuff=buffs.find(b=>b.type==='atkBuff');
+  document.getElementById('atkDisp').textContent=player.atk+(atkBuff?'⬆':'');
+  const defBuff=buffs.find(b=>b.type==='defBuff');
+  document.getElementById('defDisp').textContent=player.def+(defBuff?'⬆':'');
   document.getElementById('hpBar').style.width=((player.hp/player.maxHp)*100)+'%';
   document.getElementById('xpBar').style.width=((player.xp/player.xpNeeded)*100)+'%';
 }
 
 function update(){
   if(state!=='playing'||paused)return;
-  // move
-  player.x=Math.max(15,Math.min(W-15,player.x+joyX*player.speed));
-  player.y=Math.max(15,Math.min(H-15,player.y+joyY*player.speed));
+
+  // skill timers
+  SKILLS.forEach((s,i)=>{
+    if(s.active){s.timer--;if(s.timer<=0)s.active=false;}
+    if(s.cdTimer>0)s.cdTimer--;
+  });
+  updateSkillButtons();
+
+  // buff timers
+  updateBuffs();
+
+  // move (dash override)
+  if(SKILLS[0].active){
+    player.x+=player.dashDx*8;player.y+=player.dashDy*8;
+  }else{
+    player.x=Math.max(15,Math.min(W-15,player.x+joyX*player.speed));
+    player.y=Math.max(15,Math.min(H-15,player.y+joyY*player.speed));
+  }
+  player.x=Math.max(15,Math.min(W-15,player.x));
+  player.y=Math.max(15,Math.min(H-15,player.y));
+
+  // collect dropped items
+  droppedItems=droppedItems.filter(it=>{
+    it.t++;
+    if(it.t>600)return false;// despawn after 10s
+    if(Math.hypot(it.x-player.x,it.y-player.y)<35){
+      applyDrop(it);return false;
+    }
+    return true;
+  });
 
   // enemy AI
   enemies.forEach(e=>{
+    if(e.type==='boss'){updateBossAI(e);if(e.pattern!=='idle')return;}
     const dx=player.x-e.x,dy=player.y-e.y;
     const dist=Math.hypot(dx,dy);
     if(dist>0){
@@ -240,11 +540,18 @@ function update(){
     }
     if(e.hitCd>0)e.hitCd--;
     if(dist<e.r+14&&e.hitCd<=0){
-      const dmg=Math.max(1,e.atk-player.def);
-      player.hp-=dmg;e.hitCd=35;
-      screenShake=8;
-      particles.push({x:player.x,y:player.y-10,t:0,text:'-'+dmg,color:'#f44'});
-      if(player.hp<=0)endGame();
+      if(SKILLS[2].active){// shield active
+        e.hitCd=35;
+        particles.push({x:player.x,y:player.y-10,t:0,text:'🛡️막음!',color:'#60a5fa'});
+      }else{
+        const defBuff=buffs.find(b=>b.type==='defBuff');
+        const totalDef=player.def+(defBuff?defBuff.value:0);
+        const dmg=Math.max(1,e.atk-totalDef);
+        player.hp-=dmg;e.hitCd=35;
+        screenShake=8;
+        particles.push({x:player.x,y:player.y-10,t:0,text:'-'+dmg,color:'#f44'});
+        if(player.hp<=0)endGame();
+      }
     }
   });
 
@@ -255,14 +562,14 @@ function update(){
     enemies.forEach(e=>{const d=Math.hypot(e.x-player.x,e.y-player.y);if(d<nd){nd=d;nearest=e;}});
     if(nearest&&nd<player.atkRange+nearest.r){
       player.atkCd=player.atkSpeed;
-      const dmg=player.atk+Math.floor(Math.random()*3);
+      const atkBuff=buffs.find(b=>b.type==='atkBuff');
+      const totalAtk=Math.floor(player.atk*(1+(atkBuff?atkBuff.value:0)));
+      const dmg=totalAtk+Math.floor(Math.random()*3);
       nearest.hp-=dmg;
       particles.push({x:nearest.x,y:nearest.y-10,t:0,text:'-'+dmg,color:'#ff0'});
       slashEffects.push({x:(player.x+nearest.x)/2,y:(player.y+nearest.y)/2,t:0,angle:Math.atan2(nearest.y-player.y,nearest.x-player.x)});
       if(nearest.hp<=0){
-        player.gold+=nearest.goldVal;
-        addXP(nearest.xpVal);
-        particles.push({x:nearest.x,y:nearest.y,t:0,text:'+'+nearest.goldVal+'G',color:'#fbbf24'});
+        killEnemy(nearest);
         enemies.splice(enemies.indexOf(nearest),1);
       }
     }
@@ -291,15 +598,27 @@ function update(){
 }
 
 function drawEnemy(e){
+  // elite golden glow
+  if(e.elite){
+    ctx.save();
+    ctx.shadowColor='#fbbf24';ctx.shadowBlur=15;
+    ctx.strokeStyle='#fbbf24';ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(e.x,e.y,e.r+4,0,Math.PI*2);ctx.stroke();
+    ctx.restore();
+  }
   if(e.type==='boss'){
+    // spin attack visual
+    if(e.pattern==='spin'){
+      ctx.save();ctx.globalAlpha=0.3;ctx.strokeStyle='#ff4444';ctx.lineWidth=3;
+      ctx.beginPath();ctx.arc(e.x,e.y,e.r+40,0,Math.PI*2);ctx.stroke();
+      ctx.restore();
+    }
     ctx.fillStyle=e.color;
     ctx.beginPath();ctx.arc(e.x,e.y,e.r,0,Math.PI*2);ctx.fill();
     ctx.strokeStyle='#991b1b';ctx.lineWidth=3;ctx.stroke();
-    // horns
     ctx.fillStyle='#fbbf24';
     ctx.beginPath();ctx.moveTo(e.x-12,e.y-20);ctx.lineTo(e.x-8,e.y-35);ctx.lineTo(e.x-4,e.y-20);ctx.fill();
     ctx.beginPath();ctx.moveTo(e.x+4,e.y-20);ctx.lineTo(e.x+8,e.y-35);ctx.lineTo(e.x+12,e.y-20);ctx.fill();
-    // face
     ctx.fillStyle='#fff';
     ctx.beginPath();ctx.arc(e.x-8,e.y-5,5,0,Math.PI*2);ctx.fill();
     ctx.beginPath();ctx.arc(e.x+8,e.y-5,5,0,Math.PI*2);ctx.fill();
@@ -307,6 +626,10 @@ function drawEnemy(e){
     ctx.beginPath();ctx.arc(e.x-8,e.y-5,2.5,0,Math.PI*2);ctx.fill();
     ctx.beginPath();ctx.arc(e.x+8,e.y-5,2.5,0,Math.PI*2);ctx.fill();
     ctx.beginPath();ctx.arc(e.x,e.y+8,6,0,Math.PI);ctx.fillStyle='#000';ctx.fill();
+    // boss pattern indicator
+    if(e.pattern==='charge'){
+      ctx.fillStyle='#ff0';ctx.font='bold 14px sans-serif';ctx.fillText('💨',e.x+e.r+5,e.y);
+    }
   }else if(e.type==='skeleton'){
     ctx.fillStyle=e.color;
     ctx.beginPath();ctx.arc(e.x,e.y,e.r,0,Math.PI*2);ctx.fill();
@@ -315,7 +638,6 @@ function drawEnemy(e){
     ctx.beginPath();ctx.arc(e.x+4,e.y-3,3,0,Math.PI*2);ctx.fill();
     ctx.beginPath();ctx.moveTo(e.x-3,e.y+3);ctx.lineTo(e.x+3,e.y+3);ctx.strokeStyle='#000';ctx.lineWidth=2;ctx.stroke();
   }else{
-    // slime
     ctx.fillStyle=e.color;
     ctx.beginPath();
     ctx.ellipse(e.x,e.y+3,e.r,e.r*0.8,0,0,Math.PI*2);
@@ -327,10 +649,16 @@ function drawEnemy(e){
     ctx.beginPath();ctx.arc(e.x-3,e.y-1,1.5,0,Math.PI*2);ctx.fill();
     ctx.beginPath();ctx.arc(e.x+3,e.y-1,1.5,0,Math.PI*2);ctx.fill();
   }
-  // hp bar
-  if(e.hp<e.maxHp){
-    ctx.fillStyle='rgba(0,0,0,0.6)';ctx.fillRect(e.x-e.r,e.y-e.r-8,e.r*2,4);
-    ctx.fillStyle='#4ade80';ctx.fillRect(e.x-e.r,e.y-e.r-8,e.r*2*(e.hp/e.maxHp),4);
+  // hp bar (always show for elites and bosses)
+  if(e.hp<e.maxHp||e.elite||e.type==='boss'){
+    const bw=e.elite?e.r*2.5:e.r*2;
+    ctx.fillStyle='rgba(0,0,0,0.6)';ctx.fillRect(e.x-bw/2,e.y-e.r-10,bw,5);
+    ctx.fillStyle=e.elite?'#fbbf24':e.type==='boss'?'#ef4444':'#4ade80';
+    ctx.fillRect(e.x-bw/2,e.y-e.r-10,bw*(e.hp/e.maxHp),5);
+    if(e.elite){
+      ctx.fillStyle='#fbbf24';ctx.font='bold 9px sans-serif';
+      ctx.fillText('ELITE',e.x-12,e.y-e.r-13);
+    }
   }
 }
 
@@ -359,6 +687,16 @@ function draw(){
   // enemies
   enemies.forEach(e=>drawEnemy(e));
 
+  // dropped items (pulsing)
+  droppedItems.forEach(it=>{
+    const pulse=1+Math.sin(it.t*0.1)*0.2;
+    ctx.save();ctx.translate(it.x,it.y);ctx.scale(pulse,pulse);
+    ctx.font='18px sans-serif';ctx.textAlign='center';
+    ctx.fillText(it.icon,0,6);
+    ctx.restore();
+  });
+  ctx.textAlign='left';
+
   // slash effects
   slashEffects.forEach(s=>{
     const alpha=1-s.t/8;
@@ -385,11 +723,17 @@ function draw(){
   ctx.beginPath();ctx.arc(px-4+joyX,py-3+joyY*0.5,1.5,0,Math.PI*2);ctx.fill();
   ctx.beginPath();ctx.arc(px+4+joyX,py-3+joyY*0.5,1.5,0,Math.PI*2);ctx.fill();
   ctx.beginPath();ctx.arc(px,py+4,2.5,0,Math.PI);ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke();
-  // sword
-  ctx.save();ctx.translate(px+10,py);ctx.rotate(0.3);
-  ctx.fillStyle='#94a3b8';ctx.fillRect(-2,-18,4,16);
-  ctx.fillStyle='#fbbf24';ctx.fillRect(-5,-2,10,3);
+  // weapon display on player
+  const wpn=WEAPONS[player.weaponIdx||0];
+  ctx.save();ctx.translate(px+12,py-5);
+  ctx.font='16px sans-serif';ctx.fillText(wpn.icon,0,0);
   ctx.restore();
+  // shield visual
+  if(SKILLS[2].active){
+    ctx.save();ctx.strokeStyle='rgba(96,165,250,0.6)';ctx.lineWidth=3;
+    ctx.beginPath();ctx.arc(px,py,22+Math.sin(Date.now()*0.01)*3,0,Math.PI*2);ctx.stroke();
+    ctx.restore();
+  }
   // hp bar
   ctx.fillStyle='rgba(0,0,0,0.5)';ctx.fillRect(px-18,py-26,36,5);
   ctx.fillStyle='#ef4444';ctx.fillRect(px-18,py-26,36*(player.hp/player.maxHp),5);
