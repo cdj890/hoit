@@ -202,8 +202,8 @@ function isInPeriod(dateStr, period){
   return true;
 }
 
-const SCORE_UNITS={tetris:'점',snake:'점',flappy:'점',tower_defense:'웨이브',rhythm:'점',bullet_storm:'점',gomoku:'승',digging:'m',puzzle2048:'점',minesweeper:'승',pong:'승',runner:'m',memory:'점',shooting:'점',sliding:'점',hangman:'승',breakout:'점',colormatch:'점',typing:'점',cardgame:'승',tap_speed:'탭',whack:'점',catch:'점',stack:'층',bubble:'점',swipe_match:'점',reaction:'ms',dodge_ball:'초',number_tap:'점',color_switch:'점',fortress:'승',vampire:'킬',racing:'m',survival:'일',hackslash:'층',climbing:'m',rts:'라운드',blackjack:'칩',poker:'칩',solitaire:'점'};
-const GAME_NAMES={tetris:'블록쌓기',snake:'뱀키우기',flappy:'병아리',tower_defense:'성지키기',rhythm:'리듬스타',bullet_storm:'불렛스톰',gomoku:'오목',digging:'땅굴탐험',puzzle2048:'2048',minesweeper:'지뢰찾기',pong:'핑퐁',runner:'달려라',memory:'기억력',shooting:'사격장',sliding:'퍼즐',hangman:'단어맞추기',breakout:'벽돌깨기',colormatch:'색맞추기',typing:'타자게임',cardgame:'카드배틀',tap_speed:'탭스피드',whack:'두더지잡기',catch:'과일받기',stack:'블록쌓기',bubble:'버블팝',swipe_match:'스와이프',reaction:'반응속도',dodge_ball:'공피하기',number_tap:'숫자터치',color_switch:'컬러스위치',fortress:'대포대전',vampire:'몬스터웨이브',racing:'레이싱',survival:'생존',hackslash:'던전용사',climbing:'절벽올라가기',rts:'미니전략',blackjack:'블랙잭',poker:'포커',solitaire:'솔리테어'};
+const SCORE_UNITS={tetris:'점',snake:'점',flappy:'점',tower_defense:'웨이브',rhythm:'점',bullet_storm:'점',gomoku:'승',digging:'m',puzzle2048:'점',minesweeper:'승',pong:'승',runner:'m',memory:'점',shooting:'점',sliding:'점',hangman:'승',breakout:'점',colormatch:'점',typing:'점',cardgame:'승',tap_speed:'탭',whack:'점',catch:'점',stack:'층',bubble:'점',swipe_match:'점',reaction:'ms',dodge_ball:'초',number_tap:'점',color_switch:'점',fortress:'승',vampire:'킬',racing:'m',survival:'일',hackslash:'층',climbing:'m',rts:'라운드',blackjack:'칩',poker:'칩',solitaire:'점',chess:'승',janggi:'승',yutnori:'승',baduk:'승',othello:'승'};
+const GAME_NAMES={tetris:'블록쌓기',snake:'뱀키우기',flappy:'병아리',tower_defense:'성지키기',rhythm:'리듬스타',bullet_storm:'불렛스톰',gomoku:'오목',digging:'땅굴탐험',puzzle2048:'2048',minesweeper:'지뢰찾기',pong:'핑퐁',runner:'달려라',memory:'기억력',shooting:'사격장',sliding:'퍼즐',hangman:'단어맞추기',breakout:'벽돌깨기',colormatch:'색맞추기',typing:'타자게임',cardgame:'카드배틀',tap_speed:'탭스피드',whack:'두더지잡기',catch:'과일받기',stack:'블록쌓기',bubble:'버블팝',swipe_match:'스와이프',reaction:'반응속도',dodge_ball:'공피하기',number_tap:'숫자터치',color_switch:'컬러스위치',fortress:'대포대전',vampire:'몬스터웨이브',racing:'레이싱',survival:'생존',hackslash:'던전용사',climbing:'절벽올라가기',rts:'미니전략',blackjack:'블랙잭',poker:'포커',solitaire:'솔리테어',chess:'체스',janggi:'장기',yutnori:'윷놀이',baduk:'바둑',othello:'오셀로'};
 
 let currentTab='game', lbFilter='all';
 
@@ -251,6 +251,12 @@ const GAMES=[
   {file:'games/blackjack.html',title:'블랙잭',desc:'딜러를 이겨라! 21에 가깝게',emoji:'🃏',id:'blackjack',bg:'linear-gradient(135deg,#1B5E20,#4CAF50)',mobile:'ok'},
   {file:'games/poker.html',title:'텍사스 홀덤',desc:'AI와 포커 대결',emoji:'♠️',id:'poker',bg:'linear-gradient(135deg,#0D47A1,#1565C0)',mobile:'ok'},
   {file:'games/solitaire.html',title:'솔리테어',desc:'카드를 정리해 완성하라',emoji:'🂡',id:'solitaire',bg:'linear-gradient(135deg,#006064,#00838F)',mobile:'ok'},
+  // 보드게임
+  {file:'games/chess.html',title:'체스',desc:'AI와 체스 대결',emoji:'♟️',id:'chess',bg:'linear-gradient(135deg,#3E2723,#6D4C41)',mobile:'ok'},
+  {file:'games/janggi.html',title:'장기',desc:'AI와 장기 대결',emoji:'🀄',id:'janggi',bg:'linear-gradient(135deg,#BF360C,#E64A19)',mobile:'ok'},
+  {file:'games/yutnori.html',title:'윷놀이',desc:'윷을 던져 말을 움직여라',emoji:'🎯',id:'yutnori',bg:'linear-gradient(135deg,#F57F17,#FDD835)',mobile:'ok'},
+  {file:'games/baduk.html',title:'바둑',desc:'9x9 바둑 AI 대전',emoji:'⚫',id:'baduk',bg:'linear-gradient(135deg,#4E342E,#795548)',mobile:'ok'},
+  {file:'games/othello.html',title:'오셀로',desc:'돌을 뒤집어 많이 차지해라',emoji:'⚪',id:'othello',bg:'linear-gradient(135deg,#1B5E20,#388E3C)',mobile:'ok'},
 ];
 
 const TESTS=[
