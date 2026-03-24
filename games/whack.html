@@ -1,0 +1,40 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no"><title>두더지 잡기</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;display:flex;flex-direction:column;align-items:center;min-height:100vh;overflow:hidden;touch-action:manipulation}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:320px;width:90%;margin:15px auto}
+.hole{background:#3a2a1a;border-radius:16px;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:48px;cursor:pointer;transition:background .1s;-webkit-tap-highlight-color:transparent;user-select:none}
+.hole.active{background:#5a4a2a;animation:pop .15s}
+.hole.hit{background:#4CAF50}
+@keyframes pop{0%{transform:scale(0.8)}100%{transform:scale(1)}}
+.hud{display:flex;justify-content:space-between;width:90%;max-width:320px;margin-top:15px;font-size:16px}
+.btn{background:#8D6E63;border:none;color:#fff;padding:14px 36px;border-radius:12px;font-size:18px;font-weight:bold;cursor:pointer;margin-top:20px;touch-action:manipulation}
+</style></head><body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<script>function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));if(h.nick){const lb=JSON.parse(localStorage.getItem('game_leaderboard')||'{}');if(!lb[id])lb[id]=[];const e=lb[id].find(x=>x.nick===h.nick);if(e){if(s>e.score){e.score=s;e.date=new Date().toLocaleDateString('ko');}}else lb[id].push({nick:h.nick,score:s,date:new Date().toLocaleDateString('ko')});lb[id].sort((a,b)=>b.score-a.score);lb[id]=lb[id].slice(0,20);localStorage.setItem('game_leaderboard',JSON.stringify(lb));}}</script>
+<div id="app" style="text-align:center;padding:50px 20px"></div>
+<script>
+let state='menu',score=0,timeLeft=30,moles=[0,0,0,0,0,0,0,0,0],timer,spawnTimer,hs=parseInt(localStorage.getItem('whack_hs')||'0');
+const MOLE='🐹',EMPTY='🕳️',HIT='💥';
+
+function render(){
+  const app=document.getElementById('app');
+  if(state==='menu'){
+    app.innerHTML=`<div style="font-size:48px">🔨</div><h1 style="margin:10px 0">두더지 잡기</h1><p style="color:#aaa;margin-bottom:20px">30초 안에 두더지를 잡으세요!</p><button class="btn" ontouchstart="start(event)" onclick="start(event)">시작!</button>${hs?`<p style="color:#888;margin-top:10px">최고: ${hs}점</p>`:''}`;
+  } else if(state==='playing'){
+    app.innerHTML=`<div class="hud"><span>⏱️ ${timeLeft}초</span><span>🏆 ${score}점</span></div>
+      <div class="grid">${moles.map((m,i)=>`<div class="hole ${m===1?'active':m===2?'hit':''}" ontouchstart="hit(${i},event)" onclick="hit(${i},event)">${m===1?MOLE:m===2?HIT:EMPTY}</div>`).join('')}</div>`;
+  } else {
+    const isNew=score>hs;if(isNew){hs=score;localStorage.setItem('whack_hs',hs);_hub('whack',score);}
+    app.innerHTML=`<div style="font-size:48px">${isNew?'🎉':'🔨'}</div><h1 style="margin:10px 0">${score}점</h1><p style="color:#aaa">${isNew?'새 기록!':'게임 오버'}</p><p style="color:#888;margin:8px 0">최고: ${hs}점</p><button class="btn" ontouchstart="backToMenu(event)" onclick="backToMenu(event)">다시 하기</button>`;
+  }
+}
+
+function start(e){e.preventDefault();state='playing';score=0;timeLeft=30;moles=[0,0,0,0,0,0,0,0,0];render();
+  timer=setInterval(()=>{timeLeft--;if(timeLeft<=0){clearInterval(timer);clearInterval(spawnTimer);state='done';render();}else render();},1000);
+  spawnTimer=setInterval(()=>{moles=moles.map(m=>m===1?0:0);const count=1+Math.floor((30-timeLeft)/10);for(let i=0;i<count;i++){const r=Math.floor(Math.random()*9);moles[r]=1;}render();},800);
+}
+
+function hit(i,e){e.preventDefault();if(state!=='playing'||moles[i]!==1)return;moles[i]=2;score++;render();setTimeout(()=>{if(moles[i]===2)moles[i]=0;},200);}
+function backToMenu(e){e.preventDefault();state='menu';render();}
+render();
+</script></body></html>

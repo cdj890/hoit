@@ -1,0 +1,111 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no"><title>스와이프 퍼즐</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;overflow:hidden;touch-action:none}canvas{display:block;margin:0 auto;max-width:100%}</style></head><body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<script>function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));if(h.nick){const lb=JSON.parse(localStorage.getItem('game_leaderboard')||'{}');if(!lb[id])lb[id]=[];const e=lb[id].find(x=>x.nick===h.nick);if(e){if(s>e.score){e.score=s;e.date=new Date().toLocaleDateString('ko');}}else lb[id].push({nick:h.nick,score:s,date:new Date().toLocaleDateString('ko')});lb[id].sort((a,b)=>b.score-a.score);lb[id]=lb[id].slice(0,20);localStorage.setItem('game_leaderboard',JSON.stringify(lb));}}</script>
+<canvas id="c"></canvas>
+<script>
+const c=document.getElementById('c'),ctx=c.getContext('2d');
+const W=Math.min(window.innerWidth,420),GS=5,PAD=15;
+const CS=(W-PAD*2)/GS;
+const HUD=45;
+c.width=W;c.height=GS*CS+HUD+PAD*2+50;
+const H=c.height;
+const COLORS=['#FF6B6B','#4FC3F7','#FFD54F','#81C784','#CE93D8'];
+let grid,score,sel,animating,state='menu',hs=parseInt(localStorage.getItem('swipe_hs')||'0');
+
+function init(){grid=[];for(let r=0;r<GS;r++){grid[r]=[];for(let c2=0;c2<GS;c2++)grid[r][c2]=Math.random()*COLORS.length|0;}
+  // remove initial matches
+  for(let i=0;i<10;i++){removeMatches();fillGaps();}
+  score=0;sel=null;animating=false;}
+
+function removeMatches(){
+  let found=false;const mark=Array.from({length:GS},()=>Array(GS).fill(false));
+  for(let r=0;r<GS;r++)for(let c2=0;c2<GS-2;c2++){
+    if(grid[r][c2]>=0&&grid[r][c2]===grid[r][c2+1]&&grid[r][c2]===grid[r][c2+2]){mark[r][c2]=mark[r][c2+1]=mark[r][c2+2]=true;found=true;}}
+  for(let c2=0;c2<GS;c2++)for(let r=0;r<GS-2;r++){
+    if(grid[r][c2]>=0&&grid[r][c2]===grid[r+1][c2]&&grid[r][c2]===grid[r+2][c2]){mark[r][c2]=mark[r+1][c2]=mark[r+2][c2]=true;found=true;}}
+  let cleared=0;for(let r=0;r<GS;r++)for(let c2=0;c2<GS;c2++)if(mark[r][c2]){grid[r][c2]=-1;cleared++;}
+  score+=cleared*10;return found;
+}
+
+function fillGaps(){
+  for(let c2=0;c2<GS;c2++){
+    let empty=[];for(let r=GS-1;r>=0;r--)if(grid[r][c2]<0)empty.push(r);
+    for(const r of empty){for(let r2=r-1;r2>=0;r2--)if(grid[r2][c2]>=0){grid[r][c2]=grid[r2][c2];grid[r2][c2]=-1;break;}}
+    for(let r=0;r<GS;r++)if(grid[r][c2]<0)grid[r][c2]=Math.random()*COLORS.length|0;
+  }
+}
+
+function swap(r1,c1,r2,c2){const t=grid[r1][c1];grid[r1][c1]=grid[r2][c2];grid[r2][c2]=t;}
+
+function trySwap(r1,c1,r2,c2){
+  if(r2<0||r2>=GS||c2<0||c2>=GS)return;
+  swap(r1,c1,r2,c2);
+  // check if creates match
+  const hasMatch=checkMatch();
+  if(!hasMatch){swap(r1,c1,r2,c2);return;}
+  animating=true;
+  setTimeout(()=>{
+    while(removeMatches())fillGaps();
+    animating=false;
+    if(score>hs){hs=score;localStorage.setItem('swipe_hs',hs);_hub('swipe_match',score);}
+  },200);
+}
+
+function checkMatch(){
+  for(let r=0;r<GS;r++)for(let c2=0;c2<GS-2;c2++)if(grid[r][c2]>=0&&grid[r][c2]===grid[r][c2+1]&&grid[r][c2]===grid[r][c2+2])return true;
+  for(let c2=0;c2<GS;c2++)for(let r=0;r<GS-2;r++)if(grid[r][c2]>=0&&grid[r][c2]===grid[r+1][c2]&&grid[r][c2]===grid[r+2][c2])return true;
+  return false;
+}
+
+let touchSR=-1,touchSC=-1;
+function getRC(px,py){const r=c.getBoundingClientRect();const x=(px-r.left)*(W/r.width)-PAD,y=(py-r.top)*(H/r.height)-HUD-PAD;
+  return[Math.floor(y/CS),Math.floor(x/CS)];}
+
+c.addEventListener('touchstart',e=>{e.preventDefault();
+  if(state==='menu'){state='playing';init();return;}
+  const [r,co]=getRC(e.touches[0].clientX,e.touches[0].clientY);
+  if(r>=0&&r<GS&&co>=0&&co<GS){touchSR=r;touchSC=co;sel={r,c:co};}
+},{passive:false});
+c.addEventListener('touchend',e=>{e.preventDefault();
+  if(!e.changedTouches.length||animating)return;
+  const [r2,c2]=getRC(e.changedTouches[0].clientX,e.changedTouches[0].clientY);
+  if(touchSR>=0&&(r2!==touchSR||c2!==touchSC)){
+    const dr=r2-touchSR,dc=c2-touchSC;
+    if(Math.abs(dr)>Math.abs(dc))trySwap(touchSR,touchSC,touchSR+(dr>0?1:-1),touchSC);
+    else trySwap(touchSR,touchSC,touchSR,touchSC+(dc>0?1:-1));
+  }
+  sel=null;touchSR=-1;
+},{passive:false});
+c.addEventListener('click',()=>{if(state==='menu'){state='playing';init();}});
+
+function draw(){
+  ctx.fillStyle='#0f0f1e';ctx.fillRect(0,0,W,H);
+  if(state==='menu'){
+    ctx.textAlign='center';ctx.fillStyle='#fff';ctx.font='bold 26px sans-serif';ctx.fillText('💎 스와이프 퍼즐',W/2,H/2-50);
+    ctx.fillStyle='#aaa';ctx.font='14px sans-serif';ctx.fillText('같은 색 3개를 맞춰 제거하세요!',W/2,H/2-15);
+    ctx.fillStyle='#26C6DA';ctx.font='bold 18px sans-serif';ctx.fillText('탭하여 시작',W/2,H/2+25);
+    if(hs){ctx.fillStyle='#888';ctx.font='14px sans-serif';ctx.fillText(`최고: ${hs}점`,W/2,H/2+55);}
+    // demo gems
+    COLORS.forEach((cl,i)=>{ctx.fillStyle=cl;ctx.beginPath();ctx.arc(W/2-80+i*40,H/2+90,14,0,6.28);ctx.fill();});
+  } else {
+    // HUD
+    ctx.fillStyle='rgba(0,0,0,0.5)';ctx.fillRect(0,0,W,HUD);
+    ctx.fillStyle='#FFD700';ctx.font='bold 18px sans-serif';ctx.textAlign='center';ctx.fillText(`${score}점`,W/2,30);
+    // Grid
+    for(let r=0;r<GS;r++)for(let co=0;co<GS;co++){
+      const gx=PAD+co*CS,gy=HUD+PAD+r*CS;
+      const v=grid[r][co];if(v<0)continue;
+      const isSel=sel&&sel.r===r&&sel.c===co;
+      ctx.fillStyle=COLORS[v]+(isSel?'':'cc');
+      ctx.beginPath();ctx.arc(gx+CS/2,gy+CS/2,CS/2-4,0,6.28);ctx.fill();
+      ctx.fillStyle='rgba(255,255,255,0.3)';ctx.beginPath();ctx.arc(gx+CS/2-CS*0.1,gy+CS/2-CS*0.15,CS*0.15,0,6.28);ctx.fill();
+      if(isSel){ctx.strokeStyle='#FFD700';ctx.lineWidth=3;ctx.beginPath();ctx.arc(gx+CS/2,gy+CS/2,CS/2-2,0,6.28);ctx.stroke();}
+    }
+  }
+  ctx.textAlign='left';
+  requestAnimationFrame(draw);
+}
+draw();
+</script></body></html>

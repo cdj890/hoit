@@ -1,0 +1,34 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no"><title>탭 스피드</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;display:flex;flex-direction:column;align-items:center;min-height:100vh;overflow:hidden;touch-action:manipulation}
+.area{width:100%;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;user-select:none}
+.circle{width:200px;height:200px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:60px;font-weight:bold;cursor:pointer;transition:transform .05s;-webkit-tap-highlight-color:transparent}
+.circle:active{transform:scale(0.92)}
+.info{font-size:18px;margin:15px 0;color:#aaa}
+.score{font-size:72px;font-weight:bold;color:#FFD700}
+.timer{font-size:24px;color:#FF6B6B;margin:10px 0}
+.btn{background:#7B68EE;border:none;color:#fff;padding:14px 36px;border-radius:12px;font-size:18px;font-weight:bold;cursor:pointer;margin-top:20px;touch-action:manipulation}
+.hs{color:#888;font-size:14px;margin-top:10px}
+</style></head><body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<script>function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));if(h.nick){const lb=JSON.parse(localStorage.getItem('game_leaderboard')||'{}');if(!lb[id])lb[id]=[];const e=lb[id].find(x=>x.nick===h.nick);if(e){if(s>e.score){e.score=s;e.date=new Date().toLocaleDateString('ko');}}else lb[id].push({nick:h.nick,score:s,date:new Date().toLocaleDateString('ko')});lb[id].sort((a,b)=>b.score-a.score);lb[id]=lb[id].slice(0,20);localStorage.setItem('game_leaderboard',JSON.stringify(lb));}}</script>
+<div class="area" id="app"></div>
+<script>
+let state='ready',taps=0,timeLeft=10,timer,hs=parseInt(localStorage.getItem('tap_hs')||'0');
+function render(){
+  const app=document.getElementById('app');
+  if(state==='ready'){
+    app.innerHTML=`<div style="font-size:36px;margin-bottom:10px">👆</div><div style="font-size:28px;font-weight:bold">탭 스피드</div><p class="info">10초 안에 최대한 빠르게 탭하세요!</p><div class="circle" style="background:#7B68EE" ontouchstart="startGame(event)" onclick="startGame(event)">시작</div>${hs?`<div class="hs">최고 기록: ${hs}탭</div>`:''}`;
+  } else if(state==='playing'){
+    app.innerHTML=`<div class="timer">${timeLeft.toFixed(1)}초</div><div class="score">${taps}</div><div class="circle" style="background:hsl(${taps*8%360},70%,55%)" ontouchstart="tap(event)" onclick="tap(event)">👆</div><p class="info">빠르게 탭!</p>`;
+  } else {
+    const isNew=taps>hs;
+    if(isNew){hs=taps;localStorage.setItem('tap_hs',hs);_hub('tap_speed',taps);}
+    app.innerHTML=`<div style="font-size:48px;margin-bottom:10px">${isNew?'🎉':'👆'}</div><div class="score">${taps}탭</div><p class="info">${isNew?'새 기록!':'게임 오버'}</p><div class="hs">최고: ${hs}탭</div><div class="circle" style="background:#4CAF50" ontouchstart="reset(event)" onclick="reset(event)">다시</div>`;
+  }
+}
+function startGame(e){e.preventDefault();state='playing';taps=0;timeLeft=10;render();timer=setInterval(()=>{timeLeft-=0.1;if(timeLeft<=0){clearInterval(timer);state='done';render();}else{document.querySelector('.timer').textContent=timeLeft.toFixed(1)+'초';}},100);}
+function tap(e){e.preventDefault();if(state!=='playing')return;taps++;const s=document.querySelector('.score');if(s)s.textContent=taps;const c=document.querySelector('.circle');if(c)c.style.background=`hsl(${taps*8%360},70%,55%)`;}
+function reset(e){e.preventDefault();state='ready';render();}
+render();
+</script></body></html>

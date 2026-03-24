@@ -1,0 +1,67 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no"><title>반응속도 테스트</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{min-height:100vh;display:flex;flex-direction:column;font-family:sans-serif;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;overflow:hidden}
+.screen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;cursor:pointer}
+.red{background:#E74C3C}.green{background:#2ECC71}.blue{background:#2C3E50}.result-bg{background:#1a1a2e}
+h1{color:#fff;font-size:28px;margin-bottom:10px}
+p{color:rgba(255,255,255,0.7);font-size:16px}
+.time{color:#fff;font-size:64px;font-weight:bold;margin:15px 0}
+.tries{display:flex;gap:8px;margin:15px 0}.dot{width:12px;height:12px;border-radius:50%;background:#555}.dot.done{background:#FFD700}.dot.cur{background:#fff}
+</style></head><body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.4);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<script>function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));if(h.nick){const lb=JSON.parse(localStorage.getItem('game_leaderboard')||'{}');if(!lb[id])lb[id]=[];const e=lb[id].find(x=>x.nick===h.nick);if(e){if(s>e.score){e.score=s;e.date=new Date().toLocaleDateString('ko');}}else lb[id].push({nick:h.nick,score:s,date:new Date().toLocaleDateString('ko')});lb[id].sort((a,b)=>b.score-a.score);lb[id]=lb[id].slice(0,20);localStorage.setItem('game_leaderboard',JSON.stringify(lb));}}</script>
+<div class="screen blue" id="screen" ontouchstart="tap(event)" onclick="tap(event)"></div>
+<script>
+let state='menu',round=0,maxRound=5,results=[],greenTime=0,waitTimer;
+let hs=parseInt(localStorage.getItem('react_hs')||'0');
+
+function render(){
+  const s=document.getElementById('screen');
+  const dots=Array(maxRound).fill(0).map((_,i)=>`<div class="dot ${i<round?'done':i===round?'cur':''}"></div>`).join('');
+  s.className='screen';
+  if(state==='menu'){
+    s.classList.add('blue');
+    s.innerHTML=`<h1>⚡ 반응속도 테스트</h1><p>초록색이 되면 최대한 빠르게 탭!</p><p style="margin-top:20px;font-size:20px">탭하여 시작</p>${hs?`<p style="margin-top:15px;color:rgba(255,255,255,0.4)">최고: ${hs}ms</p>`:''}`;
+  } else if(state==='waiting'){
+    s.classList.add('red');
+    s.innerHTML=`<h1 style="font-size:24px">기다리세요...</h1><div class="tries">${dots}</div>`;
+  } else if(state==='go'){
+    s.classList.add('green');
+    s.innerHTML=`<h1 style="font-size:36px">지금 탭!</h1><div class="tries">${dots}</div>`;
+  } else if(state==='early'){
+    s.classList.add('red');
+    s.innerHTML=`<h1>너무 빨라요! 😅</h1><p>초록색이 될 때까지 기다리세요</p><p style="margin-top:15px">탭하여 다시</p><div class="tries">${dots}</div>`;
+  } else if(state==='result'){
+    const ms=results[results.length-1];
+    s.classList.add('blue');
+    s.innerHTML=`<div class="time">${ms}ms</div><div class="tries">${dots}</div><p>탭하여 계속 (${round}/${maxRound})</p>`;
+  } else if(state==='done'){
+    const best=Math.min(...results);
+    const avg=Math.round(results.reduce((a,b)=>a+b,0)/results.length);
+    const sc=Math.max(0,1000-best);
+    if(best<hs||!hs){hs=best;localStorage.setItem('react_hs',hs);_hub('reaction',sc);}
+    s.classList.add('result-bg');
+    s.innerHTML=`<h1>결과</h1><div class="time">${best}ms</div><p>최고 반응속도</p><p style="margin-top:8px">평균: ${avg}ms</p>
+      <div style="display:flex;gap:10px;margin:15px 0">${results.map(r=>`<div style="background:#252545;padding:6px 12px;border-radius:8px;font-size:14px;color:#FFD700">${r}ms</div>`).join('')}</div>
+      ${best<=hs?'<p style="color:#4CAF50;font-size:18px;font-weight:bold">🎉 새 기록!</p>':''}
+      <p style="margin-top:15px">탭하여 다시</p>`;
+  }
+}
+
+function tap(e){
+  e.preventDefault();e.stopPropagation();
+  if(state==='menu'){startRound();return;}
+  if(state==='waiting'){clearTimeout(waitTimer);state='early';render();return;}
+  if(state==='go'){const ms=Date.now()-greenTime;results.push(ms);round++;
+    if(round>=maxRound){state='done';}else{state='result';}render();return;}
+  if(state==='early'||state==='result'){startRound();return;}
+  if(state==='done'){state='menu';round=0;results=[];render();return;}
+}
+
+function startRound(){
+  state='waiting';render();
+  const delay=2000+Math.random()*3000;
+  waitTimer=setTimeout(()=>{state='go';greenTime=Date.now();render();},delay);
+}
+render();
+</script></body></html>

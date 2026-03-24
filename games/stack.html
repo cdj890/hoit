@@ -1,0 +1,75 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no"><title>블록 쌓기</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;overflow:hidden;touch-action:none}canvas{display:block;margin:0 auto;max-width:100%}</style></head><body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<script>function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));if(h.nick){const lb=JSON.parse(localStorage.getItem('game_leaderboard')||'{}');if(!lb[id])lb[id]=[];const e=lb[id].find(x=>x.nick===h.nick);if(e){if(s>e.score){e.score=s;e.date=new Date().toLocaleDateString('ko');}}else lb[id].push({nick:h.nick,score:s,date:new Date().toLocaleDateString('ko')});lb[id].sort((a,b)=>b.score-a.score);lb[id]=lb[id].slice(0,20);localStorage.setItem('game_leaderboard',JSON.stringify(lb));}}</script>
+<canvas id="c"></canvas>
+<script>
+const c=document.getElementById('c'),ctx=c.getContext('2d');
+const W=Math.min(window.innerWidth,420),H=Math.min(window.innerHeight,700);
+c.width=W;c.height=H;
+
+const BH=25;let state='menu',score=0,blocks=[],current,speed,dir,hs=parseInt(localStorage.getItem('stack_hs')||'0');
+
+function initGame(){
+  state='playing';score=0;speed=2;dir=1;
+  blocks=[{x:W/2-60,w:120,y:H-BH,color:hsl(0)}];
+  current={x:0,w:120,y:H-BH*2,color:hsl(30)};
+}
+
+function hsl(h){return `hsl(${h%360},65%,55%)`;}
+
+function drop(){
+  if(state!=='playing')return;
+  const prev=blocks[blocks.length-1];
+  const overlap_left=Math.max(current.x,prev.x);
+  const overlap_right=Math.min(current.x+current.w,prev.x+prev.w);
+  const overlap=overlap_right-overlap_left;
+  if(overlap<=0){state='done';if(score>hs){hs=score;localStorage.setItem('stack_hs',hs);_hub('stack',score);}return;}
+  blocks.push({x:overlap_left,w:overlap,y:current.y,color:current.color});
+  score++;speed=Math.min(6,2+score*0.15);
+  current={x:0,w:overlap,y:current.y-BH,color:hsl(score*30)};dir=1;
+}
+
+c.addEventListener('touchstart',e=>{e.preventDefault();if(state==='menu')initGame();else if(state==='playing')drop();else{state='menu';}},{passive:false});
+c.addEventListener('click',()=>{if(state==='menu')initGame();else if(state==='playing')drop();else state='menu';});
+
+function update(){
+  if(state!=='playing')return;
+  current.x+=speed*dir;
+  if(current.x+current.w>W){dir=-1;current.x=W-current.w;}
+  if(current.x<0){dir=1;current.x=0;}
+}
+
+function draw(){
+  ctx.fillStyle='#0f0f1e';ctx.fillRect(0,0,W,H);
+  if(state==='menu'){
+    ctx.textAlign='center';ctx.fillStyle='#fff';ctx.font='bold 28px sans-serif';ctx.fillText('📦 블록 쌓기',W/2,H/2-60);
+    ctx.fillStyle='#aaa';ctx.font='16px sans-serif';ctx.fillText('탭하여 블록을 떨어뜨리세요!',W/2,H/2-20);
+    ctx.fillStyle='#42A5F5';ctx.font='bold 20px sans-serif';ctx.fillText('탭하여 시작',W/2,H/2+30);
+    if(hs){ctx.fillStyle='#888';ctx.font='14px sans-serif';ctx.fillText(`최고: ${hs}층`,W/2,H/2+65);}
+    // demo blocks
+    for(let i=0;i<5;i++){ctx.fillStyle=hsl(i*40);ctx.beginPath();ctx.roundRect(W/2-50+i*5,H/2+80+i*BH,100-i*10,BH-2,4);ctx.fill();}
+  } else {
+    // camera offset
+    const camY=Math.min(0,H*0.6-current.y);
+    ctx.save();ctx.translate(0,camY);
+    blocks.forEach(b=>{ctx.fillStyle=b.color;ctx.beginPath();ctx.roundRect(b.x,b.y,b.w,BH-2,4);ctx.fill();
+      ctx.fillStyle='rgba(255,255,255,0.2)';ctx.beginPath();ctx.roundRect(b.x+2,b.y+2,b.w-4,BH/3,3);ctx.fill();});
+    if(state==='playing'){ctx.fillStyle=current.color;ctx.beginPath();ctx.roundRect(current.x,current.y,current.w,BH-2,4);ctx.fill();
+      ctx.fillStyle='rgba(255,255,255,0.25)';ctx.beginPath();ctx.roundRect(current.x+2,current.y+2,current.w-4,BH/3,3);ctx.fill();}
+    ctx.restore();
+    // HUD
+    ctx.fillStyle='rgba(0,0,0,0.5)';ctx.fillRect(0,0,W,35);
+    ctx.fillStyle='#FFD700';ctx.font='bold 18px sans-serif';ctx.textAlign='center';ctx.fillText(`${score}층`,W/2,24);
+    if(state==='done'){
+      ctx.fillStyle='rgba(0,0,0,0.6)';ctx.fillRect(0,H/2-60,W,130);
+      ctx.fillStyle='#FF6B6B';ctx.font='bold 28px sans-serif';ctx.fillText(`${score}층!`,W/2,H/2-15);
+      ctx.fillStyle=score>=hs?'#4CAF50':'#aaa';ctx.font='16px sans-serif';ctx.fillText(score>=hs?'새 기록!':'게임 오버',W/2,H/2+15);
+      ctx.fillStyle='#fff';ctx.font='14px sans-serif';ctx.fillText('탭하여 다시',W/2,H/2+50);
+    }
+  }
+  ctx.textAlign='left';
+}
+(function loop(){update();draw();requestAnimationFrame(loop);})();
+</script></body></html>

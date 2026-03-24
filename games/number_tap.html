@@ -1,0 +1,58 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no"><title>숫자 순서 터치</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;display:flex;flex-direction:column;align-items:center;min-height:100vh;touch-action:manipulation;overflow:hidden}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;max-width:350px;width:92%;margin:10px auto}
+.cell{aspect-ratio:1;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:bold;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .15s;user-select:none}
+.cell.active{background:#2a2a4a;color:#fff;border:2px solid #444}
+.cell.active:hover{border-color:#FFD700}
+.cell.next{background:#2a2a4a;color:#FFD700;border:2px solid #FFD700;animation:pulse .5s infinite alternate}
+.cell.done{background:#1a3a1a;color:#4CAF50;border:2px solid #2a5a2a}
+.cell.wrong{background:#4a1a1a;border:2px solid #F44;animation:shake .3s}
+@keyframes pulse{from{transform:scale(1)}to{transform:scale(1.05)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.hud{display:flex;justify-content:space-between;width:92%;max-width:350px;margin:10px 0;font-size:16px}
+.btn{background:#FF7043;border:none;color:#fff;padding:14px 36px;border-radius:12px;font-size:18px;font-weight:bold;cursor:pointer;margin-top:15px;touch-action:manipulation}
+</style></head><body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<script>function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));if(h.nick){const lb=JSON.parse(localStorage.getItem('game_leaderboard')||'{}');if(!lb[id])lb[id]=[];const e=lb[id].find(x=>x.nick===h.nick);if(e){if(s>e.score){e.score=s;e.date=new Date().toLocaleDateString('ko');}}else lb[id].push({nick:h.nick,score:s,date:new Date().toLocaleDateString('ko')});lb[id].sort((a,b)=>b.score-a.score);lb[id]=lb[id].slice(0,20);localStorage.setItem('game_leaderboard',JSON.stringify(lb));}}</script>
+<div id="app" style="text-align:center;padding:45px 10px 20px;width:100%"></div>
+<script>
+let state='menu',nums=[],current=1,startTime,elapsed=0,wrongCell=-1;
+let hs=parseInt(localStorage.getItem('numtap_hs')||'0');
+
+function shuffle(){nums=[];for(let i=1;i<=25;i++)nums.push(i);for(let i=24;i>0;i--){const j=Math.random()*(i+1)|0;[nums[i],nums[j]]=[nums[j],nums[i]];}}
+
+function render(){
+  const app=document.getElementById('app');
+  if(state==='menu'){
+    app.innerHTML=`<div style="font-size:36px">🔢</div><h1 style="font-size:26px;margin:8px 0">숫자 순서 터치</h1><p style="color:#aaa;font-size:14px;margin-bottom:20px">1부터 25까지 순서대로 빠르게!</p><button class="btn" ontouchstart="startGame(event)" onclick="startGame(event)">시작!</button>${hs?`<p style="color:#888;margin-top:10px;font-size:14px">최고: ${(hs/1000).toFixed(1)}초</p>`:''}`;
+  } else if(state==='playing'){
+    app.innerHTML=`<div class="hud"><span>다음: <b style="color:#FFD700">${current}</b></span><span>⏱️ ${(elapsed/1000).toFixed(1)}초</span></div>
+      <div class="grid">${nums.map((n,i)=>{
+        let cls='cell ';
+        if(n<current)cls+='done';
+        else if(n===current)cls+='next';
+        else if(i===wrongCell)cls+='wrong';
+        else cls+='active';
+        return `<div class="${cls}" ontouchstart="tap(${n},${i},event)" onclick="tap(${n},${i},event)">${n<current?'✓':n}</div>`;
+      }).join('')}</div>`;
+  } else {
+    const sc=Math.max(0,60000-elapsed);
+    const isNew=sc>hs||!hs;
+    if(isNew){hs=sc;localStorage.setItem('numtap_hs',sc);_hub('number_tap',sc);}
+    app.innerHTML=`<div style="font-size:36px">🎉</div><h1 style="font-size:26px;margin:8px 0">${(elapsed/1000).toFixed(2)}초!</h1><p style="color:#aaa;font-size:14px">${isNew?'🏆 새 기록!':''}</p>${hs?`<p style="color:#888;font-size:14px;margin:5px 0">최고: ${((60000-hs)/1000).toFixed(2)}초</p>`:''}
+      <button class="btn" ontouchstart="backToMenu(event)" onclick="backToMenu(event)">다시 하기</button>`;
+  }
+}
+
+function startGame(e){e?.preventDefault();state='playing';current=1;wrongCell=-1;shuffle();startTime=Date.now();elapsed=0;render();
+  requestAnimationFrame(function tick(){if(state!=='playing')return;elapsed=Date.now()-startTime;const t=document.querySelector('.hud span:last-child');if(t)t.textContent='⏱️ '+(elapsed/1000).toFixed(1)+'초';requestAnimationFrame(tick);});}
+
+function tap(n,i,e){e?.preventDefault();if(state!=='playing')return;
+  if(n===current){current++;wrongCell=-1;if(current>25){elapsed=Date.now()-startTime;state='done';}render();}
+  else{wrongCell=i;render();setTimeout(()=>{wrongCell=-1;render();},300);}
+}
+
+function backToMenu(e){e?.preventDefault();state='menu';render();}
+render();
+</script></body></html>

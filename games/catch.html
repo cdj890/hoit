@@ -1,0 +1,67 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no"><title>과일 받기</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;overflow:hidden;touch-action:none}canvas{display:block;margin:0 auto;max-width:100%}</style></head><body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<script>function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));if(h.nick){const lb=JSON.parse(localStorage.getItem('game_leaderboard')||'{}');if(!lb[id])lb[id]=[];const e=lb[id].find(x=>x.nick===h.nick);if(e){if(s>e.score){e.score=s;e.date=new Date().toLocaleDateString('ko');}}else lb[id].push({nick:h.nick,score:s,date:new Date().toLocaleDateString('ko')});lb[id].sort((a,b)=>b.score-a.score);lb[id]=lb[id].slice(0,20);localStorage.setItem('game_leaderboard',JSON.stringify(lb));}}</script>
+<canvas id="c"></canvas>
+<script>
+const c=document.getElementById('c'),x=c.getContext('2d');
+const W=Math.min(window.innerWidth,420),H=Math.min(window.innerHeight,700);
+c.width=W;c.height=H;
+
+const FRUITS=['🍎','🍊','🍋','🍇','🍓','🍑','🥝','🍌'];
+let state='menu',score=0,timeLeft=45,basket={x:W/2,w:60},fruits=[],timer,spawnT=0,frame=0;
+let hs=parseInt(localStorage.getItem('catch_hs')||'0');
+
+c.addEventListener('touchmove',e=>{e.preventDefault();basket.x=e.touches[0].clientX-c.getBoundingClientRect().left;},{passive:false});
+c.addEventListener('touchstart',e=>{e.preventDefault();if(state!=='playing'){if(state==='menu')startGame();else{state='menu';}}basket.x=e.touches[0].clientX-c.getBoundingClientRect().left;},{passive:false});
+c.addEventListener('mousemove',e=>{const r=c.getBoundingClientRect();basket.x=e.clientX-r.left;});
+c.addEventListener('click',()=>{if(state==='menu')startGame();else if(state==='done')state='menu';});
+
+function startGame(){state='playing';score=0;timeLeft=45;fruits=[];frame=0;
+  timer=setInterval(()=>{timeLeft--;if(timeLeft<=0){clearInterval(timer);state='done';if(score>hs){hs=score;localStorage.setItem('catch_hs',hs);_hub('catch',score);}}},1000);}
+
+function update(){
+  if(state!=='playing')return;frame++;
+  if(frame%(Math.max(10,30-score/3)|0)===0){
+    fruits.push({x:20+Math.random()*(W-40),y:-20,speed:2+Math.random()*2+score*0.02,emoji:FRUITS[Math.random()*FRUITS.length|0]});
+  }
+  fruits.forEach(f=>{f.y+=f.speed;});
+  // catch check
+  fruits=fruits.filter(f=>{
+    if(f.y>H)return false;
+    if(f.y>H-60&&f.y<H-20&&Math.abs(f.x-basket.x)<35){score++;return false;}
+    return true;
+  });
+}
+
+function draw(){
+  x.fillStyle='#0f0f1e';x.fillRect(0,0,W,H);
+  if(state==='menu'){
+    x.textAlign='center';x.fillStyle='#fff';x.font='bold 28px sans-serif';x.fillText('🧺 과일 받기',W/2,H/2-60);
+    x.fillStyle='#aaa';x.font='16px sans-serif';x.fillText('바구니를 움직여 과일을 받으세요!',W/2,H/2-20);
+    x.fillStyle='#4CAF50';x.font='bold 20px sans-serif';x.fillText('탭하여 시작',W/2,H/2+30);
+    if(hs){x.fillStyle='#888';x.font='14px sans-serif';x.fillText(`최고: ${hs}점`,W/2,H/2+65);}
+    // falling fruit demo
+    const t=Date.now()/1000;
+    FRUITS.forEach((f,i)=>{x.font='30px sans-serif';x.fillText(f,W/2-80+i%4*50,(t*30+i*60)%H);});
+  } else if(state==='playing'){
+    // fruits
+    fruits.forEach(f=>{x.font='28px sans-serif';x.textAlign='center';x.fillText(f.emoji,f.x,f.y);});
+    // basket
+    x.font='36px sans-serif';x.textAlign='center';x.fillText('🧺',basket.x,H-30);
+    // HUD
+    x.fillStyle='rgba(0,0,0,0.5)';x.fillRect(0,0,W,35);
+    x.fillStyle='#fff';x.font='bold 16px sans-serif';x.textAlign='left';x.fillText(`🍎 ${score}`,10,24);
+    x.textAlign='right';x.fillStyle='#FF6B6B';x.fillText(`⏱️ ${timeLeft}초`,W-10,24);
+  } else {
+    x.textAlign='center';x.fillStyle='#FFD700';x.font='bold 36px sans-serif';x.fillText(`${score}점`,W/2,H/2-30);
+    x.fillStyle=score>=hs?'#4CAF50':'#aaa';x.font='18px sans-serif';x.fillText(score>=hs?'🎉 새 기록!':'게임 오버',W/2,H/2+10);
+    x.fillStyle='#888';x.font='14px sans-serif';x.fillText(`최고: ${hs}점`,W/2,H/2+40);
+    x.fillStyle='#fff';x.font='16px sans-serif';x.fillText('탭하여 다시',W/2,H/2+80);
+  }
+  x.textAlign='left';
+}
+
+(function loop(){update();draw();requestAnimationFrame(loop);})();
+</script></body></html>

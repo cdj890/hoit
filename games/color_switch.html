@@ -1,0 +1,111 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no"><title>컬러 스위치</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;overflow:hidden;touch-action:none}canvas{display:block;margin:0 auto;max-width:100%}</style></head><body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<script>function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));if(h.nick){const lb=JSON.parse(localStorage.getItem('game_leaderboard')||'{}');if(!lb[id])lb[id]=[];const e=lb[id].find(x=>x.nick===h.nick);if(e){if(s>e.score){e.score=s;e.date=new Date().toLocaleDateString('ko');}}else lb[id].push({nick:h.nick,score:s,date:new Date().toLocaleDateString('ko')});lb[id].sort((a,b)=>b.score-a.score);lb[id]=lb[id].slice(0,20);localStorage.setItem('game_leaderboard',JSON.stringify(lb));}}</script>
+<canvas id="c"></canvas>
+<script>
+const c=document.getElementById('c'),x=c.getContext('2d');
+const W=Math.min(window.innerWidth,420),H=Math.min(window.innerHeight,700);
+c.width=W;c.height=H;
+const COLORS=['#FF6B6B','#4FC3F7','#FFD54F','#81C784'];
+const CNAMES=['빨강','파랑','노랑','초록'];
+let state='menu',ball,gates,score,camY,frame=0;
+let hs=parseInt(localStorage.getItem('cswitch_hs')||'0');
+
+function initGame(){
+  ball={y:H-100,vy:0,color:Math.random()*4|0,r:12};
+  gates=[];camY=0;score=0;frame=0;
+  for(let i=0;i<20;i++)gates.push(makeGate(H-250-i*200));
+}
+
+function makeGate(y){return{y,rotation:Math.random()*6.28,speed:0.02+score*0.002,gap:Math.random()*4|0};}
+
+function jump(){ball.vy=-8;}
+
+c.addEventListener('touchstart',e=>{e.preventDefault();if(state==='menu'){state='playing';initGame();jump();}else if(state==='playing')jump();else{state='menu';}},{passive:false});
+c.addEventListener('click',()=>{if(state==='menu'){state='playing';initGame();jump();}else if(state==='playing')jump();else state='menu';});
+
+function update(){
+  if(state!=='playing')return;frame++;
+  ball.vy+=0.35;ball.y+=ball.vy;
+  // camera follows ball
+  const targetCam=ball.y-H*0.65;
+  camY+=(targetCam-camY)*0.1;
+  // death: fall below screen
+  if(ball.y>camY+H+50){die();return;}
+  // gate collision
+  gates.forEach(g=>{
+    g.rotation+=g.speed;
+    const dy=ball.y-g.y;
+    if(Math.abs(dy)<15&&Math.abs(ball.vy)>0){
+      // check if ball color matches gate segment
+      const bAngle=Math.atan2(W/2-W/2, ball.y-g.y); // simplified: check rotation sector
+      const sector=((g.rotation/(Math.PI*2)*4)%4+4)%4|0;
+      const ballSector=(sector+g.gap)%4;
+      if(ballSector!==ball.color){die();return;}
+      score++;ball.color=Math.random()*4|0;
+      // add new gate above
+      const topGate=gates.reduce((m,g2)=>g2.y<m?g2.y:m,Infinity);
+      gates.push(makeGate(topGate-200));
+    }
+  });
+  // remove far gates
+  gates=gates.filter(g=>g.y>camY-100);
+}
+
+function die(){
+  state='done';
+  if(score>hs){hs=score;localStorage.setItem('cswitch_hs',hs);_hub('color_switch',score);}
+}
+
+function draw(){
+  x.fillStyle='#0f0f1e';x.fillRect(0,0,W,H);
+  if(state==='menu'){
+    x.textAlign='center';x.fillStyle='#fff';x.font='bold 26px sans-serif';x.fillText('🌈 컬러 스위치',W/2,H/2-70);
+    x.fillStyle='#aaa';x.font='14px sans-serif';x.fillText('같은 색 게이트를 통과하세요!',W/2,H/2-35);
+    // demo color wheel
+    COLORS.forEach((cl,i)=>{
+      x.fillStyle=cl;x.beginPath();
+      x.arc(W/2,H/2+20,40,i*Math.PI/2,(i+1)*Math.PI/2);x.lineTo(W/2,H/2+20);x.fill();
+    });
+    x.fillStyle='#0f0f1e';x.beginPath();x.arc(W/2,H/2+20,25,0,6.28);x.fill();
+    x.fillStyle=COLORS[0];x.beginPath();x.arc(W/2,H/2+20,10,0,6.28);x.fill();
+    x.fillStyle='#EC407A';x.font='bold 18px sans-serif';x.fillText('탭하여 시작',W/2,H/2+95);
+    if(hs){x.fillStyle='#888';x.font='14px sans-serif';x.fillText(`최고: ${hs}점`,W/2,H/2+125);}
+  } else {
+    x.save();x.translate(0,-camY);
+    // gates
+    gates.forEach(g=>{
+      const gy=g.y,gx=W/2,gr=45,inner=25;
+      for(let i=0;i<4;i++){
+        x.fillStyle=COLORS[i];x.beginPath();
+        x.arc(gx,gy,gr,g.rotation+i*Math.PI/2,g.rotation+(i+1)*Math.PI/2);
+        x.arc(gx,gy,inner,g.rotation+(i+1)*Math.PI/2,g.rotation+i*Math.PI/2,true);x.fill();
+      }
+      x.fillStyle='#0f0f1e';x.beginPath();x.arc(gx,gy,inner,0,6.28);x.fill();
+    });
+    // ball
+    if(state==='playing'){
+      x.fillStyle=COLORS[ball.color]+'40';x.beginPath();x.arc(W/2,ball.y,ball.r+5,0,6.28);x.fill();
+      x.fillStyle=COLORS[ball.color];x.beginPath();x.arc(W/2,ball.y,ball.r,0,6.28);x.fill();
+      x.fillStyle='rgba(255,255,255,0.4)';x.beginPath();x.arc(W/2-3,ball.y-4,4,0,6.28);x.fill();
+    }
+    x.restore();
+    // HUD
+    x.fillStyle='rgba(0,0,0,0.5)';x.fillRect(0,0,W,40);
+    x.fillStyle='#FFD700';x.font='bold 20px sans-serif';x.textAlign='center';x.fillText(score,W/2,28);
+    // current color indicator
+    x.fillStyle=state==='playing'?COLORS[ball.color]:'#555';x.beginPath();x.arc(W-25,22,8,0,6.28);x.fill();
+
+    if(state==='done'){
+      x.fillStyle='rgba(0,0,0,0.65)';x.fillRect(0,H/2-70,W,150);
+      x.fillStyle='#FF6B6B';x.font='bold 32px sans-serif';x.fillText(`${score}점`,W/2,H/2-15);
+      x.fillStyle=score>=hs?'#4CAF50':'#aaa';x.font='16px sans-serif';x.fillText(score>=hs?'새 기록!':'게임 오버',W/2,H/2+15);
+      x.fillStyle='#fff';x.font='14px sans-serif';x.fillText('탭하여 다시',W/2,H/2+55);
+    }
+  }
+  x.textAlign='left';
+}
+(function loop(){update();draw();requestAnimationFrame(loop);})();
+</script></body></html>
