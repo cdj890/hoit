@@ -14,21 +14,21 @@ let state='menu',ball,gates,score,camY,frame=0;
 let hs=parseInt(localStorage.getItem('cswitch_hs')||'0');
 
 function initGame(){
-  ball={y:H-100,vy:0,color:Math.random()*4|0,r:12};
+  ball={y:H-100,vy:0,color:Math.random()*4|0,r:10};
   gates=[];camY=0;score=0;frame=0;
-  for(let i=0;i<20;i++)gates.push(makeGate(H-250-i*200));
+  for(let i=0;i<20;i++)gates.push(makeGate(H-200-i*160));
 }
 
-function makeGate(y){return{y,rotation:Math.random()*6.28,speed:0.02+score*0.002,gap:Math.random()*4|0,passed:false};}
+function makeGate(y){return{y,rotation:Math.random()*6.28,speed:0.015+score*0.001,gap:Math.random()*4|0,passed:false};}
 
-function jump(){ball.vy=-8;}
+function jump(){ball.vy=-7.5;}
 
 c.addEventListener('touchstart',e=>{e.preventDefault();if(state==='menu'){state='playing';initGame();jump();}else if(state==='playing')jump();else{state='menu';}},{passive:false});
 c.addEventListener('click',()=>{if(state==='menu'){state='playing';initGame();jump();}else if(state==='playing')jump();else state='menu';});
 
 function update(){
   if(state!=='playing')return;frame++;
-  ball.vy+=0.35;ball.y+=ball.vy;
+  ball.vy+=0.28;ball.y+=ball.vy;
   // camera follows ball
   const targetCam=ball.y-H*0.65;
   camY+=(targetCam-camY)*0.1;
@@ -38,7 +38,7 @@ function update(){
   gates.forEach(g=>{
     g.rotation+=g.speed;
     const dy=ball.y-g.y;
-    if(Math.abs(dy)<15&&!g.passed&&Math.abs(ball.vy)>0){
+    if(Math.abs(dy)<22&&!g.passed&&Math.abs(ball.vy)>0){
       // check if ball color matches gate segment at ball's entry angle
       const entryAngle=ball.vy<0?-Math.PI/2:Math.PI/2;
       let relAngle=entryAngle-g.rotation;
@@ -78,7 +78,7 @@ function draw(){
     x.save();x.translate(0,-camY);
     // gates
     gates.forEach(g=>{
-      const gy=g.y,gx=W/2,gr=45,inner=25;
+      const gy=g.y,gx=W/2,gr=55,inner=30;
       for(let i=0;i<4;i++){
         x.fillStyle=COLORS[i];x.beginPath();
         x.arc(gx,gy,gr,g.rotation+i*Math.PI/2,g.rotation+(i+1)*Math.PI/2);
@@ -97,7 +97,8 @@ function draw(){
     x.fillStyle='rgba(0,0,0,0.5)';x.fillRect(0,0,W,40);
     x.fillStyle='#FFD700';x.font='bold 20px sans-serif';x.textAlign='center';x.fillText(score,W/2,28);
     // current color indicator
-    x.fillStyle=state==='playing'?COLORS[ball.color]:'#555';x.beginPath();x.arc(W-25,22,8,0,6.28);x.fill();
+    x.fillStyle=state==='playing'?COLORS[ball.color]:'#555';x.beginPath();x.arc(W-25,22,10,0,6.28);x.fill();
+    x.fillStyle='#fff';x.font='11px sans-serif';x.textAlign='right';x.fillText('현재 색',W-40,26);x.textAlign='center';
 
     if(state==='done'){
       x.fillStyle='rgba(0,0,0,0.65)';x.fillRect(0,H/2-70,W,150);
