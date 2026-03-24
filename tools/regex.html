@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>정규식 테스터</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#e0e0e0;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;justify-content:center}
+.wrap{width:100%;max-width:500px;padding:60px 16px 30px}
+h1{text-align:center;font-size:22px;margin-bottom:20px;color:#fff}
+label{font-size:13px;color:#888;display:block;margin:12px 0 6px}
+input[type=text],textarea{width:100%;background:#1a1a2e;border:1px solid #333;border-radius:12px;color:#e0e0e0;padding:14px;font-size:15px;outline:none;font-family:'Courier New',monospace}
+input:focus,textarea:focus{border-color:#6c5ce7}
+textarea{height:140px;resize:vertical}
+.flags{display:flex;gap:16px;margin:10px 0}
+.flags label{display:flex;align-items:center;gap:6px;color:#e0e0e0;font-size:15px;margin:0}
+.flags input{width:20px;height:20px;accent-color:#6c5ce7}
+.result{background:#1a1a2e;border:1px solid #333;border-radius:12px;padding:14px;margin-top:12px;font-family:'Courier New',monospace;font-size:14px;white-space:pre-wrap;word-break:break-all;line-height:1.8;min-height:60px}
+.hl{background:#6c5ce740;color:#a29bfe;border-radius:3px;padding:1px 2px}
+.info{margin-top:12px;font-size:14px;color:#888}
+.info span{color:#6c5ce7;font-weight:bold}
+.groups{margin-top:12px;background:#1a1a2e;border:1px solid #333;border-radius:12px;padding:14px;font-size:13px;display:none}
+.groups h3{font-size:14px;color:#fff;margin-bottom:8px}
+.groups div{margin:4px 0;color:#aaa}
+.groups .gv{color:#a8e6a3}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<div class="wrap">
+<h1>정규식 테스터</h1>
+<label>정규식 패턴</label>
+<input type="text" id="pat" placeholder="예: \d+">
+<div class="flags">
+<label><input type="checkbox" id="fg" checked> g</label>
+<label><input type="checkbox" id="fi"> i</label>
+<label><input type="checkbox" id="fm"> m</label>
+</div>
+<label>테스트 문자열</label>
+<textarea id="str" placeholder="테스트할 문자열을 입력하세요..."></textarea>
+<div class="info">매치: <span id="cnt">0</span>개</div>
+<label>결과 (매치 하이라이트)</label>
+<div class="result" id="res"></div>
+<div class="groups" id="grp"><h3>캡처 그룹</h3><div id="grpList"></div></div>
+</div>
+<script>
+const pat=document.getElementById('pat'),str=document.getElementById('str');
+function run(){
+  const p=pat.value,s=str.value,res=document.getElementById('res'),cnt=document.getElementById('cnt'),grp=document.getElementById('grp'),gl=document.getElementById('grpList');
+  if(!p||!s){res.innerHTML=s.replace(/</g,'&lt;');cnt.textContent='0';grp.style.display='none';return}
+  let flags='';
+  if(document.getElementById('fg').checked)flags+='g';
+  if(document.getElementById('fi').checked)flags+='i';
+  if(document.getElementById('fm').checked)flags+='m';
+  try{
+    const re=new RegExp(p,flags);
+    let matches=[...s.matchAll(new RegExp(p,flags.includes('g')?flags:flags+'g'))];
+    cnt.textContent=matches.length;
+    // highlight
+    let html='',last=0;
+    const allM=[...s.matchAll(new RegExp(p,flags.includes('g')?flags:flags+'g'))];
+    allM.forEach(m=>{
+      html+=esc(s.slice(last,m.index))+'<span class="hl">'+esc(m[0])+'</span>';
+      last=m.index+m[0].length;
+    });
+    html+=esc(s.slice(last));
+    res.innerHTML=html||esc(s);
+    // groups
+    if(matches.length&&matches[0].length>1){
+      grp.style.display='block';
+      gl.innerHTML=matches.map((m,i)=>{
+        let g='';for(let j=1;j<m.length;j++)g+=`그룹${j}: <span class="gv">${esc(m[j]||'')}</span> `;
+        return`<div>매치${i+1}: <span class="gv">${esc(m[0])}</span> → ${g}</div>`;
+      }).join('');
+    }else{grp.style.display='none'}
+  }catch(e){res.innerHTML='<span style="color:#ff4757">오류: '+e.message+'</span>';cnt.textContent='0';grp.style.display='none'}
+}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+pat.addEventListener('input',run);
+str.addEventListener('input',run);
+document.querySelectorAll('.flags input').forEach(c=>c.addEventListener('change',run));
+</script>
+</body>
+</html>

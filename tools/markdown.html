@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>마크다운 미리보기</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#e0e0e0;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;justify-content:center}
+.wrap{width:100%;max-width:500px;padding:60px 16px 30px}
+h1{text-align:center;font-size:22px;margin-bottom:16px;color:#fff}
+.tabs{display:flex;gap:8px;margin-bottom:12px}
+.tab{flex:1;padding:10px;text-align:center;background:#1a1a2e;border:1px solid #333;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;min-height:44px;display:flex;align-items:center;justify-content:center;touch-action:manipulation}
+.tab.active{background:#6c5ce7;color:#fff;border-color:#6c5ce7}
+textarea{width:100%;height:50vh;background:#1a1a2e;border:1px solid #333;border-radius:12px;color:#e0e0e0;padding:14px;font-size:14px;font-family:'Courier New',monospace;resize:vertical;outline:none}
+textarea:focus{border-color:#6c5ce7}
+#preview{width:100%;min-height:50vh;background:#1a1a2e;border:1px solid #333;border-radius:12px;padding:14px;font-size:15px;line-height:1.7;overflow-y:auto;display:none}
+#preview h1,#preview h2,#preview h3{color:#fff;margin:16px 0 8px}
+#preview h1{font-size:24px;border-bottom:1px solid #333;padding-bottom:8px}
+#preview h2{font-size:20px}
+#preview h3{font-size:17px}
+#preview code{background:#2d2d44;padding:2px 6px;border-radius:4px;font-size:13px;color:#a8e6a3}
+#preview pre{background:#2d2d44;padding:12px;border-radius:8px;overflow-x:auto;margin:10px 0}
+#preview pre code{background:none;padding:0}
+#preview a{color:#74b9ff}
+#preview ul,#preview ol{padding-left:24px;margin:8px 0}
+#preview li{margin:4px 0}
+#preview blockquote{border-left:3px solid #6c5ce7;padding-left:12px;color:#aaa;margin:10px 0}
+#preview strong{color:#fff}
+#preview p{margin:8px 0}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<div class="wrap">
+<h1>마크다운 미리보기</h1>
+<div class="tabs">
+<div class="tab active" onclick="showTab('edit')">편집</div>
+<div class="tab" onclick="showTab('preview')">미리보기</div>
+</div>
+<textarea id="editor" placeholder="마크다운을 입력하세요...
+# 제목
+**굵게** *기울임* `코드`
+- 목록 항목
+[링크](url)"></textarea>
+<div id="preview"></div>
+</div>
+<script>
+function showTab(t){
+  document.querySelectorAll('.tab').forEach((el,i)=>{el.classList.toggle('active',i===(t==='edit'?0:1))});
+  document.getElementById('editor').style.display=t==='edit'?'':'none';
+  document.getElementById('preview').style.display=t==='preview'?'':'none';
+  if(t==='preview')render();
+}
+function render(){
+  let md=document.getElementById('editor').value;
+  // code blocks
+  md=md.replace(/```([\s\S]*?)```/g,'<pre><code>$1</code></pre>');
+  // inline code
+  md=md.replace(/`([^`]+)`/g,'<code>$1</code>');
+  // headings
+  md=md.replace(/^### (.+)$/gm,'<h3>$1</h3>');
+  md=md.replace(/^## (.+)$/gm,'<h2>$1</h2>');
+  md=md.replace(/^# (.+)$/gm,'<h1>$1</h1>');
+  // bold italic
+  md=md.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  md=md.replace(/\*(.+?)\*/g,'<em>$1</em>');
+  // links
+  md=md.replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank">$1</a>');
+  // blockquote
+  md=md.replace(/^> (.+)$/gm,'<blockquote>$1</blockquote>');
+  // unordered list
+  md=md.replace(/^[-*] (.+)$/gm,'<li>$1</li>');
+  md=md.replace(/((<li>.*<\/li>\n?)+)/g,'<ul>$1</ul>');
+  // ordered list
+  md=md.replace(/^\d+\. (.+)$/gm,'<li>$1</li>');
+  // hr
+  md=md.replace(/^---$/gm,'<hr>');
+  // paragraphs
+  md=md.split(/\n\n+/).map(p=>{
+    if(p.startsWith('<'))return p;
+    return'<p>'+p.replace(/\n/g,'<br>')+'</p>';
+  }).join('');
+  document.getElementById('preview').innerHTML=md;
+}
+</script>
+</body>
+</html>

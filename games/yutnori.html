@@ -197,12 +197,13 @@ function moveHorse(player,horseIdx){
     if(steps<=0)return false;
     let route=getStandardRoute();
     horse.route=[...route];
+    horse.routeType='standard';
     horse.routeIdx=steps-1;
     if(horse.routeIdx>=route.length){horse.done=true;horse.pos=-2;checkWin(player);return true;}
     horse.pos=route[horse.routeIdx];
-    // Check for shortcut
-    if(horse.pos===5){horse.route=getRoute5();horse.routeIdx=5;}
-    if(horse.pos===10){horse.route=getRoute10();horse.routeIdx=10;}
+    // Check for shortcut at corners
+    if(horse.pos===5){horse.route=getRoute5();horse.routeType='route5';horse.routeIdx=horse.route.indexOf(5);}
+    if(horse.pos===10){horse.route=getRoute10();horse.routeType='route10';horse.routeIdx=horse.route.indexOf(10);}
   }else{
     // Already on board
     if(steps===-1){
@@ -215,23 +216,17 @@ function moveHorse(player,horseIdx){
       if(newIdx>=horse.route.length){horse.done=true;horse.pos=-2;checkWin(player);return true;}
       horse.pos=horse.route[newIdx];
       horse.routeIdx=newIdx;
-      // Check shortcuts
-      if(horse.pos===5&&horse.route===getStandardRoute||!horse.route.includes(21)){
-        // Check if we just landed on 5 and aren't already on shortcut
-        const stdRoute=getStandardRoute();
-        if(JSON.stringify(horse.route)===JSON.stringify(stdRoute)){
-          horse.route=getRoute5();
-          horse.routeIdx=5;
-        }
+      // Check shortcuts - use routeType flag instead of JSON comparison
+      if(horse.pos===5&&horse.routeType==='standard'){
+        horse.route=getRoute5();
+        horse.routeType='route5';
+        // Find index of 5 in route5
+        horse.routeIdx=horse.route.indexOf(5);
       }
-      if(horse.pos===10){
-        const r5=getRoute5();
-        if(JSON.stringify(horse.route)!==JSON.stringify(getRoute10())){
-          if(JSON.stringify(horse.route)===JSON.stringify(getStandardRoute())){
-            horse.route=getRoute10();
-            horse.routeIdx=10;
-          }
-        }
+      if(horse.pos===10&&horse.routeType==='standard'){
+        horse.route=getRoute10();
+        horse.routeType='route10';
+        horse.routeIdx=horse.route.indexOf(10);
       }
     }
   }
@@ -244,6 +239,7 @@ function moveHorse(player,horseIdx){
         players[enemy].horses[i].pos=-1;
         players[enemy].horses[i].routeIdx=-1;
         players[enemy].horses[i].route=getStandardRoute();
+        players[enemy].horses[i].routeType='standard';
       }
     }
   }

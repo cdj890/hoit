@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>JSON 포맷터</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#e0e0e0;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;justify-content:center}
+.wrap{width:100%;max-width:500px;padding:60px 16px 30px}
+h1{text-align:center;font-size:22px;margin-bottom:20px;color:#fff}
+textarea{width:100%;height:160px;background:#1a1a2e;border:1px solid #333;border-radius:12px;color:#e0e0e0;padding:14px;font-size:14px;font-family:'Courier New',monospace;resize:vertical;outline:none}
+textarea:focus{border-color:#6c5ce7}
+label{font-size:13px;color:#888;display:block;margin:12px 0 6px}
+.btns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:16px 0}
+.btn{padding:12px;background:#6c5ce7;color:#fff;border:none;border-radius:10px;font-size:14px;cursor:pointer;min-height:44px;touch-action:manipulation;font-weight:600}
+.btn:active{opacity:0.8}
+.btn.sec{background:#1a1a2e;border:1px solid #333;color:#e0e0e0}
+.error{background:#ff4757;color:#fff;padding:10px 14px;border-radius:10px;margin-top:10px;font-size:14px;display:none}
+.success{background:#2ed573;color:#000;padding:10px 14px;border-radius:10px;margin-top:10px;font-size:14px;display:none}
+#output{min-height:160px}
+.str{color:#a8e6a3}.num{color:#fdcb6e}.bool{color:#fd79a8}.null{color:#636e72}.key{color:#74b9ff}
+.copy{width:100%;padding:14px;background:#6c5ce7;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:bold;cursor:pointer;min-height:44px;touch-action:manipulation;margin-top:8px}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<div class="wrap">
+<h1>JSON 포맷터</h1>
+<label>JSON 입력</label>
+<textarea id="inp" placeholder='{"key": "value"}'></textarea>
+<div class="btns">
+<button class="btn" onclick="fmt('pretty')">정리</button>
+<button class="btn" onclick="fmt('minify')">축소</button>
+<button class="btn" onclick="fmt('validate')">검증</button>
+</div>
+<div class="error" id="err"></div>
+<div class="success" id="suc"></div>
+<label>결과</label>
+<div id="output" style="background:#1a1a2e;border:1px solid #333;border-radius:12px;padding:14px;font-family:'Courier New',monospace;font-size:13px;white-space:pre-wrap;word-break:break-all;overflow-y:auto;max-height:400px;min-height:100px"></div>
+<button class="copy" onclick="copyR()">결과 복사</button>
+</div>
+<script>
+let lastPlain='';
+function syntaxHL(json){
+  return json.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/("(\\u[\da-fA-F]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,m=>{
+      let c='num';if(/^"/.test(m)){c=/:$/.test(m)?'key':'str'}else if(/true|false/.test(m))c='bool';else if(/null/.test(m))c='null';
+      return'<span class="'+c+'">'+m+'</span>';
+    });
+}
+function fmt(mode){
+  const e=document.getElementById('err'),s=document.getElementById('suc'),o=document.getElementById('output');
+  e.style.display='none';s.style.display='none';
+  try{
+    const obj=JSON.parse(document.getElementById('inp').value);
+    if(mode==='pretty'){lastPlain=JSON.stringify(obj,null,2);o.innerHTML=syntaxHL(lastPlain)}
+    else if(mode==='minify'){lastPlain=JSON.stringify(obj);o.innerHTML=syntaxHL(lastPlain)}
+    else{s.textContent='유효한 JSON입니다!';s.style.display='block';lastPlain=JSON.stringify(obj,null,2);o.innerHTML=syntaxHL(lastPlain)}
+  }catch(ex){
+    e.textContent='오류: '+ex.message;e.style.display='block';o.innerHTML='';lastPlain='';
+  }
+}
+function copyR(){
+  const b=document.querySelector('.copy');
+  navigator.clipboard.writeText(lastPlain).then(()=>{b.textContent='복사됨!';setTimeout(()=>b.textContent='결과 복사',1500)});
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>퍼센트 계산기</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#e0e0e0;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;justify-content:center}
+.wrap{width:100%;max-width:500px;padding:60px 16px 30px}
+h1{text-align:center;font-size:22px;margin-bottom:20px;color:#fff}
+.tabs{display:flex;gap:6px;margin-bottom:20px}
+.tab{flex:1;padding:10px 6px;text-align:center;background:#1a1a2e;border:1px solid #333;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;min-height:44px;display:flex;align-items:center;justify-content:center;touch-action:manipulation}
+.tab.active{background:#6c5ce7;color:#fff;border-color:#6c5ce7}
+.panel{display:none}.panel.active{display:block}
+label{font-size:14px;color:#aaa;display:block;margin:12px 0 6px}
+input[type=number]{width:100%;background:#1a1a2e;border:1px solid #333;border-radius:12px;color:#e0e0e0;padding:14px;font-size:18px;outline:none;-moz-appearance:textfield}
+input:focus{border-color:#6c5ce7}
+input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none}
+.btn{width:100%;padding:14px;background:#6c5ce7;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:bold;cursor:pointer;min-height:44px;touch-action:manipulation;margin-top:16px}
+.btn:active{opacity:0.8}
+.result{background:#1a1a2e;border-radius:12px;padding:20px;margin-top:16px;text-align:center;font-size:28px;font-weight:bold;color:#6c5ce7;display:none}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<div class="wrap">
+<h1>퍼센트 계산기</h1>
+<div class="tabs">
+<div class="tab active" onclick="setTab(0)">A의 B%</div>
+<div class="tab" onclick="setTab(1)">A는 B의 몇%</div>
+<div class="tab" onclick="setTab(2)">증감 계산</div>
+</div>
+<div class="panel active" id="p0">
+<label>값 (A)</label><input type="number" id="a0">
+<label>퍼센트 (B%)</label><input type="number" id="b0">
+<button class="btn" onclick="calc0()">계산</button>
+<div class="result" id="r0"></div>
+</div>
+<div class="panel" id="p1">
+<label>값 (A)</label><input type="number" id="a1">
+<label>기준값 (B)</label><input type="number" id="b1">
+<button class="btn" onclick="calc1()">계산</button>
+<div class="result" id="r1"></div>
+</div>
+<div class="panel" id="p2">
+<label>원래 값 (A)</label><input type="number" id="a2">
+<label>퍼센트 (B%)</label><input type="number" id="b2">
+<div style="display:flex;gap:8px;margin-top:12px">
+<button class="btn" style="flex:1" onclick="calc2(1)">증가</button>
+<button class="btn" style="flex:1;background:#ff4757" onclick="calc2(-1)">감소</button>
+</div>
+<div class="result" id="r2"></div>
+</div>
+</div>
+<script>
+function setTab(n){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===n));
+  document.querySelectorAll('.panel').forEach((p,i)=>p.classList.toggle('active',i===n));
+}
+function calc0(){const a=+document.getElementById('a0').value,b=+document.getElementById('b0').value,r=document.getElementById('r0');r.style.display='block';r.textContent=(a*b/100).toLocaleString('ko-KR',{maximumFractionDigits:2})}
+function calc1(){const a=+document.getElementById('a1').value,b=+document.getElementById('b1').value,r=document.getElementById('r1');r.style.display='block';r.textContent=(a/b*100).toLocaleString('ko-KR',{maximumFractionDigits:2})+'%'}
+function calc2(d){const a=+document.getElementById('a2').value,b=+document.getElementById('b2').value,r=document.getElementById('r2');r.style.display='block';const v=a*(1+d*b/100);r.textContent=v.toLocaleString('ko-KR',{maximumFractionDigits:2})}
+</script>
+</body>
+</html>
