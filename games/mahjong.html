@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>마작</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;overflow:hidden;touch-action:manipulation;user-select:none}
+#startScreen{position:fixed;inset:0;background:#0f0f1e;z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+#startScreen h1{font-size:48px;margin-bottom:20px;color:#ffd700}
+#startScreen .rules{max-width:400px;text-align:left;font-size:14px;line-height:1.8;margin-bottom:30px;color:#aaa;background:rgba(255,255,255,0.05);padding:20px;border-radius:12px}
+#startScreen button{background:linear-gradient(135deg,#ffd700,#ff8c00);color:#000;border:none;padding:16px 48px;border-radius:12px;font-size:20px;font-weight:bold;cursor:pointer}
+#gameArea{position:relative;width:100vw;height:100vh;overflow:auto}
+#board{position:relative;margin:0 auto;transform-origin:top center}
+#hud{position:fixed;top:8px;right:8px;z-index:100;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+#hud>div{background:rgba(0,0,0,0.75);padding:8px 14px;border-radius:10px;font-size:14px;white-space:nowrap}
+#btnRow{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:100;display:flex;gap:10px}
+#btnRow button{background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);padding:12px 20px;border-radius:10px;font-size:14px;cursor:pointer;min-width:70px;min-height:44px}
+#btnRow button:active{background:rgba(255,255,255,0.3)}
+.tile{position:absolute;width:44px;height:58px;border-radius:6px;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:bold;border:2px solid rgba(255,255,255,0.2)}
+.tile.free{border-color:rgba(255,215,0,0.5);cursor:pointer}
+.tile.free:hover,.tile.free:active{transform:scale(1.08);box-shadow:0 0 12px rgba(255,215,0,0.5)}
+.tile.selected{border-color:#ffd700;box-shadow:0 0 16px rgba(255,215,0,0.8);transform:scale(1.1)}
+.tile.blocked{opacity:0.7;cursor:default}
+.tile.hint{animation:hintPulse 0.6s infinite alternate}
+.tile.matched{animation:matchAnim 0.4s forwards}
+@keyframes hintPulse{0%{box-shadow:0 0 8px #0f0}100%{box-shadow:0 0 20px #0f0}}
+@keyframes matchAnim{0%{transform:scale(1);opacity:1}100%{transform:scale(1.5);opacity:0}}
+#winScreen,#loseScreen{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:2000;display:none;flex-direction:column;align-items:center;justify-content:center}
+#winScreen h2,#loseScreen h2{font-size:36px;margin-bottom:16px}
+#winScreen .score,#loseScreen .score{font-size:24px;margin-bottom:24px;color:#ffd700}
+#winScreen button,#loseScreen button{background:linear-gradient(135deg,#ffd700,#ff8c00);color:#000;border:none;padding:14px 40px;border-radius:12px;font-size:18px;font-weight:bold;cursor:pointer}
+</style>
+</head>
+<body>
+<div id="startScreen">
+<h1>🀄 마작</h1>
+<div class="rules">
+<b>마작 솔리테어 (상하이)</b><br><br>
+🎯 같은 무늬의 타일 2개를 찾아 제거하세요<br>
+📌 자유 타일만 선택 가능 (좌우 막히지 않고, 위에 타일 없음)<br>
+⏱ 빠르게 클리어할수록 높은 점수!<br>
+💡 힌트 버튼으로 매칭 가능한 쌍을 확인<br>
+🔀 셔플 버튼으로 남은 타일 재배치<br><br>
+점수 = 제거 타일×100 − 시간×2
+</div>
+<button onclick="startGame()">게임 시작</button>
+</div>
+<div id="gameArea" style="display:none">
+<div id="hud">
+<div>⏱ <span id="timer">0:00</span></div>
+<div>🎯 <span id="moves">0</span></div>
+<div>남은: <span id="remaining">144</span></div>
+<div>점수: <span id="score">0</span></div>
+</div>
+<div id="board"></div>
+<div id="btnRow">
+<button onclick="showHint()">💡 힌트</button>
+<button onclick="shuffleTiles()">🔀 셔플</button>
+<button onclick="restartGame()">🔄 다시</button>
+</div>
+</div>
+<div id="winScreen">
+<h2>🎉 축하합니다!</h2>
+<div class="score" id="winScore"></div>
+<button onclick="restartGame()">다시 하기</button>
+</div>
+<div id="loseScreen">
+<h2>😢 매칭 불가</h2>
+<div class="score" id="loseScore"></div>
+<button onclick="restartGame()">다시 하기</button>
+</div>
+
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
+<script>
+const TILE_W=44,TILE_H=58,GAP_X=2,GAP_Y=2,LAYER_OFF_X=4,LAYER_OFF_Y=4;
+const SUITS=[
+{name:'만',color:'#ff6b6b',symbols:['一','二','三','四','五','六','七','八','九']},
+{name:'통',color:'#4ecdc4',symbols:['①','②','③','④','⑤','⑥','⑦','⑧','⑨']},
+{name:'삭',color:'#45b7d1',symbols:['⑴','⑵','⑶','⑷','⑸','⑹','⑺','⑻','⑼']}
+];
+const HONORS=['東','南','西','北'];
+const BONUS=['🀄','🌸','🌺','🎋','🍂','🏵️','❄','🎑'];
+let tiles=[],selected=null,timerInterval=null,startTime=0,movesCount=0,totalScore=0,gameActive=false;
+
+function generateTileTypes(){
+let types=[];
+SUITS.forEach((s,si)=>{s.symbols.forEach((sym,vi)=>{types.push({id:si*9+vi,label:sym,bg:s.color});});});
+HONORS.forEach((h,i)=>{types.push({id:27+i,label:h,bg:'#9b59b6'});});
+BONUS.forEach((b,i)=>{types.push({id:31+i,label:b,bg:'#f39c12'});});
+return types;
+}
+
+// Layout: 4 layers pyramid
+// Layer 0 (bottom): 8x10, Layer 1: 6x8, Layer 2: 4x6, Layer 3: 2x2
+const LAYOUTS=[
+{rows:8,cols:10,offR:0,offC:0},
+{rows:6,cols:8,offR:1,offC:1},
+{rows:4,cols:6,offR:2,offC:2},
+{rows:2,cols:4,offR:3,offC:3}
+];
+
+function buildLayout(){
+let positions=[];
+LAYOUTS.forEach((lay,layer)=>{
+for(let r=0;r<lay.rows;r++){
+for(let c=0;c<lay.cols;c++){
+positions.push({layer,row:r+lay.offR,col:c+lay.offC});
+}}});
+// We need exactly 144 tiles (72 pairs). Current: 80+48+24+8=160, trim to 144
+// Remove some from bottom layer edges
+let layerCounts=[80,48,24,8]; // too many, need 144
+// Simpler: L0=8x8=64, L1=6x6=36, L2=4x4=16, L3=2x2+cap
+positions=[];
+const L2=[
+{rows:8,cols:8,offR:0,offC:0},
+{rows:6,cols:6,offR:1,offC:1},
+{rows:4,cols:4,offR:2,offC:2},
+{rows:2,cols:4,offR:3,offC:2}
+];
+L2.forEach((lay,layer)=>{
+for(let r=0;r<lay.rows;r++){
+for(let c=0;c<lay.cols;c++){
+positions.push({layer,row:r+lay.offR,col:c+lay.offC});
+}}});
+// 64+36+16+8=124; need 144, add 20 more to layer 0
+for(let c=8;c<10;c++){for(let r=1;r<7;r++){positions.push({layer:0,row:r,col:c});}} //12
+for(let r=0;r<8;r++){positions.push({layer:0,row:r,col:10});} //8 → 124+20=144
+return positions;
+}
+
+function assignTiles(positions){
+let types=generateTileTypes();
+// We have 39 types; need 72 pairs=144 tiles. Use each type ~1-2 times as pair
+let pool=[];
+// 4 copies each of 36 types = 144
+let t36=types.slice(0,36);
+t36.forEach(t=>{for(let i=0;i<4;i++)pool.push({...t});});
+shuffle(pool);
+return pool;
+}
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}}
+
+function startGame(){
+document.getElementById('startScreen').style.display='none';
+document.getElementById('gameArea').style.display='block';
+initGame();
+}
+
+function initGame(){
+document.getElementById('winScreen').style.display='none';
+document.getElementById('loseScreen').style.display='none';
+let positions=buildLayout();
+let pool=assignTiles(positions);
+tiles=[];
+positions.forEach((pos,i)=>{
+if(i<pool.length){
+tiles.push({...pos,...pool[i],alive:true,idx:i});
+}});
+selected=null;movesCount=0;totalScore=0;
+startTime=Date.now();gameActive=true;
+if(timerInterval)clearInterval(timerInterval);
+timerInterval=setInterval(updateTimer,1000);
+updateHUD();render();
+}
+
+function restartGame(){initGame();}
+
+function updateTimer(){
+if(!gameActive)return;
+let s=Math.floor((Date.now()-startTime)/1000);
+let m=Math.floor(s/60);s=s%60;
+document.getElementById('timer').textContent=m+':'+(s<10?'0':'')+s;
+}
+
+function updateHUD(){
+document.getElementById('moves').textContent=movesCount;
+document.getElementById('remaining').textContent=tiles.filter(t=>t.alive).length;
+document.getElementById('score').textContent=totalScore;
+}
+
+function isFree(tile){
+if(!tile.alive)return false;
+let blocked=tiles.some(t=>t.alive&&t!==tile&&t.layer===tile.layer+1&&
+Math.abs(t.row-tile.row)<=0.9&&Math.abs(t.col-tile.col)<=0.9);
+if(blocked)return false;
+let leftBlocked=tiles.some(t=>t.alive&&t!==tile&&t.layer===tile.layer&&
+t.row===tile.row&&t.col===tile.col-1);
+let rightBlocked=tiles.some(t=>t.alive&&t!==tile&&t.layer===tile.layer&&
+t.row===tile.row&&t.col===tile.col+1);
+if(leftBlocked&&rightBlocked)return false;
+return true;
+}
+
+function render(){
+let board=document.getElementById('board');
+board.innerHTML='';
+let minR=Infinity,minC=Infinity,maxR=0,maxC=0,maxL=0;
+tiles.forEach(t=>{if(t.alive){minR=Math.min(minR,t.row);minC=Math.min(minC,t.col);maxR=Math.max(maxR,t.row);maxC=Math.max(maxC,t.col);maxL=Math.max(maxL,t.layer);}});
+let bw=(maxC-minC+1)*(TILE_W+GAP_X)+maxL*LAYER_OFF_X+60;
+let bh=(maxR-minR+1)*(TILE_H+GAP_Y)+maxL*LAYER_OFF_Y+120;
+board.style.width=bw+'px';board.style.height=bh+'px';
+board.style.marginTop='60px';
+// Scale to fit screen
+let scaleX=(window.innerWidth-20)/bw;
+let scaleY=(window.innerHeight-140)/bh;
+let scale=Math.min(scaleX,scaleY,1.2);
+board.style.transform='scale('+scale+')';
+board.style.transformOrigin='top center';
+
+// Sort by layer so higher layers render on top
+let sorted=[...tiles].filter(t=>t.alive).sort((a,b)=>a.layer-b.layer);
+sorted.forEach(t=>{
+let free=isFree(t);
+let el=document.createElement('div');
+el.className='tile'+(free?' free':' blocked')+(selected===t?' selected':'');
+let x=(t.col-minC)*(TILE_W+GAP_X)+t.layer*LAYER_OFF_X+10;
+let y=(t.row-minR)*(TILE_H+GAP_Y)+t.layer*LAYER_OFF_Y+10;
+el.style.left=x+'px';el.style.top=y+'px';
+let shade=Math.min(255,180+t.layer*25);
+el.style.background=`linear-gradient(135deg, ${t.bg}, ${t.bg}aa)`;
+el.style.zIndex=t.layer*100+t.row;
+el.style.boxShadow=`${t.layer*2}px ${t.layer*2}px ${t.layer*4}px rgba(0,0,0,0.5)`;
+el.textContent=t.label;
+el.style.color='#fff';
+el.style.textShadow='1px 1px 2px #000';
+if(free){
+el.addEventListener('click',()=>onTileClick(t));
+el.addEventListener('touchend',(e)=>{e.preventDefault();onTileClick(t);});
+}
+el.dataset.idx=t.idx;
+board.appendChild(el);
+});
+}
+
+function onTileClick(tile){
+if(!gameActive||!isFree(tile))return;
+if(!selected){selected=tile;render();return;}
+if(selected===tile){selected=null;render();return;}
+if(selected.id===tile.id){
+// Match!
+let t1=selected,t2=tile;
+selected=null;
+movesCount++;
+// Animate
+let els=document.querySelectorAll(`[data-idx="${t1.idx}"],[data-idx="${t2.idx}"]`);
+els.forEach(el=>el.classList.add('matched'));
+setTimeout(()=>{
+t1.alive=false;t2.alive=false;
+totalScore+=(200-Math.floor((Date.now()-startTime)/1000)*0.5);
+if(totalScore<0)totalScore=0;
+totalScore=Math.round(totalScore);
+updateHUD();render();
+checkWin();
+},400);
+} else {
+selected=tile;render();
+}
+}
+
+function checkWin(){
+let alive=tiles.filter(t=>t.alive);
+if(alive.length===0){
+gameActive=false;clearInterval(timerInterval);
+let elapsed=Math.floor((Date.now()-startTime)/1000);
+let finalScore=Math.max(0,Math.round(totalScore));
+document.getElementById('winScore').textContent='점수: '+finalScore+' (시간: '+elapsed+'초)';
+document.getElementById('winScreen').style.display='flex';
+_hub('mahjong',finalScore);
+return;
+}
+// Check if any valid pairs exist
+let freeTiles=alive.filter(t=>isFree(t));
+let hasMatch=false;
+for(let i=0;i<freeTiles.length&&!hasMatch;i++){
+for(let j=i+1;j<freeTiles.length;j++){
+if(freeTiles[i].id===freeTiles[j].id){hasMatch=true;break;}
+}}
+if(!hasMatch){
+gameActive=false;clearInterval(timerInterval);
+let finalScore=Math.max(0,Math.round(totalScore));
+document.getElementById('loseScore').textContent='점수: '+finalScore+' (남은 타일: '+alive.length+')';
+document.getElementById('loseScreen').style.display='flex';
+_hub('mahjong',finalScore);
+}
+}
+
+function showHint(){
+if(!gameActive)return;
+let freeTiles=tiles.filter(t=>t.alive&&isFree(t));
+for(let i=0;i<freeTiles.length;i++){
+for(let j=i+1;j<freeTiles.length;j++){
+if(freeTiles[i].id===freeTiles[j].id){
+let els=document.querySelectorAll(`[data-idx="${freeTiles[i].idx}"],[data-idx="${freeTiles[j].idx}"]`);
+els.forEach(el=>el.classList.add('hint'));
+setTimeout(()=>els.forEach(el=>el.classList.remove('hint')),1500);
+return;
+}}}
+}
+
+function shuffleTiles(){
+if(!gameActive)return;
+let alive=tiles.filter(t=>t.alive);
+let types=alive.map(t=>({id:t.id,label:t.label,bg:t.bg}));
+shuffle(types);
+alive.forEach((t,i)=>{t.id=types[i].id;t.label=types[i].label;t.bg=types[i].bg;});
+selected=null;render();
+}
+
+window.addEventListener('resize',()=>{if(gameActive)render();});
+</script>
+</body>
+</html>

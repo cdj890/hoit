@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>섯다</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;overflow-x:hidden;touch-action:manipulation;user-select:none}
+#startScreen{position:fixed;inset:0;background:#0f0f1e;z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
+#startScreen h1{font-size:42px;margin-bottom:16px;color:#ffd700}
+.rules{max-width:420px;text-align:left;font-size:13px;line-height:1.7;margin-bottom:24px;color:#aaa;background:rgba(255,255,255,0.05);padding:16px;border-radius:12px}
+.btn-primary{background:linear-gradient(135deg,#ffd700,#ff8c00);color:#000;border:none;padding:14px 44px;border-radius:12px;font-size:18px;font-weight:bold;cursor:pointer}
+.btn-action{background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);padding:12px 20px;border-radius:10px;font-size:15px;cursor:pointer;min-width:60px;min-height:44px}
+.btn-action:active{background:rgba(255,255,255,0.3)}
+#game{display:none;padding:16px;max-width:500px;margin:0 auto;padding-top:60px}
+.info-bar{display:flex;justify-content:space-between;margin-bottom:16px;font-size:14px}
+.info-bar>div{background:rgba(255,255,255,0.08);padding:8px 14px;border-radius:8px}
+.area{margin-bottom:20px;text-align:center}
+.area h3{margin-bottom:10px;font-size:16px;color:#aaa}
+.cards{display:flex;justify-content:center;gap:12px}
+.card{width:72px;height:100px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:bold;border:2px solid rgba(255,255,255,0.2);position:relative;transition:transform 0.2s}
+.card .month{font-size:28px}
+.card .type{font-size:12px;margin-top:4px}
+.card.hidden-card{background:#2a2a4a !important;border-color:#444}
+.card.hidden-card .month,.card.hidden-card .type{visibility:hidden}
+.card.hidden-card::after{content:'🎴';font-size:32px;position:absolute}
+.hand-name{font-size:22px;font-weight:bold;color:#ffd700;margin:12px 0;min-height:30px}
+.actions{display:flex;justify-content:center;gap:10px;margin:16px 0;flex-wrap:wrap}
+.result{text-align:center;padding:20px;background:rgba(255,255,255,0.05);border-radius:12px;margin-top:16px}
+.result h2{font-size:24px;margin-bottom:8px}
+.result .detail{color:#aaa;font-size:14px;margin-bottom:16px}
+.chip-change{font-size:20px;font-weight:bold;margin-bottom:12px}
+.chip-change.win{color:#4ecdc4}
+.chip-change.lose{color:#ff6b6b}
+</style>
+</head>
+<body>
+<div id="startScreen">
+<h1>🎴 섯다</h1>
+<div class="rules">
+<b>섯다 규칙</b><br><br>
+🃏 화투 20장 (1~10월, 각 광/끗 2장)<br>
+💰 1000칩으로 시작, 매 라운드 베팅<br><br>
+<b>패 순위 (높은 순):</b><br>
+👑 38광땡 → 18광땡 → 13광땡<br>
+🔟 장땡(10-10) → 9땡 → ... → 1땡<br>
+⭐ 알리(1-2), 독사(1-4), 구삥(1-9)<br>
+⭐ 장삥(1-10), 장사(4-10), 세륙(4-6)<br>
+🔢 끗 (합의 일의 자리: 9끗 최고, 0끗=망통)<br><br>
+콜/레이즈/다이로 베팅!
+</div>
+<button class="btn-primary" onclick="startGame()">게임 시작</button>
+</div>
+
+<div id="game">
+<div class="info-bar">
+<div>💰 <span id="chips">1000</span></div>
+<div>라운드 <span id="round">1</span></div>
+<div>판돈 <span id="pot">0</span></div>
+</div>
+
+<div class="area">
+<h3>딜러</h3>
+<div class="cards" id="dealerCards"></div>
+<div class="hand-name" id="dealerHand"></div>
+</div>
+
+<div class="area">
+<h3>내 패</h3>
+<div class="cards" id="playerCards"></div>
+<div class="hand-name" id="playerHand"></div>
+</div>
+
+<div class="actions" id="actions"></div>
+<div class="result" id="result" style="display:none"></div>
+</div>
+
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
+<script>
+const MONTH_COLORS=['#e74c3c','#e67e22','#f1c40f','#2ecc71','#1abc9c','#3498db','#9b59b6','#e84393','#fd79a8','#d63031'];
+const MONTH_NAMES=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월'];
+// Cards: {month:1-10, type:'광'|'끗'}
+// 광 months: 1,3,8 are traditional gwang. For this game, each month has 광 and 끗 variant.
+const GWANG_MONTHS=[1,3,8]; // months that have "광" significance for 광땡
+
+let chips=1000,roundNum=1,pot=0,bet=0,maxChips=1000;
+let playerHand=[],dealerHand=[],deck=[];
+let phase=''; // 'bet','reveal','result'
+
+function makeDeck(){
+let d=[];
+for(let m=1;m<=10;m++){
+d.push({month:m,type:'광'});
+d.push({month:m,type:'끗'});
+}
+return d;
+}
+
+function shuffleDeck(d){for(let i=d.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[d[i],d[j]]=[d[j],d[i]];}return d;}
+
+function cardBg(card){return MONTH_COLORS[card.month-1];}
+
+function renderCard(card,hidden=false){
+let div=document.createElement('div');
+div.className='card'+(hidden?' hidden-card':'');
+div.style.background=hidden?'':cardBg(card);
+let m=document.createElement('div');m.className='month';m.textContent=card.month;
+let t=document.createElement('div');t.className='type';
+t.textContent=card.type==='광'?'★광':'끗';
+t.style.color=card.type==='광'?'#ffd700':'#ddd';
+div.appendChild(m);div.appendChild(t);
+return div;
+}
+
+function getHandRank(cards){
+let c=cards.sort((a,b)=>a.month-b.month);
+let m1=c[0].month,m2=c[1].month;
+let t1=c[0].type,t2=c[1].type;
+let isGwang1=t1==='광'&&GWANG_MONTHS.includes(m1);
+let isGwang2=t2==='광'&&GWANG_MONTHS.includes(m2);
+
+// 광땡 checks
+if(m1===3&&m2===8&&isGwang1&&isGwang2)return{rank:100,name:'38광땡'};
+if(m1===1&&m2===8&&isGwang1&&isGwang2)return{rank:99,name:'18광땡'};
+if(m1===1&&m2===3&&isGwang1&&isGwang2)return{rank:98,name:'13광땡'};
+
+// 땡 (pair)
+if(m1===m2)return{rank:70+m1,name:m1+'땡'+(m1===10?' (장땡)':'')};
+
+// Special hands
+if(m1===1&&m2===2)return{rank:65,name:'알리'};
+if(m1===1&&m2===4)return{rank:64,name:'독사'};
+if(m1===1&&m2===9)return{rank:63,name:'구삥'};
+if(m1===1&&m2===10)return{rank:62,name:'장삥'};
+if(m1===4&&m2===10)return{rank:61,name:'장사'};
+if(m1===4&&m2===6)return{rank:60,name:'세륙'};
+
+// 끗
+let ggut=(m1+m2)%10;
+return{rank:ggut,name:ggut+'끗'+(ggut===0?' (망통)':'')};
+}
+
+function startGame(){
+document.getElementById('startScreen').style.display='none';
+document.getElementById('game').style.display='block';
+chips=1000;roundNum=1;maxChips=1000;
+newRound();
+}
+
+function newRound(){
+if(chips<=0){
+gameOver();return;
+}
+deck=shuffleDeck(makeDeck());
+playerHand=[deck.pop(),deck.pop()];
+dealerHand=[deck.pop(),deck.pop()];
+bet=Math.min(50,chips);
+chips-=bet;
+pot=bet*2; // dealer matches
+phase='bet';
+document.getElementById('result').style.display='none';
+updateUI(true);
+showActions();
+}
+
+function updateUI(hideDealer=true){
+document.getElementById('chips').textContent=chips;
+document.getElementById('round').textContent=roundNum;
+document.getElementById('pot').textContent=pot;
+
+let dc=document.getElementById('dealerCards');dc.innerHTML='';
+dealerHand.forEach(c=>dc.appendChild(renderCard(c,hideDealer)));
+
+let pc=document.getElementById('playerCards');pc.innerHTML='';
+playerHand.forEach(c=>pc.appendChild(renderCard(c)));
+
+let ph=getHandRank([...playerHand]);
+document.getElementById('playerHand').textContent=ph.name;
+document.getElementById('dealerHand').textContent=hideDealer?'???':getHandRank([...dealerHand]).name;
+}
+
+function showActions(){
+let acts=document.getElementById('actions');acts.innerHTML='';
+if(phase==='bet'){
+let callBtn=document.createElement('button');callBtn.className='btn-action';callBtn.textContent='콜';
+callBtn.onclick=()=>doBet('call');
+let raiseBtn=document.createElement('button');raiseBtn.className='btn-action';raiseBtn.textContent='레이즈';
+raiseBtn.style.background='rgba(255,215,0,0.2)';
+raiseBtn.onclick=()=>doBet('raise');
+let dieBtn=document.createElement('button');dieBtn.className='btn-action';dieBtn.textContent='다이';
+dieBtn.style.background='rgba(255,0,0,0.2)';
+dieBtn.onclick=()=>doBet('die');
+acts.appendChild(callBtn);acts.appendChild(raiseBtn);acts.appendChild(dieBtn);
+} else if(phase==='result'){
+let nextBtn=document.createElement('button');nextBtn.className='btn-primary';nextBtn.textContent='다음 라운드';
+nextBtn.onclick=()=>{roundNum++;newRound();};
+acts.appendChild(nextBtn);
+}
+}
+
+function doBet(action){
+if(action==='die'){
+// Lose bet
+updateUI(false);
+showResult(false,'다이! 베팅금 잃음',-bet);
+return;
+}
+if(action==='raise'){
+let extra=Math.min(50,chips);
+chips-=extra;pot+=extra*2;bet+=extra;
+}
+// Reveal and compare
+phase='reveal';
+updateUI(false);
+let pRank=getHandRank([...playerHand]);
+let dRank=getHandRank([...dealerHand]);
+let won=pRank.rank>dRank.rank;
+let tie=pRank.rank===dRank.rank;
+if(won){
+let winnings=pot;
+chips+=winnings;
+showResult(true,pRank.name+' vs '+dRank.name,winnings-bet);
+} else if(tie){
+chips+=bet;
+showResult(null,pRank.name+' vs '+dRank.name+' (무승부)',0);
+} else {
+showResult(false,pRank.name+' vs '+dRank.name,-bet);
+}
+}
+
+function showResult(won,detail,chipChange){
+phase='result';
+maxChips=Math.max(maxChips,chips);
+_hub('sutda',maxChips);
+let res=document.getElementById('result');
+res.style.display='block';
+res.innerHTML='';
+let h=document.createElement('h2');
+h.textContent=won===true?'🎉 승리!':won===false?'😢 패배':'🤝 무승부';
+let d=document.createElement('div');d.className='detail';d.textContent=detail;
+let cc=document.createElement('div');cc.className='chip-change '+(chipChange>=0?'win':'lose');
+cc.textContent=(chipChange>=0?'+':'')+chipChange+' 칩';
+res.appendChild(h);res.appendChild(d);res.appendChild(cc);
+showActions();
+}
+
+function gameOver(){
+let acts=document.getElementById('actions');acts.innerHTML='';
+let res=document.getElementById('result');res.style.display='block';
+res.innerHTML='<h2>게임 오버</h2><div class="detail">최고 칩: '+maxChips+'</div>';
+let btn=document.createElement('button');btn.className='btn-primary';btn.textContent='다시 시작';
+btn.onclick=()=>{chips=1000;roundNum=1;maxChips=1000;newRound();};
+res.appendChild(btn);
+}
+</script>
+</body>
+</html>

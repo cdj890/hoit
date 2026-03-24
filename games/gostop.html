@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>고스톱</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;overflow-x:hidden;touch-action:manipulation;user-select:none}
+#startScreen{position:fixed;inset:0;background:#0f0f1e;z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
+#startScreen h1{font-size:42px;margin-bottom:16px;color:#ffd700}
+.rules{max-width:420px;text-align:left;font-size:13px;line-height:1.7;margin-bottom:24px;color:#aaa;background:rgba(255,255,255,0.05);padding:16px;border-radius:12px}
+.btn-primary{background:linear-gradient(135deg,#ffd700,#ff8c00);color:#000;border:none;padding:14px 44px;border-radius:12px;font-size:18px;font-weight:bold;cursor:pointer;min-height:44px}
+.btn-sm{background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);padding:10px 18px;border-radius:8px;font-size:14px;cursor:pointer;min-height:44px}
+.btn-sm:active{background:rgba(255,255,255,0.3)}
+#game{display:none;padding:6px;padding-top:52px;max-width:600px;margin:0 auto;font-size:12px}
+.zone{margin-bottom:6px}
+.zone-label{font-size:11px;color:#888;margin-bottom:2px;display:flex;justify-content:space-between}
+.card-row{display:flex;flex-wrap:wrap;gap:3px;min-height:40px;align-items:flex-start}
+.card{width:36px;height:50px;border-radius:5px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:bold;border:2px solid transparent;cursor:pointer;transition:transform 0.15s;flex-shrink:0;position:relative;color:#fff;text-shadow:1px 1px 1px #000;font-size:9px}
+.card .cm{font-size:14px;line-height:1}
+.card .ct{font-size:8px;margin-top:1px}
+.card.selectable{border-color:rgba(255,215,0,0.6)}
+.card.selectable:active{transform:scale(1.1)}
+.card.selected{border-color:#ffd700;box-shadow:0 0 8px rgba(255,215,0,0.6);transform:scale(1.08)}
+.card.face-down{background:#2a2a4a !important;border-color:#444}
+.card.face-down .cm,.card.face-down .ct{visibility:hidden}
+.card.face-down::after{content:'🎴';font-size:14px;position:absolute}
+.card.small{width:26px;height:36px;cursor:default}
+.card.small .cm{font-size:10px}
+.card.small .ct{font-size:6px}
+.field-zone{background:rgba(255,255,255,0.03);border-radius:8px;padding:6px;min-height:60px}
+.status-bar{display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;background:rgba(255,255,255,0.05);padding:6px 10px;border-radius:8px;flex-wrap:wrap;gap:4px}
+.msg{text-align:center;font-size:13px;color:#ffd700;min-height:18px;margin:4px 0}
+.collected{display:flex;gap:6px;flex-wrap:wrap;margin-top:3px}
+.collected>div{display:flex;flex-direction:column;align-items:center}
+.collected>div>span{font-size:9px;color:#888}
+.collected .card-row{gap:1px}
+.player-section{border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:6px;margin-bottom:6px}
+.player-section.active{border-color:rgba(255,215,0,0.4);background:rgba(255,215,0,0.03)}
+.player-section h4{font-size:12px;color:#ccc;margin-bottom:4px}
+.go-modal{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:2000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+.go-modal h2{font-size:28px;color:#ffd700}
+.go-modal p{color:#aaa;font-size:16px}
+.result-modal{position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:2000;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px}
+.result-modal h2{font-size:28px}
+.result-modal .scores{font-size:16px;color:#ffd700;text-align:center;line-height:2}
+.season-spring{background:linear-gradient(135deg,#ff6b81,#c44569)}
+.season-summer{background:linear-gradient(135deg,#38ada9,#079992)}
+.season-fall{background:linear-gradient(135deg,#e77f67,#cf6a47)}
+.season-winter{background:linear-gradient(135deg,#546de5,#3c40c6)}
+</style>
+</head>
+<body>
+<div id="startScreen">
+<h1>🎴 고스톱</h1>
+<div class="rules">
+<b>3인 고스톱 규칙</b><br><br>
+🎴 48장 화투 (12월×4장), 3인 플레이<br>
+🃏 각 7장씩, 바닥 6장, 나머지 덱<br><br>
+<b>카드 종류:</b><br>
+★ 광 - 3장=3점, 비광=2점<br>
+━ 띠 - 같은 종류 3장=3점<br>
+🔸 열끗 - 5장=1점<br>
+· 피 - 10장=1점<br><br>
+<b>진행:</b> 순서대로 패 1장→바닥 매칭→덱 뒤집기→매칭<br>
+3점 이상: "고"(2배 기회) 또는 "스톱"(종료)<br>
+⚠ 고 선언 후 다른 사람이 먼저 스톱하면 2배 지불!
+</div>
+<button class="btn-primary" onclick="startGame()">게임 시작</button>
+</div>
+
+<div id="game">
+<div class="status-bar">
+<span>덱: <b id="deckCount">0</b></span>
+<span>턴: <b id="turnLabel">-</b></span>
+</div>
+
+<div class="player-section" id="sec_ai1">
+<h4>AI-1 <span id="sc_ai1" style="color:#ffd700">0점</span> <span id="hand_ai1" style="color:#888"></span></h4>
+<div class="card-row" id="hand_ai1_cards"></div>
+<div class="collected" id="col_ai1"></div>
+</div>
+
+<div class="player-section" id="sec_ai2">
+<h4>AI-2 <span id="sc_ai2" style="color:#ffd700">0점</span> <span id="hand_ai2" style="color:#888"></span></h4>
+<div class="card-row" id="hand_ai2_cards"></div>
+<div class="collected" id="col_ai2"></div>
+</div>
+
+<div class="zone field-zone">
+<div class="zone-label"><span>바닥</span></div>
+<div class="card-row" id="field"></div>
+</div>
+
+<div class="msg" id="msg"></div>
+
+<div class="player-section" id="sec_player" style="border-color:rgba(255,215,0,0.3)">
+<h4>나 <span id="sc_player" style="color:#ffd700">0점</span></h4>
+<div class="card-row" id="hand_player"></div>
+<div class="collected" id="col_player"></div>
+</div>
+</div>
+
+<div class="result-modal" id="resultModal">
+<h2 id="resultTitle"></h2>
+<div class="scores" id="resultScores"></div>
+<button class="btn-primary" onclick="initGame()">다시 하기</button>
+</div>
+
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
+<script>
+const CARD_DB=[
+{month:1,type:'gwang',label:'★'},{month:1,type:'tti_red',label:'━'},{month:1,type:'pi',label:'·'},{month:1,type:'pi',label:'·'},
+{month:2,type:'yeol',label:'🔸'},{month:2,type:'tti_red',label:'━'},{month:2,type:'pi',label:'·'},{month:2,type:'pi',label:'·'},
+{month:3,type:'gwang',label:'★'},{month:3,type:'tti_red',label:'━'},{month:3,type:'pi',label:'·'},{month:3,type:'pi',label:'·'},
+{month:4,type:'yeol',label:'🔸'},{month:4,type:'tti_grass',label:'━'},{month:4,type:'pi',label:'·'},{month:4,type:'pi',label:'·'},
+{month:5,type:'yeol',label:'🔸'},{month:5,type:'tti_grass',label:'━'},{month:5,type:'pi',label:'·'},{month:5,type:'pi',label:'·'},
+{month:6,type:'yeol',label:'🔸'},{month:6,type:'tti_blue',label:'━'},{month:6,type:'pi',label:'·'},{month:6,type:'pi',label:'·'},
+{month:7,type:'yeol',label:'🔸'},{month:7,type:'tti_grass',label:'━'},{month:7,type:'pi',label:'·'},{month:7,type:'pi',label:'·'},
+{month:8,type:'gwang',label:'★'},{month:8,type:'yeol',label:'🔸'},{month:8,type:'pi',label:'·'},{month:8,type:'pi',label:'·'},
+{month:9,type:'yeol',label:'🔸'},{month:9,type:'tti_blue',label:'━'},{month:9,type:'pi',label:'·'},{month:9,type:'pi',label:'·'},
+{month:10,type:'yeol',label:'🔸'},{month:10,type:'tti_blue',label:'━'},{month:10,type:'pi',label:'·'},{month:10,type:'pi',label:'·'},
+{month:11,type:'gwang',label:'★'},{month:11,type:'yeol',label:'🔸'},{month:11,type:'ssangpi',label:'··'},{month:11,type:'pi',label:'·'},
+{month:12,type:'gwang',label:'★'},{month:12,type:'tti_red',label:'━'},{month:12,type:'ssangpi',label:'··'},{month:12,type:'pi',label:'·'},
+];
+
+function seasonClass(m){if(m<=3)return'season-spring';if(m<=6)return'season-summer';if(m<=9)return'season-fall';return'season-winter';}
+function ttiColor(t){if(t==='tti_red')return'#ff4444';if(t==='tti_blue')return'#4488ff';if(t==='tti_grass')return'#44bb44';return'#fff';}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}}
+
+const PLAYERS=['player','ai1','ai2'];
+const NAMES={player:'나',ai1:'AI-1',ai2:'AI-2'};
+let deck=[],hands={},piles={},fieldCards=[];
+let currentPlayer=0,phase='hand',selectedCard=null;
+let goCount={player:0,ai1:0,ai2:0},gameActive=false;
+
+function calcScore(pile){
+let gw=pile.filter(c=>c.type==='gwang');
+let reds=pile.filter(c=>c.type==='tti_red');
+let blues=pile.filter(c=>c.type==='tti_blue');
+let grass=pile.filter(c=>c.type==='tti_grass');
+let yeols=pile.filter(c=>c.type==='yeol');
+let pis=pile.filter(c=>c.type==='pi'||c.type==='ssangpi');
+let piCount=pis.reduce((s,c)=>s+(c.type==='ssangpi'?2:1),0);
+let score=0;
+if(gw.length===5)score+=15;
+else if(gw.length===4)score+=4;
+else if(gw.length===3){score+=gw.some(c=>c.month===12)?2:3;}
+if(reds.length>=3)score+=3;
+if(blues.length>=3)score+=3;
+if(grass.length>=3)score+=3;
+if(yeols.length>=5)score+=1+(yeols.length-5);
+if(piCount>=10)score+=1+(piCount-10);
+return score;
+}
+
+function startGame(){
+document.getElementById('startScreen').style.display='none';
+document.getElementById('game').style.display='block';
+initGame();
+}
+
+function initGame(){
+document.getElementById('resultModal').style.display='none';
+deck=CARD_DB.map((c,i)=>({...c,id:i}));
+shuffle(deck);
+hands={player:[],ai1:[],ai2:[]};
+piles={player:[],ai1:[],ai2:[]};
+fieldCards=[];
+goCount={player:0,ai1:0,ai2:0};
+gameActive=true;
+// Deal 7 each, 6 field
+for(let i=0;i<7;i++){PLAYERS.forEach(p=>hands[p].push(deck.pop()));}
+for(let i=0;i<6;i++)fieldCards.push(deck.pop());
+currentPlayer=0;phase='hand';selectedCard=null;
+render();
+msg('카드를 선택하세요');
+}
+
+function msg(t){document.getElementById('msg').textContent=t;}
+
+function renderCardEl(card,selectable=false,small=false,faceDown=false){
+let el=document.createElement('div');
+el.className='card '+seasonClass(card.month)+(selectable?' selectable':'')+(small?' small':'')+(selectedCard&&selectedCard.id===card.id?' selected':'')+(faceDown?' face-down':'');
+let cm=document.createElement('div');cm.className='cm';cm.textContent=card.month;
+let ct=document.createElement('div');ct.className='ct';
+if(card.type==='gwang')ct.textContent='★';
+else if(card.type.startsWith('tti')){ct.textContent='━';ct.style.color=ttiColor(card.type);}
+else if(card.type==='yeol')ct.textContent='🔸';
+else if(card.type==='ssangpi')ct.textContent='··';
+else ct.textContent='·';
+el.appendChild(cm);el.appendChild(ct);
+if(selectable){el.onclick=()=>onCardClick(card);}
+return el;
+}
+
+function render(){
+let cp=PLAYERS[currentPlayer];
+PLAYERS.forEach(p=>{
+let sec=document.getElementById('sec_'+p);
+sec.className='player-section'+(p===cp?' active':'');
+});
+// AI hands (face down)
+['ai1','ai2'].forEach(ai=>{
+let el=document.getElementById('hand_'+ai+'_cards');el.innerHTML='';
+hands[ai].forEach(c=>el.appendChild(renderCardEl(c,false,false,true)));
+document.getElementById('hand_'+ai).textContent=hands[ai].length+'장';
+});
+// Player hand
+let ph=document.getElementById('hand_player');ph.innerHTML='';
+let canSelect=cp==='player'&&phase==='hand'&&gameActive;
+hands.player.forEach(c=>ph.appendChild(renderCardEl(c,canSelect)));
+// Field
+let f=document.getElementById('field');f.innerHTML='';
+let fieldSelectable=phase==='field_pick'&&cp==='player';
+fieldCards.forEach(c=>{
+let sel=fieldSelectable&&selectedCard&&c.month===selectedCard.month;
+f.appendChild(renderCardEl(c,sel));
+});
+// Collected
+PLAYERS.forEach(p=>{
+let el=document.getElementById('col_'+p);el.innerHTML='';
+let groups={gwang:[],tti:[],yeol:[],pi:[]};
+piles[p].forEach(c=>{
+if(c.type==='gwang')groups.gwang.push(c);
+else if(c.type.startsWith('tti'))groups.tti.push(c);
+else if(c.type==='yeol')groups.yeol.push(c);
+else groups.pi.push(c);
+});
+for(let[k,cards]of Object.entries(groups)){
+if(!cards.length)continue;
+let w=document.createElement('div');
+let l=document.createElement('span');
+l.textContent=k==='gwang'?'광'+cards.length:k==='tti'?'띠'+cards.length:k==='yeol'?'열'+cards.length:'피'+cards.length;
+let r=document.createElement('div');r.className='card-row';
+cards.slice(0,6).forEach(c=>r.appendChild(renderCardEl(c,false,true)));
+if(cards.length>6){let m=document.createElement('span');m.textContent='+' +(cards.length-6);m.style.fontSize='9px';m.style.color='#888';r.appendChild(m);}
+w.appendChild(l);w.appendChild(r);el.appendChild(w);
+}
+document.getElementById('sc_'+p).textContent=calcScore(piles[p])+'점';
+});
+document.getElementById('deckCount').textContent=deck.length;
+document.getElementById('turnLabel').textContent=NAMES[cp];
+}
+
+function onCardClick(card){
+if(!gameActive)return;
+let cp=PLAYERS[currentPlayer];
+if(cp!=='player')return;
+if(phase==='hand'){
+let matches=fieldCards.filter(c=>c.month===card.month);
+selectedCard=card;
+if(matches.length===0){
+hands.player=hands.player.filter(c=>c.id!==card.id);
+fieldCards.push(card);selectedCard=null;
+phase='deck_flip';render();
+setTimeout(()=>deckFlip(cp),500);
+} else if(matches.length===1){
+hands.player=hands.player.filter(c=>c.id!==card.id);
+fieldCards=fieldCards.filter(c=>c.id!==matches[0].id);
+piles.player.push(card,matches[0]);selectedCard=null;
+phase='deck_flip';render();
+setTimeout(()=>deckFlip(cp),500);
+} else {
+phase='field_pick';render();
+msg('바닥에서 가져올 카드 선택');
+}
+} else if(phase==='field_pick'){
+if(card.month!==selectedCard.month)return;
+let hc=selectedCard;
+hands.player=hands.player.filter(c=>c.id!==hc.id);
+fieldCards=fieldCards.filter(c=>c.id!==card.id);
+piles.player.push(hc,card);selectedCard=null;
+phase='deck_flip';render();
+setTimeout(()=>deckFlip(cp),500);
+}
+}
+
+function deckFlip(who){
+if(deck.length===0){endTurn(who);return;}
+let flipped=deck.pop();
+let matches=fieldCards.filter(c=>c.month===flipped.month);
+if(matches.length===0){
+fieldCards.push(flipped);
+} else {
+let take=matches[0];
+fieldCards=fieldCards.filter(c=>c.id!==take.id);
+piles[who].push(flipped,take);
+}
+render();
+setTimeout(()=>endTurn(who),400);
+}
+
+function endTurn(who){
+let score=calcScore(piles[who]);
+if(score>=3){
+if(who==='player'){
+showGoStop(who,score);return;
+} else {
+if(score>=7){finishGame(who);return;}
+goCount[who]++;
+msg(NAMES[who]+' "고" 선언!');
+}
+}
+nextTurn();
+}
+
+function nextTurn(){
+// Check if all hands empty
+if(PLAYERS.every(p=>hands[p].length===0)){
+let best=null,bestScore=-1;
+PLAYERS.forEach(p=>{let s=calcScore(piles[p]);if(s>bestScore){bestScore=s;best=p;}});
+finishGame(best||'player');
+return;
+}
+currentPlayer=(currentPlayer+1)%3;
+let cp=PLAYERS[currentPlayer];
+// Skip if no cards
+while(hands[cp].length===0&&PLAYERS.some(p=>hands[p].length>0)){
+currentPlayer=(currentPlayer+1)%3;cp=PLAYERS[currentPlayer];
+}
+if(PLAYERS.every(p=>hands[p].length===0)){
+let best=null,bestScore=-1;
+PLAYERS.forEach(p=>{let s=calcScore(piles[p]);if(s>bestScore){bestScore=s;best=p;}});
+finishGame(best||'player');return;
+}
+phase='hand';selectedCard=null;render();
+if(cp==='player'){msg('카드를 선택하세요');}
+else{setTimeout(()=>aiTurn(cp),600);}
+}
+
+function aiTurn(who){
+if(!gameActive)return;
+let hand=hands[who];
+if(hand.length===0){nextTurn();return;}
+let bestCard=null,bestMatch=null;
+for(let c of hand){
+let matches=fieldCards.filter(f=>f.month===c.month);
+if(matches.length>0){
+let best=matches.sort((a,b)=>{
+let va=a.type==='gwang'?10:a.type.startsWith('tti')?5:a.type==='yeol'?2:0;
+let vb=b.type==='gwang'?10:b.type.startsWith('tti')?5:b.type==='yeol'?2:0;
+return vb-va;
+})[0];
+bestCard=c;bestMatch=best;break;
+}
+}
+if(!bestCard){
+let sorted=[...hand].sort((a,b)=>{
+let va=a.type==='gwang'?10:a.type.startsWith('tti')?5:a.type==='yeol'?2:0;
+let vb=b.type==='gwang'?10:b.type.startsWith('tti')?5:b.type==='yeol'?2:0;
+return va-vb;
+});
+bestCard=sorted[0];
+}
+hands[who]=hands[who].filter(c=>c.id!==bestCard.id);
+if(bestMatch){
+fieldCards=fieldCards.filter(c=>c.id!==bestMatch.id);
+piles[who].push(bestCard,bestMatch);
+msg(NAMES[who]+': '+bestCard.month+'월 매칭');
+} else {
+fieldCards.push(bestCard);
+msg(NAMES[who]+': '+bestCard.month+'월 놓음');
+}
+render();
+setTimeout(()=>deckFlip(who),500);
+}
+
+function showGoStop(who,score){
+let modal=document.createElement('div');
+modal.className='go-modal';modal.id='goModal';
+let h=document.createElement('h2');h.textContent='현재 '+score+'점!';
+let p=document.createElement('p');
+p.textContent='고: 점수 2배 기회 (다른 사람이 먼저 스톱하면 2배 지불!) / 스톱: 종료';
+let row=document.createElement('div');row.style.display='flex';row.style.gap='16px';
+let goBtn=document.createElement('button');goBtn.className='btn-primary';goBtn.textContent='고! 🔥';
+goBtn.style.background='linear-gradient(135deg,#e74c3c,#c0392b)';goBtn.style.color='#fff';
+goBtn.onclick=()=>{modal.remove();goCount[who]++;msg('고! '+goCount[who]+'회');nextTurn();};
+let stopBtn=document.createElement('button');stopBtn.className='btn-primary';stopBtn.textContent='스톱 ✋';
+stopBtn.onclick=()=>{modal.remove();finishGame(who);};
+row.appendChild(goBtn);row.appendChild(stopBtn);
+modal.appendChild(h);modal.appendChild(p);modal.appendChild(row);
+document.body.appendChild(modal);
+}
+
+function finishGame(winner){
+gameActive=false;
+let scores={};
+PLAYERS.forEach(p=>{
+let s=calcScore(piles[p]);
+let mult=1+goCount[p];
+scores[p]=s*mult;
+});
+// Winner gets points, losers pay
+let winScore=scores[winner];
+// If someone had "go" and didn't win, they pay double
+PLAYERS.forEach(p=>{
+if(p!==winner&&goCount[p]>0){
+winScore+=scores[p]*2;
+}
+});
+let finalPlayerScore=winner==='player'?winScore:0;
+render();
+let rm=document.getElementById('resultModal');
+rm.style.display='flex';
+document.getElementById('resultTitle').textContent=winner==='player'?'🎉 승리!':'😢 '+NAMES[winner]+' 승리';
+let sc=PLAYERS.map(p=>NAMES[p]+': '+calcScore(piles[p])+'점'+(goCount[p]>0?' (고×'+goCount[p]+')':'')).join('<br>');
+sc+='<br><br>최종 승자: '+NAMES[winner]+' (+'+winScore+'점)';
+document.getElementById('resultScores').innerHTML=sc;
+_hub('gostop',Math.max(finalPlayerScore,calcScore(piles.player)));
+}
+</script>
+</body>
+</html>
