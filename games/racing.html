@@ -16,6 +16,25 @@ h1{font-size:34px;margin-bottom:10px;text-shadow:0 0 20px #f59e0b}
 .btn{background:rgba(255,255,255,0.12);border:2px solid rgba(255,255,255,0.25);color:#fff;padding:14px 30px;border-radius:14px;font-size:18px;font-weight:bold;cursor:pointer;touch-action:manipulation;min-width:44px;min-height:44px;margin:5px}
 .btn:active{background:rgba(255,255,255,0.25)}
 #hud{position:fixed;top:50px;left:0;width:100%;padding:0 15px;display:flex;justify-content:space-between;pointer-events:none;z-index:50;font-size:14px;font-weight:bold}
+.car-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 15px;margin-bottom:15px;max-width:400px;width:100%}
+.car-card{background:rgba(255,255,255,0.08);border:2px solid rgba(255,255,255,0.15);border-radius:12px;padding:10px;cursor:pointer;text-align:center;transition:border-color 0.2s,background 0.2s}
+.car-card:hover,.car-card.selected{border-color:#f59e0b;background:rgba(245,158,11,0.15)}
+.car-card .emoji{font-size:28px}
+.car-card .cname{font-size:13px;font-weight:bold;margin:4px 0 2px}
+.car-card .cdesc{font-size:10px;color:#aaa}
+.car-card .stats{display:flex;gap:6px;justify-content:center;margin-top:4px;font-size:10px}
+.stat-bar{background:rgba(255,255,255,0.15);border-radius:3px;width:50px;height:6px;overflow:hidden;display:inline-block;vertical-align:middle}
+.stat-bar .fill{height:100%;border-radius:3px}
+.shop-overlay{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(15,15,30,0.97);z-index:200;overflow-y:auto;padding:20px}
+.shop-overlay.hidden{display:none}
+.shop-item{background:rgba(255,255,255,0.08);border:2px solid rgba(255,255,255,0.15);border-radius:12px;padding:12px 18px;margin:5px;display:flex;align-items:center;justify-content:space-between;width:90%;max-width:360px}
+.shop-item .info{text-align:left}
+.shop-item .sname{font-size:14px;font-weight:bold}
+.shop-item .slevel{font-size:11px;color:#aaa}
+.shop-btn{background:#f59e0b;color:#000;border:none;padding:8px 14px;border-radius:8px;font-weight:bold;font-size:13px;cursor:pointer;min-width:44px;min-height:44px}
+.shop-btn:disabled{background:#555;color:#999;cursor:default}
+.warning-text{position:fixed;top:35%;left:50%;transform:translate(-50%,-50%);font-size:28px;font-weight:bold;color:#ff4444;text-shadow:0 0 20px #ff0000;z-index:60;pointer-events:none;animation:warnPulse 0.4s ease-in-out infinite alternate}
+@keyframes warnPulse{from{opacity:1;transform:translate(-50%,-50%) scale(1)}to{opacity:0.7;transform:translate(-50%,-50%) scale(1.1)}}
 </style>
 </head>
 <body>
@@ -23,18 +42,32 @@ h1{font-size:34px;margin-bottom:10px;text-shadow:0 0 20px #f59e0b}
 <div class="overlay" id="startScreen">
 <h1>🏎️ 레이싱</h1>
 <p class="sub">좌우로 터치/드래그하여 조종!<br>다른 차를 피하고 코인을 모아라!</p>
+<div class="car-grid" id="carGrid"></div>
 <button class="btn" onclick="startGame()">게임 시작</button>
+<button class="btn" onclick="openShop()" style="font-size:14px;padding:10px 20px;margin-top:4px">🔧 차고 (업그레이드)</button>
 </div>
 <div class="overlay hidden" id="gameOver">
 <h1 id="goTitle">💥 충돌!</h1>
 <p class="sub" id="goStats"></p>
+<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
 <button class="btn" onclick="location.reload()">다시 하기</button>
+<button class="btn" onclick="openShop()" style="font-size:14px">🔧 차고</button>
+</div>
+</div>
+<div class="shop-overlay hidden" id="shopScreen">
+<h1>🔧 차고</h1>
+<p class="sub" id="shopCoins">보유 코인: 🪙 0</p>
+<div id="shopItems"></div>
+<button class="btn" onclick="closeShop()" style="margin-top:12px">닫기</button>
 </div>
 <div id="hud" style="display:none">
 <span id="distDisp">0m</span>
 <span id="coinDisp">🪙 0</span>
+<span id="lifeDisp">❤️ 1</span>
 <span id="speedDisp">60km/h</span>
 </div>
+<div id="warningEl" class="warning-text" style="display:none"></div>
+<div id="itemIndicator" style="position:fixed;top:80px;left:50%;transform:translateX(-50%);font-size:14px;font-weight:bold;color:#fff;z-index:60;pointer-events:none;text-align:center;display:none"></div>
 
 <a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
 <script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
@@ -56,24 +89,167 @@ let touchStartX=0,touchCurX=0,touching=false;
 let nearMissTimer=0,nearMissBonus=0;
 let speedLines=[];
 
+// Lives system
+let lives=1;
+
+// Car selection
+const carDefs=[
+  {id:'sedan',emoji:'🚗',name:'세단',desc:'밸런스형',spd:5,hnd:5,bonusLives:0,coinMult:1,color:'#60a5fa'},
+  {id:'sports',emoji:'🏎️',name:'스포츠카',desc:'빠름',spd:7,hnd:3,bonusLives:0,coinMult:1,color:'#ef4444'},
+  {id:'suv',emoji:'🚙',name:'SUV',desc:'튼튼함',spd:3,hnd:4,bonusLives:1,coinMult:1,color:'#22c55e'},
+  {id:'taxi',emoji:'🚕',name:'택시',desc:'코인2배',spd:4,hnd:5,bonusLives:0,coinMult:2,color:'#fbbf24'},
+  {id:'racer',emoji:'🏁',name:'레이싱카',desc:'최고속',spd:8,hnd:2,bonusLives:0,coinMult:1,color:'#8b5cf6'}
+];
+let selectedCar=0;
+
+// Powerup/item system
+let powerItems=[];
+let activeEffects={boost:0,magnet:0,shield:false};
+let lastItemSpawn=0;
+const itemDefs=[
+  {emoji:'⭐',name:'부스트',color:'#fbbf24'},
+  {emoji:'🧲',name:'코인흡수',color:'#4af'},
+  {emoji:'❤️',name:'생명+1',color:'#ef4444'},
+  {emoji:'🛡️',name:'보호막',color:'#a78bfa'},
+  {emoji:'⚡',name:'번개',color:'#facc15'}
+];
+
+// Biome system
+const biomes=[
+  {name:'도시',emoji:'🏙️',sky:'#1a1a2e',ground:'#2d2d3d',roadColor:'#444',sideColor:'#2a2a3a',
+   drawSide:(ty,side)=>{const bx=side==='left'?roadL-30:roadR+10;ctx.fillStyle='#3a3a4a';ctx.fillRect(bx,ty-30,20,40);ctx.fillStyle='#5a5a6a';ctx.fillRect(bx+3,ty-25,5,5);ctx.fillRect(bx+12,ty-25,5,5);ctx.fillRect(bx+3,ty-15,5,5);ctx.fillRect(bx+12,ty-15,5,5);}},
+  {name:'숲',emoji:'🌲',sky:'#0f1e0f',ground:'#1a3a1a',roadColor:'#3a3a2a',sideColor:'#1a3a1a',
+   drawSide:(ty,side)=>{const bx=side==='left'?roadL-25:roadR+25;ctx.fillStyle='#0d2a0d';ctx.beginPath();ctx.moveTo(bx,ty);ctx.lineTo(bx-12,ty-25);ctx.lineTo(bx+12,ty-25);ctx.fill();ctx.fillStyle='#2a1a0a';ctx.fillRect(bx-2,ty,4,10);}},
+  {name:'사막',emoji:'🏜️',sky:'#2a1a0a',ground:'#c4a35a',roadColor:'#555040',sideColor:'#b8963e',
+   drawSide:(ty,side)=>{const bx=side==='left'?roadL-20:roadR+15;ctx.fillStyle='#2d6a1e';ctx.beginPath();ctx.moveTo(bx,ty);ctx.lineTo(bx-4,ty-18);ctx.lineTo(bx+4,ty-18);ctx.fill();ctx.fillStyle='#3a8a2e';ctx.beginPath();ctx.arc(bx,ty-12,3,0,Math.PI*2);ctx.fill();}},
+  {name:'해안',emoji:'🌊',sky:'#0a2a4a',ground:'#3a7ab8',roadColor:'#4a4a4a',sideColor:'#2a6090',
+   drawSide:(ty,side)=>{const bx=side==='left'?roadL-20:roadR+15;ctx.fillStyle='rgba(255,255,255,0.15)';ctx.beginPath();ctx.moveTo(bx-10,ty);ctx.quadraticCurveTo(bx,ty-6,bx+10,ty);ctx.stroke();}},
+  {name:'야경',emoji:'🌃',sky:'#050510',ground:'#111122',roadColor:'#222',sideColor:'#0a0a1a',
+   drawSide:(ty,side)=>{const bx=side==='left'?roadL-25:roadR+12;ctx.fillStyle='#1a1a2a';ctx.fillRect(bx,ty-35,18,45);const neonColors=['#ff00ff','#00ffff','#ff6600','#00ff66'];ctx.fillStyle=neonColors[Math.floor(ty/40)%4];ctx.shadowColor=ctx.fillStyle;ctx.shadowBlur=6;ctx.fillRect(bx+2,ty-30,4,3);ctx.fillRect(bx+10,ty-20,6,3);ctx.shadowBlur=0;}}
+];
+let currentBiome=0,biomeTransition=0,nextBiome=0;
+
+// Boss truck system
+let bossTruck=null,bossWarning=0,bossTimer=0,lastBossDist=0;
+
+// Upgrade shop (persistent)
+function loadUpgrades(){
+  try{return JSON.parse(localStorage.getItem('racing_upgrades'))||{maxSpd:0,handling:0,lives:0,coinMult:0};}
+  catch(e){return{maxSpd:0,handling:0,lives:0,coinMult:0};}
+}
+function saveUpgrades(u){localStorage.setItem('racing_upgrades',JSON.stringify(u));}
+function loadTotalCoins(){return parseInt(localStorage.getItem('racing_totalCoins'))||0;}
+function saveTotalCoins(c){localStorage.setItem('racing_totalCoins',String(c));}
+
+const upgradeDefs=[
+  {key:'maxSpd',name:'최고 속도',icon:'🚀',base:10,mult:1.5,max:10,desc:lv=>`Lv.${lv}/10 → +${lv} 최고속도`},
+  {key:'handling',name:'핸들링',icon:'🎯',base:8,mult:1.4,max:10,desc:lv=>`Lv.${lv}/10 → +${lv*0.02} 조향`},
+  {key:'lives',name:'시작 생명',icon:'❤️',base:20,mult:1.8,max:5,desc:lv=>`Lv.${lv}/5 → +${lv} 생명`},
+  {key:'coinMult',name:'코인 배율',icon:'🪙',base:15,mult:1.6,max:8,desc:lv=>`Lv.${lv}/8 → x${(1+lv*0.2).toFixed(1)} 배율`}
+];
+function upgradeCost(def,lv){return Math.floor(def.base*Math.pow(def.mult,lv));}
+
 const carColors=['#ef4444','#3b82f6','#22c55e','#f59e0b','#8b5cf6','#ec4899'];
+
+// Build car selection grid
+function buildCarGrid(){
+  const grid=document.getElementById('carGrid');
+  grid.innerHTML='';
+  carDefs.forEach((c,i)=>{
+    const card=document.createElement('div');
+    card.className='car-card'+(i===selectedCar?' selected':'');
+    card.innerHTML=`<div class="emoji">${c.emoji}</div><div class="cname">${c.name}</div><div class="cdesc">${c.desc}</div>
+      <div class="stats"><span>속 <span class="stat-bar"><span class="fill" style="width:${c.spd*10}%;background:#4af"></span></span></span>
+      <span>핸 <span class="stat-bar"><span class="fill" style="width:${c.hnd*10}%;background:#4afa"></span></span></span></div>`;
+    card.onclick=()=>{selectedCar=i;buildCarGrid();};
+    grid.appendChild(card);
+  });
+}
+buildCarGrid();
+
+// Shop
+function openShop(){
+  const el=document.getElementById('shopScreen');
+  el.classList.remove('hidden');
+  renderShop();
+}
+function closeShop(){document.getElementById('shopScreen').classList.add('hidden');}
+function renderShop(){
+  const tc=loadTotalCoins();
+  document.getElementById('shopCoins').textContent=`보유 코인: 🪙 ${tc}`;
+  const ups=loadUpgrades();
+  const cont=document.getElementById('shopItems');
+  cont.innerHTML='';
+  upgradeDefs.forEach(def=>{
+    const lv=ups[def.key]||0;
+    const cost=upgradeCost(def,lv);
+    const maxed=lv>=def.max;
+    const div=document.createElement('div');
+    div.className='shop-item';
+    div.innerHTML=`<div class="info"><div class="sname">${def.icon} ${def.name}</div><div class="slevel">${def.desc(lv)}</div></div>
+      <button class="shop-btn" ${maxed||tc<cost?'disabled':''}>${maxed?'MAX':'🪙 '+cost}</button>`;
+    if(!maxed&&tc>=cost){
+      div.querySelector('button').onclick=()=>{
+        const u=loadUpgrades();u[def.key]=(u[def.key]||0)+1;saveUpgrades(u);
+        saveTotalCoins(loadTotalCoins()-cost);renderShop();
+      };
+    }
+    cont.appendChild(div);
+  });
+}
 
 function startGame(){
   document.getElementById('startScreen').classList.add('hidden');
   document.getElementById('hud').style.display='flex';
   state='playing';
-  dist=0;coins=0;speed=3;frame=0;
+  const car=carDefs[selectedCar];
+  const ups=loadUpgrades();
+  dist=0;coins=0;frame=0;
+  speed=3;
+  maxSpeed=10+car.spd*0.5+(ups.maxSpd||0);
+  lives=1+car.bonusLives+(ups.lives||0);
   playerX=W/2;playerTargetX=W/2;
-  npcCars=[];coinItems=[];particles=[];
+  npcCars=[];coinItems=[];particles=[];powerItems=[];
+  activeEffects={boost:0,magnet:0,shield:false};
+  lastItemSpawn=0;
+  bossTruck=null;bossWarning=0;bossTimer=0;lastBossDist=0;
+  currentBiome=0;biomeTransition=0;nextBiome=0;
+  speedLines=[];nearMissTimer=0;nearMissBonus=0;
+  document.getElementById('lifeDisp').textContent='❤️ '+lives;
+  document.getElementById('warningEl').style.display='none';
+  document.getElementById('itemIndicator').style.display='none';
   requestAnimationFrame(gameLoop);
 }
 
 function endGame(){
   state='over';
-  const score=Math.floor(dist)+coins*10;
+  const car=carDefs[selectedCar];
+  const ups=loadUpgrades();
+  const coinMultiplier=car.coinMult*(1+(ups.coinMult||0)*0.2);
+  const finalCoins=Math.floor(coins*coinMultiplier);
+  const score=Math.floor(dist)+finalCoins*10;
   _hub('racing',score);
-  document.getElementById('goStats').textContent=`거리: ${Math.floor(dist)}m | 코인: ${coins}개 | 점수: ${score}`;
+  // Save total coins
+  saveTotalCoins(loadTotalCoins()+finalCoins);
+  document.getElementById('goStats').textContent=`거리: ${Math.floor(dist)}m | 코인: ${finalCoins}개 (x${coinMultiplier.toFixed(1)}) | 점수: ${score}`;
   document.getElementById('gameOver').classList.remove('hidden');
+  document.getElementById('warningEl').style.display='none';
+  document.getElementById('itemIndicator').style.display='none';
+}
+
+function handlePlayerHit(){
+  lives--;
+  document.getElementById('lifeDisp').textContent='❤️ '+lives;
+  if(lives<=0){
+    for(let i=0;i<15;i++){
+      particles.push({x:playerX+(Math.random()-0.5)*40,y:(H-80)+(Math.random()-0.5)*40,t:0,text:'💥',color:'#f00'});
+    }
+    endGame();return true;
+  }
+  // brief invincibility via boost
+  activeEffects.boost=90; // 1.5sec invincibility on hit
+  particles.push({x:playerX,y:H-80-20,t:0,text:'💔 -1',color:'#f00'});
+  return false;
 }
 
 canvas.addEventListener('pointerdown',e=>{
@@ -85,7 +261,10 @@ canvas.addEventListener('pointermove',e=>{
   const r=canvas.getBoundingClientRect();
   touchCurX=e.clientX-r.left;
   const dx=touchCurX-touchStartX;
-  playerTargetX=Math.max(roadL+carW/2+5,Math.min(roadR-carW/2-5,W/2+dx*1.5));
+  const car=carDefs[selectedCar];
+  const ups=loadUpgrades();
+  const handlingMult=1.2+car.hnd*0.08+(ups.handling||0)*0.02;
+  playerTargetX=Math.max(roadL+carW/2+5,Math.min(roadR-carW/2-5,W/2+dx*handlingMult));
 });
 canvas.addEventListener('pointerup',()=>{touching=false;});
 canvas.addEventListener('pointercancel',()=>{touching=false;});
@@ -93,7 +272,7 @@ canvas.addEventListener('pointercancel',()=>{touching=false;});
 function spawnNPC(){
   const lane=Math.floor(Math.random()*4);
   const x=roadL+laneW*lane+laneW/2;
-  npcCars.push({x:x,y:-carH-20,color:carColors[Math.floor(Math.random()*carColors.length)],speed:speed*0.4+Math.random()*speed*0.3});
+  npcCars.push({x:x,y:-carH-20,color:carColors[Math.floor(Math.random()*carColors.length)],speed:speed*0.4+Math.random()*speed*0.3,isBoss:false});
 }
 
 function spawnCoin(){
@@ -102,8 +281,21 @@ function spawnCoin(){
   coinItems.push({x:x,y:-20,r:10});
 }
 
+function spawnItem(){
+  const lane=Math.floor(Math.random()*4);
+  const x=roadL+laneW*lane+laneW/2;
+  const type=Math.floor(Math.random()*itemDefs.length);
+  powerItems.push({x:x,y:-20,type:type,bob:0});
+}
+
+function spawnBoss(){
+  const lane=Math.floor(Math.random()*3); // 0-2, takes lane and lane+1
+  const x=roadL+laneW*lane+laneW;
+  bossTruck={x:x,y:-120,w:carW*2.2,h:carH*2,lane:lane,timer:600,coins:0};
+  bossTimer=600; // 10 seconds at 60fps
+}
+
 function drawCar(x,y,w,h,color,isPlayer){
-  // body
   ctx.fillStyle=color;
   const r=8;
   ctx.beginPath();
@@ -117,11 +309,9 @@ function drawCar(x,y,w,h,color,isPlayer){
   ctx.lineTo(x-w/2,y-h/2+r);
   ctx.quadraticCurveTo(x-w/2,y-h/2,x-w/2+r,y-h/2);
   ctx.fill();
-  // windshield
   ctx.fillStyle='rgba(150,220,255,0.6)';
   const wy=isPlayer?y-h/4:y+h/6;
   ctx.fillRect(x-w/3,wy,w*2/3,h/5);
-  // eyes if player
   if(isPlayer){
     ctx.fillStyle='#fff';
     ctx.beginPath();ctx.arc(x-7,y-h/4-2,5,0,Math.PI*2);ctx.fill();
@@ -130,7 +320,6 @@ function drawCar(x,y,w,h,color,isPlayer){
     ctx.beginPath();ctx.arc(x-7,y-h/4-3,2.5,0,Math.PI*2);ctx.fill();
     ctx.beginPath();ctx.arc(x+7,y-h/4-3,2.5,0,Math.PI*2);ctx.fill();
   }
-  // wheels
   ctx.fillStyle='#333';
   ctx.fillRect(x-w/2-3,y-h/3,5,12);
   ctx.fillRect(x+w/2-2,y-h/3,5,12);
@@ -138,149 +327,311 @@ function drawCar(x,y,w,h,color,isPlayer){
   ctx.fillRect(x+w/2-2,y+h/6,5,12);
 }
 
+function drawBossTruck(bt){
+  ctx.fillStyle='#555';
+  const r=10;
+  ctx.beginPath();
+  ctx.moveTo(bt.x-bt.w/2+r,bt.y-bt.h/2);
+  ctx.lineTo(bt.x+bt.w/2-r,bt.y-bt.h/2);
+  ctx.quadraticCurveTo(bt.x+bt.w/2,bt.y-bt.h/2,bt.x+bt.w/2,bt.y-bt.h/2+r);
+  ctx.lineTo(bt.x+bt.w/2,bt.y+bt.h/2-r);
+  ctx.quadraticCurveTo(bt.x+bt.w/2,bt.y+bt.h/2,bt.x+bt.w/2-r,bt.y+bt.h/2);
+  ctx.lineTo(bt.x-bt.w/2+r,bt.y+bt.h/2);
+  ctx.quadraticCurveTo(bt.x-bt.w/2,bt.y+bt.h/2,bt.x-bt.w/2,bt.y+bt.h/2-r);
+  ctx.lineTo(bt.x-bt.w/2,bt.y-bt.h/2+r);
+  ctx.quadraticCurveTo(bt.x-bt.w/2,bt.y-bt.h/2,bt.x-bt.w/2+r,bt.y-bt.h/2);
+  ctx.fill();
+  // cab
+  ctx.fillStyle='#ef4444';
+  ctx.fillRect(bt.x-bt.w/3,bt.y+bt.h/4,bt.w*2/3,bt.h/5);
+  // headlights
+  ctx.fillStyle='#ff0';
+  ctx.fillRect(bt.x-bt.w/2+4,bt.y+bt.h/2-8,8,5);
+  ctx.fillRect(bt.x+bt.w/2-12,bt.y+bt.h/2-8,8,5);
+  // wheels
+  ctx.fillStyle='#222';
+  ctx.fillRect(bt.x-bt.w/2-4,bt.y-bt.h/3,7,16);
+  ctx.fillRect(bt.x+bt.w/2-3,bt.y-bt.h/3,7,16);
+  ctx.fillRect(bt.x-bt.w/2-4,bt.y+bt.h/6,7,16);
+  ctx.fillRect(bt.x+bt.w/2-3,bt.y+bt.h/6,7,16);
+  // label
+  ctx.fillStyle='#fff';ctx.font='bold 14px sans-serif';ctx.textAlign='center';
+  ctx.fillText('🚛',bt.x,bt.y);ctx.textAlign='left';
+}
+
 function update(){
   if(state!=='playing')return;
   frame++;dist+=speed*0.05;
   speed=Math.min(maxSpeed,3+dist*0.005);
+  if(activeEffects.boost>0)speed=Math.min(maxSpeed+3,speed*1.3);
   laneOffset=(laneOffset+speed)%40;
 
-  // smooth player movement
-  playerX+=(playerTargetX-playerX)*0.15;
+  // Biome transition every 500m
+  const biomeIdx=Math.floor(dist/500)%biomes.length;
+  if(biomeIdx!==currentBiome&&biomeTransition===0){
+    nextBiome=biomeIdx;biomeTransition=60;
+  }
+  if(biomeTransition>0){
+    biomeTransition--;
+    if(biomeTransition===0)currentBiome=nextBiome;
+  }
 
-  // spawn
+  // Smooth player movement
+  const car=carDefs[selectedCar];
+  const ups=loadUpgrades();
+  const smoothing=0.1+car.hnd*0.015+(ups.handling||0)*0.005;
+  playerX+=(playerTargetX-playerX)*smoothing;
+
+  // Decrease active effects
+  if(activeEffects.boost>0)activeEffects.boost--;
+  if(activeEffects.magnet>0)activeEffects.magnet--;
+
+  // Update item indicator
+  const indEl=document.getElementById('itemIndicator');
+  const activeTexts=[];
+  if(activeEffects.boost>0)activeTexts.push('⭐ 부스트 '+(activeEffects.boost/60).toFixed(1)+'s');
+  if(activeEffects.magnet>0)activeTexts.push('🧲 자석 '+(activeEffects.magnet/60).toFixed(1)+'s');
+  if(activeEffects.shield)activeTexts.push('🛡️ 보호막');
+  if(activeTexts.length>0){indEl.style.display='block';indEl.textContent=activeTexts.join(' | ');}
+  else{indEl.style.display='none';}
+
+  // Spawn
   if(frame%Math.max(15,50-Math.floor(speed*2))===0)spawnNPC();
   if(frame%80===0)spawnCoin();
 
-  // update npcs
+  // Spawn items every 8-12 seconds (480-720 frames)
+  if(frame-lastItemSpawn>480+Math.random()*240){lastItemSpawn=frame;spawnItem();}
+
+  // Boss truck every 1000m
+  const bossCheck=Math.floor(dist/1000);
+  if(bossCheck>lastBossDist&&!bossTruck&&bossWarning===0){
+    lastBossDist=bossCheck;
+    bossWarning=180; // 3 seconds warning
+    document.getElementById('warningEl').textContent='⚠️ 대형 트럭 접근!';
+    document.getElementById('warningEl').style.display='block';
+  }
+  if(bossWarning>0){
+    bossWarning--;
+    if(bossWarning===0){
+      document.getElementById('warningEl').style.display='none';
+      spawnBoss();
+    }
+  }
+
+  // Update boss truck
+  if(bossTruck){
+    if(bossTruck.y<H*0.25)bossTruck.y+=speed*0.5;
+    bossTruck.timer--;
+    if(bossTruck.timer<=0){
+      // Boss leaving - drop coins
+      for(let i=0;i<12;i++){
+        const cx=bossTruck.x+(Math.random()-0.5)*bossTruck.w;
+        coinItems.push({x:cx,y:bossTruck.y+(Math.random()-0.5)*bossTruck.h,r:10});
+      }
+      particles.push({x:bossTruck.x,y:bossTruck.y,t:0,text:'💰 보너스!',color:'#fbbf24'});
+      bossTruck=null;
+    }else{
+      // Collision with boss
+      const py=H-80;
+      const dx=Math.abs(bossTruck.x-playerX),dy=Math.abs(bossTruck.y-py);
+      if(dx<(bossTruck.w/2+carW/2-6)&&dy<(bossTruck.h/2+carH/2-6)){
+        if(activeEffects.boost>0){/*invincible*/}
+        else if(activeEffects.shield){activeEffects.shield=false;particles.push({x:playerX,y:py-20,t:0,text:'🛡️ 보호!',color:'#a78bfa'});}
+        else{if(handlePlayerHit())return;}
+      }
+    }
+  }
+
+  // Update npcs
   npcCars.forEach(c=>c.y+=speed-c.speed+2);
   npcCars=npcCars.filter(c=>c.y<H+80);
 
-  // update coins
+  // Update coins
   coinItems.forEach(c=>c.y+=speed);
   coinItems=coinItems.filter(c=>{
     if(c.y>H+30)return false;
-    if(Math.abs(c.x-playerX)<20&&Math.abs(c.y-(H-80))<25){
+    const magnetRange=activeEffects.magnet>0?80:20;
+    const py=H-80;
+    // Magnet attraction
+    if(activeEffects.magnet>0&&Math.abs(c.x-playerX)<120&&Math.abs(c.y-py)<120){
+      c.x+=(playerX-c.x)*0.15;c.y+=(py-c.y)*0.15;
+    }
+    if(Math.abs(c.x-playerX)<magnetRange&&Math.abs(c.y-py)<25+magnetRange*0.3){
       coins++;particles.push({x:c.x,y:c.y,t:0,text:'+10',color:'#fbbf24'});return false;
     }
     return true;
   });
 
-  // collision & near-miss detection
-  const py=H-80;
-  if(nearMissTimer>0) nearMissTimer--;
-  for(const c of npcCars){
-    const dx=Math.abs(c.x-playerX), dy=Math.abs(c.y-py);
-    if(dx<carW-4&&dy<carH-4){
-      for(let i=0;i<15;i++){
-        particles.push({x:playerX+(Math.random()-0.5)*40,y:py+(Math.random()-0.5)*40,t:0,text:'💥',color:'#f00'});
+  // Update power items
+  powerItems.forEach(p=>{p.y+=speed;p.bob+=0.1;});
+  powerItems=powerItems.filter(p=>{
+    if(p.y>H+30)return false;
+    if(Math.abs(p.x-playerX)<22&&Math.abs(p.y-(H-80))<28){
+      // Collect item
+      const def=itemDefs[p.type];
+      particles.push({x:p.x,y:p.y-15,t:0,text:def.emoji+' '+def.name+'!',color:def.color});
+      switch(p.type){
+        case 0:activeEffects.boost=180;break; // 3s boost
+        case 1:activeEffects.magnet=300;break; // 5s magnet
+        case 2:lives++;document.getElementById('lifeDisp').textContent='❤️ '+lives;break;
+        case 3:activeEffects.shield=true;break;
+        case 4: // lightning - remove all NPC cars
+          npcCars.forEach(nc=>{particles.push({x:nc.x,y:nc.y,t:0,text:'⚡',color:'#facc15'});});
+          npcCars=[];break;
       }
-      endGame();return;
+      return false;
     }
-    // near-miss: close but no collision
-    if(!c.nearMissed && dx<carW+8 && dx>=carW-4 && dy<carH+10){
-      c.nearMissed=true;
-      nearMissBonus++;
-      coins+=2;
+    return true;
+  });
+
+  // Collision & near-miss detection
+  const py=H-80;
+  if(nearMissTimer>0)nearMissTimer--;
+  for(const c of npcCars){
+    const dx=Math.abs(c.x-playerX),dy=Math.abs(c.y-py);
+    if(dx<carW-4&&dy<carH-4){
+      if(activeEffects.boost>0)continue; // invincible during boost
+      if(activeEffects.shield){
+        activeEffects.shield=false;
+        particles.push({x:playerX,y:py-20,t:0,text:'🛡️ 보호!',color:'#a78bfa'});
+        // remove the car we hit
+        c.y=H+100;
+        continue;
+      }
+      if(handlePlayerHit())return;
+      c.y=H+100; // remove the car we hit
+      continue;
+    }
+    if(!c.nearMissed&&dx<carW+8&&dx>=carW-4&&dy<carH+10){
+      c.nearMissed=true;nearMissBonus++;coins+=2;
       particles.push({x:playerX,y:py-30,t:0,text:'Near Miss! +20',color:'#4af'});
       nearMissTimer=20;
     }
   }
+  npcCars=npcCars.filter(c=>c.y<H+80);
 
-  // speed lines at high speed
-  if(speed>6 && frame%2===0){
-    speedLines.push({x:roadL+Math.random()*roadW, y:-5, len:10+speed*3, alpha:0.2+speed*0.03});
+  // Speed lines at high speed
+  if(speed>6&&frame%2===0){
+    speedLines.push({x:roadL+Math.random()*roadW,y:-5,len:10+speed*3,alpha:0.2+speed*0.03});
   }
   speedLines=speedLines.filter(l=>{l.y+=speed*2;return l.y<H;});
-
   particles=particles.filter(p=>{p.t++;return p.t<40;});
 
   document.getElementById('distDisp').textContent=Math.floor(dist)+'m';
   document.getElementById('coinDisp').textContent='🪙 '+coins;
+  document.getElementById('lifeDisp').textContent='❤️ '+lives;
   document.getElementById('speedDisp').textContent=Math.floor(speed*20)+'km/h';
 }
 
 function draw(){
-  // sky
-  ctx.fillStyle='#0f0f1e';ctx.fillRect(0,0,W,H);
-  // grass
-  ctx.fillStyle='#1a3a1a';ctx.fillRect(0,0,roadL,H);ctx.fillRect(roadR,0,W-roadR,H);
+  const biome=biomes[currentBiome];
+  const transAlpha=biomeTransition>0?biomeTransition/60:0;
 
-  // road scenery - trees on sides
-  for(let i=0;i<6;i++){
-    const ty=((i*150+laneOffset*3)%(H+100))-50;
-    // left tree
-    ctx.fillStyle='#0d2a0d';
-    ctx.beginPath();ctx.moveTo(roadL-25,ty);ctx.lineTo(roadL-35,ty-20);ctx.lineTo(roadL-15,ty-20);ctx.fill();
-    ctx.fillStyle='#2a1a0a';ctx.fillRect(roadL-27,ty,4,10);
-    // right tree
-    ctx.fillStyle='#0d2a0d';
-    ctx.beginPath();ctx.moveTo(roadR+25,ty);ctx.lineTo(roadR+15,ty-20);ctx.lineTo(roadR+35,ty-20);ctx.fill();
-    ctx.fillStyle='#2a1a0a';ctx.fillRect(roadR+23,ty,4,10);
+  // Sky
+  ctx.fillStyle=biome.sky;ctx.fillRect(0,0,W,H);
+  if(transAlpha>0){
+    ctx.globalAlpha=transAlpha;
+    ctx.fillStyle=biomes[currentBiome].sky;ctx.fillRect(0,0,W,H);
+    ctx.globalAlpha=1;
   }
 
-  // road
-  ctx.fillStyle='#333';ctx.fillRect(roadL,0,roadW,H);
-  // lane markings
+  // Ground/sides
+  ctx.fillStyle=biome.ground;ctx.fillRect(0,0,roadL,H);ctx.fillRect(roadR,0,W-roadR,H);
+
+  // Road scenery per biome
+  for(let i=0;i<6;i++){
+    const ty=((i*150+laneOffset*3)%(H+100))-50;
+    biome.drawSide(ty,'left');
+    biome.drawSide(ty,'right');
+  }
+
+  // Road
+  ctx.fillStyle=biome.roadColor;ctx.fillRect(roadL,0,roadW,H);
+  // Night biome neon road edges
+  if(currentBiome===4){
+    ctx.shadowColor='#ff00ff';ctx.shadowBlur=8;
+  }
+  // Lane markings
   ctx.strokeStyle='rgba(255,255,255,0.4)';ctx.lineWidth=2;ctx.setLineDash([20,20]);
   for(let i=1;i<4;i++){
     const lx=roadL+laneW*i;
     ctx.beginPath();
-    for(let y=-40+laneOffset%40;y<H;y+=40){
-      ctx.moveTo(lx,y);ctx.lineTo(lx,y+20);
-    }
+    for(let y=-40+laneOffset%40;y<H;y+=40){ctx.moveTo(lx,y);ctx.lineTo(lx,y+20);}
     ctx.stroke();
   }
-  ctx.setLineDash([]);
-  // road edges
-  ctx.strokeStyle='#fff';ctx.lineWidth=3;
+  ctx.setLineDash([]);ctx.shadowBlur=0;
+  // Road edges
+  ctx.strokeStyle=currentBiome===4?'#ff00ff':'#fff';ctx.lineWidth=3;
   ctx.beginPath();ctx.moveTo(roadL,0);ctx.lineTo(roadL,H);ctx.stroke();
   ctx.beginPath();ctx.moveTo(roadR,0);ctx.lineTo(roadR,H);ctx.stroke();
+  ctx.shadowBlur=0;
 
-  // coins
+  // Biome label
+  const bLabel=biomes[currentBiome].emoji+' '+biomes[currentBiome].name;
+  ctx.fillStyle='rgba(255,255,255,0.3)';ctx.font='12px sans-serif';ctx.textAlign='center';
+  ctx.fillText(bLabel,W/2,20);ctx.textAlign='left';
+
+  // Coins
   coinItems.forEach(c=>{
-    ctx.fillStyle='#fbbf24';
-    ctx.beginPath();ctx.arc(c.x,c.y,c.r,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#f59e0b';ctx.font='bold 12px sans-serif';
-    ctx.fillText('$',c.x-4,c.y+4);
+    ctx.fillStyle='#fbbf24';ctx.beginPath();ctx.arc(c.x,c.y,c.r,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#f59e0b';ctx.font='bold 12px sans-serif';ctx.fillText('$',c.x-4,c.y+4);
   });
 
-  // speed lines
+  // Power items
+  powerItems.forEach(p=>{
+    const def=itemDefs[p.type];
+    const bobY=Math.sin(p.bob)*4;
+    ctx.fillStyle=def.color;ctx.globalAlpha=0.3;
+    ctx.beginPath();ctx.arc(p.x,p.y+bobY,16,0,Math.PI*2);ctx.fill();
+    ctx.globalAlpha=1;
+    ctx.font='20px sans-serif';ctx.textAlign='center';
+    ctx.fillText(def.emoji,p.x,p.y+bobY+7);ctx.textAlign='left';
+  });
+
+  // Speed lines
   speedLines.forEach(l=>{
-    ctx.strokeStyle=`rgba(255,255,255,${Math.min(l.alpha,0.4)})`;
-    ctx.lineWidth=1;
+    ctx.strokeStyle=`rgba(255,255,255,${Math.min(l.alpha,0.4)})`;ctx.lineWidth=1;
     ctx.beginPath();ctx.moveTo(l.x,l.y);ctx.lineTo(l.x,l.y+l.len);ctx.stroke();
   });
 
-  // npc cars
+  // Boss truck
+  if(bossTruck)drawBossTruck(bossTruck);
+
+  // NPC cars
   npcCars.forEach(c=>drawCar(c.x,c.y,carW,carH,c.color,false));
 
-  // player car with tilt
+  // Player car with tilt
   const tilt=(playerTargetX-playerX)*0.008;
   ctx.save();
-  ctx.translate(playerX,H-80);
-  ctx.rotate(tilt);
-  ctx.translate(-playerX,-(H-80));
-  drawCar(playerX,H-80,carW,carH,'#60a5fa',true);
+  ctx.translate(playerX,H-80);ctx.rotate(tilt);ctx.translate(-playerX,-(H-80));
+  // Boost glow
+  if(activeEffects.boost>0){
+    ctx.shadowColor='#fbbf24';ctx.shadowBlur=15+Math.sin(frame*0.3)*5;
+  }
+  // Shield glow
+  if(activeEffects.shield){
+    ctx.strokeStyle='rgba(167,139,250,0.6)';ctx.lineWidth=3;
+    ctx.beginPath();ctx.arc(playerX,H-80,carW*0.8,0,Math.PI*2);ctx.stroke();
+  }
+  drawCar(playerX,H-80,carW,carH,carDefs[selectedCar].color,true);
+  ctx.shadowBlur=0;
   ctx.restore();
 
-  // speedometer display
+  // Speedometer
   const kmh=Math.floor(speed*20);
-  ctx.fillStyle='rgba(0,0,0,0.6)';
-  ctx.beginPath();ctx.roundRect(W-75,H-50,68,40,8);ctx.fill();
+  ctx.fillStyle='rgba(0,0,0,0.6)';ctx.beginPath();ctx.roundRect(W-75,H-50,68,40,8);ctx.fill();
   ctx.fillStyle=speed>8?'#ef4444':'#4af';ctx.font='bold 18px sans-serif';ctx.textAlign='center';
   ctx.fillText(kmh,W-41,H-28);
-  ctx.fillStyle='#888';ctx.font='10px sans-serif';
-  ctx.fillText('km/h',W-41,H-16);
-  ctx.textAlign='left';
+  ctx.fillStyle='#888';ctx.font='10px sans-serif';ctx.fillText('km/h',W-41,H-16);ctx.textAlign='left';
 
-  // particles
+  // Particles
   particles.forEach(p=>{
     const a=1-p.t/40;
     ctx.globalAlpha=a;ctx.fillStyle=p.color;ctx.font='bold 14px sans-serif';
     ctx.fillText(p.text,p.x-10,p.y-p.t*0.5);ctx.globalAlpha=1;
   });
 
-  // touch indicator
+  // Touch indicator
   if(touching){
     ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.lineWidth=2;
     ctx.beginPath();ctx.arc(touchStartX,H-60,30,0,Math.PI*2);ctx.stroke();
