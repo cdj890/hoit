@@ -105,7 +105,8 @@ footer{text-align:center;padding:20px;color:#444;font-size:12px}
 
 <div class="grid" id="grid"></div>
 <div class="lb" id="lb-section" style="display:none">
-  <h2>🏆 리더보드</h2>
+  <h2>🏆 오늘의 리더보드</h2>
+  <p style="color:#888;font-size:12px;text-align:center;margin-bottom:10px">매일 자정 리셋 · 실시간 순위</p>
   <div class="lb-tabs" id="lb-tabs"></div>
   <table id="lb-table"></table>
 </div>
@@ -119,11 +120,58 @@ footer{text-align:center;padding:20px;color:#444;font-size:12px}
 
 <script>
 const HUB_KEY='game_hub',LB_KEY='game_leaderboard';
+const FB='https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app';
+let fbCache={}, fbCacheTime=0;
+
 function getHub(){return JSON.parse(localStorage.getItem(HUB_KEY)||'{}');}
-function getNick(){return getHub().nick||'';}
+function getNick(){
+  let nick=getHub().nick;
+  if(!nick){
+    const counter=parseInt(localStorage.getItem('noname_counter')||'0')+1;
+    localStorage.setItem('noname_counter',String(counter));
+    nick='nonamed'+String(counter).padStart(4,'0');
+    setNick(nick);
+  }
+  return nick;
+}
 function setNick(n){const h=getHub();h.nick=n;localStorage.setItem(HUB_KEY,JSON.stringify(h));}
 function getScores(){return getHub().scores||{};}
 function getLB(){return JSON.parse(localStorage.getItem(LB_KEY)||'{}');}
+let lbPeriod='day';
+
+// Firebase: fetch today's scores with 5min cache
+async function fetchFBScores(){
+  const now=Date.now();
+  if(now-fbCacheTime<300000&&Object.keys(fbCache).length>0)return fbCache; // 5min cache
+  const today=new Date().toISOString().slice(0,10);
+  try{
+    const res=await fetch(FB+'/scores/'+today+'.json');
+    const data=await res.json();
+    fbCache=data||{};
+    fbCacheTime=now;
+  }catch(e){fbCache={};}
+  return fbCache;
+}
+
+function isInPeriod(dateStr, period){
+  if(period==='all')return true;
+  if(!dateStr)return false;
+  const now=new Date();
+  // Parse Korean date format "2026. 3. 24." or ISO
+  let d;
+  if(dateStr.includes('.')){
+    const parts=dateStr.replace(/\./g,'').trim().split(/\s+/);
+    d=new Date(parts[0],parseInt(parts[1])-1,parts[2]);
+  } else {
+    d=new Date(dateStr);
+  }
+  if(isNaN(d))return true; // if can't parse, show anyway
+  const diff=(now-d)/(1000*60*60*24);
+  if(period==='day')return diff<1&&now.getDate()===d.getDate();
+  if(period==='week')return diff<7;
+  if(period==='month')return now.getMonth()===d.getMonth()&&now.getFullYear()===d.getFullYear();
+  return true;
+}
 
 const SCORE_UNITS={tetris:'점',snake:'점',flappy:'점',tower_defense:'웨이브',rhythm:'점',bullet_storm:'점',gomoku:'승',digging:'m',puzzle2048:'점',minesweeper:'승',pong:'승',runner:'m',memory:'점',shooting:'점',sliding:'점',hangman:'승',breakout:'점',colormatch:'점',typing:'점',cardgame:'승',tap_speed:'탭',whack:'점',catch:'점',stack:'층',bubble:'점',swipe_match:'점',reaction:'ms',dodge_ball:'초',number_tap:'점',color_switch:'점'};
 const GAME_NAMES={tetris:'블록쌓기',snake:'뱀키우기',flappy:'병아리',tower_defense:'성지키기',rhythm:'리듬스타',bullet_storm:'불렛스톰',gomoku:'오목',digging:'땅굴탐험',puzzle2048:'2048',minesweeper:'지뢰찾기',pong:'핑퐁',runner:'달려라',memory:'기억력',shooting:'사격장',sliding:'퍼즐',hangman:'단어맞추기',breakout:'벽돌깨기',colormatch:'색맞추기',typing:'타자게임',cardgame:'카드배틀',tap_speed:'탭스피드',whack:'두더지잡기',catch:'과일받기',stack:'블록쌓기',bubble:'버블팝',swipe_match:'스와이프',reaction:'반응속도',dodge_ball:'공피하기',number_tap:'숫자터치',color_switch:'컬러스위치'};
@@ -285,13 +333,10 @@ const TOOLS=[
 // Nick
 function renderNick(){
   const bar=document.getElementById('nick-bar');
-  const nick=getNick();
-  if(nick){
-    bar.innerHTML=`<span class="nick-display" onclick="changeNick()" title="클릭하여 변경">🎮 ${nick}</span>`;
-  } else {
-    bar.innerHTML=`<input id="nick-input" placeholder="닉네임 입력" maxlength="12"><button onclick="saveNick()">시작</button>`;
-    document.getElementById('nick-input')?.addEventListener('keydown',e=>{if(e.key==='Enter')saveNick();});
-  }
+  const nick=getNick(); // auto-assigns nonamed if empty
+  const isNoname=nick.startsWith('nonamed');
+  bar.innerHTML=`<span class="nick-display" onclick="changeNick()" title="클릭하여 변경">🎮 ${nick}</span>
+    ${isNoname?'<button onclick="changeNick()" style="background:#4CAF50;border:none;color:#fff;padding:4px 12px;border-radius:6px;cursor:pointer;font-size:12px">닉네임 설정</button>':''}`;
 }
 function saveNick(){const i=document.getElementById('nick-input'),n=i.value.trim();if(!n)return i.focus();setNick(n);renderNick();renderGrid();}
 function changeNick(){const n=prompt('닉네임 변경:',getNick());if(n?.trim()){setNick(n.trim());renderNick();}}
@@ -306,7 +351,7 @@ function switchTab(tab){
   document.querySelectorAll('.tab')[idx]?.classList.add(cls[idx]);
   document.getElementById('lb-section').style.display=tab==='game'?'block':'none';
   renderGrid();
-  if(tab==='game')renderLB();
+  if(tab==='game')renderLB().catch(()=>{});
 }
 
 const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
@@ -366,15 +411,28 @@ function renderGrid(){
 }
 
 // Leaderboard
-function renderLB(){
-  const lb=getLB(),nick=getNick();
+async function renderLB(){
+  const fbData=await fetchFBScores();
+  const nick=getNick();
+  // Convert Firebase data to lb format
+  const lb={};
+  for(const[gameId,entries] of Object.entries(fbData)){
+    if(!entries||typeof entries!=='object')continue;
+    const arr=Object.values(entries).filter(e=>e&&e.nick&&e.score!==undefined);
+    // Deduplicate: keep best score per nick
+    const best={};
+    arr.forEach(e=>{if(!best[e.nick]||e.score>best[e.nick].score)best[e.nick]=e;});
+    lb[gameId]=Object.values(best).sort((a,b)=>b.score-a.score);
+  }
   const tabs=document.getElementById('lb-tabs'),table=document.getElementById('lb-table');
   const ids=Object.keys(lb).filter(id=>lb[id].length>0);
 
+  // Game tabs
   tabs.innerHTML=`<div class="lb-tab ${lbFilter==='all'?'active':''}" onclick="lbFilter='all';renderLB()">종합</div>`+
     ids.map(id=>`<div class="lb-tab ${lbFilter===id?'active':''}" onclick="lbFilter='${id}';renderLB()">${GAME_NAMES[id]||id}</div>`).join('');
 
   if(ids.length===0){table.innerHTML='<tr><td style="text-align:center;padding:20px;color:#555">아직 기록이 없습니다</td></tr>';return;}
+
 
   if(lbFilter==='all'){
     const players={};
@@ -386,14 +444,17 @@ function renderLB(){
       });
     }
     const sorted=Object.values(players).sort((a,b)=>b.games-a.games);
+    if(sorted.length===0){table.innerHTML=`<tr><td style="text-align:center;padding:20px;color:#555">오늘 기록이 없습니다</td></tr>`;return;}
     const top5=ids.slice(0,5);
     let html=`<tr><th class="rank">#</th><th>플레이어</th><th style="text-align:center">참여</th>`;
     top5.forEach(id=>{html+=`<th style="text-align:right;font-size:11px">${GAME_NAMES[id]||id}</th>`;});
     html+=`</tr>`;
-    sorted.slice(0,10).forEach((p,i)=>{
+    sorted.slice(0,15).forEach((p,i)=>{
       const medal=i<3?['🥇','🥈','🥉'][i]:(i+1);
       const me=p.nick===nick;
-      html+=`<tr><td class="rank">${medal}</td><td class="${me?'me':''}">${p.nick}${me?' (나)':''}</td><td style="text-align:center;color:#888">${p.games}</td>`;
+      const isNoname=p.nick.startsWith('nonamed');
+      const displayNick=isNoname?`<span style="color:#666">${p.nick}</span>`:p.nick;
+      html+=`<tr><td class="rank">${medal}</td><td class="${me?'me':''}">${displayNick}${me?' (나)':''}</td><td style="text-align:center;color:#888">${p.games}</td>`;
       top5.forEach(id=>{
         const s=p.details[id];
         html+=`<td style="text-align:right;color:${s?'#FFD700':'#333'};font-size:12px">${s||'-'}</td>`;
@@ -402,13 +463,16 @@ function renderLB(){
     });
     table.innerHTML=html;
   } else {
-    const entries=lb[lbFilter]||[];
+    const entries=(lb[lbFilter]||[]);
     const unit=SCORE_UNITS[lbFilter]||'점';
+    if(entries.length===0){table.innerHTML=`<tr><td style="text-align:center;padding:20px;color:#555">오늘 기록이 없습니다</td></tr>`;return;}
     let html=`<tr><th class="rank">#</th><th>플레이어</th><th style="text-align:right">기록</th><th style="text-align:right;color:#555">날짜</th></tr>`;
-    entries.slice(0,10).forEach((e,i)=>{
+    entries.slice(0,15).forEach((e,i)=>{
       const medal=i<3?['🥇','🥈','🥉'][i]:(i+1);
       const me=e.nick===nick;
-      html+=`<tr><td class="rank">${medal}</td><td class="${me?'me':''}">${e.nick}${me?' (나)':''}</td><td style="text-align:right;color:#FFD700;font-weight:bold">${e.score.toLocaleString()}${unit}</td><td style="text-align:right;color:#555;font-size:12px">${e.date||''}</td></tr>`;
+      const isNoname=e.nick.startsWith('nonamed');
+      const displayNick=isNoname?`<span style="color:#666">${e.nick}</span>`:e.nick;
+      html+=`<tr><td class="rank">${medal}</td><td class="${me?'me':''}">${displayNick}${me?' (나)':''}</td><td style="text-align:right;color:#FFD700;font-weight:bold">${e.score.toLocaleString()}${unit}</td><td style="text-align:right;color:#555;font-size:12px">${e.date||''}</td></tr>`;
     });
     table.innerHTML=html;
   }
