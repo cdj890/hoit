@@ -212,8 +212,8 @@ function isInPeriod(dateStr, period){
   return true;
 }
 
-const SCORE_UNITS={tetris:'점',snake:'점',flappy:'점',tower_defense:'웨이브',rhythm:'점',bullet_storm:'점',gomoku:'승',digging:'m',puzzle2048:'점',minesweeper:'승',pong:'승',runner:'m',memory:'점',shooting:'점',sliding:'점',hangman:'승',breakout:'점',colormatch:'점',typing:'점',cardgame:'승',tap_speed:'탭',whack:'점',catch:'점',stack:'층',bubble:'점',swipe_match:'점',reaction:'ms',dodge_ball:'초',number_tap:'점',color_switch:'점',fortress:'승',vampire:'킬',racing:'m',survival:'일',hackslash:'층',climbing:'m',rts:'라운드',blackjack:'칩',poker:'칩',solitaire:'점',chess:'승',janggi:'승',yutnori:'승',baduk:'승',othello:'승',mahjong:'점',sutda:'칩',matgo:'점',gostop:'점'};
-const GAME_NAMES={tetris:'블록쌓기',snake:'뱀키우기',flappy:'병아리',tower_defense:'성지키기',rhythm:'리듬스타',bullet_storm:'불렛스톰',gomoku:'오목',digging:'땅굴탐험',puzzle2048:'2048',minesweeper:'지뢰찾기',pong:'핑퐁',runner:'달려라',memory:'기억력',shooting:'사격장',sliding:'퍼즐',hangman:'단어맞추기',breakout:'벽돌깨기',colormatch:'색맞추기',typing:'타자게임',cardgame:'카드배틀',tap_speed:'탭스피드',whack:'두더지잡기',catch:'과일받기',stack:'블록쌓기',bubble:'버블팝',swipe_match:'스와이프',reaction:'반응속도',dodge_ball:'공피하기',number_tap:'숫자터치',color_switch:'컬러스위치',fortress:'대포대전',vampire:'몬스터웨이브',racing:'레이싱',survival:'생존',hackslash:'던전용사',climbing:'절벽올라가기',rts:'미니전략',blackjack:'블랙잭',poker:'포커',solitaire:'솔리테어',chess:'체스',janggi:'장기',yutnori:'윷놀이',baduk:'바둑',othello:'오셀로',mahjong:'마작',sutda:'섯다',matgo:'맞고',gostop:'고스톱'};
+const SCORE_UNITS={tetris:'점',snake:'점',flappy:'점',tower_defense:'웨이브',rhythm:'점',bullet_storm:'점',gomoku:'승',digging:'m',puzzle2048:'점',minesweeper:'승',pong:'승',runner:'m',memory:'점',shooting:'점',sliding:'점',hangman:'승',breakout:'점',colormatch:'점',typing:'점',cardgame:'승',tap_speed:'탭',whack:'점',catch:'점',stack:'층',bubble:'점',swipe_match:'점',reaction:'ms',dodge_ball:'초',number_tap:'점',color_switch:'점',fortress:'승',vampire:'킬',racing:'m',survival:'일',hackslash:'층',climbing:'m',rts:'라운드',blackjack:'칩',poker:'칩',solitaire:'점',chess:'승',janggi:'승',yutnori:'승',baduk:'승',othello:'승',mahjong:'점',sutda:'칩',matgo:'점',gostop:'점',burumable:'승',uno:'점',sudoku:'점',yacht:'점',dart:'승'};
+const GAME_NAMES={tetris:'블록쌓기',snake:'뱀키우기',flappy:'병아리',tower_defense:'성지키기',rhythm:'리듬스타',bullet_storm:'불렛스톰',gomoku:'오목',digging:'땅굴탐험',puzzle2048:'2048',minesweeper:'지뢰찾기',pong:'핑퐁',runner:'달려라',memory:'기억력',shooting:'사격장',sliding:'퍼즐',hangman:'단어맞추기',breakout:'벽돌깨기',colormatch:'색맞추기',typing:'타자게임',cardgame:'카드배틀',tap_speed:'탭스피드',whack:'두더지잡기',catch:'과일받기',stack:'블록쌓기',bubble:'버블팝',swipe_match:'스와이프',reaction:'반응속도',dodge_ball:'공피하기',number_tap:'숫자터치',color_switch:'컬러스위치',fortress:'대포대전',vampire:'몬스터웨이브',racing:'레이싱',survival:'생존',hackslash:'던전용사',climbing:'절벽올라가기',rts:'미니전략',blackjack:'블랙잭',poker:'포커',solitaire:'솔리테어',chess:'체스',janggi:'장기',yutnori:'윷놀이',baduk:'바둑',othello:'오셀로',mahjong:'마작',sutda:'섯다',matgo:'맞고',gostop:'고스톱',burumable:'부루마블',uno:'우노',sudoku:'스도쿠',yacht:'야추',dart:'다트'};
 
 let currentTab='game', lbFilter='all';
 
@@ -272,6 +272,11 @@ const GAMES=[
   {file:'games/sutda.html',title:'섯다',desc:'화투 2장으로 승부!',emoji:'🎴',id:'sutda',cat:'card',bg:'linear-gradient(135deg,#B71C1C,#E53935)',mobile:'ok'},
   {file:'games/matgo.html',title:'맞고',desc:'2인 화투 고스톱',emoji:'🌸',id:'matgo',cat:'card',bg:'linear-gradient(135deg,#880E4F,#AD1457)',mobile:'ok'},
   {file:'games/gostop.html',title:'고스톱',desc:'3인 고스톱 대전',emoji:'🎴',id:'gostop',cat:'card',bg:'linear-gradient(135deg,#4A148C,#6A1B9A)',mobile:'ok'},
+  {file:'games/burumable.html',title:'부루마블',desc:'주사위 굴려 부동산 왕!',emoji:'🏘️',id:'burumable',cat:'board',bg:'linear-gradient(135deg,#E65100,#FF9800)',mobile:'ok'},
+  {file:'games/uno.html',title:'우노',desc:'색+숫자 매칭 카드',emoji:'🃏',id:'uno',cat:'card',bg:'linear-gradient(135deg,#C62828,#EF5350)',mobile:'ok'},
+  {file:'games/sudoku.html',title:'스도쿠',desc:'9x9 숫자 퍼즐',emoji:'🔢',id:'sudoku',cat:'puzzle',bg:'linear-gradient(135deg,#1565C0,#42A5F5)',mobile:'ok'},
+  {file:'games/yacht.html',title:'야추',desc:'주사위 5개 조합 점수',emoji:'🎲',id:'yacht',cat:'board',bg:'linear-gradient(135deg,#6A1B9A,#AB47BC)',mobile:'ok'},
+  {file:'games/dart.html',title:'다트',desc:'과녁을 맞춰라! 301',emoji:'🎯',id:'dart',cat:'action',bg:'linear-gradient(135deg,#BF360C,#FF7043)',mobile:'ok'},
 ];
 
 const TESTS=[

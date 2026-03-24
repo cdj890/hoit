@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>원카드</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-user-select:none;user-select:none}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;overflow-x:hidden;touch-action:manipulation}
+#game{max-width:500px;margin:0 auto;padding:60px 10px 10px;min-height:100vh;display:flex;flex-direction:column}
+.area{margin:8px 0;padding:8px;border-radius:10px;background:rgba(255,255,255,.05)}
+.area-label{font-size:12px;color:#888;margin-bottom:4px}
+.cards{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;min-height:50px}
+.card{width:48px;height:68px;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:bold;cursor:pointer;transition:transform .15s,box-shadow .15s;border:2px solid transparent;font-size:13px;line-height:1.1;touch-action:manipulation}
+.card:hover{transform:translateY(-4px)}
+.card.playable{border-color:#4a6;box-shadow:0 0 8px rgba(68,170,102,.5)}
+.card.back{background:#2a2a4a;color:#556;font-size:10px;cursor:default}
+.card.back:hover{transform:none}
+.suit-hearts,.suit-diamonds{color:#e33}
+.suit-spades,.suit-clubs{color:#222}
+.card-white{background:#fff}.card-joker{background:#ffd700;color:#000}
+#discard-area{display:flex;align-items:center;justify-content:center;gap:16px}
+#deck{width:48px;height:68px;background:#2a2a4a;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:10px;color:#aaa;border:2px solid #444;touch-action:manipulation}
+#discard{width:48px;height:68px;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:bold;font-size:15px;border:2px solid #666}
+#info{text-align:center;font-size:14px;color:#ccc;padding:8px;min-height:40px}
+#attack-info{text-align:center;font-size:13px;color:#f88;min-height:20px}
+#suit-picker{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.9);padding:20px;border-radius:16px;z-index:300;text-align:center}
+#suit-picker .suits{display:flex;gap:12px;margin-top:12px;justify-content:center}
+#suit-picker .suit-btn{width:50px;height:50px;border-radius:10px;font-size:24px;border:none;cursor:pointer;touch-action:manipulation}
+#overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);z-index:200;display:none;align-items:center;justify-content:center;flex-direction:column;font-size:24px;font-weight:bold}
+#overlay button{margin-top:16px;padding:12px 32px;font-size:18px;border:none;border-radius:10px;background:#4a6;color:#fff;font-weight:bold;cursor:pointer;touch-action:manipulation}
+#players-bar{display:flex;justify-content:space-around;padding:4px 0}
+.player-tag{font-size:12px;padding:4px 10px;border-radius:8px;background:rgba(255,255,255,.1)}
+.player-tag.active{background:rgba(68,170,102,.4);color:#8f8}
+#wins-display{position:fixed;top:12px;right:12px;font-size:14px;font-weight:bold;background:rgba(0,0,0,.6);padding:6px 14px;border-radius:8px;z-index:100}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<div id="wins-display">승리: <span id="wc">0</span></div>
+<div id="game">
+  <div id="players-bar"></div>
+  <div class="area" id="ai-area"><div class="area-label">상대 패</div><div class="cards" id="ai-cards"></div></div>
+  <div id="info">게임 시작!</div>
+  <div id="attack-info"></div>
+  <div id="discard-area">
+    <div id="deck" onclick="drawCard()">덱<br><span id="deck-count"></span></div>
+    <div id="discard"></div>
+  </div>
+  <div class="area"><div class="area-label">내 패</div><div class="cards" id="my-cards"></div></div>
+</div>
+<div id="suit-picker">
+  <div>무늬 선택</div>
+  <div class="suits">
+    <button class="suit-btn" style="background:#fff;color:#e33" onclick="pickSuit('hearts')">♥</button>
+    <button class="suit-btn" style="background:#fff;color:#e33" onclick="pickSuit('diamonds')">♦</button>
+    <button class="suit-btn" style="background:#fff;color:#222" onclick="pickSuit('spades')">♠</button>
+    <button class="suit-btn" style="background:#fff;color:#222" onclick="pickSuit('clubs')">♣</button>
+  </div>
+</div>
+<div id="overlay"><div id="overlay-text"></div><button onclick="startGame()">다시 하기</button></div>
+
+<script>
+const SUITS=['hearts','diamonds','spades','clubs'];
+const SUIT_SYM={hearts:'♥',diamonds:'♦',spades:'♠',clubs:'♣'};
+const RANKS=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+const NUM_PLAYERS=4;
+const PLAYER_NAMES=['나','AI 1','AI 2','AI 3'];
+
+let deck=[],discard=[],hands=[],currentPlayer=0,direction=1,attackStack=0,gameActive=false;
+let wins=parseInt((JSON.parse(localStorage.getItem('game_hub')||'{}')).scores?.onecard||0);
+let pendingSuitChange=null,waitingForSuit=false;
+
+document.getElementById('wc').textContent=wins;
+
+function makeDeck(){
+  let d=[];
+  for(const s of SUITS)for(const r of RANKS)d.push({suit:s,rank:r});
+  d.push({suit:'joker',rank:'JK'});d.push({suit:'joker',rank:'JK'});
+  return shuffle(d);
+}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*i+1|0;[a[i],a[j]]=[a[j],a[i]]}return a}
+
+function startGame(){
+  document.getElementById('overlay').style.display='none';
+  deck=makeDeck();discard=[];hands=[[],[],[],[]];
+  currentPlayer=0;direction=1;attackStack=0;gameActive=true;
+  waitingForSuit=false;pendingSuitChange=null;
+  for(let i=0;i<7;i++)for(let p=0;p<NUM_PLAYERS;p++)hands[p].push(deck.pop());
+  discard.push(deck.pop());
+  render();
+  if(currentPlayer!==0)setTimeout(aiTurn,800);
+}
+
+function topCard(){return discard[discard.length-1]}
+
+function isAttack(c){
+  if(c.suit==='joker')return 5;
+  if(c.rank==='A')return 3;
+  if(c.rank==='2')return 2;
+  return 0;
+}
+
+function canPlay(c,top,changedSuit){
+  if(c.suit==='joker')return true;
+  if(c.rank==='J')return true;
+  const s=changedSuit||top.suit;
+  if(attackStack>0){return isAttack(c)>0}
+  if(top.suit==='joker'){return c.suit===(changedSuit||'hearts')}
+  if(c.suit===s)return true;
+  if(c.rank===top.rank)return true;
+  return false;
+}
+
+function playCard(playerIdx,cardIdx){
+  const c=hands[playerIdx].splice(cardIdx,1)[0];
+  discard.push(c);
+  const atk=isAttack(c);
+  if(atk)attackStack+=atk;
+  if(c.rank==='Q')direction*=-1;
+  if(c.rank==='K'){advance();} // skip
+  if(c.rank==='7')pendingSuitChange=c.suit;
+  else if(c.rank==='J'||c.suit==='joker')pendingSuitChange='pick';
+  else pendingSuitChange=null;
+  return c;
+}
+
+function advance(){currentPlayer=(currentPlayer+direction+NUM_PLAYERS)%NUM_PLAYERS}
+
+function drawCards(playerIdx,n){
+  for(let i=0;i<n;i++){
+    if(deck.length===0){
+      const top=discard.pop();
+      deck=shuffle(discard);discard=[top];
+    }
+    if(deck.length>0)hands[playerIdx].push(deck.pop());
+  }
+}
+
+function render(){
+  // AI cards
+  const aiDiv=document.getElementById('ai-cards');
+  aiDiv.innerHTML='';
+  for(let p=1;p<NUM_PLAYERS;p++){
+    for(let i=0;i<hands[p].length;i++){
+      const d=document.createElement('div');
+      d.className='card back';d.textContent=PLAYER_NAMES[p];
+      d.style.width='32px';d.style.height='46px';d.style.fontSize='8px';
+      aiDiv.appendChild(d);
+    }
+  }
+  // Discard
+  const dc=document.getElementById('discard');
+  const top=topCard();
+  if(top){
+    const sym=top.suit==='joker'?'★':SUIT_SYM[top.suit];
+    const isRed=top.suit==='hearts'||top.suit==='diamonds';
+    dc.style.background='#fff';dc.style.color=top.suit==='joker'?'#b8860b':isRed?'#e33':'#222';
+    dc.innerHTML=`<div style="font-size:11px">${sym}</div><div style="font-size:16px;font-weight:bold">${top.rank}</div>`;
+    if(pendingSuitChange&&pendingSuitChange!=='pick'){
+      dc.innerHTML+=`<div style="font-size:9px;color:#888">→${SUIT_SYM[pendingSuitChange]}</div>`;
+    }
+  }
+  document.getElementById('deck-count').textContent=deck.length;
+  // Player cards
+  const myDiv=document.getElementById('my-cards');
+  myDiv.innerHTML='';
+  const top2=topCard();
+  const activeSuit=pendingSuitChange&&pendingSuitChange!=='pick'?pendingSuitChange:null;
+  hands[0].forEach((c,i)=>{
+    const d=document.createElement('div');
+    const isJoker=c.suit==='joker';
+    const sym=isJoker?'★':SUIT_SYM[c.suit];
+    const isRed=c.suit==='hearts'||c.suit==='diamonds';
+    d.className='card card-white'+(isJoker?' card-joker':'');
+    d.style.color=isJoker?'#000':isRed?'#e33':'#222';
+    d.innerHTML=`<div style="font-size:10px">${sym}</div><div style="font-size:14px">${c.rank}</div>`;
+    if(currentPlayer===0&&gameActive&&canPlay(c,top2,activeSuit)){
+      d.classList.add('playable');
+      d.onclick=()=>playerPlay(i);
+    }
+    myDiv.appendChild(d);
+  });
+  // Players bar
+  const bar=document.getElementById('players-bar');
+  bar.innerHTML='';
+  PLAYER_NAMES.forEach((n,i)=>{
+    const t=document.createElement('span');
+    t.className='player-tag'+(i===currentPlayer?' active':'');
+    t.textContent=n+'('+hands[i].length+')';
+    bar.appendChild(t);
+  });
+  // Attack info
+  document.getElementById('attack-info').textContent=attackStack>0?`공격 누적: +${attackStack}장`:'';
+}
+
+function playerPlay(cardIdx){
+  if(currentPlayer!==0||!gameActive)return;
+  const c=playCard(0,cardIdx);
+  if(hands[0].length===0){endGame(0);return}
+  if(c.rank==='J'||c.suit==='joker'){
+    waitingForSuit=true;
+    document.getElementById('suit-picker').style.display='block';
+    render();return;
+  }
+  afterPlay();
+}
+
+function pickSuit(s){
+  pendingSuitChange=s;
+  waitingForSuit=false;
+  document.getElementById('suit-picker').style.display='none';
+  afterPlay();
+}
+
+function afterPlay(){
+  advance();
+  render();
+  if(currentPlayer!==0)setTimeout(aiTurn,600);
+}
+
+function drawCard(){
+  if(currentPlayer!==0||!gameActive||waitingForSuit)return;
+  if(attackStack>0){
+    drawCards(0,attackStack);attackStack=0;
+    document.getElementById('info').textContent=`카드를 받았습니다`;
+  }else{
+    drawCards(0,1);
+    document.getElementById('info').textContent='카드를 한 장 뽑았습니다';
+  }
+  advance();render();
+  if(currentPlayer!==0)setTimeout(aiTurn,600);
+}
+
+function aiTurn(){
+  if(!gameActive||currentPlayer===0)return;
+  const p=currentPlayer;
+  const top=topCard();
+  const activeSuit=pendingSuitChange&&pendingSuitChange!=='pick'?pendingSuitChange:null;
+  let playable=[];
+  hands[p].forEach((c,i)=>{if(canPlay(c,top,activeSuit))playable.push(i)});
+  if(playable.length>0){
+    // Prioritize attack cards if being attacked, otherwise play highest value
+    let pick=playable[0];
+    if(attackStack>0){
+      const atkCards=playable.filter(i=>isAttack(hands[p][i])>0);
+      if(atkCards.length>0)pick=atkCards[0];else{
+        drawCards(p,attackStack);attackStack=0;
+        document.getElementById('info').textContent=PLAYER_NAMES[p]+'이(가) '+attackStack+'장 받음';
+        advance();render();
+        if(currentPlayer!==0)setTimeout(aiTurn,600);else render();
+        return;
+      }
+    }else{
+      pick=playable[Math.random()*playable.length|0];
+    }
+    const c=playCard(p,pick);
+    document.getElementById('info').textContent=PLAYER_NAMES[p]+'이(가) 카드를 냈습니다';
+    if(hands[p].length===0){endGame(p);return}
+    if(c.rank==='J'||c.suit==='joker'){
+      // AI picks most common suit
+      const counts={};
+      hands[p].forEach(cd=>{if(cd.suit!=='joker'){counts[cd.suit]=(counts[cd.suit]||0)+1}});
+      let best='hearts',bestN=0;
+      for(const s in counts)if(counts[s]>bestN){bestN=counts[s];best=s}
+      pendingSuitChange=best;
+    }
+  }else{
+    if(attackStack>0){
+      drawCards(p,attackStack);
+      document.getElementById('info').textContent=PLAYER_NAMES[p]+'이(가) '+attackStack+'장 받음';
+      attackStack=0;
+    }else{
+      drawCards(p,1);
+      document.getElementById('info').textContent=PLAYER_NAMES[p]+'이(가) 한 장 뽑음';
+    }
+  }
+  advance();render();
+  if(!gameActive)return;
+  if(currentPlayer!==0)setTimeout(aiTurn,600);
+}
+
+function endGame(winner){
+  gameActive=false;
+  const ov=document.getElementById('overlay');
+  ov.style.display='flex';
+  if(winner===0){
+    wins++;
+    document.getElementById('wc').textContent=wins;
+    _hub('onecard',wins);
+    document.getElementById('overlay-text').textContent='승리! 🎉';
+  }else{
+    document.getElementById('overlay-text').textContent=PLAYER_NAMES[winner]+' 승리';
+  }
+}
+
+startGame();
+</script>
+<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
+</body>
+</html>

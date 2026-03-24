@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>부루마블</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;overflow:hidden;touch-action:manipulation;user-select:none;width:100vw;height:100vh;display:flex;flex-direction:column;align-items:center}
+#game{display:flex;flex-direction:column;align-items:center;width:100%;max-width:500px;height:100%;padding:50px 4px 4px}
+#boardWrap{position:relative;width:100%;aspect-ratio:1;flex-shrink:0}
+canvas{width:100%;height:100%;display:block;border-radius:8px}
+#info{display:flex;gap:6px;width:100%;margin-top:4px;flex-wrap:wrap;justify-content:center}
+.pinfo{background:rgba(255,255,255,.08);border-radius:8px;padding:6px 10px;font-size:12px;text-align:center;flex:1;min-width:90px}
+.pinfo .name{font-weight:bold;margin-bottom:2px}
+.pinfo .gold{color:#ffd700}
+.pinfo.dead{opacity:.35}
+#actions{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;justify-content:center;width:100%;min-height:44px;align-items:center}
+#actions button{background:#4a6fa5;color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:15px;font-weight:bold;font-family:inherit;cursor:pointer;min-width:44px;min-height:44px;touch-action:manipulation}
+#actions button:active{transform:scale(.95)}
+#msg{text-align:center;font-size:13px;margin-top:4px;min-height:20px;color:#ccc;padding:0 8px}
+#diceDisplay{font-size:28px;font-weight:bold;color:#ffd700;text-align:center;min-height:36px;margin-top:2px}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
+<div id="game">
+<div id="boardWrap"><canvas id="c"></canvas></div>
+<div id="diceDisplay"></div>
+<div id="info"></div>
+<div id="msg"></div>
+<div id="actions"></div>
+</div>
+<script>
+const C=document.getElementById('c'),X=C.getContext('2d');
+const infoEl=document.getElementById('info'),msgEl=document.getElementById('msg'),actEl=document.getElementById('actions'),diceEl=document.getElementById('diceDisplay');
+const TOTAL=28;
+const COLORS=['#4a9','#e74','#58f'];
+const PNAMES=['나','AI-1','AI-2'];
+
+const SPACES=[];
+// Build spaces: 7 per side
+// Types: city, chance, travel, island, start, tax
+const cityNames=['서울','부산','대구','인천','광주','대전','울산','세종','수원','성남','고양','용인','청주','전주','천안','제주','포항','김해','안산','창원','남양주','화성','평택','파주'];
+let ci=0;
+for(let i=0;i<TOTAL;i++){
+  if(i===0){SPACES.push({type:'start',name:'출발'});continue;}
+  if(i===7){SPACES.push({type:'island',name:'무인도'});continue;}
+  if(i===14){SPACES.push({type:'travel',name:'우주여행'});continue;}
+  if(i===21){SPACES.push({type:'tax',name:'세금'});continue;}
+  if(i===4||i===11||i===18||i===25){SPACES.push({type:'chance',name:'찬스'});continue;}
+  SPACES.push({type:'city',name:cityNames[ci%cityNames.length],price:150+ci*30,owner:-1,level:0});
+  ci++;
+}
+
+function rentFor(sp){
+  const base=Math.floor(sp.price*0.3);
+  return base*(sp.level+1);
+}
+function buildCost(sp){return Math.floor(sp.price*0.5);}
+function maxLevel(){return 3;} // 0=땅,1=집,2=빌딩,3=호텔
+
+const players=[
+  {name:PNAMES[0],gold:3000,pos:0,alive:true,islandTurns:0,ai:false},
+  {name:PNAMES[1],gold:3000,pos:0,alive:true,islandTurns:0,ai:true},
+  {name:PNAMES[2],gold:3000,pos:0,alive:true,islandTurns:0,ai:true}
+];
+
+let turn=0,wins=parseInt(localStorage.getItem('buru_wins')||'0');
+let phase='roll'; // roll, action, animating, gameover
+let lastDice=[0,0];
+let animFrame=0;
+
+function sz(){
+  const r=C.getBoundingClientRect();
+  const dpr=window.devicePixelRatio||1;
+  C.width=r.width*dpr;C.height=r.height*dpr;
+  X.setTransform(dpr,0,0,dpr,0,0);
+  draw();
+}
+window.addEventListener('resize',sz);
+
+function spacePos(i){
+  // Returns {x,y} in 0-1 coordinates
+  const W=C.getBoundingClientRect().width,H=W;
+  const perSide=TOTAL/4;
+  const margin=0.06,inner=1-2*margin;
+  const side=Math.floor(i/perSide),idx=i%perSide;
+  const frac=idx/perSide;
+  let x,y;
+  if(side===0){x=margin+inner*(1-frac);y=1-margin;}// bottom, right to left
+  else if(side===1){x=margin;y=1-margin-inner*frac;}// left, bottom to top
+  else if(side===2){x=margin+inner*frac;y=margin;}// top, left to right
+  else{x=1-margin;y=margin+inner*frac;}// right, top to bottom
+  return{x:x*W,y:y*H};
+}
+
+function draw(){
+  const W=C.getBoundingClientRect().width,H=W;
+  X.clearRect(0,0,W,H);
+  // Board bg
+  X.fillStyle='#1a1a2e';X.fillRect(0,0,W,H);
+  const cellW=W*0.88/(TOTAL/4);
+  // Draw spaces
+  for(let i=0;i<TOTAL;i++){
+    const p=spacePos(i);
+    const sp=SPACES[i];
+    let bg='#2a2a4a';
+    if(sp.type==='start')bg='#4a6';
+    else if(sp.type==='island')bg='#654';
+    else if(sp.type==='travel')bg='#549';
+    else if(sp.type==='chance')bg='#a84';
+    else if(sp.type==='tax')bg='#844';
+    else if(sp.owner>=0)bg=COLORS[sp.owner]+'44';
+    X.fillStyle=bg;
+    X.beginPath();X.arc(p.x,p.y,cellW*0.42,0,Math.PI*2);X.fill();
+    if(sp.owner>=0){
+      X.strokeStyle=COLORS[sp.owner];X.lineWidth=2;
+      X.beginPath();X.arc(p.x,p.y,cellW*0.42,0,Math.PI*2);X.stroke();
+    }
+    X.fillStyle='#fff';X.font=`${Math.max(8,cellW*0.28)}px sans-serif`;X.textAlign='center';X.textBaseline='middle';
+    let label=sp.name;
+    if(sp.type==='city'&&sp.level>0)label+=['','🏠','🏢','🏨'][sp.level];
+    X.fillText(label,p.x,p.y);
+  }
+  // Draw players
+  players.forEach((pl,pi)=>{
+    if(!pl.alive)return;
+    const p=spacePos(pl.pos);
+    const off=(pi-1)*cellW*0.22;
+    X.fillStyle=COLORS[pi];
+    X.beginPath();X.arc(p.x+off,p.y-cellW*0.3,cellW*0.15,0,Math.PI*2);X.fill();
+    X.fillStyle='#fff';X.font=`bold ${Math.max(7,cellW*0.2)}px sans-serif`;
+    X.fillText(pl.ai?'A':'P',p.x+off,p.y-cellW*0.3);
+  });
+  // Center info
+  X.fillStyle='#fff';X.font=`bold ${W*0.035}px sans-serif`;X.textAlign='center';
+  X.fillText('부루마블',W/2,H*0.45);
+  X.font=`${W*0.028}px sans-serif`;
+  X.fillText(`승리: ${wins}회`,W/2,H*0.5);
+}
+
+function updateInfo(){
+  infoEl.innerHTML=players.map((p,i)=>`<div class="pinfo${p.alive?'':' dead'}"><div class="name" style="color:${COLORS[i]}">${p.name}</div><div class="gold">💰${p.gold}</div><div>칸:${SPACES[p.pos].name}</div></div>`).join('');
+}
+
+function setMsg(t){msgEl.textContent=t;}
+function clearActions(){actEl.innerHTML='';}
+function addBtn(txt,fn){
+  const b=document.createElement('button');b.textContent=txt;
+  b.addEventListener('click',fn);b.addEventListener('touchend',e=>{e.preventDefault();fn();});
+  actEl.appendChild(b);
+}
+
+function rollDice(){
+  return [Math.floor(Math.random()*6)+1,Math.floor(Math.random()*6)+1];
+}
+
+function alivePlayers(){return players.filter(p=>p.alive);}
+function aliveCount(){return alivePlayers().length;}
+function nextTurn(){
+  do{turn=(turn+1)%3;}while(!players[turn].alive);
+  if(aliveCount()<=1){endGame();return;}
+  startTurn();
+}
+
+function startTurn(){
+  clearActions();
+  const p=players[turn];
+  if(p.islandTurns>0){
+    p.islandTurns--;
+    setMsg(`${p.name}: 무인도 대기 (${p.islandTurns}턴 남음)`);
+    diceEl.textContent='';
+    if(p.islandTurns===0)setMsg(`${p.name}: 무인도 탈출!`);
+    setTimeout(()=>nextTurn(),p.ai?800:1200);
+    return;
+  }
+  if(p.ai){
+    setTimeout(()=>doRoll(),600);
+  } else {
+    setMsg('주사위를 굴리세요!');
+    addBtn('🎲 주사위',()=>doRoll());
+  }
+}
+
+function doRoll(){
+  clearActions();phase='animating';
+  lastDice=rollDice();
+  let frames=0;
+  const intv=setInterval(()=>{
+    diceEl.textContent=`${Math.ceil(Math.random()*6)} + ${Math.ceil(Math.random()*6)}`;
+    frames++;
+    if(frames>8){
+      clearInterval(intv);
+      diceEl.textContent=`🎲 ${lastDice[0]} + ${lastDice[1]} = ${lastDice[0]+lastDice[1]}`;
+      movePlayer(lastDice[0]+lastDice[1]);
+    }
+  },80);
+}
+
+function movePlayer(steps){
+  const p=players[turn];
+  let moved=0;
+  const intv=setInterval(()=>{
+    p.pos=(p.pos+1)%TOTAL;
+    if(p.pos===0){p.gold+=200;setMsg(`${p.name}: 출발 통과! +200💰`);}
+    moved++;
+    draw();updateInfo();
+    if(moved>=steps){
+      clearInterval(intv);
+      landOn();
+    }
+  },120);
+}
+
+function landOn(){
+  const p=players[turn];
+  const sp=SPACES[p.pos];
+  phase='action';
+  if(sp.type==='start'){
+    setMsg(`${p.name}: 출발!`);
+    endAction();
+  } else if(sp.type==='island'){
+    p.islandTurns=3;
+    setMsg(`${p.name}: 무인도! 3턴 대기`);
+    endAction();
+  } else if(sp.type==='travel'){
+    const dest=Math.floor(Math.random()*TOTAL);
+    p.pos=dest;
+    setMsg(`${p.name}: 우주여행 → ${SPACES[dest].name}`);
+    draw();
+    setTimeout(()=>landOn(),600);
+    return;
+  } else if(sp.type==='chance'){
+    doChance();
+  } else if(sp.type==='tax'){
+    const tax=Math.min(200,p.gold);
+    p.gold-=tax;
+    setMsg(`${p.name}: 세금 -${tax}💰`);
+    checkBankrupt(p);
+    endAction();
+  } else if(sp.type==='city'){
+    if(sp.owner<0){
+      // Unowned
+      if(p.ai){
+        if(p.gold>=sp.price){sp.owner=turn;p.gold-=sp.price;setMsg(`${p.name}: ${sp.name} 구매! -${sp.price}💰`);}
+        else setMsg(`${p.name}: 구매 불가`);
+        endAction();
+      } else {
+        if(p.gold>=sp.price){
+          setMsg(`${sp.name} (${sp.price}💰) 구매하시겠습니까?`);
+          addBtn(`구매 (${sp.price}💰)`,()=>{clearActions();sp.owner=turn;p.gold-=sp.price;setMsg(`${sp.name} 구매!`);updateInfo();draw();endAction();});
+          addBtn('패스',()=>{clearActions();setMsg('패스');endAction();});
+        } else {setMsg('금액 부족');endAction();}
+      }
+    } else if(sp.owner===turn){
+      // Own property - build?
+      if(sp.level<maxLevel()){
+        const bc=buildCost(sp);
+        if(p.ai){
+          if(p.gold>=bc&&Math.random()>0.3){sp.level++;p.gold-=bc;setMsg(`${p.name}: ${sp.name} 건설! Lv${sp.level}`);}
+          endAction();
+        } else {
+          if(p.gold>=bc){
+            const labels=['집','빌딩','호텔'];
+            setMsg(`${sp.name}에 ${labels[sp.level]}을 건설? (${bc}💰)`);
+            addBtn(`건설 (${bc}💰)`,()=>{clearActions();sp.level++;p.gold-=bc;setMsg(`건설 완료! Lv${sp.level}`);updateInfo();draw();endAction();});
+            addBtn('패스',()=>{clearActions();endAction();});
+          } else {setMsg('내 땅');endAction();}
+        }
+      } else {setMsg('최대 레벨');endAction();}
+    } else {
+      // Pay rent
+      const rent=rentFor(sp);
+      const paid=Math.min(rent,p.gold);
+      p.gold-=paid;
+      players[sp.owner].gold+=paid;
+      setMsg(`${p.name}: ${sp.name} 통행료 -${paid}💰 → ${players[sp.owner].name}`);
+      checkBankrupt(p);
+      endAction();
+    }
+  }
+}
+
+function doChance(){
+  const p=players[turn];
+  const events=[
+    {text:'복권 당첨! +500💰',fn:()=>{p.gold+=500;}},
+    {text:'세금 환급 +200💰',fn:()=>{p.gold+=200;}},
+    {text:'벌금 -300💰',fn:()=>{p.gold-=300;checkBankrupt(p);}},
+    {text:'출발로 이동!',fn:()=>{p.pos=0;p.gold+=200;}},
+    {text:'수리비 -150💰',fn:()=>{p.gold-=150;checkBankrupt(p);}},
+    {text:'보너스 +100💰',fn:()=>{p.gold+=100;}},
+  ];
+  const ev=events[Math.floor(Math.random()*events.length)];
+  ev.fn();
+  setMsg(`${p.name} 찬스: ${ev.text}`);
+  endAction();
+}
+
+function checkBankrupt(p){
+  if(p.gold<=0){
+    p.alive=false;p.gold=0;
+    // Release properties
+    SPACES.forEach(sp=>{if(sp.owner===players.indexOf(p))sp.owner=-1;});
+    setMsg(msg=>p.name+' 파산!');
+  }
+}
+
+function endAction(){
+  updateInfo();draw();
+  if(aliveCount()<=1){endGame();return;}
+  setTimeout(()=>nextTurn(),800);
+}
+
+function endGame(){
+  phase='gameover';
+  clearActions();
+  const winner=alivePlayers()[0];
+  if(winner&&!winner.ai){
+    wins++;
+    localStorage.setItem('buru_wins',String(wins));
+    _hub('burumable',wins);
+    setMsg(`🎉 승리! 총 ${wins}회 승리`);
+  } else {
+    setMsg(`${winner?winner.name:'???'} 승리! 다시 도전하세요`);
+  }
+  diceEl.textContent='게임 종료';
+  addBtn('다시 하기',()=>location.reload());
+}
+
+function init(){
+  sz();updateInfo();
+  setMsg('게임 시작! 주사위를 굴리세요');
+  startTurn();
+}
+init();
+</script>
+</body>
+</html>

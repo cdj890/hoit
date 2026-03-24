@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>젠가</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-user-select:none;user-select:none}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;overflow:hidden;touch-action:none}
+canvas{display:block;margin:0 auto}
+#ui{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:100}
+#score{position:fixed;top:12px;right:12px;font-size:18px;font-weight:bold;background:rgba(0,0,0,.6);padding:8px 16px;border-radius:8px;z-index:100}
+#msg{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:28px;font-weight:bold;text-align:center;display:none;background:rgba(0,0,0,.85);padding:24px 36px;border-radius:16px;z-index:200;pointer-events:auto}
+#msg button{margin-top:16px;padding:12px 32px;font-size:18px;border:none;border-radius:10px;background:#4a6;color:#fff;font-weight:bold;cursor:pointer;touch-action:manipulation}
+#help{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);font-size:13px;color:#aaa;background:rgba(0,0,0,.5);padding:6px 14px;border-radius:8px;z-index:100;text-align:center}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<div id="score">점수: <span id="sc">0</span></div>
+<div id="help">블록을 터치하여 선택 → 드래그하여 빼내기</div>
+<div id="msg"><div id="msgText"></div><button onclick="restartGame()">다시 하기</button></div>
+<canvas id="c"></canvas>
+
+<script>
+const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
+let W,H,scale;
+function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;scale=Math.min(W/400,H/700)}
+resize();window.addEventListener('resize',resize);
+
+const ROWS=18,COLS=3;
+const BW=50,BH=14,GAP=1;
+const COLORS=['#c0813a','#d4955a','#b87530','#c8884a','#a06828','#d89e60'];
+
+let blocks=[],score=0,gameOver=false,selectedBlock=null,dragging=false,dragX=0,dragY=0;
+let towerTilt=0,towerTiltVel=0,removedCount=0;
+let mouseX=0,mouseY=0,mouseDown=false;
+
+class Block{
+  constructor(row,col,horizontal){
+    this.row=row;this.col=col;this.horizontal=horizontal;
+    this.removed=false;this.placed=false;this.onTower=true;
+    this.color=COLORS[(row*3+col)%COLORS.length];
+    this.highlight=false;
+    this.x=0;this.y=0;this.w=0;this.h=0;
+    this.dragOffX=0;this.dragOffY=0;
+    this.beingDragged=false;
+    this.settled=true;
+    this.fallY=0;this.fallVel=0;
+    this.calcPosition();
+  }
+  calcPosition(){
+    const baseX=W/2;
+    const baseY=H-60;
+    const towerW=BW*COLS+GAP*(COLS-1);
+    const towerH=BH+GAP;
+    if(this.horizontal){
+      this.w=BW;this.h=BH;
+      this.x=baseX-towerW/2+this.col*(BW+GAP)+Math.sin(towerTilt*0.02)*this.row*1.5;
+      this.y=baseY-this.row*towerH+this.fallY;
+    }else{
+      this.w=BH;this.h=BW;
+      const blockW=BH;
+      const totalW=blockW*COLS+GAP*(COLS-1);
+      this.x=baseX-totalW/2+this.col*(blockW+GAP)+Math.sin(towerTilt*0.02)*this.row*1.5;
+      this.y=baseY-this.row*(BH+GAP)-(BW-BH)/2+this.fallY;
+      this.h=BH;this.w=BW;
+      this.x=baseX-towerW/2+this.col*(BW+GAP)+Math.sin(towerTilt*0.02)*this.row*1.5;
+      this.y=baseY-this.row*towerH+this.fallY;
+    }
+  }
+  draw(){
+    if(this.removed&&!this.beingDragged)return;
+    let x=this.beingDragged?dragX-this.dragOffX:this.x;
+    let y=this.beingDragged?dragY-this.dragOffY:this.y;
+    let w,h;
+    if(this.horizontal){w=BW*scale*0.9;h=BH*scale*0.9}
+    else{w=BH*scale*0.9;h=BW*scale*0.9}
+    const sx=this.horizontal?this.x*scale*0.9+W*0.05:this.x*scale*0.9+W*0.05;
+    const sy=this.horizontal?this.y*scale*0.9:this.y*scale*0.9;
+    let dx=this.beingDragged?dragX-this.dragOffX:x;
+    let dy=this.beingDragged?dragY-this.dragOffY:y;
+    ctx.save();
+    ctx.fillStyle=this.highlight?'#ffcc00':this.color;
+    if(this.beingDragged){ctx.globalAlpha=0.8;ctx.fillStyle='#ffcc00'}
+    let rw,rh;
+    if(this.horizontal){rw=BW;rh=BH}else{rw=BH;rh=BW}
+    ctx.fillRect(dx,dy,rw,rh);
+    ctx.strokeStyle='rgba(0,0,0,0.3)';ctx.lineWidth=1;
+    ctx.strokeRect(dx,dy,rw,rh);
+    ctx.restore();
+  }
+  contains(px,py){
+    let rw,rh;
+    if(this.horizontal){rw=BW;rh=BH}else{rw=BH;rh=BW}
+    return px>=this.x&&px<=this.x+rw&&py>=this.y&&py<=this.y+rh;
+  }
+}
+
+function initGame(){
+  blocks=[];score=0;gameOver=false;selectedBlock=null;dragging=false;
+  towerTilt=0;towerTiltVel=0;removedCount=0;
+  document.getElementById('sc').textContent='0';
+  document.getElementById('msg').style.display='none';
+  for(let r=0;r<ROWS;r++){
+    let horiz=r%2===0;
+    for(let c=0;c<COLS;c++){
+      blocks.push(new Block(r,c,horiz));
+    }
+  }
+  recalcAll();
+}
+
+function recalcAll(){
+  const baseX=W/2;
+  const baseY=H-80;
+  const tiltOffset=(row)=>Math.sin(towerTilt*0.05)*row*2;
+  blocks.forEach(b=>{
+    if(b.removed&&!b.beingDragged)return;
+    if(b.beingDragged)return;
+    let rw,rh;
+    if(b.horizontal){rw=BW;rh=BH}else{rw=BH;rh=BW}
+    const towerW=BW*COLS+GAP*(COLS-1);
+    if(b.horizontal){
+      b.x=baseX-towerW/2+b.col*(BW+GAP)+tiltOffset(b.row);
+      b.y=baseY-b.row*(BH+GAP);
+    }else{
+      const blockW=BH;
+      const totalW=blockW*COLS+GAP*(COLS-1);
+      b.x=baseX-totalW/2+b.col*(blockW+GAP)+tiltOffset(b.row);
+      b.y=baseY-b.row*(BH+GAP)-(BW-BH)/2;
+    }
+  });
+}
+
+function getEventPos(e){
+  const t=e.touches?e.touches[0]:e;
+  return{x:t.clientX,y:t.clientY};
+}
+
+function findBlockAt(x,y){
+  for(let i=blocks.length-1;i>=0;i--){
+    const b=blocks[i];
+    if(b.removed||b.beingDragged)continue;
+    if(b.contains(x,y))return b;
+  }
+  return null;
+}
+
+function canRemoveBlock(b){
+  if(b.row>=ROWS+removedCount-1)return false;
+  const rowBlocks=blocks.filter(bl=>bl.row===b.row&&!bl.removed);
+  if(rowBlocks.length<=1)return false;
+  return true;
+}
+
+function handleDown(e){
+  e.preventDefault();
+  if(gameOver)return;
+  const p=getEventPos(e);
+  mouseX=p.x;mouseY=p.y;mouseDown=true;
+  const b=findBlockAt(p.x,p.y);
+  if(b){
+    if(selectedBlock&&selectedBlock===b){
+      if(canRemoveBlock(b)){
+        b.beingDragged=true;
+        b.dragOffX=p.x-b.x;
+        b.dragOffY=p.y-b.y;
+        dragX=p.x;dragY=p.y;
+        dragging=true;
+      }
+    }else{
+      if(selectedBlock)selectedBlock.highlight=false;
+      selectedBlock=b;
+      b.highlight=true;
+      if(canRemoveBlock(b)){
+        b.beingDragged=true;
+        b.dragOffX=p.x-b.x;
+        b.dragOffY=p.y-b.y;
+        dragX=p.x;dragY=p.y;
+        dragging=true;
+      }
+    }
+  }
+}
+
+function handleMove(e){
+  e.preventDefault();
+  if(!dragging)return;
+  const p=getEventPos(e);
+  dragX=p.x;dragY=p.y;
+}
+
+function handleUp(e){
+  e.preventDefault();
+  mouseDown=false;
+  if(dragging&&selectedBlock){
+    const b=selectedBlock;
+    const origY=b.y;
+    const movedDist=Math.abs(dragY-origY-b.dragOffY)+Math.abs(dragX-b.x-b.dragOffX);
+    if(movedDist>30){
+      b.removed=true;
+      b.beingDragged=false;
+      removedCount++;
+      const maxRow=Math.max(...blocks.filter(bl=>!bl.removed).map(bl=>bl.row));
+      const topRow=maxRow+1;
+      const topBlocks=blocks.filter(bl=>bl.row===topRow&&!bl.removed);
+      const isHoriz=topRow%2===0;
+      const existingInRow=blocks.filter(bl=>bl.row===topRow&&!bl.removed);
+      let col=existingInRow.length;
+      if(col>=COLS){
+        const newRow=topRow+1;
+        col=0;
+        b.row=newRow;b.col=col;b.horizontal=newRow%2===0;
+      }else{
+        b.row=topRow;b.col=col;b.horizontal=isHoriz;
+      }
+      b.removed=false;b.placed=true;
+      const rowBlocksOld=blocks.filter(bl=>bl.row===b.row-removedCount);
+      towerTiltVel+=(Math.random()-0.5)*3;
+      const instability=removedCount*0.4+Math.random()*2;
+      towerTiltVel+=(Math.random()-0.5)*instability*0.5;
+      score++;
+      document.getElementById('sc').textContent=score;
+      recalcAll();
+    }else{
+      b.beingDragged=false;
+    }
+    dragging=false;
+    if(selectedBlock){selectedBlock.highlight=false;selectedBlock=null}
+  }else{
+    dragging=false;
+  }
+}
+
+canvas.addEventListener('mousedown',handleDown);
+canvas.addEventListener('mousemove',handleMove);
+canvas.addEventListener('mouseup',handleUp);
+canvas.addEventListener('touchstart',handleDown,{passive:false});
+canvas.addEventListener('touchmove',handleMove,{passive:false});
+canvas.addEventListener('touchend',handleUp,{passive:false});
+
+function checkCollapse(){
+  if(Math.abs(towerTilt)>15){
+    gameOver=true;
+    document.getElementById('msgText').innerHTML='탑이 무너졌습니다!<br>점수: '+score+'개';
+    document.getElementById('msg').style.display='block';
+    _hub('jenga',score);
+  }
+}
+
+function update(){
+  if(gameOver)return;
+  towerTiltVel+=(-towerTilt*0.02);
+  towerTiltVel*=0.96;
+  towerTiltVel+=(Math.random()-0.5)*0.1*Math.min(removedCount*0.3,3);
+  towerTilt+=towerTiltVel;
+  checkCollapse();
+  recalcAll();
+}
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#0f0f1e';ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#1a1a2e';
+  ctx.fillRect(W/2-100,H-50,200,50);
+  ctx.fillStyle='#252540';
+  ctx.fillRect(W/2-90,H-50,180,8);
+  for(const b of blocks){
+    b.draw();
+  }
+  if(gameOver){
+    ctx.save();
+    ctx.globalAlpha=0.3;
+    ctx.fillStyle='#f00';
+    ctx.fillRect(0,0,W,H);
+    ctx.restore();
+  }
+}
+
+function gameLoop(){
+  update();draw();
+  requestAnimationFrame(gameLoop);
+}
+
+function restartGame(){initGame()}
+initGame();gameLoop();
+</script>
+<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
+</body>
+</html>

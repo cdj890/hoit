@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>스도쿠</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;touch-action:manipulation;user-select:none}
+#game{display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:54px 8px 8px;max-width:420px;margin:0 auto}
+#top{display:flex;justify-content:space-between;width:100%;margin-bottom:6px;font-size:13px;align-items:center}
+#top span{background:rgba(255,255,255,.08);padding:4px 10px;border-radius:6px}
+#diff{display:flex;gap:6px;margin-bottom:8px}
+#diff button{background:rgba(255,255,255,.1);color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:13px;font-family:inherit;cursor:pointer;min-height:36px}
+#diff button.active{background:#4a6fa5}
+#board{display:grid;grid-template-columns:repeat(9,1fr);gap:0;width:100%;aspect-ratio:1;border:2px solid #4a6fa5;border-radius:4px;overflow:hidden}
+.cell{background:#1a1a2e;display:flex;align-items:center;justify-content:center;font-size:clamp(14px,4.5vw,22px);font-weight:bold;cursor:pointer;position:relative;border:1px solid #2a2a4a;aspect-ratio:1}
+.cell.given{color:#8899aa}
+.cell.user{color:#4af}
+.cell.selected{background:#2a3a5a!important}
+.cell.highlight{background:#1e2844}
+.cell.sameNum{background:#2a2a5a}
+.cell.error{color:#e74c3c!important}
+.cell.br-right{border-right:2px solid #4a6fa5}
+.cell.br-bottom{border-bottom:2px solid #4a6fa5}
+.cell .memo{display:grid;grid-template-columns:repeat(3,1fr);width:100%;height:100%;position:absolute;top:0;left:0}
+.cell .memo span{font-size:clamp(6px,1.8vw,9px);color:#7a8a9a;display:flex;align-items:center;justify-content:center}
+#numpad{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;width:100%;margin-top:10px}
+#numpad button{background:#2a2a4a;color:#fff;border:none;border-radius:10px;padding:10px 0;font-size:18px;font-weight:bold;font-family:inherit;cursor:pointer;min-height:44px}
+#numpad button:active{background:#4a6fa5}
+#numpad button.active{background:#4a6fa5}
+#controls{display:flex;gap:8px;margin-top:8px;width:100%}
+#controls button{flex:1;background:rgba(255,255,255,.1);color:#fff;border:none;border-radius:10px;padding:10px 0;font-size:13px;font-family:inherit;cursor:pointer;min-height:44px}
+#controls button.active{background:#e8a735;color:#000}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
+<div id="game">
+<div id="diff">
+<button onclick="newGame(40)" id="d1">쉬움</button>
+<button onclick="newGame(30)" id="d2" class="active">보통</button>
+<button onclick="newGame(25)" id="d3">어려움</button>
+</div>
+<div id="top">
+<span id="timer">⏱ 00:00</span>
+<span id="mistakes">실수: 0/3</span>
+</div>
+<div id="board"></div>
+<div id="controls">
+<button id="memoBtn" onclick="toggleMemo()">메모</button>
+<button onclick="eraseCell()">지우기</button>
+</div>
+<div id="numpad"></div>
+</div>
+<script>
+let solution=[],puzzle=[],board=[],memos=[],given=[],selected=-1,memoMode=false,mistakes=0,maxMistakes=3;
+let timerStart,timerInterval,elapsed=0,gameOver=false,difficulty=30;
+
+function generateSolution(){
+  const g=Array(81).fill(0);
+  function valid(pos,num){
+    const r=Math.floor(pos/9),c=pos%9;
+    for(let i=0;i<9;i++){if(g[r*9+i]===num||g[i*9+c]===num)return false;}
+    const br=Math.floor(r/3)*3,bc=Math.floor(c/3)*3;
+    for(let i=br;i<br+3;i++)for(let j=bc;j<bc+3;j++)if(g[i*9+j]===num)return false;
+    return true;
+  }
+  function fill(pos){
+    if(pos>=81)return true;
+    const nums=[1,2,3,4,5,6,7,8,9];
+    for(let i=nums.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[nums[i],nums[j]]=[nums[j],nums[i]];}
+    for(const n of nums){if(valid(pos,n)){g[pos]=n;if(fill(pos+1))return true;g[pos]=0;}}
+    return false;
+  }
+  fill(0);
+  return g;
+}
+
+function makePuzzle(sol,givens){
+  const p=[...sol];
+  const indices=[...Array(81).keys()];
+  for(let i=indices.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[indices[i],indices[j]]=[indices[j],indices[i]];}
+  let removed=0;
+  for(const idx of indices){
+    if(81-removed<=givens)break;
+    p[idx]=0;removed++;
+  }
+  return p;
+}
+
+function newGame(givens){
+  difficulty=givens;
+  document.querySelectorAll('#diff button').forEach(b=>b.classList.remove('active'));
+  if(givens===40)document.getElementById('d1').classList.add('active');
+  else if(givens===30)document.getElementById('d2').classList.add('active');
+  else document.getElementById('d3').classList.add('active');
+
+  solution=generateSolution();
+  puzzle=makePuzzle(solution,givens);
+  board=[...puzzle];
+  given=puzzle.map(v=>v!==0);
+  memos=Array(81).fill(null).map(()=>new Set());
+  selected=-1;mistakes=0;gameOver=false;memoMode=false;
+  document.getElementById('memoBtn').classList.remove('active');
+  elapsed=0;
+  clearInterval(timerInterval);
+  timerStart=Date.now();
+  timerInterval=setInterval(updateTimer,1000);
+  updateMistakes();
+  render();
+}
+
+function updateTimer(){
+  if(gameOver)return;
+  elapsed=Math.floor((Date.now()-timerStart)/1000);
+  const m=String(Math.floor(elapsed/60)).padStart(2,'0');
+  const s=String(elapsed%60).padStart(2,'0');
+  document.getElementById('timer').textContent=`⏱ ${m}:${s}`;
+}
+
+function updateMistakes(){
+  document.getElementById('mistakes').textContent=`실수: ${mistakes}/${maxMistakes}`;
+}
+
+function render(){
+  const bEl=document.getElementById('board');
+  bEl.innerHTML='';
+  for(let i=0;i<81;i++){
+    const r=Math.floor(i/9),c=i%9;
+    const cell=document.createElement('div');
+    cell.className='cell';
+    if(given[i])cell.classList.add('given');
+    else if(board[i])cell.classList.add('user');
+    if(c%3===2&&c<8)cell.classList.add('br-right');
+    if(r%3===2&&r<8)cell.classList.add('br-bottom');
+    if(i===selected)cell.classList.add('selected');
+    // Highlighting
+    if(selected>=0&&i!==selected){
+      const sr=Math.floor(selected/9),sc=selected%9;
+      if(r===sr||c===sc||
+        (Math.floor(r/3)===Math.floor(sr/3)&&Math.floor(c/3)===Math.floor(sc/3)))
+        cell.classList.add('highlight');
+      if(board[i]&&board[selected]&&board[i]===board[selected])
+        cell.classList.add('sameNum');
+    }
+    // Error check
+    if(board[i]&&!given[i]&&board[i]!==solution[i])cell.classList.add('error');
+
+    if(board[i]){
+      cell.textContent=board[i];
+    } else if(memos[i].size>0){
+      const md=document.createElement('div');md.className='memo';
+      for(let n=1;n<=9;n++){
+        const sp=document.createElement('span');
+        sp.textContent=memos[i].has(n)?n:'';
+        md.appendChild(sp);
+      }
+      cell.appendChild(md);
+    }
+    const idx=i;
+    cell.addEventListener('click',()=>{if(!gameOver){selected=idx;render();}});
+    bEl.appendChild(cell);
+  }
+  // Numpad
+  const np=document.getElementById('numpad');
+  np.innerHTML='';
+  for(let n=1;n<=9;n++){
+    const b=document.createElement('button');b.textContent=n;
+    b.addEventListener('click',()=>inputNum(n));
+    np.appendChild(b);
+  }
+  const eb=document.createElement('button');eb.textContent='✕';
+  eb.addEventListener('click',()=>eraseCell());
+  np.appendChild(eb);
+}
+
+function inputNum(n){
+  if(gameOver||selected<0||given[selected])return;
+  if(memoMode){
+    if(memos[selected].has(n))memos[selected].delete(n);
+    else memos[selected].add(n);
+    render();return;
+  }
+  board[selected]=n;
+  memos[selected].clear();
+  if(n!==solution[selected]){
+    mistakes++;
+    updateMistakes();
+    if(mistakes>=maxMistakes){
+      gameOver=true;clearInterval(timerInterval);
+      setTimeout(()=>alert('게임 오버! 실수 3회 초과'),100);
+    }
+  }
+  // Check completion
+  if(board.every((v,i)=>v===solution[i])){
+    gameOver=true;clearInterval(timerInterval);
+    const score=Math.max(100,Math.floor(10000/Math.max(1,elapsed)*(difficulty===40?1:difficulty===30?2:3)));
+    _hub('sudoku',score);
+    setTimeout(()=>alert(`🎉 완성! ${Math.floor(elapsed/60)}분 ${elapsed%60}초\n점수: ${score}`),100);
+  }
+  render();
+}
+
+function eraseCell(){
+  if(gameOver||selected<0||given[selected])return;
+  board[selected]=0;
+  memos[selected].clear();
+  render();
+}
+
+function toggleMemo(){
+  memoMode=!memoMode;
+  document.getElementById('memoBtn').classList.toggle('active',memoMode);
+}
+
+newGame(30);
+</script>
+</body>
+</html>

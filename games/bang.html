@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>뱅 (간소화)</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-user-select:none;user-select:none}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;touch-action:manipulation}
+#game{max-width:500px;margin:0 auto;padding:60px 10px 10px;min-height:100vh}
+.section{margin:6px 0;padding:8px;border-radius:10px;background:rgba(255,255,255,.05)}
+.section-label{font-size:12px;color:#888;margin-bottom:4px}
+#players-area{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0}
+.p-card{padding:10px;border-radius:10px;background:rgba(255,255,255,.08);min-width:100px;text-align:center;cursor:pointer;border:2px solid transparent;transition:all .2s;touch-action:manipulation;flex:1;max-width:140px}
+.p-card.selected{border-color:#f44;box-shadow:0 0 10px rgba(255,68,68,.3)}
+.p-card.dead{opacity:.3;cursor:default}
+.p-card .p-name{font-size:14px;font-weight:bold}
+.p-card .p-role{font-size:11px;color:#aaa}
+.p-card .p-hp{margin-top:4px}
+.hp-dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin:1px;background:#e44}
+.hp-dot.empty{background:#333}
+.p-card .p-equip{font-size:11px;color:#aaa;margin-top:2px}
+#hand{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;min-height:60px}
+.card{width:64px;height:88px;border-radius:8px;background:#f5f0e0;color:#222;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;font-weight:bold;cursor:pointer;border:2px solid transparent;transition:transform .15s;touch-action:manipulation;text-align:center;line-height:1.2;padding:4px}
+.card:hover{transform:translateY(-4px)}
+.card.selected{border-color:#4a6;transform:translateY(-6px)}
+.card .card-icon{font-size:22px}
+.card .card-name{font-size:10px;margin-top:2px}
+#actions{display:flex;gap:8px;justify-content:center;margin:10px 0;flex-wrap:wrap}
+#actions button{padding:10px 18px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;touch-action:manipulation;color:#fff}
+.btn-play{background:#c44}.btn-end{background:#666}.btn-discard{background:#964}
+#info{text-align:center;font-size:14px;color:#ccc;padding:8px;min-height:36px}
+#log{background:rgba(0,0,0,.3);border-radius:10px;padding:8px;max-height:150px;overflow-y:auto;font-size:12px;line-height:1.6;margin:8px 0}
+.log-entry{padding:2px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+#overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);z-index:200;align-items:center;justify-content:center;flex-direction:column;font-size:22px;font-weight:bold;text-align:center;padding:20px}
+#overlay button{margin-top:16px;padding:12px 32px;font-size:18px;border:none;border-radius:10px;background:#4a6;color:#fff;font-weight:bold;cursor:pointer;touch-action:manipulation}
+#wins-display{position:fixed;top:12px;right:12px;font-size:14px;font-weight:bold;background:rgba(0,0,0,.6);padding:6px 14px;border-radius:8px;z-index:100}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<div id="wins-display">승리: <span id="wc">0</span></div>
+<div id="game">
+  <div id="players-area"></div>
+  <div id="info">당신은 보안관입니다!</div>
+  <div id="log"></div>
+  <div id="actions"></div>
+  <div class="section">
+    <div class="section-label">내 패</div>
+    <div id="hand"></div>
+  </div>
+</div>
+<div id="overlay"><div id="ov-text"></div><button onclick="startGame()">다시 하기</button></div>
+
+<script>
+const ROLES=[
+  {id:'sheriff',name:'보안관',team:'law'},
+  {id:'deputy',name:'부관',team:'law'},
+  {id:'outlaw',name:'무법자',team:'outlaw'},
+  {id:'renegade',name:'배신자',team:'renegade'}
+];
+const CARD_TYPES=[
+  {id:'bang',name:'뱅',icon:'🔫',type:'attack'},
+  {id:'miss',name:'빗나감',icon:'🛡️',type:'defense'},
+  {id:'beer',name:'맥주',icon:'🍺',type:'heal'},
+  {id:'pharmacy',name:'약국',icon:'🏥',type:'heal2'},
+  {id:'dynamite',name:'다이너마이트',icon:'💣',type:'dynamite'},
+  {id:'scope',name:'조준경',icon:'🔭',type:'equip'},
+];
+
+let players,deck,discardPile,currentPlayer,selectedCard,selectedTarget,gameActive,turnPhase,bangPlayed;
+let wins=parseInt((JSON.parse(localStorage.getItem('game_hub')||'{}')).scores?.bang||0);
+document.getElementById('wc').textContent=wins;
+
+function makeDeck(){
+  let d=[];
+  // Weighted deck
+  for(let i=0;i<8;i++)d.push({...CARD_TYPES[0],uid:Math.random()});// bang
+  for(let i=0;i<6;i++)d.push({...CARD_TYPES[1],uid:Math.random()});// miss
+  for(let i=0;i<4;i++)d.push({...CARD_TYPES[2],uid:Math.random()});// beer
+  for(let i=0;i<2;i++)d.push({...CARD_TYPES[3],uid:Math.random()});// pharmacy
+  for(let i=0;i<2;i++)d.push({...CARD_TYPES[4],uid:Math.random()});// dynamite
+  for(let i=0;i<2;i++)d.push({...CARD_TYPES[5],uid:Math.random()});// scope
+  return shuffle(d);
+}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*i+1|0;[a[i],a[j]]=[a[j],a[i]]}return a}
+
+function drawFromDeck(n){
+  const cards=[];
+  for(let i=0;i<n;i++){
+    if(deck.length===0){deck=shuffle(discardPile);discardPile=[]}
+    if(deck.length>0)cards.push(deck.pop());
+  }
+  return cards;
+}
+
+function startGame(){
+  document.getElementById('overlay').style.display='none';
+  deck=makeDeck();discardPile=[];
+  players=[
+    {name:'나 (보안관)',role:ROLES[0],hp:4,maxHp:4,hand:[],equip:[],alive:true,idx:0},
+    {name:'부관',role:ROLES[1],hp:4,maxHp:4,hand:[],equip:[],alive:true,idx:1},
+    {name:'무법자',role:ROLES[2],hp:4,maxHp:4,hand:[],equip:[],alive:true,idx:2},
+    {name:'배신자',role:ROLES[3],hp:4,maxHp:4,hand:[],equip:[],alive:true,idx:3},
+  ];
+  players.forEach(p=>{p.hand=drawFromDeck(4)});
+  currentPlayer=0;selectedCard=null;selectedTarget=null;gameActive=true;turnPhase='play';bangPlayed=false;
+  document.getElementById('log').innerHTML='';
+  addLog('게임 시작! 당신은 보안관입니다.');
+  addLog('부관은 당신의 편, 무법자와 배신자를 처치하세요!');
+  startTurn();
+}
+
+function addLog(text){
+  const log=document.getElementById('log');
+  const d=document.createElement('div');d.className='log-entry';d.textContent=text;
+  log.appendChild(d);log.scrollTop=log.scrollHeight;
+}
+
+function getAlive(){return players.filter(p=>p.alive)}
+function getRange(from,to){
+  const alive=getAlive();
+  const fi=alive.findIndex(p=>p.idx===from.idx);
+  const ti=alive.findIndex(p=>p.idx===to.idx);
+  if(fi<0||ti<0)return 99;
+  const n=alive.length;
+  const dist=Math.min(Math.abs(fi-ti),n-Math.abs(fi-ti));
+  const scopeBonus=from.equip.some(e=>e.id==='scope')?1:0;
+  return dist-scopeBonus;
+}
+
+function canTarget(from,to){
+  return getRange(from,to)<=1&&to.alive&&to.idx!==from.idx;
+}
+
+function startTurn(){
+  const p=players[currentPlayer];
+  if(!p.alive){nextTurn();return}
+  bangPlayed=false;
+  // Draw 2 cards
+  p.hand.push(...drawFromDeck(2));
+  // Check dynamite in equip
+  const dynIdx=p.equip.findIndex(e=>e.id==='dynamite');
+  if(dynIdx>=0){
+    if(Math.random()<0.3){
+      p.hp-=3;p.equip.splice(dynIdx,1);
+      addLog(`💣 ${p.name}의 다이너마이트가 폭발! (-3HP)`);
+      if(p.hp<=0){killPlayer(p)}
+    }else{
+      // Pass dynamite to next alive player
+      const next=getNextAlive(p);
+      if(next){next.equip.push(p.equip.splice(dynIdx,1)[0]);addLog(`💣 다이너마이트가 ${next.name}에게 넘어감`)}
+    }
+  }
+  if(!p.alive){if(checkWin())return;nextTurn();return}
+  turnPhase='play';
+  if(currentPlayer===0){
+    setInfo('카드를 선택하고 사용하세요!');
+    render();
+  }else{
+    render();
+    setTimeout(()=>aiPlay(),800);
+  }
+}
+
+function getNextAlive(p){
+  const alive=getAlive();
+  const idx=alive.findIndex(x=>x.idx===p.idx);
+  if(idx<0)return null;
+  return alive[(idx+1)%alive.length];
+}
+
+function setInfo(t){document.getElementById('info').textContent=t}
+
+function render(){
+  // Players
+  const pArea=document.getElementById('players-area');pArea.innerHTML='';
+  players.forEach(p=>{
+    const d=document.createElement('div');
+    d.className='p-card'+(p.alive?'':' dead')+(selectedTarget===p.idx?' selected':'');
+    let roleText=p.idx===0?p.role.name:'???';
+    if(!p.alive)roleText=p.role.name;
+    d.innerHTML=`
+      <div class="p-name">${p.name}</div>
+      <div class="p-role">${roleText}</div>
+      <div class="p-hp">${Array(p.maxHp).fill(0).map((_,i)=>`<span class="hp-dot${i<p.hp?'':' empty'}"></span>`).join('')}</div>
+      <div class="p-equip">${p.equip.map(e=>e.icon).join(' ')||''}</div>
+    `;
+    if(p.alive&&p.idx!==0){
+      d.onclick=()=>{selectedTarget=p.idx;render()};
+    }
+    pArea.appendChild(d);
+  });
+  // Hand
+  const handDiv=document.getElementById('hand');handDiv.innerHTML='';
+  if(currentPlayer===0&&gameActive){
+    players[0].hand.forEach((c,i)=>{
+      const d=document.createElement('div');
+      d.className='card'+(selectedCard===i?' selected':'');
+      d.innerHTML=`<div class="card-icon">${c.icon}</div><div class="card-name">${c.name}</div>`;
+      d.onclick=()=>{selectedCard=i;render()};
+      handDiv.appendChild(d);
+    });
+  }else{
+    players[0].hand.forEach(c=>{
+      const d=document.createElement('div');d.className='card';
+      d.innerHTML=`<div class="card-icon">${c.icon}</div><div class="card-name">${c.name}</div>`;
+      handDiv.appendChild(d);
+    });
+  }
+  // Actions
+  const acts=document.getElementById('actions');acts.innerHTML='';
+  if(currentPlayer===0&&gameActive){
+    const playBtn=document.createElement('button');
+    playBtn.className='btn-play';playBtn.textContent='사용';
+    playBtn.onclick=playerPlayCard;
+    acts.appendChild(playBtn);
+    const endBtn=document.createElement('button');
+    endBtn.className='btn-end';endBtn.textContent='턴 종료';
+    endBtn.onclick=()=>{discardExcess(players[0]);nextTurn()};
+    acts.appendChild(endBtn);
+  }
+}
+
+function playerPlayCard(){
+  if(selectedCard===null){setInfo('카드를 먼저 선택하세요!');return}
+  const p=players[0];
+  const card=p.hand[selectedCard];
+  if(card.id==='bang'){
+    if(bangPlayed){setInfo('뱅은 턴당 1회만 사용 가능합니다!');return}
+    if(selectedTarget===null){setInfo('대상을 선택하세요!');return}
+    const target=players[selectedTarget];
+    if(!canTarget(p,target)){setInfo('사정거리 밖입니다!');return}
+    p.hand.splice(selectedCard,1);selectedCard=null;bangPlayed=true;
+    addLog(`🔫 ${p.name}이(가) ${target.name}에게 뱅!`);
+    // Check if target has miss
+    const missIdx=target.hand.findIndex(c=>c.id==='miss');
+    if(target.idx!==0&&missIdx>=0&&Math.random()<0.7){
+      target.hand.splice(missIdx,1);
+      addLog(`🛡️ ${target.name}이(가) 빗나감으로 방어!`);
+    }else if(target.idx===0){
+      // Player needs to respond - auto for simplicity
+      const myMiss=target.hand.findIndex(c=>c.id==='miss');
+      if(myMiss>=0){
+        target.hand.splice(myMiss,1);
+        addLog(`🛡️ 빗나감으로 방어!`);
+      }else{
+        target.hp--;addLog(`${target.name}이(가) 피해를 입었습니다! (HP:${target.hp})`);
+        if(target.hp<=0)killPlayer(target);
+      }
+    }else{
+      target.hp--;addLog(`${target.name}이(가) 피해! (HP:${target.hp})`);
+      if(target.hp<=0)killPlayer(target);
+    }
+  }else if(card.id==='miss'){
+    setInfo('빗나감은 방어용입니다!');return;
+  }else if(card.id==='beer'){
+    if(p.hp>=p.maxHp){setInfo('이미 최대 체력입니다!');return}
+    p.hand.splice(selectedCard,1);selectedCard=null;
+    p.hp=Math.min(p.hp+1,p.maxHp);
+    addLog(`🍺 ${p.name}이(가) 맥주를 마셨습니다! (HP:${p.hp})`);
+  }else if(card.id==='pharmacy'){
+    if(p.hp>=p.maxHp){setInfo('이미 최대 체력입니다!');return}
+    p.hand.splice(selectedCard,1);selectedCard=null;
+    p.hp=Math.min(p.hp+2,p.maxHp);
+    addLog(`🏥 ${p.name}이(가) 약국 사용! (HP:${p.hp})`);
+  }else if(card.id==='dynamite'){
+    p.hand.splice(selectedCard,1);selectedCard=null;
+    p.equip.push({...card});
+    addLog(`💣 ${p.name}이(가) 다이너마이트 설치!`);
+  }else if(card.id==='scope'){
+    p.hand.splice(selectedCard,1);selectedCard=null;
+    if(!p.equip.some(e=>e.id==='scope')){p.equip.push({...card})}
+    addLog(`🔭 ${p.name}이(가) 조준경 장착!`);
+  }
+  selectedCard=null;selectedTarget=null;
+  if(checkWin())return;
+  render();
+}
+
+function aiPlay(){
+  if(!gameActive)return;
+  const p=players[currentPlayer];
+  if(!p.alive){nextTurn();return}
+  let played=false;
+  // AI logic based on role
+  const role=p.role.id;
+  // Try to play cards
+  let attempts=0;
+  const tryPlay=()=>{
+    if(attempts++>10||!p.alive||!gameActive){discardExcess(p);nextTurn();return}
+    // Heal if low HP
+    if(p.hp<=2){
+      const healIdx=p.hand.findIndex(c=>c.id==='beer'||c.id==='pharmacy');
+      if(healIdx>=0&&p.hp<p.maxHp){
+        const c=p.hand.splice(healIdx,1)[0];
+        const heal=c.id==='pharmacy'?2:1;
+        p.hp=Math.min(p.hp+heal,p.maxHp);
+        addLog(`${c.icon} ${p.name}이(가) ${c.name} 사용! (HP:${p.hp})`);
+        render();setTimeout(tryPlay,600);return;
+      }
+    }
+    // Equip scope
+    const scopeIdx=p.hand.findIndex(c=>c.id==='scope');
+    if(scopeIdx>=0&&!p.equip.some(e=>e.id==='scope')){
+      const c=p.hand.splice(scopeIdx,1)[0];
+      p.equip.push(c);
+      addLog(`🔭 ${p.name}이(가) 조준경 장착!`);
+      render();setTimeout(tryPlay,600);return;
+    }
+    // Play dynamite on someone (place on self, passes around)
+    const dynIdx=p.hand.findIndex(c=>c.id==='dynamite');
+    if(dynIdx>=0&&!p.equip.some(e=>e.id==='dynamite')){
+      const c=p.hand.splice(dynIdx,1)[0];
+      p.equip.push(c);
+      addLog(`💣 ${p.name}이(가) 다이너마이트 설치!`);
+      render();setTimeout(tryPlay,600);return;
+    }
+    // Attack
+    if(!bangPlayed){
+      const bangIdx=p.hand.findIndex(c=>c.id==='bang');
+      if(bangIdx>=0){
+        let target=null;
+        const alive=getAlive().filter(x=>x.idx!==p.idx);
+        if(role==='deputy'){
+          // Attack outlaws/renegade, avoid sheriff
+          target=alive.find(t=>canTarget(p,t)&&t.role.team!=='law');
+          if(!target)target=alive.find(t=>canTarget(p,t)&&t.idx!==0);
+        }else if(role==='outlaw'){
+          // Prefer sheriff
+          target=alive.find(t=>canTarget(p,t)&&t.idx===0);
+          if(!target)target=alive.find(t=>canTarget(p,t));
+        }else if(role==='renegade'){
+          // Balance: attack whoever is strongest
+          const sorted=[...alive].filter(t=>canTarget(p,t)).sort((a,b)=>b.hp-a.hp);
+          target=sorted[0];
+        }
+        if(target){
+          p.hand.splice(bangIdx,1);bangPlayed=true;
+          addLog(`🔫 ${p.name}이(가) ${target.name}에게 뱅!`);
+          if(target.idx===0){
+            // Player auto-defends if possible
+            const missIdx=players[0].hand.findIndex(c=>c.id==='miss');
+            if(missIdx>=0){
+              players[0].hand.splice(missIdx,1);
+              addLog(`🛡️ 빗나감으로 방어!`);
+            }else{
+              target.hp--;addLog(`피해를 입었습니다! (HP:${target.hp})`);
+              if(target.hp<=0)killPlayer(target);
+            }
+          }else{
+            const missIdx=target.hand.findIndex(c=>c.id==='miss');
+            if(missIdx>=0&&Math.random()<0.6){
+              target.hand.splice(missIdx,1);
+              addLog(`🛡️ ${target.name}이(가) 방어!`);
+            }else{
+              target.hp--;addLog(`${target.name} 피해! (HP:${target.hp})`);
+              if(target.hp<=0)killPlayer(target);
+            }
+          }
+          if(checkWin())return;
+          render();setTimeout(tryPlay,600);return;
+        }
+      }
+    }
+    // End turn
+    discardExcess(p);
+    nextTurn();
+  };
+  setTimeout(tryPlay,600);
+}
+
+function discardExcess(p){
+  while(p.hand.length>6){
+    const c=p.hand.pop();
+    discardPile.push(c);
+  }
+}
+
+function killPlayer(p){
+  p.alive=false;p.hp=0;
+  addLog(`💀 ${p.name}이(가) 쓰러졌습니다! (${p.role.name})`);
+}
+
+function checkWin(){
+  const alive=getAlive();
+  const sheriff=players[0];
+  const outlawAlive=alive.some(p=>p.role.id==='outlaw');
+  const renegadeAlive=alive.some(p=>p.role.id==='renegade');
+  const sheriffAlive=sheriff.alive;
+  if(!sheriffAlive){
+    // If renegade is last alive, renegade wins
+    if(alive.length===1&&alive[0].role.id==='renegade'){
+      endGame('renegade');return true;
+    }
+    endGame('outlaw');return true;
+  }
+  if(!outlawAlive&&!renegadeAlive){
+    endGame('law');return true;
+  }
+  return false;
+}
+
+function endGame(winner){
+  gameActive=false;
+  const ov=document.getElementById('overlay');ov.style.display='flex';
+  if(winner==='law'){
+    document.getElementById('ov-text').innerHTML='보안관 팀 승리!<br>무법자와 배신자를 모두 처치했습니다!';
+    wins++;document.getElementById('wc').textContent=wins;
+    _hub('bang',wins);
+  }else if(winner==='outlaw'){
+    document.getElementById('ov-text').innerHTML='무법자 승리!<br>보안관이 쓰러졌습니다...';
+  }else{
+    document.getElementById('ov-text').innerHTML='배신자 승리!<br>모두를 이겼습니다!';
+  }
+  render();
+}
+
+function nextTurn(){
+  selectedCard=null;selectedTarget=null;
+  do{currentPlayer=(currentPlayer+1)%4}while(!players[currentPlayer].alive);
+  render();
+  setTimeout(()=>startTurn(),500);
+}
+
+startGame();
+</script>
+<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
+</body>
+</html>

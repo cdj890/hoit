@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>야추</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;touch-action:manipulation;user-select:none}
+#game{display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:54px 8px 8px;max-width:440px;margin:0 auto}
+#dice{display:flex;gap:10px;justify-content:center;margin:10px 0}
+.die{width:56px;height:56px;background:#2a2a4a;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:bold;cursor:pointer;border:3px solid transparent;transition:all .15s}
+.die.held{border-color:#ffd700;background:#3a3a5a}
+.die.rolling{animation:roll .1s infinite}
+@keyframes roll{0%{transform:rotate(0)}50%{transform:rotate(10deg)}100%{transform:rotate(-10deg)}}
+#rollBtn{background:#4a6fa5;color:#fff;border:none;border-radius:12px;padding:12px 32px;font-size:17px;font-weight:bold;font-family:inherit;cursor:pointer;min-height:44px;margin:8px 0}
+#rollBtn:disabled{opacity:.4}
+#rollBtn:active{transform:scale(.95)}
+#rollInfo{font-size:13px;color:#aaa;margin-bottom:6px}
+#scores{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px}
+#scores th,#scores td{padding:5px 6px;text-align:center;border:1px solid #2a2a4a}
+#scores th{background:#1a1a3e;font-size:12px}
+#scores td{background:#1a1a2e}
+#scores td.clickable{cursor:pointer;color:#5ae}
+#scores td.clickable:hover{background:#2a3a5a}
+#scores td.used{color:#888}
+#scores td.preview{color:#ffd700;opacity:.6}
+#scores .total{background:#2a2a4a;font-weight:bold;color:#ffd700}
+#msg{text-align:center;font-size:14px;color:#ffd700;min-height:22px;margin-top:6px}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
+<div id="game">
+<div id="dice"></div>
+<div id="rollInfo">주사위를 굴리세요 (3회 가능)</div>
+<button id="rollBtn" onclick="rollDice()">🎲 주사위 굴리기</button>
+<div id="msg"></div>
+<table id="scores"></table>
+</div>
+<script>
+const CATS=[
+  {id:'ones',name:'1️⃣ 에이스',upper:true},
+  {id:'twos',name:'2️⃣ 투스',upper:true},
+  {id:'threes',name:'3️⃣ 쓰리스',upper:true},
+  {id:'fours',name:'4️⃣ 포스',upper:true},
+  {id:'fives',name:'5️⃣ 파이브스',upper:true},
+  {id:'sixes',name:'6️⃣ 식스스',upper:true},
+  {id:'choice',name:'찬스',upper:false},
+  {id:'fourKind',name:'포커',upper:false},
+  {id:'fullHouse',name:'풀하우스',upper:false},
+  {id:'smallStr',name:'스몰 스트레이트',upper:false},
+  {id:'largeStr',name:'라지 스트레이트',upper:false},
+  {id:'yacht',name:'야추!',upper:false},
+];
+
+let dice=[0,0,0,0,0],held=[false,false,false,false,false];
+let rollsLeft=3,currentPlayer=0; // 0=player,1=AI
+let scores=[{},{}]; // scores[player][catId]=value or undefined
+let turnCount=0,gameOver=false;
+
+function calcScore(catId,d){
+  const sorted=[...d].sort();
+  const counts=Array(7).fill(0);
+  d.forEach(v=>counts[v]++);
+  const sum=d.reduce((a,b)=>a+b,0);
+  switch(catId){
+    case 'ones':return counts[1]*1;
+    case 'twos':return counts[2]*2;
+    case 'threes':return counts[3]*3;
+    case 'fours':return counts[4]*4;
+    case 'fives':return counts[5]*5;
+    case 'sixes':return counts[6]*6;
+    case 'choice':return sum;
+    case 'fourKind':return counts.some(c=>c>=4)?sum:0;
+    case 'fullHouse':{const has3=counts.some(c=>c===3);const has2=counts.some(c=>c===2);return (has3&&has2)?sum:0;}
+    case 'smallStr':{const u=new Set(sorted);const s=[...u].sort((a,b)=>a-b);let run=1,maxRun=1;for(let i=1;i<s.length;i++){if(s[i]===s[i-1]+1)run++;else run=1;maxRun=Math.max(maxRun,run);}return maxRun>=4?15:0;}
+    case 'largeStr':{const u=new Set(sorted);const s=[...u].sort((a,b)=>a-b);let run=1,maxRun=1;for(let i=1;i<s.length;i++){if(s[i]===s[i-1]+1)run++;else run=1;maxRun=Math.max(maxRun,run);}return maxRun>=5?30:0;}
+    case 'yacht':return counts.some(c=>c===5)?50:0;
+  }
+  return 0;
+}
+
+function totalFor(p){
+  let upper=0,lower=0;
+  CATS.forEach(cat=>{
+    const v=scores[p][cat.id];
+    if(v!==undefined){if(cat.upper)upper+=v;else lower+=v;}
+  });
+  const bonus=upper>=63?35:0;
+  return upper+bonus+lower;
+}
+
+function upperSum(p){
+  let s=0;CATS.filter(c=>c.upper).forEach(c=>{if(scores[p][c.id]!==undefined)s+=scores[p][c.id];});return s;
+}
+
+function renderDice(){
+  const dEl=document.getElementById('dice');
+  dEl.innerHTML='';
+  for(let i=0;i<5;i++){
+    const d=document.createElement('div');
+    d.className='die'+(held[i]?' held':'');
+    d.textContent=dice[i]||'?';
+    if(currentPlayer===0&&rollsLeft<3){
+      d.addEventListener('click',()=>{held[i]=!held[i];renderDice();});
+    }
+    dEl.appendChild(d);
+  }
+  document.getElementById('rollInfo').textContent=
+    rollsLeft===3?'주사위를 굴리세요 (3회 가능)':`남은 굴리기: ${rollsLeft}회`;
+  document.getElementById('rollBtn').disabled=rollsLeft<=0||currentPlayer!==0||gameOver;
+}
+
+function renderScores(){
+  const tbl=document.getElementById('scores');
+  let html='<tr><th></th><th>나</th><th>AI</th></tr>';
+  CATS.forEach(cat=>{
+    html+='<tr><td style="text-align:left">'+cat.name+'</td>';
+    for(let p=0;p<2;p++){
+      const v=scores[p][cat.id];
+      if(v!==undefined){
+        html+=`<td class="used">${v}</td>`;
+      } else if(p===0&&currentPlayer===0&&rollsLeft<3){
+        const pv=calcScore(cat.id,dice);
+        html+=`<td class="clickable preview" data-cat="${cat.id}" data-p="0">${pv}</td>`;
+      } else {
+        html+='<td>-</td>';
+      }
+    }
+    html+='</tr>';
+    if(cat.id==='sixes'){
+      html+=`<tr><td style="text-align:left;font-size:11px">상단 합계/보너스</td><td>${upperSum(0)}${upperSum(0)>=63?'+35':'/63'}</td><td>${upperSum(1)}${upperSum(1)>=63?'+35':'/63'}</td></tr>`;
+    }
+  });
+  html+=`<tr class="total"><td>총점</td><td>${totalFor(0)}</td><td>${totalFor(1)}</td></tr>`;
+  tbl.innerHTML=html;
+  // Attach click events
+  tbl.querySelectorAll('.clickable').forEach(td=>{
+    td.addEventListener('click',()=>{
+      const cat=td.dataset.cat;
+      chooseCategory(0,cat);
+    });
+  });
+}
+
+function rollDice(){
+  if(rollsLeft<=0||currentPlayer!==0||gameOver)return;
+  rollsLeft--;
+  // Animation
+  const dEl=document.getElementById('dice');
+  let frames=0;
+  const intv=setInterval(()=>{
+    for(let i=0;i<5;i++){
+      if(!held[i]){
+        const d=dEl.children[i];
+        if(d){d.textContent=Math.ceil(Math.random()*6);d.classList.add('rolling');}
+      }
+    }
+    frames++;
+    if(frames>6){
+      clearInterval(intv);
+      for(let i=0;i<5;i++){
+        if(!held[i])dice[i]=Math.ceil(Math.random()*6);
+        const d=dEl.children[i];
+        if(d){d.classList.remove('rolling');d.textContent=dice[i];}
+      }
+      renderDice();renderScores();
+    }
+  },70);
+}
+
+function chooseCategory(p,catId){
+  if(scores[p][catId]!==undefined)return;
+  scores[p][catId]=calcScore(catId,dice);
+  turnCount++;
+  // Reset for next
+  rollsLeft=3;held=[false,false,false,false,false];dice=[0,0,0,0,0];
+  if(turnCount>=24){endGame();return;}
+  // Switch player
+  currentPlayer=1-currentPlayer;
+  renderDice();renderScores();
+  if(currentPlayer===1)setTimeout(aiTurn,600);
+}
+
+function aiTurn(){
+  // AI: roll up to 3 times, then pick best category
+  rollsLeft=3;held=[false,false,false,false,false];
+  function doAiRoll(){
+    if(rollsLeft<=0){aiChoose();return;}
+    rollsLeft--;
+    for(let i=0;i<5;i++)if(!held[i])dice[i]=Math.ceil(Math.random()*6);
+    renderDice();
+    if(rollsLeft>0){
+      // Simple greedy: hold dice that appear 2+ times
+      const counts=Array(7).fill(0);
+      dice.forEach(v=>counts[v]++);
+      const best=counts.indexOf(Math.max(...counts.slice(1)),1);
+      if(best>0)dice.forEach((v,i)=>{held[i]=v===best;});
+      renderDice();
+      setTimeout(doAiRoll,500);
+    } else {
+      aiChoose();
+    }
+  }
+  doAiRoll();
+}
+
+function aiChoose(){
+  // Pick highest scoring available category
+  let bestCat=null,bestVal=-1;
+  CATS.forEach(cat=>{
+    if(scores[1][cat.id]!==undefined)return;
+    const v=calcScore(cat.id,dice);
+    if(v>bestVal||(v===bestVal&&cat.upper)){bestVal=v;bestCat=cat.id;}
+  });
+  // If all zero, pick first available
+  if(bestCat===null){
+    const avail=CATS.find(c=>scores[1][c.id]===undefined);
+    if(avail)bestCat=avail.id;
+  }
+  if(bestCat)chooseCategory(1,bestCat);
+}
+
+function endGame(){
+  gameOver=true;
+  const ps=totalFor(0),as=totalFor(1);
+  _hub('yacht',ps);
+  const msg=document.getElementById('msg');
+  if(ps>as)msg.textContent=`🎉 승리! ${ps} vs ${as}`;
+  else if(ps<as)msg.textContent=`AI 승리... ${ps} vs ${as}`;
+  else msg.textContent=`무승부! ${ps}`;
+  renderDice();renderScores();
+}
+
+function init(){
+  scores=[{},{}];turnCount=0;gameOver=false;currentPlayer=0;
+  rollsLeft=3;held=[false,false,false,false,false];dice=[0,0,0,0,0];
+  document.getElementById('msg').textContent='';
+  renderDice();renderScores();
+}
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>다트</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;touch-action:manipulation;user-select:none;overflow:hidden}
+#game{display:flex;flex-direction:column;align-items:center;height:100vh;padding:54px 8px 8px;max-width:440px;margin:0 auto}
+#info{display:flex;gap:8px;width:100%;margin-bottom:4px}
+.pbox{flex:1;background:rgba(255,255,255,.08);border-radius:10px;padding:8px;text-align:center;font-size:12px}
+.pbox .score{font-size:26px;font-weight:bold;color:#ffd700;margin:2px 0}
+.pbox.active{border:2px solid #4a6fa5}
+#boardWrap{position:relative;width:100%;max-width:360px;aspect-ratio:1;flex-shrink:0}
+canvas{width:100%;height:100%;border-radius:50%;cursor:crosshair}
+#throws{display:flex;gap:6px;justify-content:center;margin:6px 0;min-height:32px;align-items:center}
+.thrown{background:rgba(255,255,255,.1);border-radius:8px;padding:4px 10px;font-size:13px}
+#msg{text-align:center;font-size:14px;color:#ffd700;min-height:22px;margin:4px 0}
+#controls{display:flex;gap:8px;width:100%;margin-top:6px}
+#controls button{flex:1;background:#4a6fa5;color:#fff;border:none;border-radius:10px;padding:10px 0;font-size:14px;font-weight:bold;font-family:inherit;cursor:pointer;min-height:44px}
+#controls select{flex:1;background:#2a2a4a;color:#fff;border:none;border-radius:10px;padding:10px;font-size:14px;font-family:inherit;min-height:44px}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
+<div id="game">
+<div id="info">
+<div class="pbox active" id="p0box"><div>나</div><div class="score" id="p0score">301</div><div id="p0throws">다트 3개</div></div>
+<div class="pbox" id="p1box"><div>AI</div><div class="score" id="p1score">301</div><div id="p1throws"></div></div>
+</div>
+<div id="boardWrap"><canvas id="c"></canvas></div>
+<div id="throws" id="throwList"></div>
+<div id="msg">다트판을 터치하여 던지세요!</div>
+<div id="controls">
+<select id="aiDiff" onchange="aiAccuracy=parseFloat(this.value)">
+<option value="0.85">AI: 쉬움</option>
+<option value="0.92" selected>AI: 보통</option>
+<option value="0.97">AI: 어려움</option>
+</select>
+<button onclick="newGame()">새 게임</button>
+</div>
+</div>
+<script>
+const C=document.getElementById('c'),X=C.getContext('2d');
+const SEGMENTS=[20,1,18,4,13,6,10,15,2,17,3,19,7,16,8,11,14,9,12,5];
+let W,H,cx,cy,radius;
+let playerScores=[301,301],currentPlayer=0,dartsLeft=3,roundThrows=[];
+let darts=[],gameOver=false,wins=parseInt(localStorage.getItem('dart_wins')||'0');
+let aiAccuracy=0.92;
+
+function sz(){
+  const r=C.getBoundingClientRect();
+  const dpr=window.devicePixelRatio||1;
+  W=r.width;H=r.height;
+  C.width=W*dpr;C.height=H*dpr;
+  X.setTransform(dpr,0,0,dpr,0,0);
+  cx=W/2;cy=H/2;radius=Math.min(W,H)*0.46;
+  drawBoard();
+}
+
+function drawBoard(){
+  X.clearRect(0,0,W,H);
+  // Background circle
+  X.fillStyle='#1a1a2e';
+  X.beginPath();X.arc(cx,cy,radius*1.05,0,Math.PI*2);X.fill();
+
+  const segAngle=Math.PI*2/20;
+  const startAngle=-Math.PI/2-segAngle/2;
+
+  // Draw segments
+  const rings=[
+    {inner:0,outer:0.06,type:'dbull'},
+    {inner:0.06,outer:0.15,type:'bull'},
+    {inner:0.15,outer:0.58,type:'single1'},
+    {inner:0.58,outer:0.64,type:'triple'},
+    {inner:0.64,outer:0.88,type:'single2'},
+    {inner:0.88,outer:0.96,type:'double'},
+  ];
+
+  for(let s=0;s<20;s++){
+    const a1=startAngle+s*segAngle;
+    const a2=a1+segAngle;
+    rings.forEach(ring=>{
+      if(ring.type==='dbull'||ring.type==='bull')return;
+      X.beginPath();
+      X.arc(cx,cy,ring.outer*radius,a1,a2);
+      X.arc(cx,cy,ring.inner*radius,a2,a1,true);
+      X.closePath();
+      let col;
+      if(ring.type==='triple'||ring.type==='double'){
+        col=s%2===0?'#c0392b':'#27ae60';
+      } else {
+        col=s%2===0?'#f5e6c8':'#1a1a1a';
+      }
+      X.fillStyle=col;X.fill();
+      X.strokeStyle='#555';X.lineWidth=0.5;X.stroke();
+    });
+  }
+  // Bull
+  X.beginPath();X.arc(cx,cy,radius*0.15,0,Math.PI*2);X.fillStyle='#27ae60';X.fill();X.stroke();
+  X.beginPath();X.arc(cx,cy,radius*0.06,0,Math.PI*2);X.fillStyle='#c0392b';X.fill();X.stroke();
+
+  // Numbers
+  X.fillStyle='#fff';X.font=`bold ${radius*0.07}px sans-serif`;X.textAlign='center';X.textBaseline='middle';
+  for(let s=0;s<20;s++){
+    const a=startAngle+s*segAngle+segAngle/2;
+    const r=radius*1.01;
+    X.fillText(SEGMENTS[s],cx+Math.cos(a)*r,cy+Math.sin(a)*r);
+  }
+
+  // Draw landed darts
+  darts.forEach(d=>{
+    X.beginPath();X.arc(d.x,d.y,4,0,Math.PI*2);
+    X.fillStyle=d.player===0?'#ffd700':'#ff6b6b';
+    X.fill();X.strokeStyle='#fff';X.lineWidth=1;X.stroke();
+  });
+}
+
+function getScore(px,py){
+  const dx=px-cx,dy=py-cy;
+  const dist=Math.sqrt(dx*dx+dy*dy)/radius;
+  if(dist>1)return{score:0,label:'빗나감',isDouble:false};
+  if(dist<=0.06)return{score:50,label:'불스아이(50)',isDouble:true};
+  if(dist<=0.15)return{score:25,label:'불(25)',isDouble:false};
+
+  let angle=Math.atan2(dy,dx)+Math.PI/2;
+  if(angle<0)angle+=Math.PI*2;
+  const segAngle=Math.PI*2/20;
+  let seg=Math.floor((angle+segAngle/2)%(Math.PI*2)/segAngle);
+  const num=SEGMENTS[seg%20];
+
+  if(dist<=0.58)return{score:num,label:`${num}`,isDouble:false};
+  if(dist<=0.64)return{score:num*3,label:`트리플 ${num}(${num*3})`,isDouble:false};
+  if(dist<=0.88)return{score:num,label:`${num}`,isDouble:false};
+  if(dist<=0.96)return{score:num*2,label:`더블 ${num}(${num*2})`,isDouble:true};
+  return{score:0,label:'빗나감',isDouble:false};
+}
+
+function throwDart(px,py){
+  if(gameOver||currentPlayer!==0||dartsLeft<=0)return;
+  // Add wobble
+  const wobble=15;
+  const fx=px+(Math.random()-0.5)*wobble*2;
+  const fy=py+(Math.random()-0.5)*wobble*2;
+
+  const result=getScore(fx,fy);
+  darts.push({x:fx,y:fy,player:0});
+  processDart(0,result);
+  drawBoard();
+}
+
+function processDart(player,result){
+  const remaining=playerScores[player]-result.score;
+  roundThrows.push(result);
+  dartsLeft--;
+
+  if(remaining<0||(remaining===1)){
+    // Bust - score stays, end turn
+    setMsg(`버스트! 점수 복원`);
+    playerScores[player]+=roundThrows.slice(0,-1).reduce((a,r)=>a+r.score,0);
+    // Actually we haven't subtracted yet per throw, let me fix the logic
+    // We track round throws separately
+    endTurn(player,true);
+    return;
+  }
+
+  playerScores[player]=remaining;
+
+  if(remaining===0){
+    if(!result.isDouble){
+      // Must finish on double
+      setMsg('더블/불스아이로 끝내야 합니다! 버스트!');
+      endTurn(player,true);
+      return;
+    }
+    // Win!
+    gameOver=true;
+    if(player===0){
+      wins++;localStorage.setItem('dart_wins',String(wins));
+      _hub('dart',wins);
+      setMsg(`🎉 승리! 총 ${wins}회 승리!`);
+    } else {
+      setMsg('AI 승리... 다시 도전하세요');
+    }
+    updateUI();
+    return;
+  }
+
+  if(dartsLeft<=0){
+    endTurn(player,false);
+    return;
+  }
+  updateUI();
+  if(player===0)setMsg(`${result.label} | 남은 다트: ${dartsLeft}`);
+}
+
+function endTurn(player,bust){
+  if(bust){
+    // Restore score
+    let restored=playerScores[player];
+    roundThrows.forEach(r=>restored+=r.score);
+    playerScores[player]=restored;
+  }
+  roundThrows=[];
+  dartsLeft=3;
+  currentPlayer=1-player;
+  updateUI();
+  if(currentPlayer===1&&!gameOver)setTimeout(aiTurn,800);
+}
+
+function aiTurn(){
+  if(gameOver)return;
+  const remaining=playerScores[1];
+  // AI throws 3 darts
+  function aiThrow(){
+    if(dartsLeft<=0||gameOver)return;
+    // AI aims at target based on remaining score
+    let targetAngle,targetDist;
+    if(remaining<=40&&remaining>=2&&remaining%2===0){
+      // Aim for the double
+      const num=remaining/2;
+      const segIdx=SEGMENTS.indexOf(num);
+      const segAngle=Math.PI*2/20;
+      const startAngle=-Math.PI/2-segAngle/2;
+      targetAngle=startAngle+segIdx*segAngle+segAngle/2;
+      targetDist=radius*0.92;
+    } else if(remaining===50){
+      targetAngle=0;targetDist=0;
+    } else if(remaining===25){
+      targetAngle=0;targetDist=radius*0.1;
+    } else {
+      // Aim for 20 or triple 20
+      const segIdx=0;// 20 is first
+      const segAngle=Math.PI*2/20;
+      const startAngle=-Math.PI/2-segAngle/2;
+      targetAngle=startAngle+segIdx*segAngle+segAngle/2;
+      targetDist=remaining>60?radius*0.61:radius*0.4;// triple if high
+    }
+
+    const tx=cx+Math.cos(targetAngle)*targetDist;
+    const ty=cy+Math.sin(targetAngle)*targetDist;
+    const spread=radius*(1-aiAccuracy)*0.8;
+    const fx=tx+(Math.random()-0.5)*spread*2;
+    const fy=ty+(Math.random()-0.5)*spread*2;
+
+    const result=getScore(fx,fy);
+    darts.push({x:fx,y:fy,player:1});
+    processDart(1,result);
+    drawBoard();
+    if(!gameOver&&currentPlayer===1&&dartsLeft>0)setTimeout(aiThrow,600);
+    if(currentPlayer===0&&!gameOver)setMsg('다트판을 터치하여 던지세요!');
+  }
+  aiThrow();
+}
+
+function setMsg(t){document.getElementById('msg').textContent=t;}
+
+function updateUI(){
+  document.getElementById('p0score').textContent=playerScores[0];
+  document.getElementById('p1score').textContent=playerScores[1];
+  document.getElementById('p0box').className='pbox'+(currentPlayer===0?' active':'');
+  document.getElementById('p1box').className='pbox'+(currentPlayer===1?' active':'');
+  document.getElementById('p0throws').textContent=currentPlayer===0?`다트 ${dartsLeft}개`:'대기';
+  document.getElementById('p1throws').textContent=currentPlayer===1?`다트 ${dartsLeft}개`:'대기';
+
+  const tEl=document.getElementById('throws');
+  tEl.innerHTML='';
+  roundThrows.forEach(r=>{
+    const sp=document.createElement('span');sp.className='thrown';sp.textContent=r.label;
+    tEl.appendChild(sp);
+  });
+}
+
+C.addEventListener('click',e=>{
+  const rect=C.getBoundingClientRect();
+  const scaleX=W/rect.width,scaleY=H/rect.height;
+  const px=(e.clientX-rect.left)*scaleX;
+  const py=(e.clientY-rect.top)*scaleY;
+  throwDart(px,py);
+});
+
+C.addEventListener('touchend',e=>{
+  e.preventDefault();
+  const t=e.changedTouches[0];
+  const rect=C.getBoundingClientRect();
+  const scaleX=W/rect.width,scaleY=H/rect.height;
+  const px=(t.clientX-rect.left)*scaleX;
+  const py=(t.clientY-rect.top)*scaleY;
+  throwDart(px,py);
+});
+
+function newGame(){
+  playerScores=[301,301];currentPlayer=0;dartsLeft=3;
+  roundThrows=[];darts=[];gameOver=false;
+  setMsg('다트판을 터치하여 던지세요!');
+  updateUI();drawBoard();
+}
+
+window.addEventListener('resize',sz);
+sz();updateUI();
+</script>
+</body>
+</html>

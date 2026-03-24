@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>마피아 게임</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-user-select:none;user-select:none}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;touch-action:manipulation}
+#game{max-width:500px;margin:0 auto;padding:60px 12px 20px;min-height:100vh}
+#phase{text-align:center;font-size:20px;font-weight:bold;padding:12px;border-radius:10px;margin-bottom:10px}
+.day{background:rgba(255,200,50,.15);color:#ffc832}
+.night{background:rgba(50,50,150,.3);color:#88f}
+#players{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:10px 0}
+.player{padding:8px 12px;border-radius:10px;background:rgba(255,255,255,.08);font-size:13px;cursor:pointer;border:2px solid transparent;transition:all .2s;touch-action:manipulation;min-width:60px;text-align:center}
+.player.dead{opacity:.35;text-decoration:line-through;cursor:default}
+.player.selected{border-color:#4a6;background:rgba(68,170,102,.2)}
+.player.me{border-color:#48f}
+#chat{background:rgba(0,0,0,.3);border-radius:10px;padding:10px;height:260px;overflow-y:auto;margin:10px 0;font-size:13px;line-height:1.6;scroll-behavior:smooth}
+.chat-msg{margin:3px 0;padding:3px 0}
+.chat-msg .name{font-weight:bold}
+.chat-system{color:#888;font-style:italic;text-align:center}
+#actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0}
+#actions button{padding:10px 20px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;touch-action:manipulation;color:#fff}
+.btn-vote{background:#c44}
+.btn-investigate{background:#48f}
+.btn-skip{background:#555}
+.btn-confirm{background:#4a6}
+#role-info{text-align:center;font-size:14px;color:#aaa;padding:6px;background:rgba(255,255,255,.05);border-radius:8px;margin:6px 0}
+#overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);z-index:200;align-items:center;justify-content:center;flex-direction:column;font-size:22px;font-weight:bold;text-align:center;padding:20px}
+#overlay button{margin-top:20px;padding:12px 32px;font-size:18px;border:none;border-radius:10px;background:#4a6;color:#fff;font-weight:bold;cursor:pointer;touch-action:manipulation}
+#wins-display{position:fixed;top:12px;right:12px;font-size:14px;font-weight:bold;background:rgba(0,0,0,.6);padding:6px 14px;border-radius:8px;z-index:100}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<div id="wins-display">승리: <span id="wc">0</span></div>
+<div id="game">
+  <div id="phase">마피아 게임</div>
+  <div id="role-info"></div>
+  <div id="players"></div>
+  <div id="chat"></div>
+  <div id="actions"></div>
+</div>
+<div id="overlay"><div id="ov-text"></div><button onclick="startGame()">다시 하기</button></div>
+
+<script>
+const NAMES=['나','민수','지은','현우','수진','태호','미영'];
+const PERSONALITIES=[null,'aggressive','quiet','analytical','nervous','aggressive','quiet'];
+const ROLE_NAMES={citizen:'시민',mafia:'마피아',police:'경찰'};
+
+let players,myRole,phase,day,selectedTarget,votes,gameActive;
+let wins=parseInt((JSON.parse(localStorage.getItem('game_hub')||'{}')).scores?.mafia||0);
+document.getElementById('wc').textContent=wins;
+
+const DISCUSS_LINES={
+  aggressive:[
+    (t)=>`${t}이(가) 수상해요. 투표합시다!`,
+    ()=>'빨리 마피아를 찾아야 해요!',
+    (t)=>`${t} 어젯밤 뭐 했어요? 의심됩니다.`,
+    ()=>'저는 확실히 시민입니다!',
+    (t)=>`${t}한테서 마피아 냄새가 나요!`,
+  ],
+  quiet:[
+    ()=>'잘 모르겠어요...',
+    ()=>'좀 더 지켜봐야 할 것 같아요.',
+    (t)=>`${t}이(가) 좀 이상하긴 한데...`,
+    ()=>'신중하게 결정합시다.',
+    ()=>'아직 판단하기 이른 것 같아요.',
+  ],
+  analytical:[
+    (t)=>`${t}의 행동 패턴이 의심됩니다.`,
+    ()=>'지금까지 상황을 정리해보면...',
+    (t)=>`${t}이(가) 아까 한 말이 모순이에요.`,
+    ()=>'투표 결과를 분석해봐야 해요.',
+    ()=>'논리적으로 생각해봅시다.',
+  ],
+  nervous:[
+    ()=>'저 아닙니다! 진짜로!',
+    ()=>'어떡하죠... 누가 마피아일까...',
+    (t)=>`혹시 ${t}...? 아, 모르겠어요.`,
+    ()=>'무서워요... 빨리 찾아주세요.',
+    ()=>'제발 저를 의심하지 마세요!',
+  ],
+  mafia_deflect:[
+    (t)=>`저는 ${t}이(가) 더 의심돼요.`,
+    ()=>'저는 시민입니다. 믿어주세요.',
+    (t)=>`${t}을(를) 투표해야 한다고 생각해요.`,
+    ()=>'다른 사람을 잘 관찰해보세요.',
+    (t)=>`${t}이(가) 말을 안 하는 게 이상하지 않아요?`,
+  ]
+};
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*i+1|0;[a[i],a[j]]=[a[j],a[i]]}return a}
+
+function startGame(){
+  document.getElementById('overlay').style.display='none';
+  players=NAMES.map((n,i)=>({name:n,alive:true,role:null,idx:i}));
+  const roles=shuffle(['police','mafia','mafia','citizen','citizen','citizen','citizen']);
+  roles.forEach((r,i)=>players[i].role=r);
+  myRole=players[0].role;
+  phase='day';day=1;selectedTarget=null;votes={};gameActive=true;
+  document.getElementById('chat').innerHTML='';
+  addSystem('게임이 시작되었습니다! 7명의 플레이어가 참여합니다.');
+  addSystem(`당신의 역할: ${ROLE_NAMES[myRole]}`);
+  if(myRole==='mafia'){
+    const partner=players.find((p,i)=>i!==0&&p.role==='mafia');
+    if(partner)addSystem(`동료 마피아: ${partner.name}`);
+  }
+  render();
+  setTimeout(()=>aiDiscuss(),1000);
+}
+
+function addMsg(name,text,color){
+  const chat=document.getElementById('chat');
+  const d=document.createElement('div');
+  d.className='chat-msg';
+  d.innerHTML=`<span class="name" style="color:${color||'#8cf'}">${name}:</span> ${text}`;
+  chat.appendChild(d);chat.scrollTop=chat.scrollHeight;
+}
+function addSystem(text){
+  const chat=document.getElementById('chat');
+  const d=document.createElement('div');
+  d.className='chat-msg chat-system';d.textContent=text;
+  chat.appendChild(d);chat.scrollTop=chat.scrollHeight;
+}
+
+function getAlive(){return players.filter(p=>p.alive)}
+function getAliveOthers(){return players.filter(p=>p.alive&&p.idx!==0)}
+function getAliveExcept(idx){return players.filter(p=>p.alive&&p.idx!==idx)}
+
+function randomTarget(excludeIdx){
+  const t=getAlive().filter(p=>p.idx!==excludeIdx);
+  return t[Math.random()*t.length|0];
+}
+
+function aiDiscuss(){
+  if(!gameActive||phase!=='day')return;
+  const alive=getAlive().filter(p=>p.idx!==0);
+  let delay=0;
+  const speakers=shuffle([...alive]).slice(0,Math.min(4,alive.length));
+  speakers.forEach(p=>{
+    delay+=800+Math.random()*600;
+    setTimeout(()=>{
+      if(!gameActive||phase!=='day')return;
+      let lines;
+      if(p.role==='mafia'){
+        lines=DISCUSS_LINES.mafia_deflect;
+      }else{
+        lines=DISCUSS_LINES[PERSONALITIES[p.idx]]||DISCUSS_LINES.quiet;
+      }
+      const target=randomTarget(p.idx);
+      const line=lines[Math.random()*lines.length|0];
+      addMsg(p.name,line(target?target.name:'누군가'));
+    },delay);
+  });
+  setTimeout(()=>{
+    if(!gameActive||phase!=='day')return;
+    addSystem('투표 시간입니다. 추방할 사람을 선택하세요.');
+    showVoteActions();
+  },delay+1500);
+}
+
+function render(){
+  const phaseDiv=document.getElementById('phase');
+  phaseDiv.textContent=phase==='day'?`☀️ ${day}일차 낮`:`🌙 ${day}일차 밤`;
+  phaseDiv.className=phase==='day'?'day':'night';
+  document.getElementById('role-info').textContent=`내 역할: ${ROLE_NAMES[myRole]} | 생존: ${getAlive().length}명`;
+  const pDiv=document.getElementById('players');
+  pDiv.innerHTML='';
+  players.forEach(p=>{
+    const d=document.createElement('div');
+    d.className='player'+(p.alive?'':' dead')+(p.idx===0?' me':'')+(selectedTarget===p.idx?' selected':'');
+    let label=p.name;
+    if(!p.alive)label+=' ✝';
+    if(p.idx===0)label+=` (${ROLE_NAMES[myRole]})`;
+    d.textContent=label;
+    if(p.alive&&p.idx!==0){
+      d.onclick=()=>{selectedTarget=p.idx;render()};
+    }
+    pDiv.appendChild(d);
+  });
+}
+
+function showVoteActions(){
+  const acts=document.getElementById('actions');
+  acts.innerHTML='';
+  const btn=document.createElement('button');
+  btn.className='btn-vote';btn.textContent='투표하기';
+  btn.onclick=()=>{
+    if(selectedTarget===null){addSystem('투표할 사람을 선택하세요!');return}
+    playerVote();
+  };
+  acts.appendChild(btn);
+  const skip=document.createElement('button');
+  skip.className='btn-skip';skip.textContent='건너뛰기';
+  skip.onclick=()=>{selectedTarget=null;resolveVote()};
+  acts.appendChild(skip);
+}
+
+function playerVote(){
+  const acts=document.getElementById('actions');acts.innerHTML='';
+  addMsg('나',`${players[selectedTarget].name}에게 투표합니다.`,'#4f8');
+  resolveVote();
+}
+
+function resolveVote(){
+  const alive=getAlive();
+  const voteCounts={};
+  alive.forEach(p=>{
+    if(p.idx===0){
+      if(selectedTarget!==null)voteCounts[selectedTarget]=(voteCounts[selectedTarget]||0)+1;
+      return;
+    }
+    // AI voting logic
+    let target;
+    if(p.role==='mafia'){
+      // Mafia votes for non-mafia
+      const nonMafia=alive.filter(x=>x.role!=='mafia'&&x.idx!==p.idx);
+      target=nonMafia[Math.random()*nonMafia.length|0];
+    }else{
+      // Citizens vote somewhat randomly, with bias toward suspicious behavior
+      const others=alive.filter(x=>x.idx!==p.idx);
+      target=others[Math.random()*others.length|0];
+    }
+    if(target)voteCounts[target.idx]=(voteCounts[target.idx]||0)+1;
+  });
+  let maxVotes=0,eliminated=null;
+  for(const idx in voteCounts){
+    if(voteCounts[idx]>maxVotes){maxVotes=voteCounts[idx];eliminated=parseInt(idx)}
+  }
+  if(eliminated!==null&&maxVotes>=2){
+    const p=players[eliminated];
+    p.alive=false;
+    addSystem(`${p.name}이(가) 투표로 추방되었습니다. (${ROLE_NAMES[p.role]})`);
+    if(eliminated===0){
+      addSystem('당신이 추방되었습니다!');
+    }
+  }else{
+    addSystem('투표가 무산되었습니다.');
+  }
+  selectedTarget=null;
+  render();
+  if(checkWin())return;
+  setTimeout(()=>nightPhase(),1500);
+}
+
+function nightPhase(){
+  phase='night';render();
+  addSystem('밤이 되었습니다...');
+  document.getElementById('actions').innerHTML='';
+  if(players[0].alive&&myRole==='mafia'){
+    addSystem('마피아: 제거할 대상을 선택하세요.');
+    showNightMafiaAction();
+  }else if(players[0].alive&&myRole==='police'){
+    addSystem('경찰: 조사할 대상을 선택하세요.');
+    showNightPoliceAction();
+  }else{
+    setTimeout(()=>resolveNight(null,null),2000);
+  }
+}
+
+function showNightMafiaAction(){
+  const acts=document.getElementById('actions');acts.innerHTML='';
+  const btn=document.createElement('button');
+  btn.className='btn-vote';btn.textContent='제거하기';
+  btn.onclick=()=>{
+    if(selectedTarget===null){addSystem('대상을 선택하세요!');return}
+    acts.innerHTML='';
+    resolveNight(selectedTarget,null);
+  };
+  acts.appendChild(btn);
+}
+
+function showNightPoliceAction(){
+  const acts=document.getElementById('actions');acts.innerHTML='';
+  const btn=document.createElement('button');
+  btn.className='btn-investigate';btn.textContent='조사하기';
+  btn.onclick=()=>{
+    if(selectedTarget===null){addSystem('대상을 선택하세요!');return}
+    const t=players[selectedTarget];
+    addSystem(`조사 결과: ${t.name}은(는) ${ROLE_NAMES[t.role]}입니다!`);
+    acts.innerHTML='';
+    resolveNight(null,selectedTarget);
+  };
+  acts.appendChild(btn);
+  const skip=document.createElement('button');
+  skip.className='btn-skip';skip.textContent='건너뛰기';
+  skip.onclick=()=>{acts.innerHTML='';resolveNight(null,null)};
+  acts.appendChild(skip);
+}
+
+function resolveNight(playerMafiaTarget,playerPoliceTarget){
+  // AI Mafia kills
+  const mafiaAlive=getAlive().filter(p=>p.role==='mafia');
+  let killTarget=null;
+  if(mafiaAlive.length>0){
+    if(playerMafiaTarget!==null&&myRole==='mafia'){
+      killTarget=playerMafiaTarget;
+    }else{
+      const targets=getAlive().filter(p=>p.role!=='mafia');
+      if(targets.length>0){
+        // Prefer to kill police/threatening players
+        const police=targets.find(p=>p.role==='police');
+        killTarget=police?police.idx:targets[Math.random()*targets.length|0].idx;
+      }
+    }
+  }
+  setTimeout(()=>{
+    phase='day';day++;
+    addSystem(`${day}일차 아침이 밝았습니다.`);
+    if(killTarget!==null){
+      players[killTarget].alive=false;
+      addSystem(`${players[killTarget].name}이(가) 밤에 살해당했습니다.`);
+      if(killTarget===0)addSystem('당신이 살해당했습니다!');
+    }else{
+      addSystem('밤에 아무도 죽지 않았습니다.');
+    }
+    selectedTarget=null;
+    render();
+    if(checkWin())return;
+    if(!players[0].alive){
+      // Spectator mode - auto play
+      addSystem('(관전 모드)');
+      setTimeout(()=>autoPlay(),2000);
+    }else{
+      setTimeout(()=>aiDiscuss(),1000);
+    }
+  },1500);
+}
+
+function autoPlay(){
+  if(!gameActive)return;
+  if(phase==='day'){
+    // Auto vote
+    const alive=getAlive();
+    const voteCounts={};
+    alive.forEach(p=>{
+      let target;
+      if(p.role==='mafia'){
+        const nonMafia=alive.filter(x=>x.role!=='mafia'&&x.idx!==p.idx);
+        target=nonMafia[Math.random()*nonMafia.length|0];
+      }else{
+        const others=alive.filter(x=>x.idx!==p.idx);
+        target=others[Math.random()*others.length|0];
+      }
+      if(target)voteCounts[target.idx]=(voteCounts[target.idx]||0)+1;
+    });
+    let maxV=0,elim=null;
+    for(const idx in voteCounts){if(voteCounts[idx]>maxV){maxV=voteCounts[idx];elim=parseInt(idx)}}
+    if(elim!==null&&maxV>=2){
+      players[elim].alive=false;
+      addSystem(`${players[elim].name}이(가) 추방됨 (${ROLE_NAMES[players[elim].role]})`);
+    }
+    render();
+    if(checkWin())return;
+    phase='night';render();
+    setTimeout(()=>{
+      const mafiaAlive=getAlive().filter(p=>p.role==='mafia');
+      if(mafiaAlive.length>0){
+        const targets=getAlive().filter(p=>p.role!=='mafia');
+        if(targets.length>0){
+          const t=targets[Math.random()*targets.length|0];
+          t.alive=false;
+          addSystem(`${t.name}이(가) 살해당함`);
+        }
+      }
+      phase='day';day++;render();
+      if(checkWin())return;
+      setTimeout(autoPlay,2000);
+    },2000);
+  }
+}
+
+function checkWin(){
+  const alive=getAlive();
+  const mafiaAlive=alive.filter(p=>p.role==='mafia').length;
+  const citizenAlive=alive.filter(p=>p.role!=='mafia').length;
+  if(mafiaAlive===0){
+    gameActive=false;
+    addSystem('시민 팀 승리!');
+    const ov=document.getElementById('overlay');ov.style.display='flex';
+    if(myRole!=='mafia'){
+      document.getElementById('ov-text').innerHTML='승리!<br>시민 팀이 마피아를 모두 처치했습니다!';
+      wins++;document.getElementById('wc').textContent=wins;
+      _hub('mafia',wins);
+    }else{
+      document.getElementById('ov-text').innerHTML='패배...<br>마피아가 모두 제거되었습니다.';
+    }
+    return true;
+  }
+  if(mafiaAlive>=citizenAlive){
+    gameActive=false;
+    addSystem('마피아 팀 승리!');
+    const ov=document.getElementById('overlay');ov.style.display='flex';
+    if(myRole==='mafia'){
+      document.getElementById('ov-text').innerHTML='승리!<br>마피아가 마을을 장악했습니다!';
+      wins++;document.getElementById('wc').textContent=wins;
+      _hub('mafia',wins);
+    }else{
+      document.getElementById('ov-text').innerHTML='패배...<br>마피아가 마을을 장악했습니다.';
+    }
+    return true;
+  }
+  return false;
+}
+
+startGame();
+</script>
+<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
+</body>
+</html>

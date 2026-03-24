@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>루미큐브</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-user-select:none;user-select:none}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;touch-action:manipulation;overflow-x:hidden}
+#game{max-width:520px;margin:0 auto;padding:60px 8px 10px;min-height:100vh;display:flex;flex-direction:column}
+.section{margin:6px 0;padding:8px;border-radius:10px;background:rgba(255,255,255,.05)}
+.section-label{font-size:12px;color:#888;margin-bottom:4px;display:flex;justify-content:space-between}
+.tiles{display:flex;flex-wrap:wrap;gap:3px;min-height:44px;justify-content:center}
+.tile{width:36px;height:48px;border-radius:5px;background:#f5f0e0;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:bold;cursor:pointer;border:2px solid transparent;transition:transform .15s;touch-action:manipulation;position:relative}
+.tile:hover{transform:translateY(-3px)}
+.tile.selected{border-color:#4a6;transform:translateY(-6px);box-shadow:0 4px 12px rgba(68,170,102,.4)}
+.tile.joker{background:#ffd700;color:#333;font-size:12px}
+.tile-red{color:#e33}.tile-blue{color:#23e}.tile-black{color:#222}.tile-orange{color:#e80}
+.tile.back{background:#2a2a4a;color:#556;font-size:9px;cursor:default;width:28px;height:38px}
+.tile.back:hover{transform:none}
+#table-sets{min-height:80px}
+.set-group{display:flex;gap:2px;margin:4px 0;padding:4px 6px;background:rgba(255,255,255,.08);border-radius:6px;flex-wrap:wrap}
+#actions{display:flex;gap:8px;justify-content:center;margin:10px 0;flex-wrap:wrap}
+#actions button{padding:10px 18px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;touch-action:manipulation;color:#fff}
+.btn-play{background:#4a6}.btn-draw{background:#c63}.btn-sort{background:#558}
+#info{text-align:center;font-size:14px;color:#ccc;padding:6px;min-height:32px}
+#overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);z-index:200;align-items:center;justify-content:center;flex-direction:column;font-size:22px;font-weight:bold;text-align:center;padding:20px}
+#overlay button{margin-top:16px;padding:12px 32px;font-size:18px;border:none;border-radius:10px;background:#4a6;color:#fff;font-weight:bold;cursor:pointer;touch-action:manipulation}
+#wins-display{position:fixed;top:12px;right:12px;font-size:14px;font-weight:bold;background:rgba(0,0,0,.6);padding:6px 14px;border-radius:8px;z-index:100}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<div id="wins-display">승리: <span id="wc">0</span></div>
+<div id="game">
+  <div class="section">
+    <div class="section-label"><span>AI 패</span><span id="ai-count">14장</span></div>
+    <div class="tiles" id="ai-tiles"></div>
+  </div>
+  <div class="section">
+    <div class="section-label"><span>테이블</span><span id="pool-count"></span></div>
+    <div id="table-sets"></div>
+  </div>
+  <div id="info">타일을 선택하여 세트를 만드세요!</div>
+  <div id="actions"></div>
+  <div class="section">
+    <div class="section-label"><span>내 패</span><span id="my-count">14장</span></div>
+    <div class="tiles" id="my-tiles"></div>
+  </div>
+</div>
+<div id="overlay"><div id="ov-text"></div><button onclick="startGame()">다시 하기</button></div>
+
+<script>
+const COLORS=['red','blue','black','orange'];
+const COLOR_KR={red:'빨강',blue:'파랑',black:'검정',orange:'주황'};
+let pool=[],myHand=[],aiHand=[],tableSets=[],selected=[],myTurn=true,firstMeld=false,aiFirstMeld=false,gameActive=false;
+let wins=parseInt((JSON.parse(localStorage.getItem('game_hub')||'{}')).scores?.rummikub||0);
+document.getElementById('wc').textContent=wins;
+
+function makeTile(num,color){return{num,color,joker:false,id:Math.random().toString(36).slice(2)}}
+function makeJoker(){return{num:0,color:'joker',joker:true,id:Math.random().toString(36).slice(2)}}
+
+function initPool(){
+  pool=[];
+  for(let c of COLORS)for(let n=1;n<=13;n++){pool.push(makeTile(n,c));pool.push(makeTile(n,c))}
+  pool.push(makeJoker());pool.push(makeJoker());
+  shuffle(pool);
+}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*i+1|0;[a[i],a[j]]=[a[j],a[i]]}return a}
+
+function startGame(){
+  document.getElementById('overlay').style.display='none';
+  initPool();myHand=[];aiHand=[];tableSets=[];selected=[];myTurn=true;firstMeld=false;aiFirstMeld=false;gameActive=true;
+  for(let i=0;i<14;i++){myHand.push(pool.pop());aiHand.push(pool.pop())}
+  sortHand(myHand);
+  setInfo('타일을 선택하고 세트를 내세요!');
+  render();
+}
+
+function sortHand(h){
+  h.sort((a,b)=>{
+    if(a.joker)return 1;if(b.joker)return-1;
+    if(a.color!==b.color)return COLORS.indexOf(a.color)-COLORS.indexOf(b.color);
+    return a.num-b.num;
+  });
+}
+
+function setInfo(t){document.getElementById('info').textContent=t}
+
+function isValidSet(tiles){
+  if(tiles.length<3)return false;
+  const nonJokers=tiles.filter(t=>!t.joker);
+  const jokers=tiles.length-nonJokers.length;
+  if(nonJokers.length===0)return false;
+  // Check group (same number, different colors)
+  const nums=new Set(nonJokers.map(t=>t.num));
+  if(nums.size===1){
+    const colors=new Set(nonJokers.map(t=>t.color));
+    if(colors.size!==nonJokers.length)return false;
+    if(tiles.length>4)return false;
+    return true;
+  }
+  // Check run (consecutive, same color)
+  const colors=new Set(nonJokers.map(t=>t.color));
+  if(colors.size!==1)return false;
+  const sorted=[...nonJokers].sort((a,b)=>a.num-b.num);
+  let jokersLeft=jokers;
+  for(let i=1;i<sorted.length;i++){
+    const gap=sorted[i].num-sorted[i-1].num-1;
+    if(gap<0)return false; // duplicate
+    jokersLeft-=gap;
+    if(jokersLeft<0)return false;
+  }
+  return true;
+}
+
+function setPoints(tiles){
+  return tiles.reduce((s,t)=>s+(t.joker?0:t.num),0);
+}
+
+function render(){
+  // AI tiles
+  const aiDiv=document.getElementById('ai-tiles');aiDiv.innerHTML='';
+  for(let i=0;i<aiHand.length;i++){
+    const d=document.createElement('div');d.className='tile back';d.textContent='AI';
+    aiDiv.appendChild(d);
+  }
+  document.getElementById('ai-count').textContent=aiHand.length+'장';
+  // Table
+  const tableDiv=document.getElementById('table-sets');tableDiv.innerHTML='';
+  tableSets.forEach(set=>{
+    const g=document.createElement('div');g.className='set-group';
+    set.forEach(t=>{
+      const d=createTileEl(t,false);
+      g.appendChild(d);
+    });
+    tableDiv.appendChild(g);
+  });
+  document.getElementById('pool-count').textContent=`남은 타일: ${pool.length}`;
+  // My hand
+  const myDiv=document.getElementById('my-tiles');myDiv.innerHTML='';
+  myHand.forEach((t,i)=>{
+    const d=createTileEl(t,true);
+    if(selected.includes(t.id))d.classList.add('selected');
+    d.onclick=()=>toggleSelect(t.id);
+    myDiv.appendChild(d);
+  });
+  document.getElementById('my-count').textContent=myHand.length+'장';
+  // Actions
+  const acts=document.getElementById('actions');acts.innerHTML='';
+  if(myTurn&&gameActive){
+    const playBtn=document.createElement('button');
+    playBtn.className='btn-play';playBtn.textContent='세트 내기';
+    playBtn.onclick=playSet;
+    acts.appendChild(playBtn);
+    const drawBtn=document.createElement('button');
+    drawBtn.className='btn-draw';drawBtn.textContent='타일 뽑기';
+    drawBtn.onclick=drawTile;
+    acts.appendChild(drawBtn);
+    const sortBtn=document.createElement('button');
+    sortBtn.className='btn-sort';sortBtn.textContent='정렬';
+    sortBtn.onclick=()=>{sortHand(myHand);render()};
+    acts.appendChild(sortBtn);
+  }
+}
+
+function createTileEl(t,clickable){
+  const d=document.createElement('div');
+  if(t.joker){
+    d.className='tile joker';d.textContent='JK';
+  }else{
+    d.className='tile tile-'+t.color;
+    d.textContent=t.num;
+  }
+  return d;
+}
+
+function toggleSelect(id){
+  const idx=selected.indexOf(id);
+  if(idx>=0)selected.splice(idx,1);else selected.push(id);
+  render();
+}
+
+function playSet(){
+  if(selected.length<3){setInfo('3장 이상 선택하세요!');return}
+  const tiles=selected.map(id=>myHand.find(t=>t.id===id)).filter(Boolean);
+  if(tiles.length!==selected.length){setInfo('오류: 타일을 다시 선택하세요.');return}
+  if(!isValidSet(tiles)){setInfo('유효한 세트가 아닙니다! (런 또는 그룹)');return}
+  if(!firstMeld){
+    const pts=setPoints(tiles);
+    if(pts<30){setInfo(`첫 멜드는 30점 이상이어야 합니다! (현재: ${pts}점)`);return}
+    firstMeld=true;
+  }
+  tiles.forEach(t=>{const i=myHand.findIndex(x=>x.id===t.id);if(i>=0)myHand.splice(i,1)});
+  tableSets.push(tiles);
+  selected=[];
+  setInfo('세트를 냈습니다!');
+  if(myHand.length===0){endGame(true);return}
+  render();
+  // Allow playing more sets or ending turn
+  const acts=document.getElementById('actions');
+  const endBtn=document.createElement('button');
+  endBtn.className='btn-draw';endBtn.textContent='턴 종료';
+  endBtn.style.background='#666';
+  endBtn.onclick=()=>{myTurn=false;render();setTimeout(aiTurn,800)};
+  acts.appendChild(endBtn);
+}
+
+function drawTile(){
+  if(pool.length>0){
+    myHand.push(pool.pop());
+    sortHand(myHand);
+    setInfo('타일을 1장 뽑았습니다.');
+  }else{
+    setInfo('더 이상 뽑을 타일이 없습니다!');
+  }
+  selected=[];
+  myTurn=false;render();
+  setTimeout(aiTurn,800);
+}
+
+function aiTurn(){
+  if(!gameActive)return;
+  setInfo('AI가 생각 중...');
+  setTimeout(()=>{
+    let played=false;
+    // Try to find valid sets in AI hand
+    const hand=[...aiHand];
+    // Try groups
+    for(let n=1;n<=13;n++){
+      const matching=hand.filter(t=>!t.joker&&t.num===n);
+      const uniqueColors=[];const used=[];
+      matching.forEach(t=>{
+        if(!uniqueColors.includes(t.color)){uniqueColors.push(t.color);used.push(t)}
+      });
+      if(used.length>=3){
+        const pts=setPoints(used);
+        if(!aiFirstMeld&&pts<30)continue;
+        if(!aiFirstMeld)aiFirstMeld=true;
+        used.forEach(t=>{const i=aiHand.findIndex(x=>x.id===t.id);if(i>=0)aiHand.splice(i,1)});
+        tableSets.push(used);
+        played=true;
+        setInfo(`AI가 그룹 세트를 냈습니다! (${n})`);
+        break;
+      }
+    }
+    if(!played){
+      // Try runs
+      sortHand(hand);
+      for(const color of COLORS){
+        const colorTiles=hand.filter(t=>t.color===color&&!t.joker).sort((a,b)=>a.num-b.num);
+        // Find consecutive sequences
+        for(let i=0;i<colorTiles.length-2;i++){
+          const run=[colorTiles[i]];
+          for(let j=i+1;j<colorTiles.length;j++){
+            if(colorTiles[j].num===run[run.length-1].num+1){
+              run.push(colorTiles[j]);
+            }else break;
+          }
+          if(run.length>=3){
+            const pts=setPoints(run);
+            if(!aiFirstMeld&&pts<30)continue;
+            if(!aiFirstMeld)aiFirstMeld=true;
+            run.forEach(t=>{const idx=aiHand.findIndex(x=>x.id===t.id);if(idx>=0)aiHand.splice(idx,1)});
+            tableSets.push(run);
+            played=true;
+            setInfo(`AI가 런 세트를 냈습니다! (${COLOR_KR[color]} ${run[0].num}-${run[run.length-1].num})`);
+            break;
+          }
+        }
+        if(played)break;
+      }
+    }
+    if(!played){
+      if(pool.length>0){
+        aiHand.push(pool.pop());
+        setInfo('AI가 타일을 뽑았습니다.');
+      }else{
+        setInfo('AI가 패스했습니다.');
+      }
+    }
+    if(aiHand.length===0){endGame(false);return}
+    myTurn=true;selected=[];
+    render();
+  },1000);
+}
+
+function endGame(playerWon){
+  gameActive=false;
+  const ov=document.getElementById('overlay');ov.style.display='flex';
+  if(playerWon){
+    document.getElementById('ov-text').textContent='승리! 모든 타일을 냈습니다!';
+    wins++;document.getElementById('wc').textContent=wins;
+    _hub('rummikub',wins);
+  }else{
+    document.getElementById('ov-text').textContent='AI가 먼저 모든 타일을 냈습니다...';
+  }
+}
+
+startGame();
+</script>
+<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
+</body>
+</html>
