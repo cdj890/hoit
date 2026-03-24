@@ -20,12 +20,21 @@ h1{font-size:32px;margin-bottom:10px;text-shadow:0 0 20px #22c55e}
 .bar-label{width:35px}
 .bar-outer{flex:1;height:10px;background:rgba(0,0,0,0.5);border-radius:5px;border:1px solid rgba(255,255,255,0.2)}
 .bar-inner{height:100%;border-radius:5px;transition:width 0.3s}
-#craftPanel{position:fixed;bottom:10px;right:10px;z-index:60;display:none;flex-direction:column;gap:5px}
-.craft-btn{background:rgba(0,0,0,0.7);border:1px solid rgba(255,255,255,0.3);color:#fff;padding:8px 12px;border-radius:8px;font-size:12px;cursor:pointer;touch-action:manipulation;min-height:36px;text-align:left}
+#craftPanel{position:fixed;bottom:10px;right:10px;z-index:60;display:none;flex-wrap:wrap;gap:4px;max-width:220px;max-height:60vh;overflow-y:auto;justify-content:flex-end}
+.craft-btn{background:rgba(0,0,0,0.7);border:1px solid rgba(255,255,255,0.3);color:#fff;padding:6px 8px;border-radius:8px;font-size:11px;cursor:pointer;touch-action:manipulation;min-height:36px;text-align:center;width:104px}
 .craft-btn:active{background:rgba(255,255,255,0.2)}
-.craft-btn:disabled{opacity:0.4}
+.craft-btn:disabled{opacity:0.35;filter:grayscale(0.8)}
+.craft-btn.eat-btn{width:100%}
 #invDisplay{position:fixed;top:110px;left:10px;z-index:50;font-size:12px;pointer-events:none}
 #dayDisplay{position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:50;font-size:14px;font-weight:bold;pointer-events:none}
+#weatherDisplay{position:fixed;top:80px;right:10px;z-index:50;font-size:14px;font-weight:bold;pointer-events:none}
+#minimapCanvas{position:fixed;top:100px;right:10px;z-index:55;border:2px solid rgba(255,255,255,0.3);border-radius:6px;pointer-events:none;background:rgba(0,0,0,0.5)}
+#buildPanel{position:fixed;bottom:10px;left:10px;z-index:60;display:none;flex-direction:column;gap:4px}
+.build-btn{background:rgba(0,0,0,0.7);border:1px solid rgba(100,200,255,0.4);color:#fff;padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer;touch-action:manipulation;min-height:32px;text-align:left}
+.build-btn:active{background:rgba(100,200,255,0.2)}
+.build-btn:disabled{opacity:0.35}
+#tempBar{display:none}
+.bar-row .bar-label{width:35px}
 </style>
 </head>
 <body>
@@ -43,10 +52,14 @@ h1{font-size:32px;margin-bottom:10px;text-shadow:0 0 20px #22c55e}
 <div id="hud" style="display:none">
 <div class="bar-row"><span class="bar-label">❤️ HP</span><div class="bar-outer"><div class="bar-inner" id="hpBar" style="width:100%;background:#ef4444"></div></div></div>
 <div class="bar-row"><span class="bar-label">🍖 배</span><div class="bar-outer"><div class="bar-inner" id="hungerBar" style="width:100%;background:#f59e0b"></div></div></div>
+<div class="bar-row" id="tempBar"><span class="bar-label">🌡️ 온</span><div class="bar-outer"><div class="bar-inner" id="tempBarInner" style="width:100%;background:#38bdf8"></div></div></div>
 </div>
 <div id="dayDisplay" style="display:none"></div>
+<div id="weatherDisplay" style="display:none"></div>
+<canvas id="minimapCanvas" width="120" height="120" style="display:none"></canvas>
 <div id="invDisplay" style="display:none"></div>
 <div id="craftPanel"></div>
+<div id="buildPanel"></div>
 
 <a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
 <script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
@@ -57,75 +70,194 @@ const W=Math.min(window.innerWidth,500);
 const H=Math.min(window.innerHeight-20,750);
 canvas.width=W;canvas.height=H;
 
-const MAP=1200;
+const MAP=2400;
+const MINIMAP_SIZE=120;
+const minimapCanvas=document.getElementById('minimapCanvas');
+const mctx=minimapCanvas.getContext('2d');
 let state='menu',frame=0;
-let player={x:MAP/2,y:MAP/2,hp:100,hunger:100,speed:2.5};
+let player={x:MAP/2,y:MAP/2,hp:100,hunger:100,speed:2.5,temp:100};
 let inv={wood:0,food:0,stone:0};
-let crafted={axe:false,shelter:false,fire:false};
+let crafted={};
+let buildings=[];
+let explored={}; // grid cells explored
 let resources=[],animals=[],particles=[];
 let day=1,dayTimer=0,isNight=false;
 let camX=0,camY=0;
 let joyActive=false,joyX=0,joyY=0,joyStartX=0,joyStartY=0;
 let heartbeatTimer=0;
 let craftFlash=0;
+let weather='sunny',weatherTimer=0;
+const WEATHER_CYCLE=2; // changes every 2 days
+const WEATHERS=['sunny','rain','snow','storm'];
+const WEATHER_INFO={sunny:{icon:'☀️',name:'맑음'},rain:{icon:'🌧️',name:'비'},snow:{icon:'🌨️',name:'눈'},storm:{icon:'🌪️',name:'폭풍'}};
+
+// Biomes: 0=beach, 1=forest, 2=mountain, 3=cave
+function getBiome(x,y){
+  const cx=MAP/2,cy=MAP/2;
+  const dist=Math.hypot(x-cx,y-cy);
+  if(dist<300)return 0; // beach (spawn)
+  const angle=Math.atan2(y-cy,x-cx);
+  const sector=(angle+Math.PI)/(Math.PI*2)*4;
+  if(dist>900)return 3; // cave (edges)
+  if(sector<1.5||sector>3.5)return 1; // forest
+  return 2; // mountain
+}
+const BIOME_INFO=[
+  {name:'해변',color:'#c2b280',colorNight:'#5a5340',woodMul:1,stoneMul:1},
+  {name:'숲',color:'#1f5a1f',colorNight:'#0d2a0d',woodMul:3,stoneMul:0.5},
+  {name:'산',color:'#6b7280',colorNight:'#3a3f47',woodMul:0.5,stoneMul:3},
+  {name:'동굴',color:'#374151',colorNight:'#1f2937',woodMul:1,stoneMul:2}
+];
 
 const DAY_LENGTH=600; // frames per half-day
 const RECIPES=[
-  {name:'🪓 도끼',id:'axe',cost:{wood:3,stone:2},desc:'나무 2배 획득'},
-  {name:'🏠 은신처',id:'shelter',cost:{wood:5},desc:'밤에 HP감소 절반'},
-  {name:'🔥 모닥불',id:'fire',cost:{wood:2,stone:1},desc:'밤에 동물 접근 못함'}
+  // 기본
+  {name:'🪓 도끼',id:'axe',cost:{wood:1,stone:1},desc:'나무 2배 획득',cat:'기본'},
+  {name:'⛏️ 곡괭이',id:'pickaxe',cost:{wood:1,stone:2},desc:'돌 2배 획득',cat:'기본'},
+  {name:'🔦 횃불',id:'torch',cost:{wood:2},desc:'야간 시야 확대',cat:'기본'},
+  {name:'🏗️ 울타리',id:'fence_item',cost:{wood:3},desc:'설치용 울타리',cat:'기본'},
+  // 중급
+  {name:'🏹 활',id:'bow',cost:{wood:3,stone:1},desc:'원거리 동물 공격',cat:'중급'},
+  {name:'🎣 낚싯대',id:'rod',cost:{wood:2,stone:1},desc:'물가에서 음식 획득',cat:'중급'},
+  {name:'🪤 함정',id:'trap',cost:{wood:2,stone:2},desc:'동물 자동 포획',cat:'중급'},
+  {name:'⛺ 텐트',id:'tent_item',cost:{wood:5,stone:2},desc:'설치용 텐트',cat:'중급'},
+  // 고급
+  {name:'🗡️ 돌칼',id:'knife',cost:{stone:3},desc:'동물 2배 데미지',cat:'고급'},
+  {name:'🛡️ 방패',id:'shield',cost:{wood:3,stone:2},desc:'받는 피해 절반',cat:'고급'},
+  {name:'🚣 뗏목',id:'raft',cost:{wood:10},desc:'물 위 이동 가능',cat:'고급'},
+  {name:'🚀 신호탄',id:'flare',cost:{stone:5,wood:3},desc:'구조 요청(승리!)',cat:'고급'},
+  // building items (crafted then placed)
+  {name:'🔥 모닥불',id:'fire_item',cost:{wood:2,stone:1},desc:'설치용 모닥불',cat:'기본'},
+];
+
+// Animal types
+const ANIMAL_TYPES=[
+  {id:'rabbit',emoji:'🐰',name:'토끼',hp:10,speed:2.0,damage:0,dropFood:2,dropStone:0,nightOnly:true,behavior:'flee',spawnWeight:3},
+  {id:'wolf',emoji:'🐺',name:'늑대',hp:25,speed:1.5,damage:10,dropFood:3,dropStone:0,nightOnly:false,behavior:'chase',spawnWeight:2},
+  {id:'boar',emoji:'🐗',name:'멧돼지',hp:40,speed:2.2,damage:15,dropFood:4,dropStone:0,nightOnly:false,behavior:'charge',spawnWeight:2},
+  {id:'eagle',emoji:'🦅',name:'독수리',hp:15,speed:2.8,damage:8,dropFood:2,dropStone:0,nightOnly:false,behavior:'swoop',spawnWeight:2},
+  {id:'snake',emoji:'🐍',name:'뱀',hp:12,speed:1.0,damage:5,dropFood:1,dropStone:0,nightOnly:false,behavior:'poison',spawnWeight:2},
+  {id:'bear',emoji:'🐻',name:'곰',hp:100,speed:1.3,damage:25,dropFood:8,dropStone:2,nightOnly:false,behavior:'boss',spawnWeight:0}
+];
+
+// Building types that can be placed
+const BUILDING_TYPES=[
+  {id:'fire',name:'🔥 모닥불',need:'fire_item',desc:'동물 쫓아냄, 체온 유지',radius:100},
+  {id:'fence',name:'🏗️ 울타리',need:'fence_item',desc:'동물 차단',radius:50},
+  {id:'tent',name:'⛺ 텐트',need:'tent_item',desc:'밤에 안전 수면(HP회복)',radius:40},
 ];
 
 function spawnResources(){
   resources=[];
-  for(let i=0;i<40;i++){
-    resources.push({x:Math.random()*MAP,y:Math.random()*MAP,type:'wood',emoji:'🪵',amount:1});
-  }
-  for(let i=0;i<25;i++){
-    resources.push({x:Math.random()*MAP,y:Math.random()*MAP,type:'food',emoji:'🍖',amount:1});
-  }
-  for(let i=0;i<20;i++){
-    resources.push({x:Math.random()*MAP,y:Math.random()*MAP,type:'stone',emoji:'🪨',amount:1});
+  for(let i=0;i<120;i++){
+    const x=Math.random()*MAP,y=Math.random()*MAP;
+    const biome=getBiome(x,y);
+    const bi=BIOME_INFO[biome];
+    // weight resource type by biome
+    const r=Math.random();
+    let type,emoji;
+    if(r<0.4*bi.woodMul/(bi.woodMul+bi.stoneMul+1)){type='wood';emoji='🪵';}
+    else if(r<0.4*(bi.woodMul+bi.stoneMul)/(bi.woodMul+bi.stoneMul+1)){type='stone';emoji='🪨';}
+    else{type='food';emoji='🍖';}
+    resources.push({x,y,type,emoji,amount:biome===3?2:1});
   }
 }
 
 function spawnAnimals(){
-  for(let i=0;i<3+day;i++){
+  const count=3+Math.floor(day*1.5);
+  // spawn boss bear every 5 days
+  if(day%5===0){
     const angle=Math.random()*Math.PI*2;
-    const dist=200+Math.random()*300;
+    const dist=300+Math.random()*200;
+    const t=ANIMAL_TYPES.find(a=>a.id==='bear');
     animals.push({
-      x:player.x+Math.cos(angle)*dist,
-      y:player.y+Math.sin(angle)*dist,
-      hp:20+day*5,speed:1.2+day*0.1,damage:8+day*2,
-      r:12,hitCd:0,active:false
+      x:player.x+Math.cos(angle)*dist,y:player.y+Math.sin(angle)*dist,
+      type:t,hp:t.hp+day*5,maxHp:t.hp+day*5,speed:t.speed,damage:t.damage+day,
+      r:16,hitCd:0,poisonTimer:0,chargeDir:null,chargeCd:0,swoopBase:null
     });
   }
+  for(let i=0;i<count;i++){
+    const angle=Math.random()*Math.PI*2;
+    const dist=250+Math.random()*400;
+    // weighted random pick (exclude bear)
+    const pool=ANIMAL_TYPES.filter(a=>a.spawnWeight>0&&(!a.nightOnly||isNight));
+    if(pool.length===0)continue;
+    const totalW=pool.reduce((s,a)=>s+a.spawnWeight,0);
+    let pick=Math.random()*totalW,t=pool[0];
+    for(const a of pool){pick-=a.spawnWeight;if(pick<=0){t=a;break;}}
+    animals.push({
+      x:player.x+Math.cos(angle)*dist,y:player.y+Math.sin(angle)*dist,
+      type:t,hp:t.hp+day*2,maxHp:t.hp+day*2,speed:t.speed+day*0.05,damage:t.damage+day,
+      r:12,hitCd:0,poisonTimer:0,chargeDir:null,chargeCd:0,swoopBase:null
+    });
+  }
+}
+
+function attackAnimal(a,dmg){
+  a.hp-=dmg;
+  particles.push({x:a.x,y:a.y-10,t:0,text:'-'+dmg,color:'#ff0'});
+  if(a.hp<=0){
+    // drops
+    if(a.type.dropFood>0){inv.food+=a.type.dropFood;particles.push({x:a.x,y:a.y-20,t:0,text:'+'+a.type.dropFood+'🍖',color:'#4ade80'});}
+    if(a.type.dropStone>0){inv.stone+=a.type.dropStone;particles.push({x:a.x,y:a.y-30,t:0,text:'+'+a.type.dropStone+'🪨',color:'#94a3b8'});}
+    updateCraft();updateBuildPanel();
+    return true; // dead
+  }
+  return false;
+}
+
+function changeWeather(){
+  const choices=WEATHERS.filter(w=>w!==weather);
+  weather=choices[Math.floor(Math.random()*choices.length)];
+}
+
+function markExplored(px,py){
+  const gx=Math.floor(px/60),gy=Math.floor(py/60);
+  for(let dx=-2;dx<=2;dx++)for(let dy=-2;dy<=2;dy++){explored[(gx+dx)+','+(gy+dy)]=true;}
 }
 
 function startGame(){
   document.getElementById('startScreen').classList.add('hidden');
   document.getElementById('hud').style.display='block';
   document.getElementById('dayDisplay').style.display='block';
+  document.getElementById('weatherDisplay').style.display='block';
+  document.getElementById('minimapCanvas').style.display='block';
   document.getElementById('invDisplay').style.display='block';
   document.getElementById('craftPanel').style.display='flex';
+  document.getElementById('buildPanel').style.display='flex';
+  document.getElementById('tempBar').style.display='flex';
   state='playing';
-  player={x:MAP/2,y:MAP/2,hp:100,hunger:100,speed:2.5};
+  player={x:MAP/2,y:MAP/2,hp:100,hunger:100,speed:2.5,temp:100};
   inv={wood:0,food:0,stone:0};
-  crafted={axe:false,shelter:false,fire:false};
+  crafted={};buildings=[];explored={};
+  weather='sunny';weatherTimer=0;
   day=1;dayTimer=0;isNight=false;frame=0;
   resources=[];animals=[];particles=[];
   spawnResources();
   updateCraft();
+  updateBuildPanel();
   requestAnimationFrame(gameLoop);
 }
 
 function endGame(){
   state='over';
   _hub('survival',day);
-  document.getElementById('goTitle').textContent='💀 '+(player.hp<=0?'체력 소진':'아사');
-  const craftCount=Object.values(crafted).filter(v=>v).length;
-  document.getElementById('goStats').textContent=`생존 일수: ${day}일 | 제작: ${craftCount}/3 | 나무: ${inv.wood} 돌: ${inv.stone}`;
+  const cause=player.hp<=0?(player.temp<=0?'저체온':'체력 소진'):'아사';
+  document.getElementById('goTitle').textContent='💀 '+cause;
+  const craftCount=Object.keys(crafted).length;
+  document.getElementById('goStats').textContent=`생존 일수: ${day}일 | 제작: ${craftCount}/${RECIPES.length} | 건물: ${buildings.length} | 날씨: ${WEATHER_INFO[weather].name}`;
   document.getElementById('gameOver').classList.remove('hidden');
+}
+
+// Check if flare was crafted = victory
+function checkVictory(){
+  if(crafted.flare){
+    state='over';
+    _hub('survival',day*100);
+    document.getElementById('goTitle').textContent='🎉 구조됨!';
+    document.getElementById('goStats').textContent=`${day}일 만에 구조! 신호탄으로 탈출 성공!`;
+    document.getElementById('gameOver').classList.remove('hidden');
+  }
 }
 
 function updateCraft(){
@@ -139,7 +271,8 @@ function updateCraft(){
       const icons={wood:'🪵',food:'🍖',stone:'🪨'};
       return (icons[k]||k)+v;
     }).join(' ');
-    btn.textContent=r.name+' ('+costStr+') - '+r.desc;
+    btn.innerHTML=`<div>${r.name}</div><div style="font-size:9px;opacity:0.7">${costStr}</div>`;
+    btn.title=r.desc;
     let canCraft=true;
     for(const[k,v]of Object.entries(r.cost)){if((inv[k]||0)<v)canCraft=false;}
     btn.disabled=!canCraft;
@@ -148,20 +281,38 @@ function updateCraft(){
       crafted[r.id]=true;
       craftFlash=30;
       particles.push({x:player.x,y:player.y-20,t:0,text:r.name+' 제작!',color:'#4f4'});
-      // craft celebration particles
       for(let ii=0;ii<8;ii++){particles.push({x:player.x+(Math.random()-0.5)*30,y:player.y-10+(Math.random()-0.5)*20,t:0,text:'✨',color:'#fbbf24'});}
-      updateCraft();
+      if(r.id==='flare')checkVictory();
+      updateCraft();updateBuildPanel();
     };
     panel.appendChild(btn);
   });
   // eat button
   if(inv.food>0){
     const eatBtn=document.createElement('button');
-    eatBtn.className='craft-btn';
-    eatBtn.textContent='🍖 음식 먹기 (배고픔 +30)';
+    eatBtn.className='craft-btn eat-btn';
+    eatBtn.textContent='🍖 음식 먹기 (+30 배고픔)';
     eatBtn.onclick=()=>{inv.food--;player.hunger=Math.min(100,player.hunger+30);updateCraft();};
     panel.appendChild(eatBtn);
   }
+}
+
+function updateBuildPanel(){
+  const panel=document.getElementById('buildPanel');
+  panel.innerHTML='';
+  BUILDING_TYPES.forEach(bt=>{
+    if(!crafted[bt.need])return;
+    const btn=document.createElement('button');
+    btn.className='build-btn';
+    btn.textContent=bt.name+' 설치';
+    btn.onclick=()=>{
+      buildings.push({x:player.x,y:player.y,type:bt.id,name:bt.name,radius:bt.radius});
+      delete crafted[bt.need];
+      particles.push({x:player.x,y:player.y-20,t:0,text:bt.name+' 설치!',color:'#38bdf8'});
+      updateCraft();updateBuildPanel();
+    };
+    panel.appendChild(btn);
+  });
 }
 
 // joystick
@@ -184,10 +335,19 @@ canvas.addEventListener('pointercancel',()=>{joyActive=false;joyX=0;joyY=0;});
 function update(){
   if(state!=='playing')return;
   frame++;
+
+  // weather speed modifier
+  let speedMod=1;
+  if(weather==='rain')speedMod=0.7;
+  if(weather==='storm')speedMod=0.85;
+
   // move
-  player.x=Math.max(10,Math.min(MAP-10,player.x+joyX*player.speed));
-  player.y=Math.max(10,Math.min(MAP-10,player.y+joyY*player.speed));
+  player.x=Math.max(10,Math.min(MAP-10,player.x+joyX*player.speed*speedMod));
+  player.y=Math.max(10,Math.min(MAP-10,player.y+joyY*player.speed*speedMod));
   camX=player.x-W/2;camY=player.y-H/2;
+
+  // exploration fog of war
+  markExplored(player.x,player.y);
 
   // day/night cycle
   dayTimer++;
@@ -195,10 +355,20 @@ function update(){
     dayTimer=0;
     if(isNight){
       isNight=false;day++;
+      // weather changes every 2 days
+      weatherTimer++;
+      if(weatherTimer>=WEATHER_CYCLE){weatherTimer=0;changeWeather();}
       particles.push({x:player.x,y:player.y-30,t:0,text:'☀️ '+day+'일차 아침!',color:'#fbbf24'});
-      // respawn resources
-      for(let i=0;i<8;i++){
-        resources.push({x:Math.random()*MAP,y:Math.random()*MAP,type:['wood','food','stone'][Math.floor(Math.random()*3)],emoji:['🪵','🍖','🪨'][Math.floor(Math.random()*3)],amount:1});
+      // respawn resources biome-aware
+      for(let i=0;i<15;i++){
+        const x=Math.random()*MAP,y=Math.random()*MAP;
+        const biome=getBiome(x,y);
+        const r=Math.random();
+        let type,emoji;
+        if(r<0.4){type='wood';emoji='🪵';}
+        else if(r<0.7){type='stone';emoji='🪨';}
+        else{type='food';emoji='🍖';}
+        resources.push({x,y,type,emoji,amount:biome===3?2:1});
       }
     }else{
       isNight=true;
@@ -208,81 +378,245 @@ function update(){
     }
   }
 
-  // hunger/hp decay
+  // rain auto-collects water (gives food as proxy)
+  if(weather==='rain'&&frame%180===0){
+    inv.food++;
+    particles.push({x:player.x,y:player.y-25,t:0,text:'+1🍖 빗물',color:'#38bdf8'});
+  }
+
+  // hunger/hp/temp decay
   if(frame%90===0){
-    player.hunger=Math.max(0,player.hunger-1);
+    let hungerRate=weather==='storm'?2:1;
+    player.hunger=Math.max(0,player.hunger-hungerRate);
+
+    // temperature
+    let tempChange=0;
+    if(weather==='snow')tempChange=-3;
+    if(isNight)tempChange-=1;
+    // nearby fire building warms
+    const nearFire=buildings.some(b=>b.type==='fire'&&Math.hypot(b.x-player.x,b.y-player.y)<b.radius);
+    if(nearFire)tempChange+=4;
+    if(crafted.torch)tempChange+=1;
+    if(!isNight&&weather!=='snow')tempChange+=2;
+    player.temp=Math.max(0,Math.min(100,player.temp+tempChange));
+    if(player.temp<=0)player.hp=Math.max(0,player.hp-3);
+
     if(isNight){
-      const dmg=crafted.shelter?1:2;
-      player.hp=Math.max(0,player.hp-dmg);
+      // tent building: safe sleep = HP recovery
+      const nearTent=buildings.some(b=>b.type==='tent'&&Math.hypot(b.x-player.x,b.y-player.y)<b.radius);
+      if(nearTent){player.hp=Math.min(100,player.hp+2);}
+      else{player.hp=Math.max(0,player.hp-1);}
     }
     if(player.hunger<=0)player.hp=Math.max(0,player.hp-2);
     if(player.hp<=0)endGame();
   }
 
+  // fishing rod: near edge of map (water) gives food periodically
+  if(crafted.rod&&frame%200===0){
+    const edgeDist=Math.min(player.x,player.y,MAP-player.x,MAP-player.y);
+    if(edgeDist<80){
+      inv.food+=2;
+      particles.push({x:player.x,y:player.y-20,t:0,text:'+2🐟 낚시!',color:'#38bdf8'});
+      updateCraft();
+    }
+  }
+
+  // trap: auto-kills nearby weak animals
+  if(crafted.trap&&frame%120===0){
+    animals=animals.filter(a=>{
+      if(a.hp<=15&&Math.hypot(a.x-player.x,a.y-player.y)<80){
+        inv.food+=a.type.dropFood;
+        particles.push({x:a.x,y:a.y-10,t:0,text:'🪤 '+a.type.emoji+' 포획!',color:'#4ade80'});
+        updateCraft();updateBuildPanel();
+        return false;
+      }
+      return true;
+    });
+  }
+
   // collect resources
   resources=resources.filter(r=>{
     if(Math.hypot(r.x-player.x,r.y-player.y)<22){
-      const amt=r.type==='wood'&&crafted.axe?2:r.amount;
+      let amt=r.amount;
+      if(r.type==='wood'&&crafted.axe)amt*=2;
+      if(r.type==='stone'&&crafted.pickaxe)amt*=2;
       inv[r.type]=(inv[r.type]||0)+amt;
       particles.push({x:r.x,y:r.y-5,t:0,text:'+'+amt+' '+r.emoji,color:'#4ade80'});
-      updateCraft();
+      updateCraft();updateBuildPanel();
       return false;
     }
     return true;
   });
 
-  // animals (night only)
-  if(isNight){
+  // bow: auto-attack nearest animal in range
+  if(crafted.bow&&frame%60===0){
+    let nearest=null,nearDist=180;
     animals.forEach(a=>{
-      if(crafted.fire&&Math.hypot(a.x-player.x,a.y-player.y)<120){
-        // flee from fire
-        const dx=a.x-player.x,dy=a.y-player.y;
-        const dist=Math.hypot(dx,dy)||1;
-        a.x+=dx/dist*a.speed;a.y+=dy/dist*a.speed;
-      }else{
-        const dx=player.x-a.x,dy=player.y-a.y;
-        const dist=Math.hypot(dx,dy)||1;
-        if(dist<300){
-          a.x+=dx/dist*a.speed;a.y+=dy/dist*a.speed;
-        }
-        if(a.hitCd>0)a.hitCd--;
-        if(dist<18&&a.hitCd<=0){
-          player.hp=Math.max(0,player.hp-a.damage);
-          a.hitCd=40;
-          particles.push({x:player.x,y:player.y,t:0,text:'-'+a.damage,color:'#f44'});
-          if(player.hp<=0)endGame();
-        }
-      }
+      const d=Math.hypot(a.x-player.x,a.y-player.y);
+      if(d<nearDist){nearDist=d;nearest=a;}
     });
+    if(nearest){
+      const dmg=crafted.knife?20:10;
+      if(attackAnimal(nearest,dmg)){
+        animals=animals.filter(a=>a!==nearest);
+      }
+    }
   }
+
+  // animal AI
+  animals.forEach(a=>{
+    const dx=player.x-a.x,dy=player.y-a.y;
+    const dist=Math.hypot(dx,dy)||1;
+
+    // check if near a fire building
+    const nearFireBuilding=buildings.some(b=>b.type==='fire'&&Math.hypot(b.x-a.x,b.y-a.y)<b.radius);
+    // check if blocked by fence
+    const blockedByFence=buildings.some(b=>b.type==='fence'&&Math.hypot(b.x-a.x,b.y-a.y)<b.radius);
+
+    if(nearFireBuilding||blockedByFence){
+      // flee
+      a.x-=dx/dist*a.speed;a.y-=dy/dist*a.speed;
+      return;
+    }
+
+    // behavior
+    switch(a.type.behavior){
+      case 'flee': // rabbit
+        if(dist<120){a.x-=dx/dist*a.speed*1.3;a.y-=dy/dist*a.speed*1.3;}
+        else{a.x+=Math.sin(frame*0.03+a.x)*0.5;a.y+=Math.cos(frame*0.03+a.y)*0.5;}
+        break;
+      case 'chase': // wolf
+        if(dist<350){a.x+=dx/dist*a.speed;a.y+=dy/dist*a.speed;}
+        break;
+      case 'charge': // boar - charges in straight line
+        if(a.chargeDir){
+          a.x+=a.chargeDir.x*a.speed*2;a.y+=a.chargeDir.y*a.speed*2;
+          a.chargeCd--;
+          if(a.chargeCd<=0)a.chargeDir=null;
+        }else if(dist<250){
+          if(Math.random()<0.02){a.chargeDir={x:dx/dist,y:dy/dist};a.chargeCd=40;}
+          else{a.x+=dx/dist*a.speed*0.5;a.y+=dy/dist*a.speed*0.5;}
+        }
+        break;
+      case 'swoop': // eagle - fast dive attacks
+        if(!a.swoopBase)a.swoopBase={x:a.x,y:a.y};
+        if(dist<300){
+          const swoopPhase=Math.sin(frame*0.05)*50;
+          a.x=a.swoopBase.x+dx/dist*swoopPhase;
+          a.y=a.swoopBase.y+dy/dist*swoopPhase;
+          if(dist<200){a.swoopBase.x+=dx/dist*0.5;a.swoopBase.y+=dy/dist*0.5;}
+        }
+        break;
+      case 'poison': // snake - slow but poisons
+        if(dist<200){a.x+=dx/dist*a.speed;a.y+=dy/dist*a.speed;}
+        break;
+      case 'boss': // bear
+        if(dist<400){a.x+=dx/dist*a.speed;a.y+=dy/dist*a.speed;}
+        break;
+    }
+
+    // collision damage
+    if(a.hitCd>0)a.hitCd--;
+    if(dist<20&&a.hitCd<=0&&a.type.behavior!=='flee'){
+      let dmg=a.damage;
+      if(crafted.shield)dmg=Math.floor(dmg/2);
+      player.hp=Math.max(0,player.hp-dmg);
+      a.hitCd=40;
+      particles.push({x:player.x,y:player.y,t:0,text:'-'+dmg,color:'#f44'});
+      // snake poison: extra DOT
+      if(a.type.behavior==='poison'){
+        a.poisonTimer=5;
+        particles.push({x:player.x,y:player.y-15,t:0,text:'🤢 독!',color:'#a855f7'});
+      }
+      // melee counter-attack
+      const counterDmg=crafted.knife?15:5;
+      if(attackAnimal(a,counterDmg)){
+        a.hp=-1; // mark for removal
+      }
+      if(player.hp<=0)endGame();
+    }
+    // poison DOT
+    if(a.poisonTimer>0&&frame%60===0){
+      player.hp=Math.max(0,player.hp-3);
+      a.poisonTimer--;
+      particles.push({x:player.x,y:player.y-10,t:0,text:'-3 독',color:'#a855f7'});
+      if(player.hp<=0)endGame();
+    }
+  });
+
+  // remove dead animals
+  animals=animals.filter(a=>a.hp>0);
+
+  // player touches rabbit = catches it (flee type)
+  animals=animals.filter(a=>{
+    if(a.type.behavior==='flee'&&Math.hypot(a.x-player.x,a.y-player.y)<18){
+      inv.food+=a.type.dropFood;
+      particles.push({x:a.x,y:a.y-10,t:0,text:'+'+a.type.dropFood+'🍖',color:'#4ade80'});
+      updateCraft();updateBuildPanel();
+      return false;
+    }
+    return true;
+  });
 
   particles=particles.filter(p=>{p.t++;return p.t<50;});
 
   // update UI
   document.getElementById('hpBar').style.width=(player.hp)+'%';
   document.getElementById('hungerBar').style.width=(player.hunger)+'%';
+  document.getElementById('tempBarInner').style.width=(player.temp)+'%';
+  document.getElementById('tempBarInner').style.background=player.temp>50?'#38bdf8':'#ef4444';
   document.getElementById('dayDisplay').textContent=(isNight?'🌙':'☀️')+' '+day+'일차';
-  document.getElementById('invDisplay').innerHTML='🪵'+inv.wood+' 🍖'+inv.food+' 🪨'+inv.stone+
-    (crafted.axe?' | 🪓':'')+(crafted.shelter?' | 🏠':'')+(crafted.fire?' | 🔥':'');
+  document.getElementById('weatherDisplay').textContent=WEATHER_INFO[weather].icon+' '+WEATHER_INFO[weather].name;
+  const craftIcons=Object.keys(crafted).map(k=>{const r=RECIPES.find(rr=>rr.id===k);return r?r.name.split(' ')[0]:'';}).join('');
+  document.getElementById('invDisplay').innerHTML='🪵'+inv.wood+' 🍖'+inv.food+' 🪨'+inv.stone+(craftIcons?' | '+craftIcons:'');
 }
 
 function draw(){
   const nightAlpha=isNight?0.4*(1-Math.abs(dayTimer-DAY_LENGTH/2)/(DAY_LENGTH/2)):0;
-  // background
   ctx.fillStyle=isNight?'#0a1a0a':'#1a3a1a';ctx.fillRect(0,0,W,H);
 
   const sx=x=>x-camX,sy=y=>y-camY;
 
-  // ground texture
-  ctx.fillStyle=isNight?'#0d1f0d':'#1f4a1f';
-  for(let x=0;x<MAP;x+=30){
-    for(let y=0;y<MAP;y+=30){
-      const dx=sx(x),dy=sy(y);
-      if(dx>-30&&dx<W+30&&dy>-30&&dy<H+30){
-        ctx.fillRect(dx,dy,28,28);
-      }
+  // ground texture with biomes
+  const tileSize=30;
+  const startTX=Math.max(0,Math.floor(camX/tileSize));
+  const startTY=Math.max(0,Math.floor(camY/tileSize));
+  const endTX=Math.min(Math.ceil(MAP/tileSize),Math.ceil((camX+W)/tileSize)+1);
+  const endTY=Math.min(Math.ceil(MAP/tileSize),Math.ceil((camY+H)/tileSize)+1);
+  for(let tx=startTX;tx<endTX;tx++){
+    for(let ty=startTY;ty<endTY;ty++){
+      const wx=tx*tileSize,wy=ty*tileSize;
+      const biome=getBiome(wx,wy);
+      const bi=BIOME_INFO[biome];
+      ctx.fillStyle=isNight?bi.colorNight:bi.color;
+      ctx.fillRect(sx(wx),sy(wy),tileSize-1,tileSize-1);
     }
   }
+
+  // buildings
+  buildings.forEach(b=>{
+    const bx=sx(b.x),by=sy(b.y);
+    if(bx>-50&&bx<W+50&&by>-50&&by<H+50){
+      // radius indicator
+      ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.arc(bx,by,b.radius,0,Math.PI*2);ctx.stroke();
+      ctx.font='22px serif';ctx.textAlign='center';
+      if(b.type==='fire'){
+        ctx.fillText('🔥',bx,by+7);
+        // fire glow
+        if(isNight){
+          const fg=ctx.createRadialGradient(bx,by,5,bx,by,b.radius);
+          fg.addColorStop(0,'rgba(255,150,50,0.25)');fg.addColorStop(1,'rgba(255,150,50,0)');
+          ctx.fillStyle=fg;ctx.fillRect(bx-b.radius,by-b.radius,b.radius*2,b.radius*2);
+        }
+      }else if(b.type==='fence'){
+        ctx.fillText('🏗️',bx,by+7);
+      }else if(b.type==='tent'){
+        ctx.fillText('⛺',bx,by+7);
+      }
+      ctx.textAlign='left';
+    }
+  });
 
   // resources
   ctx.font='20px serif';
@@ -293,26 +627,22 @@ function draw(){
     }
   });
 
-  // animals
-  if(isNight){
-    animals.forEach(a=>{
-      const ax=sx(a.x),ay=sy(a.y);
-      if(ax>-20&&ax<W+20&&ay>-20&&ay<H+20){
-        ctx.fillStyle='#7c3aed';
-        ctx.beginPath();ctx.arc(ax,ay,a.r,0,Math.PI*2);ctx.fill();
-        ctx.fillStyle='#f00';
-        ctx.beginPath();ctx.arc(ax-3,ay-3,2,0,Math.PI*2);ctx.fill();
-        ctx.beginPath();ctx.arc(ax+3,ay-3,2,0,Math.PI*2);ctx.fill();
+  // animals (always visible now, with emoji)
+  animals.forEach(a=>{
+    const ax=sx(a.x),ay=sy(a.y);
+    if(ax>-20&&ax<W+20&&ay>-20&&ay<H+20){
+      ctx.font='20px serif';ctx.textAlign='center';
+      ctx.fillText(a.type.emoji,ax,ay+7);
+      // HP bar for non-full HP
+      if(a.hp<a.maxHp){
+        const barW=24,barH=3;
+        ctx.fillStyle='rgba(0,0,0,0.5)';ctx.fillRect(ax-barW/2,ay-a.r-6,barW,barH);
+        ctx.fillStyle=a.hp>a.maxHp*0.5?'#4ade80':'#ef4444';
+        ctx.fillRect(ax-barW/2,ay-a.r-6,barW*(a.hp/a.maxHp),barH);
       }
-    });
-  }
-
-  // fire glow
-  if(crafted.fire&&isNight){
-    const grad=ctx.createRadialGradient(sx(player.x),sy(player.y),10,sx(player.x),sy(player.y),100);
-    grad.addColorStop(0,'rgba(255,150,50,0.2)');grad.addColorStop(1,'rgba(255,150,50,0)');
-    ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
-  }
+      ctx.textAlign='left';
+    }
+  });
 
   // player
   const px=sx(player.x),py=sy(player.y);
@@ -326,6 +656,9 @@ function draw(){
   ctx.beginPath();ctx.arc(px-4,py-3,1.5,0,Math.PI*2);ctx.fill();
   ctx.beginPath();ctx.arc(px+4,py-3,1.5,0,Math.PI*2);ctx.fill();
   ctx.beginPath();ctx.arc(px,py+3,3,0,Math.PI);ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke();
+  // show equipped items around player
+  if(crafted.shield){ctx.font='12px serif';ctx.fillText('🛡️',px+14,py-8);}
+  if(crafted.bow){ctx.font='12px serif';ctx.fillText('🏹',px-22,py-8);}
 
   // craft flash
   if(craftFlash>0){
@@ -334,12 +667,37 @@ function draw(){
     craftFlash--;
   }
 
-  // night overlay with gradient transition
+  // weather effects
+  if(weather==='rain'){
+    ctx.strokeStyle='rgba(100,180,255,0.3)';ctx.lineWidth=1;
+    for(let i=0;i<40;i++){
+      const rx=(frame*2+i*37)%W,ry=(frame*4+i*53)%H;
+      ctx.beginPath();ctx.moveTo(rx,ry);ctx.lineTo(rx-2,ry+8);ctx.stroke();
+    }
+  }
+  if(weather==='snow'){
+    ctx.fillStyle='rgba(255,255,255,0.6)';
+    for(let i=0;i<30;i++){
+      const sx2=(Math.sin(frame*0.02+i*1.7)*30+i*41)%W;
+      const sy2=(frame*1.5+i*47)%H;
+      ctx.beginPath();ctx.arc(Math.abs(sx2),sy2,2,0,Math.PI*2);ctx.fill();
+    }
+  }
+  if(weather==='storm'){
+    ctx.fillStyle=`rgba(50,50,80,${0.1+Math.sin(frame*0.1)*0.05})`;ctx.fillRect(0,0,W,H);
+    ctx.strokeStyle='rgba(150,150,200,0.2)';ctx.lineWidth=1;
+    for(let i=0;i<60;i++){
+      const rx=(frame*3+i*29)%W,ry=(frame*5+i*43)%H;
+      ctx.beginPath();ctx.moveTo(rx,ry);ctx.lineTo(rx-4,ry+12);ctx.stroke();
+    }
+  }
+
+  // night overlay
   if(isNight){
-    const transitionProgress=Math.min(dayTimer/60,1); // smooth transition over 1 second
+    const transitionProgress=Math.min(dayTimer/60,1);
     ctx.fillStyle=`rgba(0,0,30,${(0.3+nightAlpha*0.2)*transitionProgress})`;ctx.fillRect(0,0,W,H);
-    // vision circle
-    const vg=ctx.createRadialGradient(px,py,30,px,py,crafted.fire?150:80);
+    const visionR=crafted.torch?180:(buildings.some(b=>b.type==='fire'&&Math.hypot(b.x-player.x,b.y-player.y)<b.radius)?150:80);
+    const vg=ctx.createRadialGradient(px,py,30,px,py,visionR);
     vg.addColorStop(0,'rgba(0,0,30,0)');vg.addColorStop(1,'rgba(0,0,30,0.5)');
     ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);
   }
@@ -351,26 +709,30 @@ function draw(){
     const intensity=beat*(1-player.hp/25)*0.2;
     ctx.fillStyle=`rgba(255,0,0,${intensity})`;
     ctx.fillRect(0,0,W,H);
-    // vignette
     const vg=ctx.createRadialGradient(W/2,H/2,W*0.3,W/2,H/2,W*0.7);
     vg.addColorStop(0,'rgba(255,0,0,0)');
     vg.addColorStop(1,`rgba(100,0,0,${intensity*1.5})`);
     ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);
   }
 
-  // animal approach warning
-  if(isNight){
-    animals.forEach(a=>{
-      const dist=Math.hypot(a.x-player.x,a.y-player.y);
-      if(dist<180&&dist>50){
-        const ax=sx(a.x),ay=sy(a.y);
-        ctx.fillStyle=`rgba(255,0,0,${(1-dist/180)*0.4})`;
-        ctx.font='bold 10px sans-serif';ctx.textAlign='center';
-        ctx.fillText('!',ax,ay-a.r-5);
-        ctx.textAlign='left';
-      }
-    });
+  // cold overlay when temp is low
+  if(player.temp<30){
+    const coldAlpha=(1-player.temp/30)*0.15;
+    ctx.fillStyle=`rgba(100,150,255,${coldAlpha})`;ctx.fillRect(0,0,W,H);
   }
+
+  // animal approach warning
+  animals.forEach(a=>{
+    if(a.type.behavior==='flee')return;
+    const dist=Math.hypot(a.x-player.x,a.y-player.y);
+    if(dist<200&&dist>50){
+      const ax=sx(a.x),ay=sy(a.y);
+      ctx.fillStyle=`rgba(255,0,0,${(1-dist/200)*0.5})`;
+      ctx.font='bold 10px sans-serif';ctx.textAlign='center';
+      ctx.fillText('⚠️',ax,ay-a.r-8);
+      ctx.textAlign='left';
+    }
+  });
 
   // particles
   particles.forEach(p=>{
@@ -385,6 +747,47 @@ function draw(){
     ctx.fillStyle='rgba(255,255,255,0.3)';
     ctx.beginPath();ctx.arc(joyStartX+joyX*40,joyStartY+joyY*40,14,0,Math.PI*2);ctx.fill();
   }
+
+  // biome label
+  const currentBiome=getBiome(player.x,player.y);
+  ctx.fillStyle='rgba(255,255,255,0.4)';ctx.font='11px sans-serif';
+  ctx.fillText(BIOME_INFO[currentBiome].name,10,H-10);
+
+  // MINIMAP
+  drawMinimap();
+}
+
+function drawMinimap(){
+  const scale=MINIMAP_SIZE/MAP;
+  mctx.clearRect(0,0,MINIMAP_SIZE,MINIMAP_SIZE);
+  // fog of war base
+  mctx.fillStyle='#111';mctx.fillRect(0,0,MINIMAP_SIZE,MINIMAP_SIZE);
+  // draw explored tiles
+  const gridSize=60;
+  for(const key in explored){
+    const[gx,gy]=key.split(',').map(Number);
+    const wx=gx*gridSize,wy=gy*gridSize;
+    const biome=getBiome(wx,wy);
+    const bi=BIOME_INFO[biome];
+    mctx.fillStyle=isNight?bi.colorNight:bi.color;
+    mctx.fillRect(wx*scale,wy*scale,gridSize*scale+1,gridSize*scale+1);
+  }
+  // buildings on minimap
+  buildings.forEach(b=>{
+    mctx.fillStyle=b.type==='fire'?'#f97316':b.type==='fence'?'#60a5fa':'#a78bfa';
+    mctx.fillRect(b.x*scale-1,b.y*scale-1,3,3);
+  });
+  // animals on minimap
+  animals.forEach(a=>{
+    mctx.fillStyle=a.type.behavior==='flee'?'#86efac':'#ef4444';
+    mctx.fillRect(a.x*scale-1,a.y*scale-1,2,2);
+  });
+  // player dot
+  mctx.fillStyle='#60a5fa';
+  mctx.beginPath();mctx.arc(player.x*scale,player.y*scale,3,0,Math.PI*2);mctx.fill();
+  // camera view rectangle
+  mctx.strokeStyle='rgba(255,255,255,0.5)';mctx.lineWidth=1;
+  mctx.strokeRect(camX*scale,camY*scale,W*scale,H*scale);
 }
 
 function gameLoop(){
