@@ -21,8 +21,17 @@ body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;display:fle
 #turn{padding:6px 14px;border-radius:8px;font-weight:bold}
 #score{font-size:14px}
 canvas{border-radius:8px;margin-top:4px;touch-action:none}
-#controls{display:flex;gap:8px;margin-top:8px}
+#controls{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;justify-content:center}
 .hidden{display:none!important}
+.diff-select{background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:8px;padding:8px 12px;font-size:14px;cursor:pointer;margin:6px}
+.diff-select option{background:#1a1a2e;color:#fff}
+#timer{width:100%;max-width:450px;display:flex;justify-content:space-between;font-size:13px;padding:4px 8px;color:#aaa}
+#record{font-size:12px;color:#888}
+#captured{width:100%;max-width:450px;display:flex;justify-content:space-between;font-size:14px;padding:6px 8px;color:#ddd;font-weight:bold}
+.btn-undo{background:linear-gradient(135deg,#e67e22,#d35400)!important}
+.btn-new{background:linear-gradient(135deg,#27ae60,#2ecc71)!important}
+.btn-toggle{background:linear-gradient(135deg,#9b59b6,#8e44ad)!important}
+#atariPopup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:42px;font-weight:bold;color:#ff6600;text-shadow:0 0 20px rgba(255,100,0,0.8);z-index:500;pointer-events:none;opacity:0;transition:opacity 0.3s}
 </style>
 </head>
 <body>
@@ -32,6 +41,11 @@ canvas{border-radius:8px;margin-top:4px;touch-action:none}
 <div id="startScreen">
 <h1>⚫ 바둑 9x9</h1>
 <p>9x9 바둑을 AI와 대전하세요!<br>흑(선수)으로 플레이합니다.<br>교차점을 탭하여 돌을 놓으세요.<br>패스를 두 번 연속하면 게임이 종료됩니다.</p>
+<select class="diff-select" id="diffSelect">
+<option value="1">쉬움 (랜덤)</option>
+<option value="2" selected>보통 (잡기+방어)</option>
+<option value="3">어려움 (영역 인식)</option>
+</select>
 <button class="btn" onclick="startGame()">AI 대전 시작</button>
 </div>
 
@@ -41,20 +55,27 @@ canvas{border-radius:8px;margin-top:4px;touch-action:none}
 <button class="btn" onclick="startGame()">다시 하기</button>
 </div>
 
+<div id="atariPopup"></div>
 <div id="info" class="hidden">
 <span id="turn">내 차례 (흑)</span>
 <span id="score">흑 0 | 백 0</span>
 </div>
+<div id="timer" class="hidden"><span id="timerBk">내 시간: 0:00</span><span id="record">0승 0패</span><span id="timerWh">AI 시간: 0:00</span></div>
 <canvas id="board" class="hidden"></canvas>
+<div id="captured" class="hidden"><span id="capBk">흑 잡은돌: 0</span><span id="capWh">백 잡은돌: 0</span></div>
 <div id="controls" class="hidden">
-<button class="btn btn-pass" onclick="playerPass()">패스 (더 둘 곳 없을 때)</button>
-<button class="btn btn-pass" onclick="showScorePreview()" style="background:linear-gradient(135deg,#2196F3,#1976D2)">현재 점수 보기</button>
+<button class="btn btn-undo" onclick="undoMove()">↩ 되돌리기</button>
+<button class="btn btn-pass" onclick="playerPass()">패스</button>
+<button class="btn btn-pass" onclick="showScorePreview()" style="background:linear-gradient(135deg,#2196F3,#1976D2)">점수 보기</button>
+<button class="btn btn-toggle" onclick="toggleTerritory()">영역 표시</button>
+<button class="btn btn-toggle" onclick="toggleMoveNumbers()">수순 표시</button>
+<button class="btn btn-new" onclick="newGame()">새 게임</button>
 </div>
 
 <script>
 const canvas=document.getElementById('board'),ctx=canvas.getContext('2d');
 const SIZE=9;
-let BW,SQ,OX,OY,board,turn,gameActive,wins,capturedB,capturedW,lastBoard,consecutivePasses,koPoint;
+let BW,SQ,OX,OY,board,turn,gameActive,wins,losses,capturedB,capturedW,lastBoard,consecutivePasses,koPoint,aiDifficulty,undoStack,moveHistory,showTerr,showMoveNums,timerBk,timerWh,timerInterval;
 
 function initBoard(){
   board=Array.from({length:SIZE},()=>Array(SIZE).fill(0));
@@ -117,18 +138,19 @@ function isLegal(r,c,color,bd){
 }
 
 function placeStone(r,c,color){
+  // Save for undo
+  undoStack.push({board:cloneBoard(board),capturedB,capturedW,lastBoard:lastBoard?cloneBoard(lastBoard):null,koPoint:koPoint?[...koPoint]:null,consecutivePasses,turn,moveHistory:[...moveHistory]});
   const prevBoard=cloneBoard(board);
   board[r][c]=color;
   const enemy=color===1?2:1;
   const captured=removeCaptures(board,enemy);
+  moveHistory.push([r,c,color]);
 
   // Ko detection
   koPoint=null;
   if(captured===1){
-    // Check if this is a potential ko
     for(let i=0;i<SIZE;i++)for(let j=0;j<SIZE;j++){
       if(prevBoard[i][j]===enemy&&board[i][j]===0){
-        // This was the captured stone - check if placing there would recreate
         koPoint=[i,j];
       }
     }
@@ -137,7 +159,41 @@ function placeStone(r,c,color){
   if(color===1)capturedB+=captured;else capturedW+=captured;
   consecutivePasses=0;
   lastBoard=prevBoard;
+
+  // Atari warning for own groups
+  checkAtari(color);
 }
+
+function checkAtari(color){
+  const checked=new Set();
+  for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++){
+    if(board[r][c]===color&&!checked.has(r*SIZE+c)){
+      const g=getGroup(r,c,board);
+      g.stones.forEach(s=>checked.add(s[0]*SIZE+s[1]));
+      if(g.liberties.size===1){
+        const popup=document.getElementById('atariPopup');
+        popup.textContent='아타리!';popup.style.opacity='1';
+        setTimeout(()=>{popup.style.opacity='0';},1200);
+        return;
+      }
+    }
+  }
+}
+
+function undoMove(){
+  if(!gameActive||turn!==1)return;
+  if(undoStack.length<2)return;
+  undoStack.pop(); // AI
+  const state=undoStack.pop(); // Player
+  board=state.board;capturedB=state.capturedB;capturedW=state.capturedW;
+  lastBoard=state.lastBoard;koPoint=state.koPoint;consecutivePasses=state.consecutivePasses;
+  turn=state.turn;moveHistory=state.moveHistory;
+  draw();updateUI();
+}
+
+function toggleTerritory(){showTerr=!showTerr;draw();}
+function toggleMoveNumbers(){showMoveNums=!showMoveNums;draw();}
+function newGame(){if(timerInterval)clearInterval(timerInterval);startGame();}
 
 function countTerritory(){
   const territory=[0,0]; // black, white
@@ -177,25 +233,29 @@ function showScorePreview(){
 
 function endGame(){
   gameActive=false;
+  if(timerInterval)clearInterval(timerInterval);
   const terr=countTerritory();
   const blackScore=terr[0]+capturedB;
-  const whiteScore=terr[1]+capturedW+6.5; // Komi
+  const whiteScore=terr[1]+capturedW+6.5;
   const go=document.getElementById('gameOver');
   const rt=document.getElementById('resultText');
   const rs=document.getElementById('resultSub');
   if(blackScore>whiteScore){
     rt.textContent='🎉 승리!';
     rs.textContent='흑 '+blackScore+' vs 백 '+whiteScore+' (덤 6.5)';
-    wins++;_hub('baduk',wins);
+    wins++;localStorage.setItem('baduk_wins',wins);_hub('baduk',wins);
   }else{
     rt.textContent='😢 패배';
     rs.textContent='흑 '+blackScore+' vs 백 '+whiteScore+' (덤 6.5)';
+    losses++;localStorage.setItem('baduk_losses',losses);
   }
+  rs.textContent+=' ('+wins+'승 '+losses+'패)';
   go.style.display='flex';
 }
 
 function playerPass(){
   if(!gameActive||turn!==1)return;
+  undoStack.push({board:cloneBoard(board),capturedB,capturedW,lastBoard:lastBoard?cloneBoard(lastBoard):null,koPoint:koPoint?[...koPoint]:null,consecutivePasses,turn,moveHistory:[...moveHistory]});
   consecutivePasses++;koPoint=null;
   if(consecutivePasses>=2){endGame();return;}
   turn=2;updateUI();draw();
@@ -204,7 +264,6 @@ function playerPass(){
 
 function aiMove(){
   if(!gameActive||turn!==2)return;
-  // Collect legal moves
   const moves=[];
   for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++){
     if(isLegal(r,c,2,board))moves.push([r,c]);
@@ -215,7 +274,13 @@ function aiMove(){
     turn=1;koPoint=null;updateUI();draw();return;
   }
 
-  // Score each move
+  // Easy: random
+  if(aiDifficulty===1){
+    const pick=moves[Math.floor(Math.random()*moves.length)];
+    placeStone(pick[0],pick[1],2);
+    turn=1;updateUI();draw();return;
+  }
+
   let bestScore=-Infinity,bestMoves=[];
   for(const[r,c]of moves){
     let score=0;
@@ -224,18 +289,14 @@ function aiMove(){
     const cap=removeCaptures(nb,1);
     score+=cap*10;
 
-    // Check if move saves own group
     const g=getGroup(r,c,nb);
-    if(g.liberties.size===1)score-=3; // Risky
+    if(g.liberties.size===1)score-=3;
 
-    // Prefer center-ish
     const dr=r-4,dc=c-4;
     score-=(dr*dr+dc*dc)*0.1;
 
-    // Avoid self-atari
     if(g.liberties.size<=1&&cap===0)score-=20;
 
-    // Prefer moves near existing stones
     for(const[ddr,ddc]of[[-1,0],[1,0],[0,-1],[0,1]]){
       if(r+ddr>=0&&r+ddr<SIZE&&c+ddc>=0&&c+ddc<SIZE){
         if(board[r+ddr][c+ddc]===2)score+=2;
@@ -243,14 +304,68 @@ function aiMove(){
       }
     }
 
+    // Defend own groups in atari
+    const checked=new Set();
+    for(const[ddr,ddc]of[[-1,0],[1,0],[0,-1],[0,1]]){
+      const nr=r+ddr,nc=c+ddc;
+      if(nr>=0&&nr<SIZE&&nc>=0&&nc<SIZE&&board[nr][nc]===2&&!checked.has(nr*SIZE+nc)){
+        const og=getGroup(nr,nc,board);
+        og.stones.forEach(s=>checked.add(s[0]*SIZE+s[1]));
+        if(og.liberties.size<=2)score+=5; // Defend threatened group
+      }
+    }
+
+    // Hard mode: territory awareness
+    if(aiDifficulty===3){
+      // Check if move encloses territory
+      const terrBefore=countTerritory();
+      const terrAfter=countTerritoryOn(nb);
+      const terrGain=(terrAfter[1]-terrBefore[1])-(terrAfter[0]-terrBefore[0]);
+      score+=terrGain*3;
+
+      // Reduce opponent liberties
+      const echecked=new Set();
+      for(const[ddr,ddc]of[[-1,0],[1,0],[0,-1],[0,1]]){
+        const nr=r+ddr,nc=c+ddc;
+        if(nr>=0&&nr<SIZE&&nc>=0&&nc<SIZE&&nb[nr][nc]===1&&!echecked.has(nr*SIZE+nc)){
+          const eg=getGroup(nr,nc,nb);
+          eg.stones.forEach(s=>echecked.add(s[0]*SIZE+s[1]));
+          if(eg.liberties.size===1)score+=8;
+          else if(eg.liberties.size===2)score+=3;
+        }
+      }
+    }
+
     if(score>bestScore){bestScore=score;bestMoves=[[r,c]];}
     else if(score===bestScore)bestMoves.push([r,c]);
   }
 
-  // Add some randomness
   const pick=bestMoves[Math.floor(Math.random()*bestMoves.length)];
   placeStone(pick[0],pick[1],2);
   turn=1;updateUI();draw();
+}
+
+function countTerritoryOn(bd){
+  const territory=[0,0];
+  const visited=new Set();
+  for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++){
+    if(bd[r][c]!==0||visited.has(r*SIZE+c))continue;
+    const region=[];const borders=new Set();
+    const stack=[[r,c]];
+    while(stack.length){
+      const[cr,cc]=stack.pop();
+      const key=cr*SIZE+cc;
+      if(visited.has(key))continue;
+      if(bd[cr][cc]!==0){borders.add(bd[cr][cc]);continue;}
+      visited.add(key);region.push([cr,cc]);
+      for(const[dr,dc]of[[-1,0],[1,0],[0,-1],[0,1]]){
+        const nr=cr+dr,nc=cc+dc;
+        if(nr>=0&&nr<SIZE&&nc>=0&&nc<SIZE)stack.push([nr,nc]);
+      }
+    }
+    if(borders.size===1){territory[[...borders][0]-1]+=region.length;}
+  }
+  return territory;
 }
 
 function handleClick(x,y){
@@ -263,12 +378,19 @@ function handleClick(x,y){
   setTimeout(aiMove,300);
 }
 
+function formatTime(sec){const m=Math.floor(sec/60);const s=sec%60;return m+':'+(s<10?'0':'')+s;}
+
 function updateUI(){
   document.getElementById('turn').textContent=turn===1?'⚫ 내 차례 (흑)':'⚪ AI 차례 (백)';
   document.getElementById('turn').style.background=turn===1?'rgba(100,100,100,0.3)':'rgba(200,200,200,0.2)';
   const terr=countTerritory();
   const bs=terr[0]+capturedB, ws=terr[1]+capturedW+6.5;
-  document.getElementById('score').textContent=`흑 ${bs} vs 백 ${ws.toFixed(1)} (잡은돌:흑${capturedB}/백${capturedW})`;
+  document.getElementById('score').textContent=`흑 ${bs} vs 백 ${ws.toFixed(1)}`;
+  document.getElementById('capBk').textContent='⚫ 잡은돌: '+capturedB;
+  document.getElementById('capWh').textContent='⚪ 잡은돌: '+capturedW;
+  document.getElementById('timerBk').textContent='내 시간: '+formatTime(timerBk);
+  document.getElementById('timerWh').textContent='AI 시간: '+formatTime(timerWh);
+  document.getElementById('record').textContent=wins+'승 '+losses+'패';
 }
 
 function resize(){
@@ -339,6 +461,67 @@ function draw(){
       }
     }
   }
+
+  // Territory estimation overlay
+  if(showTerr){
+    const terr=countTerritory();
+    const visited=new Set();
+    for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++){
+      if(board[r][c]!==0||visited.has(r*SIZE+c))continue;
+      const region=[];const borders=new Set();
+      const stack=[[r,c]];
+      while(stack.length){
+        const[cr,cc]=stack.pop();
+        const key=cr*SIZE+cc;
+        if(visited.has(key))continue;
+        if(board[cr][cc]!==0){borders.add(board[cr][cc]);continue;}
+        visited.add(key);region.push([cr,cc]);
+        for(const[dr,dc]of[[-1,0],[1,0],[0,-1],[0,1]]){
+          const nr=cr+dr,nc=cc+dc;
+          if(nr>=0&&nr<SIZE&&nc>=0&&nc<SIZE)stack.push([nr,nc]);
+        }
+      }
+      if(borders.size===1){
+        const owner=[...borders][0];
+        for(const[pr,pc]of region){
+          const x=OX+pc*SQ,y=OY+pr*SQ;
+          ctx.fillStyle=owner===1?'rgba(30,30,30,0.3)':'rgba(255,255,255,0.3)';
+          ctx.fillRect(x-SQ/3,y-SQ/3,SQ*0.66,SQ*0.66);
+        }
+      }
+    }
+  }
+
+  // Move numbers on stones
+  if(showMoveNums&&moveHistory){
+    for(let i=0;i<moveHistory.length;i++){
+      const[mr,mc,col]=moveHistory[i];
+      if(board[mr][mc]===col){
+        const x=OX+mc*SQ,y=OY+mr*SQ;
+        ctx.fillStyle=col===1?'#fff':'#000';
+        ctx.font='bold '+(SQ*0.28)+'px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+        ctx.fillText(i+1,x,y);
+      }
+    }
+  }
+
+  // Highlight own groups in atari (1 liberty)
+  if(turn===1){
+    const checked=new Set();
+    for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++){
+      if(board[r][c]===1&&!checked.has(r*SIZE+c)){
+        const g=getGroup(r,c,board);
+        g.stones.forEach(s=>checked.add(s[0]*SIZE+s[1]));
+        if(g.liberties.size===1){
+          for(const[sr,sc]of g.stones){
+            const x=OX+sc*SQ,y=OY+sr*SQ;
+            ctx.strokeStyle='#ff4400';ctx.lineWidth=2.5;
+            ctx.beginPath();ctx.arc(x,y,stoneR+2,0,Math.PI*2);ctx.stroke();
+          }
+        }
+      }
+    }
+  }
 }
 
 canvas.addEventListener('click',e=>{const rect=canvas.getBoundingClientRect();handleClick(e.clientX-rect.left,e.clientY-rect.top);});
@@ -348,8 +531,19 @@ function startGame(){
   document.getElementById('startScreen').style.display='none';
   document.getElementById('gameOver').style.display='none';
   document.querySelectorAll('.hidden').forEach(e=>e.classList.remove('hidden'));
+  aiDifficulty=parseInt(document.getElementById('diffSelect').value);
   initBoard();turn=1;gameActive=true;
-  wins=parseInt(localStorage.getItem('baduk_wins')||'0');
+  if(wins===undefined)wins=parseInt(localStorage.getItem('baduk_wins')||'0');
+  if(losses===undefined)losses=parseInt(localStorage.getItem('baduk_losses')||'0');
+  undoStack=[];moveHistory=[];showTerr=false;showMoveNums=false;
+  timerBk=0;timerWh=0;
+  if(timerInterval)clearInterval(timerInterval);
+  timerInterval=setInterval(()=>{
+    if(!gameActive)return;
+    if(turn===1)timerBk++;else timerWh++;
+    document.getElementById('timerBk').textContent='내 시간: '+formatTime(timerBk);
+    document.getElementById('timerWh').textContent='AI 시간: '+formatTime(timerWh);
+  },1000);
   resize();updateUI();
 }
 

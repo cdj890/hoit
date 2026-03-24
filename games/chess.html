@@ -21,8 +21,19 @@ body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;display:fle
 #captured{display:flex;justify-content:space-between;width:100%;max-width:450px;font-size:13px;padding:4px;margin-top:4px}
 #captured div{display:flex;flex-wrap:wrap;gap:2px}
 canvas{border-radius:8px;margin-top:4px;touch-action:none}
-#history{width:100%;max-width:450px;margin-top:8px;padding:8px;background:rgba(255,255,255,0.05);border-radius:8px;font-size:12px;color:#aaa;max-height:80px;overflow-y:auto;text-align:center}
+#history{width:100%;max-width:450px;margin-top:8px;padding:8px;background:rgba(255,255,255,0.05);border-radius:8px;font-size:12px;color:#aaa;max-height:100px;overflow-y:auto;text-align:left;font-family:monospace}
+#history .move-pair{display:inline-block;margin:1px 6px}
 .hidden{display:none!important}
+#controls{display:flex;gap:8px;margin-top:8px;width:100%;max-width:450px;justify-content:center;flex-wrap:wrap}
+#controls .btn{padding:8px 16px;font-size:13px;border-radius:8px;margin:2px}
+.btn-undo{background:linear-gradient(135deg,#e67e22,#d35400)!important}
+.btn-new{background:linear-gradient(135deg,#27ae60,#2ecc71)!important}
+.diff-select{background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:8px;padding:8px 12px;font-size:14px;cursor:pointer;margin:6px}
+.diff-select option{background:#1a1a2e;color:#fff}
+#timer{width:100%;max-width:450px;display:flex;justify-content:space-between;font-size:13px;padding:4px 8px;color:#aaa}
+#record{font-size:12px;color:#888;margin-top:2px}
+#checkPopup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:48px;font-weight:bold;color:#ff4444;text-shadow:0 0 20px rgba(255,0,0,0.8);z-index:500;pointer-events:none;opacity:0;transition:opacity 0.3s}
+@keyframes flashRed{0%,100%{box-shadow:none}50%{box-shadow:0 0 30px rgba(255,0,0,0.8)}}
 </style>
 </head>
 <body>
@@ -32,6 +43,11 @@ canvas{border-radius:8px;margin-top:4px;touch-action:none}
 <div id="startScreen">
 <h1>♚ 체스</h1>
 <p>클래식 체스를 AI와 대전하세요!<br>기물을 탭하여 선택하고, 이동할 칸을 탭하세요.<br>캐슬링, 앙파상, 프로모션 모두 지원됩니다.</p>
+<select class="diff-select" id="diffSelect">
+<option value="1">쉬움 (초보자용)</option>
+<option value="2" selected>보통</option>
+<option value="3">어려움 (고수용)</option>
+</select>
 <button class="btn" onclick="startGame()">AI 대전 시작</button>
 </div>
 
@@ -41,17 +57,23 @@ canvas{border-radius:8px;margin-top:4px;touch-action:none}
 <button class="btn" onclick="startGame()">다시 하기</button>
 </div>
 
+<div id="checkPopup"></div>
 <div id="info" class="hidden">
 <span id="turn">내 차례</span>
 <span id="score"></span>
 </div>
+<div id="timer" class="hidden"><span id="timerW">내 시간: 0:00</span><span id="record">0승 0패</span><span id="timerB">AI 시간: 0:00</span></div>
 <canvas id="board" class="hidden"></canvas>
 <div id="captured" class="hidden"><div id="capW"></div><div id="capB"></div></div>
+<div id="controls" class="hidden">
+<button class="btn btn-undo" onclick="undoMove()">↩ 되돌리기</button>
+<button class="btn btn-new" onclick="newGame()">새 게임</button>
+</div>
 <div id="history" class="hidden"></div>
 
 <script>
 const canvas=document.getElementById('board'),ctx=canvas.getContext('2d');
-let W,SQ,board,selected,validMoves,turn,gameActive,wins,capturedW,capturedB,moveHist,enPassant,castling,moveCount;
+let W,SQ,board,selected,validMoves,turn,gameActive,wins,losses,capturedW,capturedB,moveHist,enPassant,castling,moveCount,aiDifficulty,undoStack,timerW,timerB,timerInterval,lastTimerTurn;
 const PIECES={K:'♔',Q:'♕',R:'♖',B:'♗',N:'♘',P:'♙',k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟'};
 const VALUES={p:100,n:320,b:330,r:500,q:900,k:20000,P:100,N:320,B:330,R:500,Q:900,K:20000};
 const PST_P=[0,0,0,0,0,0,0,0,50,50,50,50,50,50,50,50,10,10,20,30,30,20,10,10,5,5,10,25,25,10,5,5,0,0,0,20,20,0,0,0,5,-5,-10,0,0,-10,-5,5,5,10,10,-20,-20,10,10,5,0,0,0,0,0,0,0,0];
@@ -266,16 +288,32 @@ function aiMove(){
   const moves=getAllMoves(board,false,enPassant,castling);
   if(moves.length===0){endGame(inCheck(board,false)?'white':'draw');return;}
   let bestScore=Infinity,bestMove=null;
-  const depth=moves.length>30?2:3;
+  let depth;
+  if(aiDifficulty===1){depth=1;}
+  else if(aiDifficulty===2){depth=moves.length>30?2:2;}
+  else{depth=moves.length>30?2:3;}
   for(const m of moves){
     const res=tryMove(board,m.fr,m.fc,m.tr,m.tc,enPassant,castling,m.sp);
-    const score=minimax(res.board,res.ep,res.castling,depth-1,-Infinity,Infinity,true);
+    let score;
+    if(aiDifficulty===3){
+      score=minimax(res.board,res.ep,res.castling,depth-1,-Infinity,Infinity,true);
+      // positional bonus for difficulty 3
+      score-=getPST(board[m.fr][m.fc],m.tr,m.tc)*0.1;
+    }else{
+      score=minimax(res.board,res.ep,res.castling,depth-1,-Infinity,Infinity,true);
+    }
     if(score<bestScore||(score===bestScore&&Math.random()<0.3)){bestScore=score;bestMove=m;}
+  }
+  // Easy mode: 30% chance of random mistake
+  if(aiDifficulty===1&&Math.random()<0.3){
+    bestMove=moves[Math.floor(Math.random()*moves.length)];
   }
   if(bestMove)executeMove(bestMove.fr,bestMove.fc,bestMove.tr,bestMove.tc,bestMove.sp);
 }
 
 function executeMove(fr,fc,tr,tc,sp){
+  // Save state for undo (save before both player and AI moves)
+  undoStack.push({board:cloneBoard(board),ep:enPassant?[...enPassant]:null,castling:{...castling},capturedW:[...capturedW],capturedB:[...capturedB],moveHist:[...moveHist],turn,moveCount});
   const piece=board[fr][fc];const cap=board[tr][tc];const w=isWhite(piece);
   if(sp==='ep'){
     const epCap=board[fr][tc];
@@ -287,7 +325,8 @@ function executeMove(fr,fc,tr,tc,sp){
   board=res.board;enPassant=res.ep;castling=res.castling;
   const pName=PIECES[piece]||'';
   const cols='abcdefgh';
-  moveHist.push(pName+cols[fc]+(8-fr)+'→'+cols[tc]+(8-tr));
+  const capSym=cap?'x':'';
+  moveHist.push(pName+cols[fc]+(8-fr)+capSym+'→'+cols[tc]+(8-tr));
   moveCount++;
   turn=w?'black':'white';
   selected=null;validMoves=[];
@@ -295,31 +334,83 @@ function executeMove(fr,fc,tr,tc,sp){
   if(turn==='white'){
     const wm=getAllMoves(board,true,enPassant,castling);
     if(wm.length===0){endGame(inCheck(board,true)?'black':'draw');return;}
-    if(inCheck(board,true))document.getElementById('turn').textContent='⚠ 체크! 내 차례';
+    if(inCheck(board,true)){showCheckPopup();document.getElementById('turn').textContent='⚠ 체크! 내 차례';}
   }else{
     const bm=getAllMoves(board,false,enPassant,castling);
     if(bm.length===0){endGame(inCheck(board,false)?'white':'draw');return;}
+    if(inCheck(board,false))showCheckPopup();
     setTimeout(aiMove,300);
   }
 }
 
+function showCheckPopup(){
+  const popup=document.getElementById('checkPopup');
+  popup.textContent='체크!';popup.style.opacity='1';
+  setTimeout(()=>{popup.style.opacity='0';},1200);
+}
+
+function undoMove(){
+  if(!gameActive||turn!=='white')return;
+  // Undo AI move + player move (pair)
+  if(undoStack.length<2)return;
+  undoStack.pop(); // AI move
+  const state=undoStack.pop(); // Player move
+  board=state.board;enPassant=state.ep;castling=state.castling;
+  capturedW=state.capturedW;capturedB=state.capturedB;
+  moveHist=state.moveHist;turn=state.turn;moveCount=state.moveCount;
+  selected=null;validMoves=[];
+  draw();updateUI();
+}
+
+function newGame(){
+  if(timerInterval)clearInterval(timerInterval);
+  startGame();
+}
+
 function endGame(result){
   gameActive=false;
+  if(timerInterval)clearInterval(timerInterval);
   const go=document.getElementById('gameOver');
   const rt=document.getElementById('resultText');
   const rs=document.getElementById('resultSub');
-  if(result==='white'){rt.textContent='🎉 승리!';rs.textContent='체크메이트! 축하합니다!';wins++;_hub('chess',wins);}
-  else if(result==='black'){rt.textContent='😢 패배';rs.textContent='체크메이트... 다시 도전하세요!';}
+  if(result==='white'){rt.textContent='🎉 승리!';rs.textContent='체크메이트! 축하합니다!';wins++;localStorage.setItem('chess_wins',wins);_hub('chess',wins);}
+  else if(result==='black'){rt.textContent='😢 패배';rs.textContent='체크메이트... 다시 도전하세요!';losses++;localStorage.setItem('chess_losses',losses);}
   else{rt.textContent='🤝 무승부';rs.textContent='스테일메이트';}
+  rs.textContent+=' ('+wins+'승 '+losses+'패)';
   go.style.display='flex';
 }
+
+function materialAdvantage(){
+  let wMat=0,bMat=0;
+  for(let i=0;i<8;i++)for(let j=0;j<8;j++){
+    const p=board[i][j];if(!p||p.toLowerCase()==='k')continue;
+    if(isWhite(p))wMat+=VALUES[p];else bMat+=VALUES[p];
+  }
+  const diff=Math.round((wMat-bMat)/100);
+  if(diff>0)return ' (+'+diff+')';
+  if(diff<0)return ' ('+diff+')';
+  return '';
+}
+
+function formatTime(sec){const m=Math.floor(sec/60);const s=sec%60;return m+':'+(s<10?'0':'')+s;}
 
 function updateUI(){
   document.getElementById('turn').textContent=turn==='white'?'🔵 내 차례':'🔴 AI 차례';
   document.getElementById('turn').style.background=turn==='white'?'rgba(100,149,237,0.3)':'rgba(237,100,100,0.3)';
-  document.getElementById('capW').innerHTML='흑 획득: '+capturedW.map(p=>PIECES[p]).join('');
-  document.getElementById('capB').innerHTML='백 획득: '+capturedB.map(p=>PIECES[p]).join('');
-  document.getElementById('history').textContent=moveHist.slice(-10).join(' | ');
+  const adv=materialAdvantage();
+  document.getElementById('capW').innerHTML='흑 획득: '+capturedW.map(p=>PIECES[p]).join('')+(adv.includes('-')?(' <b style="color:#ff6b6b">'+adv+'</b>'):'');
+  document.getElementById('capB').innerHTML='백 획득: '+capturedB.map(p=>PIECES[p]).join('')+(adv.includes('+')?(' <b style="color:#6bff6b">'+adv+'</b>'):'');
+  // Move notation in pairs
+  let histHTML='';
+  for(let i=0;i<moveHist.length;i+=2){
+    const num=Math.floor(i/2)+1;
+    histHTML+='<span class="move-pair">'+num+'. '+moveHist[i]+(moveHist[i+1]?' '+moveHist[i+1]:'')+'</span>';
+  }
+  document.getElementById('history').innerHTML=histHTML;
+  document.getElementById('history').scrollTop=document.getElementById('history').scrollHeight;
+  document.getElementById('timerW').textContent='내 시간: '+formatTime(timerW);
+  document.getElementById('timerB').textContent='AI 시간: '+formatTime(timerB);
+  document.getElementById('record').textContent=wins+'승 '+losses+'패';
 }
 
 function resize(){
@@ -340,19 +431,43 @@ function draw(){
   if(selected){
     ctx.fillStyle='rgba(255,255,0,0.35)';
     ctx.fillRect(selected[1]*SQ,selected[0]*SQ,SQ,SQ);
+    // Beginner hints: show threatened squares for valid moves
     for(const m of validMoves){
       if(board[m[0]][m[1]]){
         ctx.fillStyle='rgba(255,80,80,0.4)';
         ctx.fillRect(m[1]*SQ,m[0]*SQ,SQ,SQ);
       }else{
-        ctx.fillStyle='rgba(100,255,100,0.35)';
-        ctx.beginPath();ctx.arc(m[1]*SQ+SQ/2,m[0]*SQ+SQ/2,SQ/6,0,Math.PI*2);ctx.fill();
+        // Check if destination is attacked by enemy
+        const res=tryMove(board,selected[0],selected[1],m[0],m[1],enPassant,castling,m[2]);
+        const threatened=isAttacked(m[0],m[1],false,res.board);
+        if(threatened){
+          ctx.fillStyle='rgba(255,160,60,0.35)';
+          ctx.fillRect(m[1]*SQ,m[0]*SQ,SQ,SQ);
+          ctx.fillStyle='rgba(255,80,80,0.5)';
+          ctx.beginPath();ctx.arc(m[1]*SQ+SQ/2,m[0]*SQ+SQ/2,SQ/6,0,Math.PI*2);ctx.fill();
+        }else{
+          ctx.fillStyle='rgba(100,255,100,0.25)';
+          ctx.fillRect(m[1]*SQ,m[0]*SQ,SQ,SQ);
+          ctx.fillStyle='rgba(100,255,100,0.5)';
+          ctx.beginPath();ctx.arc(m[1]*SQ+SQ/2,m[0]*SQ+SQ/2,SQ/6,0,Math.PI*2);ctx.fill();
+        }
       }
     }
   }
+  // Check warning: flash king red
   if(inCheck(board,turn==='white')){
     const kp=findKing(board,turn==='white');
-    if(kp){ctx.fillStyle='rgba(255,0,0,0.4)';ctx.fillRect(kp[1]*SQ,kp[0]*SQ,SQ,SQ);}
+    if(kp){
+      ctx.fillStyle='rgba(255,0,0,0.5)';ctx.fillRect(kp[1]*SQ,kp[0]*SQ,SQ,SQ);
+      ctx.strokeStyle='#ff0000';ctx.lineWidth=3;ctx.strokeRect(kp[1]*SQ+1,kp[0]*SQ+1,SQ-2,SQ-2);
+    }
+  }
+  if(inCheck(board,false)){
+    const kp=findKing(board,false);
+    if(kp){
+      ctx.fillStyle='rgba(255,0,0,0.5)';ctx.fillRect(kp[1]*SQ,kp[0]*SQ,SQ,SQ);
+      ctx.strokeStyle='#ff0000';ctx.lineWidth=3;ctx.strokeRect(kp[1]*SQ+1,kp[0]*SQ+1,SQ-2,SQ-2);
+    }
   }
   ctx.textAlign='center';ctx.textBaseline='middle';
   const fs=SQ*0.75;
@@ -387,10 +502,21 @@ function startGame(){
   document.getElementById('startScreen').style.display='none';
   document.getElementById('gameOver').style.display='none';
   document.querySelectorAll('.hidden').forEach(e=>e.classList.remove('hidden'));
+  aiDifficulty=parseInt(document.getElementById('diffSelect').value);
   initBoard();
   selected=null;validMoves=[];turn='white';gameActive=true;
-  wins=parseInt(localStorage.getItem('chess_wins')||'0');
-  capturedW=[];capturedB=[];moveHist=[];
+  if(wins===undefined)wins=parseInt(localStorage.getItem('chess_wins')||'0');
+  if(losses===undefined)losses=parseInt(localStorage.getItem('chess_losses')||'0');
+  capturedW=[];capturedB=[];moveHist=[];undoStack=[];
+  timerW=0;timerB=0;
+  if(timerInterval)clearInterval(timerInterval);
+  lastTimerTurn='white';
+  timerInterval=setInterval(()=>{
+    if(!gameActive)return;
+    if(turn==='white')timerW++;else timerB++;
+    document.getElementById('timerW').textContent='내 시간: '+formatTime(timerW);
+    document.getElementById('timerB').textContent='AI 시간: '+formatTime(timerB);
+  },1000);
   resize();updateUI();
 }
 
