@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>포모도로 타이머</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#e0e0e0;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;justify-content:center}
+.wrap{width:100%;max-width:500px;padding:60px 16px 30px;text-align:center}
+h1{font-size:22px;margin-bottom:10px;color:#fff}
+.mode{font-size:16px;color:#6c5ce7;font-weight:bold;margin-bottom:20px}
+.timer-wrap{position:relative;width:260px;height:260px;margin:0 auto 24px}
+svg{transform:rotate(-90deg)}
+.track{fill:none;stroke:#1a1a2e;stroke-width:10}
+.progress{fill:none;stroke:#6c5ce7;stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset 1s linear}
+.time{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:56px;font-weight:bold;color:#fff;font-variant-numeric:tabular-nums}
+.rounds{font-size:15px;color:#888;margin-bottom:24px}
+.rounds span{color:#6c5ce7;font-weight:bold}
+.btns{display:flex;gap:10px;justify-content:center}
+.btn{padding:14px 28px;border:none;border-radius:12px;font-size:16px;font-weight:bold;cursor:pointer;min-height:44px;touch-action:manipulation}
+.btn.primary{background:#6c5ce7;color:#fff}
+.btn.sec{background:#1a1a2e;color:#e0e0e0;border:1px solid #333}
+.btn:active{opacity:0.8}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<div class="wrap">
+<h1>포모도로 타이머</h1>
+<div class="mode" id="mode">집중 시간</div>
+<div class="timer-wrap">
+<svg width="260" height="260" viewBox="0 0 260 260">
+<circle class="track" cx="130" cy="130" r="120"/>
+<circle class="progress" id="prog" cx="130" cy="130" r="120" stroke-dasharray="753.98" stroke-dashoffset="0"/>
+</svg>
+<div class="time" id="time">25:00</div>
+</div>
+<div class="rounds">라운드: <span id="round">1</span> / 4</div>
+<div class="btns">
+<button class="btn primary" id="startBtn" onclick="toggle()">시작</button>
+<button class="btn sec" onclick="reset()">리셋</button>
+</div>
+</div>
+<script>
+const CIRC=2*Math.PI*120;
+let isWork=true,total=25*60,remaining=25*60,running=false,timer=null,round=1;
+function updateDisplay(){
+  const m=Math.floor(remaining/60),s=remaining%60;
+  document.getElementById('time').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  const pct=1-remaining/total;
+  document.getElementById('prog').style.strokeDashoffset=CIRC*(1-pct);
+  document.getElementById('prog').style.stroke=isWork?'#6c5ce7':'#2ed573';
+}
+function toggle(){
+  if(running){clearInterval(timer);running=false;document.getElementById('startBtn').textContent='계속'}
+  else{running=true;document.getElementById('startBtn').textContent='일시정지';timer=setInterval(tick,1000)}
+}
+function tick(){
+  remaining--;
+  if(remaining<0){
+    clearInterval(timer);running=false;
+    notify();
+    if(isWork){isWork=false;total=5*60;remaining=5*60;document.getElementById('mode').textContent='휴식 시간'}
+    else{isWork=true;round++;total=25*60;remaining=25*60;document.getElementById('mode').textContent='집중 시간';document.getElementById('round').textContent=round}
+    document.getElementById('startBtn').textContent='시작';
+  }
+  updateDisplay();
+}
+function reset(){
+  clearInterval(timer);running=false;isWork=true;total=25*60;remaining=25*60;round=1;
+  document.getElementById('mode').textContent='집중 시간';
+  document.getElementById('round').textContent='1';
+  document.getElementById('startBtn').textContent='시작';
+  updateDisplay();
+}
+function notify(){
+  try{navigator.vibrate&&navigator.vibrate([200,100,200])}catch(e){}
+  try{
+    const ac=new(window.AudioContext||window.webkitAudioContext)();
+    const o=ac.createOscillator();o.type='sine';o.frequency.value=800;
+    o.connect(ac.destination);o.start();o.stop(ac.currentTime+0.3);
+    setTimeout(()=>{const o2=ac.createOscillator();o2.type='sine';o2.frequency.value=1000;o2.connect(ac.destination);o2.start();o2.stop(ac.currentTime+0.3)},400);
+  }catch(e){}
+}
+updateDisplay();
+</script>
+</body>
+</html>

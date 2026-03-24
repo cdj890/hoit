@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>랜덤 룰렛</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#e0e0e0;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;justify-content:center}
+.wrap{width:100%;max-width:500px;padding:60px 16px 30px;text-align:center}
+h1{font-size:22px;margin-bottom:20px;color:#fff}
+.canvas-wrap{position:relative;margin:0 auto 20px;width:300px;height:300px}
+canvas{display:block}
+.pointer{position:absolute;top:-10px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-top:28px solid #ff4757;z-index:10;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5))}
+.result{font-size:28px;font-weight:bold;color:#6c5ce7;margin:16px 0;min-height:40px}
+.add-row{display:flex;gap:8px;margin-bottom:12px}
+.add-row input{flex:1;background:#1a1a2e;border:1px solid #333;border-radius:12px;color:#e0e0e0;padding:12px;font-size:16px;outline:none}
+.add-row input:focus{border-color:#6c5ce7}
+.add-row button{padding:12px 20px;background:#6c5ce7;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:bold;cursor:pointer;min-height:44px;touch-action:manipulation}
+.items{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;justify-content:center}
+.item{background:#1a1a2e;border:1px solid #333;border-radius:20px;padding:8px 14px;font-size:14px;display:flex;align-items:center;gap:6px}
+.item .del{color:#ff4757;cursor:pointer;font-weight:bold;font-size:16px;touch-action:manipulation;padding:2px 4px}
+.btn{width:100%;padding:16px;background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:#fff;border:none;border-radius:12px;font-size:18px;font-weight:bold;cursor:pointer;min-height:44px;touch-action:manipulation}
+.btn:disabled{opacity:0.5}
+.btn:active{opacity:0.8}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<div class="wrap">
+<h1>랜덤 룰렛</h1>
+<div class="canvas-wrap">
+<div class="pointer"></div>
+<canvas id="wheel" width="300" height="300"></canvas>
+</div>
+<div class="result" id="result"></div>
+<div class="add-row">
+<input type="text" id="newItem" placeholder="항목 추가..." onkeydown="if(event.key==='Enter')addItem()">
+<button onclick="addItem()">추가</button>
+</div>
+<div class="items" id="items"></div>
+<button class="btn" id="spinBtn" onclick="spin()">돌리기!</button>
+</div>
+<script>
+const colors=['#6c5ce7','#00cec9','#fd79a8','#fdcb6e','#e17055','#00b894','#0984e3','#a29bfe','#ff6b6b','#55efc4'];
+let items=['짜장면','짬뽕','김밥','떡볶이','치킨','피자'];
+let spinning=false,currentAngle=0;
+const canvas=document.getElementById('wheel'),ctx=canvas.getContext('2d');
+function drawWheel(angle){
+  ctx.clearRect(0,0,300,300);
+  if(items.length===0)return;
+  const n=items.length,arc=2*Math.PI/n;
+  ctx.save();ctx.translate(150,150);ctx.rotate(angle);
+  for(let i=0;i<n;i++){
+    ctx.beginPath();ctx.moveTo(0,0);
+    ctx.arc(0,0,140,i*arc,(i+1)*arc);
+    ctx.fillStyle=colors[i%colors.length];ctx.fill();
+    ctx.strokeStyle='#0f0f1e';ctx.lineWidth=2;ctx.stroke();
+    // text
+    ctx.save();ctx.rotate(i*arc+arc/2);ctx.textAlign='center';ctx.fillStyle='#fff';
+    ctx.font='bold 14px sans-serif';ctx.fillText(items[i].length>6?items[i].slice(0,6)+'..':items[i],70,5);
+    ctx.restore();
+  }
+  ctx.restore();
+  // center
+  ctx.beginPath();ctx.arc(150,150,18,0,2*Math.PI);ctx.fillStyle='#0f0f1e';ctx.fill();
+  ctx.strokeStyle='#333';ctx.lineWidth=2;ctx.stroke();
+}
+function renderItems(){
+  document.getElementById('items').innerHTML=items.map((it,i)=>`<div class="item">${it}<span class="del" onclick="removeItem(${i})">x</span></div>`).join('');
+  drawWheel(currentAngle);
+}
+function addItem(){
+  const inp=document.getElementById('newItem');
+  const v=inp.value.trim();
+  if(v){items.push(v);inp.value='';renderItems()}
+}
+function removeItem(i){items.splice(i,1);renderItems()}
+function spin(){
+  if(spinning||items.length<2)return;
+  spinning=true;document.getElementById('spinBtn').disabled=true;
+  const spins=5+Math.random()*5;
+  const targetAngle=currentAngle+spins*2*Math.PI;
+  const duration=4000;
+  const start=performance.now();
+  const startAngle=currentAngle;
+  function animate(now){
+    const elapsed=now-start;
+    const t=Math.min(elapsed/duration,1);
+    const ease=1-Math.pow(1-t,3); // ease out cubic
+    currentAngle=startAngle+(targetAngle-startAngle)*ease;
+    drawWheel(currentAngle);
+    if(t<1){requestAnimationFrame(animate)}
+    else{
+      spinning=false;document.getElementById('spinBtn').disabled=false;
+      // determine result
+      const n=items.length,arc=2*Math.PI/n;
+      const norm=((2*Math.PI-(currentAngle%(2*Math.PI)))+(2*Math.PI))%(2*Math.PI);
+      const idx=Math.floor(norm/arc)%n;
+      document.getElementById('result').textContent=items[idx]+'!';
+    }
+  }
+  requestAnimationFrame(animate);
+}
+renderItems();
+</script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>연봉 실수령액 계산기</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#e0e0e0;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;justify-content:center}
+.wrap{width:100%;max-width:500px;padding:60px 16px 30px}
+h1{text-align:center;font-size:22px;margin-bottom:20px;color:#fff}
+label{font-size:14px;color:#aaa;display:block;margin:12px 0 6px}
+input[type=number],select{width:100%;background:#1a1a2e;border:1px solid #333;border-radius:12px;color:#e0e0e0;padding:14px;font-size:16px;outline:none;-moz-appearance:textfield}
+select{cursor:pointer}
+input:focus,select:focus{border-color:#6c5ce7}
+input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none}
+.btn{width:100%;padding:14px;background:#6c5ce7;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:bold;cursor:pointer;min-height:44px;touch-action:manipulation;margin-top:16px}
+.result{display:none;margin-top:20px}
+.big{background:linear-gradient(135deg,#6c5ce7,#a29bfe);border-radius:16px;padding:24px;text-align:center;margin-bottom:16px}
+.big .label{font-size:14px;color:rgba(255,255,255,0.8)}
+.big .val{font-size:32px;font-weight:bold;color:#fff;margin-top:6px}
+.breakdown{background:#1a1a2e;border-radius:12px;overflow:hidden}
+.row{display:flex;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #0f0f1e}
+.row:last-child{border:none}
+.row .name{color:#aaa;font-size:14px}
+.row .val{font-weight:600;font-size:14px}
+.row.total{background:#0f0f1e}
+.row.total .name,.row.total .val{color:#6c5ce7;font-weight:bold}
+.note{font-size:11px;color:#666;margin-top:12px;text-align:center}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<div class="wrap">
+<h1>연봉 실수령액</h1>
+<label>연봉 (만원)</label>
+<input type="number" id="salary" placeholder="예: 5000">
+<label>부양가족 수 (본인 포함)</label>
+<select id="dep">
+<option value="1">1명 (본인만)</option>
+<option value="2">2명</option>
+<option value="3">3명</option>
+<option value="4">4명</option>
+<option value="5">5명</option>
+<option value="6">6명 이상</option>
+</select>
+<button class="btn" onclick="calc()">계산</button>
+<div class="result" id="res">
+<div class="big"><div class="label">월 실수령액</div><div class="val" id="net"></div></div>
+<div class="breakdown">
+<div class="row"><div class="name">월 급여</div><div class="val" id="gross"></div></div>
+<div class="row"><div class="name">국민연금 (4.5%)</div><div class="val" id="np"></div></div>
+<div class="row"><div class="name">건강보험 (3.545%)</div><div class="val" id="hi"></div></div>
+<div class="row"><div class="name">장기요양 (건보의 12.81%)</div><div class="val" id="ltc"></div></div>
+<div class="row"><div class="name">고용보험 (0.9%)</div><div class="val" id="ei"></div></div>
+<div class="row"><div class="name">소득세</div><div class="val" id="itx"></div></div>
+<div class="row"><div class="name">지방소득세 (소득세의 10%)</div><div class="val" id="ltx"></div></div>
+<div class="row total"><div class="name">총 공제액</div><div class="val" id="ded"></div></div>
+</div>
+<div class="note">* 2024년 기준 간이세액표 근사치. 실제와 다를 수 있습니다.</div>
+</div>
+</div>
+<script>
+function fmt(n){return Math.round(n).toLocaleString()+'원'}
+function calc(){
+  const annual=parseFloat(document.getElementById('salary').value)*10000;
+  if(!annual)return;
+  const monthly=annual/12;
+  const dep=parseInt(document.getElementById('dep').value);
+  // 4대보험
+  const npCap=5900000;
+  const npBase=Math.min(monthly,npCap);
+  const np=npBase*0.045;
+  const hi=monthly*0.03545;
+  const ltc=hi*0.1281;
+  const ei=monthly*0.009;
+  // 소득세 간이세액 근사
+  const taxableAnnual=annual-annual*0.1; // 근로소득공제 약 10%
+  const depDeduct=dep*1500000;
+  const taxBase=Math.max(0,taxableAnnual-depDeduct);
+  let tax=0;
+  const brackets=[[14000000,0.06],[50000000,0.15],[88000000,0.24],[150000000,0.35],[300000000,0.38],[500000000,0.40],[1000000000,0.42],[Infinity,0.45]];
+  let prev=0;
+  for(const[limit,rate]of brackets){
+    if(taxBase<=limit){tax+=(taxBase-prev)*rate;break}
+    tax+=(limit-prev)*rate;prev=limit;
+  }
+  const monthlyTax=tax/12;
+  const localTax=monthlyTax*0.1;
+  const totalDed=np+hi+ltc+ei+monthlyTax+localTax;
+  const netPay=monthly-totalDed;
+  document.getElementById('res').style.display='block';
+  document.getElementById('net').textContent=fmt(netPay);
+  document.getElementById('gross').textContent=fmt(monthly);
+  document.getElementById('np').textContent='-'+fmt(np);
+  document.getElementById('hi').textContent='-'+fmt(hi);
+  document.getElementById('ltc').textContent='-'+fmt(ltc);
+  document.getElementById('ei').textContent='-'+fmt(ei);
+  document.getElementById('itx').textContent='-'+fmt(monthlyTax);
+  document.getElementById('ltx').textContent='-'+fmt(localTax);
+  document.getElementById('ded').textContent='-'+fmt(totalDed);
+}
+</script>
+</body>
+</html>

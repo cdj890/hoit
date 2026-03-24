@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>백색소음 생성기</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#e0e0e0;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;justify-content:center}
+.wrap{width:100%;max-width:500px;padding:60px 16px 30px}
+h1{text-align:center;font-size:22px;margin-bottom:20px;color:#fff}
+.sounds{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px}
+.sound{background:#1a1a2e;border:2px solid #333;border-radius:16px;padding:20px 14px;text-align:center;cursor:pointer;touch-action:manipulation;transition:border-color 0.2s,background 0.2s}
+.sound.active{border-color:#6c5ce7;background:#6c5ce720}
+.sound .icon{font-size:36px;margin-bottom:8px;display:block}
+.sound .name{font-size:14px;font-weight:600}
+label{font-size:14px;color:#aaa;display:block;margin:16px 0 8px}
+.vol-row{display:flex;align-items:center;gap:12px}
+.vol-row input[type=range]{flex:1;height:8px;-webkit-appearance:none;background:#1a1a2e;border-radius:4px;outline:none}
+.vol-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:#6c5ce7;cursor:pointer}
+.vol-row span{min-width:40px;text-align:right;font-size:16px;color:#6c5ce7;font-weight:bold}
+.timer{margin-top:16px}
+.timer-btns{display:flex;gap:8px;flex-wrap:wrap}
+.tbtn{padding:10px 16px;background:#1a1a2e;border:1px solid #333;color:#e0e0e0;border-radius:10px;font-size:14px;cursor:pointer;min-height:44px;touch-action:manipulation;font-weight:600}
+.tbtn.active{background:#6c5ce7;color:#fff;border-color:#6c5ce7}
+.timer-info{text-align:center;margin-top:12px;font-size:18px;color:#6c5ce7;font-weight:bold;min-height:26px}
+.stop-all{width:100%;padding:14px;background:#ff4757;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:bold;cursor:pointer;min-height:44px;touch-action:manipulation;margin-top:20px}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<div class="wrap">
+<h1>백색소음 생성기</h1>
+<div class="sounds" id="sounds">
+<div class="sound" onclick="toggleSound('white')" id="s-white"><span class="icon">🌫️</span><span class="name">백색소음</span></div>
+<div class="sound" onclick="toggleSound('pink')" id="s-pink"><span class="icon">🩷</span><span class="name">핑크소음</span></div>
+<div class="sound" onclick="toggleSound('rain')" id="s-rain"><span class="icon">🌧️</span><span class="name">빗소리</span></div>
+<div class="sound" onclick="toggleSound('wave')" id="s-wave"><span class="icon">🌊</span><span class="name">파도</span></div>
+<div class="sound" onclick="toggleSound('wind')" id="s-wind"><span class="icon">💨</span><span class="name">바람</span></div>
+<div class="sound" onclick="toggleSound('fire')" id="s-fire"><span class="icon">🔥</span><span class="name">모닥불</span></div>
+</div>
+<label>볼륨</label>
+<div class="vol-row">
+<input type="range" id="vol" min="0" max="100" value="50" oninput="setVol()">
+<span id="volV">50%</span>
+</div>
+<div class="timer">
+<label>타이머</label>
+<div class="timer-btns">
+<div class="tbtn active" onclick="setTimer(0)">끄기</div>
+<div class="tbtn" onclick="setTimer(15)">15분</div>
+<div class="tbtn" onclick="setTimer(30)">30분</div>
+<div class="tbtn" onclick="setTimer(60)">1시간</div>
+<div class="tbtn" onclick="setTimer(120)">2시간</div>
+</div>
+<div class="timer-info" id="timerInfo"></div>
+</div>
+<button class="stop-all" onclick="stopAll()">전체 정지</button>
+</div>
+<script>
+let actx=null,nodes={},gain=null,timerInterval=null,timerEnd=0;
+function getCtx(){
+  if(!actx){actx=new(window.AudioContext||window.webkitAudioContext)();gain=actx.createGain();gain.gain.value=0.5;gain.connect(actx.destination)}
+  if(actx.state==='suspended')actx.resume();
+  return actx;
+}
+function createWhiteNoise(){
+  const ctx=getCtx(),bufSize=2*ctx.sampleRate;
+  const buf=ctx.createBuffer(1,bufSize,ctx.sampleRate);
+  const d=buf.getChannelData(0);
+  for(let i=0;i<bufSize;i++)d[i]=Math.random()*2-1;
+  const src=ctx.createBufferSource();src.buffer=buf;src.loop=true;return src;
+}
+function createPinkNoise(){
+  const ctx=getCtx(),bufSize=2*ctx.sampleRate;
+  const buf=ctx.createBuffer(1,bufSize,ctx.sampleRate);
+  const d=buf.getChannelData(0);
+  let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+  for(let i=0;i<bufSize;i++){
+    const w=Math.random()*2-1;
+    b0=0.99886*b0+w*0.0555179;b1=0.99332*b1+w*0.0750759;
+    b2=0.96900*b2+w*0.1538520;b3=0.86650*b3+w*0.3104856;
+    b4=0.55000*b4+w*0.5329522;b5=-0.7616*b5-w*0.0168980;
+    d[i]=(b0+b1+b2+b3+b4+b5+b6+w*0.5362)*0.11;b6=w*0.115926;
+  }
+  const src=ctx.createBufferSource();src.buffer=buf;src.loop=true;return src;
+}
+function createNature(type){
+  const ctx=getCtx(),bufSize=4*ctx.sampleRate;
+  const buf=ctx.createBuffer(1,bufSize,ctx.sampleRate);
+  const d=buf.getChannelData(0);
+  if(type==='rain'){
+    for(let i=0;i<bufSize;i++){
+      d[i]=(Math.random()*2-1)*0.3;
+      if(Math.random()<0.001)d[i]+=((Math.random()-0.5)*0.8);
+    }
+    // lowpass via simple averaging
+    for(let i=1;i<bufSize;i++)d[i]=d[i]*0.4+d[i-1]*0.6;
+  }else if(type==='wave'){
+    for(let i=0;i<bufSize;i++){
+      const t=i/ctx.sampleRate;
+      const env=0.5+0.5*Math.sin(t*0.3*Math.PI);
+      d[i]=(Math.random()*2-1)*0.3*env;
+    }
+    for(let i=1;i<bufSize;i++)d[i]=d[i]*0.3+d[i-1]*0.7;
+  }else if(type==='wind'){
+    let v=0;
+    for(let i=0;i<bufSize;i++){
+      v+=(Math.random()-0.5)*0.02;v*=0.998;
+      d[i]=(Math.random()*2-1)*0.2*(0.5+Math.abs(v)*10);
+    }
+    for(let i=1;i<bufSize;i++)d[i]=d[i]*0.2+d[i-1]*0.8;
+  }else if(type==='fire'){
+    for(let i=0;i<bufSize;i++){
+      d[i]=(Math.random()*2-1)*0.25;
+      if(Math.random()<0.003)d[i]*=2;
+    }
+    for(let i=1;i<bufSize;i++)d[i]=d[i]*0.35+d[i-1]*0.65;
+  }
+  const src=ctx.createBufferSource();src.buffer=buf;src.loop=true;return src;
+}
+function toggleSound(type){
+  if(nodes[type]){nodes[type].stop();delete nodes[type];document.getElementById('s-'+type).classList.remove('active');return}
+  let src;
+  if(type==='white')src=createWhiteNoise();
+  else if(type==='pink')src=createPinkNoise();
+  else src=createNature(type);
+  src.connect(gain);src.start();
+  nodes[type]=src;
+  document.getElementById('s-'+type).classList.add('active');
+}
+function setVol(){
+  const v=document.getElementById('vol').value;
+  document.getElementById('volV').textContent=v+'%';
+  if(gain)gain.gain.value=v/100;
+}
+function setTimer(min){
+  document.querySelectorAll('.tbtn').forEach((b,i)=>b.classList.toggle('active',
+    (min===0&&i===0)||(min===15&&i===1)||(min===30&&i===2)||(min===60&&i===3)||(min===120&&i===4)));
+  clearInterval(timerInterval);
+  if(min===0){document.getElementById('timerInfo').textContent='';return}
+  timerEnd=Date.now()+min*60000;
+  timerInterval=setInterval(()=>{
+    const rem=Math.max(0,timerEnd-Date.now());
+    if(rem<=0){clearInterval(timerInterval);stopAll();document.getElementById('timerInfo').textContent='종료!';return}
+    const m=Math.floor(rem/60000),s=Math.floor((rem%60000)/1000);
+    document.getElementById('timerInfo').textContent=m+'분 '+s+'초 남음';
+  },1000);
+}
+function stopAll(){
+  Object.keys(nodes).forEach(k=>{nodes[k].stop();document.getElementById('s-'+k).classList.remove('active')});
+  nodes={};
+}
+</script>
+</body>
+</html>

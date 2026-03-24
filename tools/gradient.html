@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>CSS 그라데이션 생성기</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#e0e0e0;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;justify-content:center}
+.wrap{width:100%;max-width:500px;padding:60px 16px 30px}
+h1{text-align:center;font-size:22px;margin-bottom:20px;color:#fff}
+.preview{width:100%;height:200px;border-radius:16px;margin-bottom:20px;border:1px solid #333}
+label{font-size:14px;color:#aaa;display:block;margin:14px 0 6px}
+.colors{display:flex;gap:12px;align-items:center}
+.colors input[type=color]{width:60px;height:60px;border:none;border-radius:12px;cursor:pointer;background:none;padding:0}
+.colors input[type=color]::-webkit-color-swatch-wrapper{padding:2px}
+.colors input[type=color]::-webkit-color-swatch{border-radius:10px;border:none}
+.colors .arrow{font-size:24px;color:#6c5ce7;flex:0}
+input[type=range]{width:100%;height:8px;-webkit-appearance:none;background:#1a1a2e;border-radius:4px;outline:none;margin:8px 0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:#6c5ce7;cursor:pointer}
+.angle{text-align:center;font-size:18px;font-weight:bold;color:#6c5ce7}
+.code{background:#1a1a2e;border:1px solid #333;border-radius:12px;padding:14px;font-family:'Courier New',monospace;font-size:13px;word-break:break-all;margin-top:12px;color:#a8e6a3}
+.btn{width:100%;padding:14px;background:#6c5ce7;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:bold;cursor:pointer;min-height:44px;touch-action:manipulation;margin-top:12px}
+.btn:active{opacity:0.8}
+.presets{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.preset{width:40px;height:40px;border-radius:10px;cursor:pointer;border:2px solid transparent;touch-action:manipulation}
+.preset:active{border-color:#fff}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<div class="wrap">
+<h1>CSS 그라데이션 생성기</h1>
+<div class="preview" id="preview"></div>
+<label>색상 선택</label>
+<div class="colors">
+<input type="color" id="c1" value="#6c5ce7">
+<span class="arrow">→</span>
+<input type="color" id="c2" value="#00cec9">
+</div>
+<label>각도: <span class="angle" id="av">90°</span></label>
+<input type="range" id="angle" min="0" max="360" value="90">
+<label>CSS 코드</label>
+<div class="code" id="code"></div>
+<button class="btn" onclick="copyCSS()">CSS 복사</button>
+<label>프리셋</label>
+<div class="presets" id="presets"></div>
+</div>
+<script>
+const presets=[['#ff6b6b','#feca57'],['#6c5ce7','#a29bfe'],['#00cec9','#81ecec'],['#fd79a8','#fdcb6e'],['#0984e3','#74b9ff'],['#00b894','#55efc4'],['#e17055','#fab1a0'],['#2d3436','#636e72']];
+const presetsDiv=document.getElementById('presets');
+presets.forEach(([a,b])=>{
+  const d=document.createElement('div');
+  d.className='preset';
+  d.style.background=`linear-gradient(135deg,${a},${b})`;
+  d.onclick=()=>{document.getElementById('c1').value=a;document.getElementById('c2').value=b;update()};
+  presetsDiv.appendChild(d);
+});
+function update(){
+  const c1=document.getElementById('c1').value;
+  const c2=document.getElementById('c2').value;
+  const a=document.getElementById('angle').value;
+  document.getElementById('av').textContent=a+'°';
+  const css=`linear-gradient(${a}deg, ${c1}, ${c2})`;
+  document.getElementById('preview').style.background=css;
+  document.getElementById('code').textContent=`background: ${css};`;
+}
+function copyCSS(){
+  const b=document.querySelector('.btn');
+  navigator.clipboard.writeText(document.getElementById('code').textContent).then(()=>{b.textContent='복사됨!';setTimeout(()=>b.textContent='CSS 복사',1500)});
+}
+document.getElementById('c1').addEventListener('input',update);
+document.getElementById('c2').addEventListener('input',update);
+document.getElementById('angle').addEventListener('input',update);
+update();
+</script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>날짜 계산기</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#e0e0e0;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;justify-content:center}
+.wrap{width:100%;max-width:500px;padding:60px 16px 30px}
+h1{text-align:center;font-size:22px;margin-bottom:20px;color:#fff}
+.tabs{display:flex;gap:8px;margin-bottom:20px}
+.tab{flex:1;padding:10px;text-align:center;background:#1a1a2e;border:1px solid #333;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;min-height:44px;display:flex;align-items:center;justify-content:center;touch-action:manipulation}
+.tab.active{background:#6c5ce7;color:#fff;border-color:#6c5ce7}
+.panel{display:none}.panel.active{display:block}
+label{font-size:14px;color:#aaa;display:block;margin:12px 0 6px}
+input{width:100%;background:#1a1a2e;border:1px solid #333;border-radius:12px;color:#e0e0e0;padding:14px;font-size:16px;outline:none}
+input:focus{border-color:#6c5ce7}
+input[type=date]{color-scheme:dark}
+.btn{width:100%;padding:14px;background:#6c5ce7;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:bold;cursor:pointer;min-height:44px;touch-action:manipulation;margin-top:16px}
+.result{background:#1a1a2e;border-radius:12px;padding:20px;margin-top:16px;display:none}
+.result .big{font-size:32px;font-weight:bold;color:#6c5ce7;text-align:center;margin-bottom:12px}
+.result .detail{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.result .item{text-align:center;padding:10px;background:#0f0f1e;border-radius:8px}
+.result .item .v{font-size:20px;font-weight:bold;color:#fff}
+.result .item .l{font-size:12px;color:#888;margin-top:4px}
+.dir{display:flex;gap:8px;margin-top:12px}
+.dir button{flex:1;padding:12px;border:1px solid #333;background:#1a1a2e;color:#e0e0e0;border-radius:10px;font-size:14px;cursor:pointer;min-height:44px;touch-action:manipulation;font-weight:600}
+.dir button.active{background:#6c5ce7;color:#fff;border-color:#6c5ce7}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<div class="wrap">
+<h1>날짜 계산기</h1>
+<div class="tabs">
+<div class="tab active" onclick="setTab(0)">두 날짜 사이</div>
+<div class="tab" onclick="setTab(1)">날짜 더하기/빼기</div>
+</div>
+<div class="panel active" id="p0">
+<label>시작일</label><input type="date" id="d1">
+<label>종료일</label><input type="date" id="d2">
+<button class="btn" onclick="calcDiff()">계산</button>
+<div class="result" id="r0">
+<div class="big" id="diffDays"></div>
+<div class="detail">
+<div class="item"><div class="v" id="diffY"></div><div class="l">년</div></div>
+<div class="item"><div class="v" id="diffM"></div><div class="l">개월</div></div>
+<div class="item"><div class="v" id="diffH"></div><div class="l">시간</div></div>
+<div class="item"><div class="v" id="diffMin"></div><div class="l">분</div></div>
+</div>
+</div>
+</div>
+<div class="panel" id="p1">
+<label>기준일</label><input type="date" id="d3">
+<label>일수</label><input type="number" id="ndays" placeholder="숫자 입력">
+<div class="dir">
+<button class="active" id="btnAfter" onclick="setDir(1)">이후</button>
+<button id="btnBefore" onclick="setDir(-1)">이전</button>
+</div>
+<button class="btn" onclick="calcAdd()">계산</button>
+<div class="result" id="r1"><div class="big" id="addResult"></div></div>
+</div>
+</div>
+<script>
+let dir=1;
+const today=new Date().toISOString().split('T')[0];
+document.getElementById('d1').value=today;
+document.getElementById('d2').value=today;
+document.getElementById('d3').value=today;
+function setTab(n){document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===n));document.querySelectorAll('.panel').forEach((p,i)=>p.classList.toggle('active',i===n))}
+function setDir(d){dir=d;document.getElementById('btnAfter').classList.toggle('active',d===1);document.getElementById('btnBefore').classList.toggle('active',d===-1)}
+function calcDiff(){
+  const a=new Date(document.getElementById('d1').value),b=new Date(document.getElementById('d2').value);
+  const ms=Math.abs(b-a),days=Math.round(ms/864e5);
+  document.getElementById('r0').style.display='block';
+  document.getElementById('diffDays').textContent=days.toLocaleString()+'일';
+  document.getElementById('diffY').textContent=(days/365.25).toFixed(1);
+  document.getElementById('diffM').textContent=(days/30.44).toFixed(1);
+  document.getElementById('diffH').textContent=(days*24).toLocaleString();
+  document.getElementById('diffMin').textContent=(days*1440).toLocaleString();
+}
+function calcAdd(){
+  const d=new Date(document.getElementById('d3').value);
+  const n=parseInt(document.getElementById('ndays').value)||0;
+  d.setDate(d.getDate()+n*dir);
+  document.getElementById('r1').style.display='block';
+  const dow=['일','월','화','수','목','금','토'][d.getDay()];
+  document.getElementById('addResult').textContent=d.getFullYear()+'년 '+(d.getMonth()+1)+'월 '+d.getDate()+'일 ('+dow+')';
+}
+</script>
+</body>
+</html>

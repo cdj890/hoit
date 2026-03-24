@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>이미지 압축</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#e0e0e0;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;justify-content:center}
+.wrap{width:100%;max-width:500px;padding:60px 16px 30px}
+h1{text-align:center;font-size:22px;margin-bottom:20px;color:#fff}
+.upload{width:100%;padding:40px;background:#1a1a2e;border:2px dashed #333;border-radius:16px;text-align:center;cursor:pointer;touch-action:manipulation}
+.upload:active{border-color:#6c5ce7}
+.upload p{color:#888;font-size:15px}
+input[type=file]{display:none}
+.preview{display:none;margin:16px 0;text-align:center}
+.preview img{max-width:100%;max-height:200px;border-radius:12px}
+label{font-size:14px;color:#aaa;display:block;margin:16px 0 6px}
+.quality{display:flex;align-items:center;gap:12px}
+.quality input[type=range]{flex:1;height:8px;-webkit-appearance:none;background:#1a1a2e;border-radius:4px;outline:none}
+.quality input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:#6c5ce7;cursor:pointer}
+.quality span{font-size:18px;font-weight:bold;color:#6c5ce7;min-width:50px;text-align:right}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;display:none}
+.compare .box{background:#1a1a2e;border-radius:12px;padding:16px;text-align:center}
+.compare .box .label{font-size:12px;color:#888;margin-bottom:6px}
+.compare .box .size{font-size:22px;font-weight:bold;color:#6c5ce7}
+.compare .box .pct{font-size:13px;color:#2ed573;margin-top:4px}
+.btn{width:100%;padding:14px;background:#6c5ce7;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:bold;cursor:pointer;min-height:44px;touch-action:manipulation;margin-top:16px}
+.btn:disabled{opacity:0.4}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<div class="wrap">
+<h1>이미지 압축</h1>
+<div class="upload" onclick="document.getElementById('file').click()">
+<p>이미지를 선택하세요</p>
+</div>
+<input type="file" id="file" accept="image/*">
+<div class="preview" id="prev"><img id="img"></div>
+<label>품질</label>
+<div class="quality">
+<input type="range" id="q" min="10" max="100" value="70">
+<span id="qv">70%</span>
+</div>
+<div class="compare" id="comp">
+<div class="box"><div class="label">원본</div><div class="size" id="origSize"></div></div>
+<div class="box"><div class="label">압축 후</div><div class="size" id="compSize"></div><div class="pct" id="savings"></div></div>
+</div>
+<button class="btn" id="compBtn" disabled onclick="compress()">압축하기</button>
+<button class="btn" id="dlBtn" style="display:none;background:#2ed573;color:#000" onclick="dl()">다운로드</button>
+</div>
+<script>
+let origFile=null,compBlob=null,imgEl=null;
+const fileEl=document.getElementById('file'),qEl=document.getElementById('q');
+qEl.addEventListener('input',()=>document.getElementById('qv').textContent=qEl.value+'%');
+function fmtSize(b){return b<1024?b+'B':b<1048576?(b/1024).toFixed(1)+'KB':(b/1048576).toFixed(1)+'MB'}
+fileEl.addEventListener('change',e=>{
+  const f=e.target.files[0];if(!f)return;
+  origFile=f;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    document.getElementById('img').src=ev.target.result;
+    document.getElementById('prev').style.display='block';
+    document.getElementById('origSize').textContent=fmtSize(f.size);
+    document.getElementById('compBtn').disabled=false;
+    document.getElementById('dlBtn').style.display='none';
+    document.getElementById('comp').style.display='none';
+  };
+  reader.readAsDataURL(f);
+});
+function compress(){
+  if(!origFile)return;
+  const img=new Image();
+  img.onload=()=>{
+    const c=document.createElement('canvas');
+    c.width=img.width;c.height=img.height;
+    c.getContext('2d').drawImage(img,0,0);
+    const quality=parseInt(qEl.value)/100;
+    c.toBlob(blob=>{
+      compBlob=blob;
+      document.getElementById('comp').style.display='grid';
+      document.getElementById('compSize').textContent=fmtSize(blob.size);
+      const pct=((1-blob.size/origFile.size)*100).toFixed(1);
+      document.getElementById('savings').textContent=pct+'% 절약';
+      document.getElementById('dlBtn').style.display='block';
+    },'image/jpeg',quality);
+  };
+  img.src=URL.createObjectURL(origFile);
+}
+function dl(){
+  if(!compBlob)return;
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(compBlob);
+  a.download='compressed_'+origFile.name.replace(/\.[^.]+$/,'')+'.jpg';
+  a.click();
+}
+</script>
+</body>
+</html>

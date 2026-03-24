@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>음주 계산기</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#e0e0e0;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;justify-content:center}
+.wrap{width:100%;max-width:500px;padding:60px 16px 30px}
+h1{text-align:center;font-size:22px;margin-bottom:20px;color:#fff}
+label{font-size:14px;color:#aaa;display:block;margin:12px 0 6px}
+input[type=number],select{width:100%;background:#1a1a2e;border:1px solid #333;border-radius:12px;color:#e0e0e0;padding:14px;font-size:16px;outline:none}
+input:focus,select:focus{border-color:#6c5ce7}
+input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+input[type=number]{-moz-appearance:textfield}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gender{display:flex;gap:8px;margin:6px 0}
+.gender button{flex:1;padding:12px;background:#1a1a2e;border:1px solid #333;color:#e0e0e0;border-radius:10px;font-size:15px;cursor:pointer;min-height:44px;touch-action:manipulation;font-weight:600}
+.gender button.active{background:#6c5ce7;color:#fff;border-color:#6c5ce7}
+.drinks{margin-top:12px}
+.drink{display:flex;align-items:center;gap:10px;margin:8px 0;background:#1a1a2e;border-radius:12px;padding:12px 14px}
+.drink .icon{font-size:24px;width:36px;text-align:center}
+.drink .name{flex:1;font-size:15px}
+.drink input{width:70px;text-align:center;padding:10px;font-size:16px;border-radius:8px}
+.drink .unit{font-size:13px;color:#888;width:20px}
+.btn{width:100%;padding:14px;background:#6c5ce7;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:bold;cursor:pointer;min-height:44px;touch-action:manipulation;margin-top:16px}
+.result{display:none;margin-top:20px}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.card{background:#1a1a2e;border-radius:12px;padding:16px;text-align:center}
+.card.full{grid-column:1/-1}
+.card .v{font-size:24px;font-weight:bold;color:#6c5ce7;margin-bottom:4px}
+.card .l{font-size:12px;color:#888}
+.warn{margin-top:12px;padding:14px;border-radius:12px;text-align:center;font-weight:bold;font-size:15px}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<div class="wrap">
+<h1>음주 계산기</h1>
+<label>체중 (kg)</label>
+<input type="number" id="weight" placeholder="70">
+<label>성별</label>
+<div class="gender">
+<button class="active" id="gm" onclick="setG('m')">남성</button>
+<button id="gf" onclick="setG('f')">여성</button>
+</div>
+<label>음주량</label>
+<div class="drinks">
+<div class="drink"><div class="icon">🍺</div><div class="name">맥주 (500ml)</div><input type="number" id="beer" value="0" min="0"><div class="unit">잔</div></div>
+<div class="drink"><div class="icon">🍶</div><div class="name">소주 (50ml)</div><input type="number" id="soju" value="0" min="0"><div class="unit">잔</div></div>
+<div class="drink"><div class="icon">🍷</div><div class="name">와인 (150ml)</div><input type="number" id="wine" value="0" min="0"><div class="unit">잔</div></div>
+</div>
+<button class="btn" onclick="calc()">계산</button>
+<div class="result" id="res">
+<div class="cards">
+<div class="card"><div class="v" id="bac"></div><div class="l">혈중알코올농도 (%)</div></div>
+<div class="card"><div class="v" id="decomp"></div><div class="l">분해 시간</div></div>
+<div class="card full"><div class="v" id="drive"></div><div class="l">운전 가능 예상 시간</div></div>
+</div>
+<div class="warn" id="warn"></div>
+</div>
+</div>
+<script>
+let gender='m';
+function setG(g){gender=g;document.getElementById('gm').classList.toggle('active',g==='m');document.getElementById('gf').classList.toggle('active',g==='f')}
+function calc(){
+  const w=parseFloat(document.getElementById('weight').value)||70;
+  const beer=parseInt(document.getElementById('beer').value)||0;
+  const soju=parseInt(document.getElementById('soju').value)||0;
+  const wine=parseInt(document.getElementById('wine').value)||0;
+  // 알코올량(g): 맥주500ml*5%*0.7894, 소주50ml*17%*0.7894, 와인150ml*12%*0.7894
+  const alcG=beer*500*0.05*0.7894 + soju*50*0.17*0.7894 + wine*150*0.12*0.7894;
+  const r=gender==='m'?0.68:0.55; // Widmark factor
+  const bac=(alcG/(w*r*10))*100; // BAC %
+  const bacPct=Math.max(0,bac);
+  // 분해: 약 0.015%/h
+  const hours=bacPct/0.015;
+  const h=Math.floor(hours);
+  const m=Math.round((hours-h)*60);
+  document.getElementById('res').style.display='block';
+  document.getElementById('bac').textContent=bacPct.toFixed(3)+'%';
+  document.getElementById('decomp').textContent=h+'시간 '+m+'분';
+  const now=new Date();
+  now.setMinutes(now.getMinutes()+hours*60);
+  document.getElementById('drive').textContent=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0')+' 이후';
+  const warn=document.getElementById('warn');
+  if(bacPct>=0.08){warn.textContent='면허 취소 수준입니다!';warn.style.background='#ff4757';warn.style.color='#fff'}
+  else if(bacPct>=0.03){warn.textContent='면허 정지 수준입니다!';warn.style.background='#ffa502';warn.style.color='#000'}
+  else{warn.textContent='음주운전 기준 이하입니다';warn.style.background='#2ed573';warn.style.color='#000'}
+}
+</script>
+</body>
+</html>

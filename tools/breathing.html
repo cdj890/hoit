@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>호흡 가이드</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#e0e0e0;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;justify-content:center}
+.wrap{width:100%;max-width:500px;padding:60px 16px 30px;text-align:center}
+h1{font-size:22px;margin-bottom:8px;color:#fff}
+.sub{font-size:14px;color:#888;margin-bottom:30px}
+.circle-wrap{position:relative;width:240px;height:240px;margin:0 auto 24px}
+.circle{width:80px;height:80px;background:radial-gradient(circle,#6c5ce7,#a29bfe);border-radius:50%;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);transition:width 0.5s ease,height 0.5s ease}
+.ring{width:240px;height:240px;border:2px solid #333;border-radius:50%;position:absolute;top:0;left:0}
+.phase{font-size:28px;font-weight:bold;color:#fff;margin-bottom:8px}
+.counter{font-size:48px;font-weight:bold;color:#6c5ce7;margin-bottom:8px;font-variant-numeric:tabular-nums}
+.cycles{font-size:15px;color:#888;margin-bottom:24px}
+.cycles span{color:#6c5ce7;font-weight:bold}
+.btns{display:flex;gap:10px;justify-content:center}
+.btn{padding:14px 28px;border:none;border-radius:12px;font-size:16px;font-weight:bold;cursor:pointer;min-height:44px;touch-action:manipulation}
+.btn.primary{background:#6c5ce7;color:#fff}
+.btn.sec{background:#1a1a2e;color:#e0e0e0;border:1px solid #333}
+.btn:active{opacity:0.8}
+.info{margin-top:24px;background:#1a1a2e;border-radius:12px;padding:16px;font-size:13px;color:#888;line-height:1.6;text-align:left}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<div class="wrap">
+<h1>호흡 가이드</h1>
+<div class="sub">4-7-8 호흡법</div>
+<div class="circle-wrap"><div class="ring"></div><div class="circle" id="circle"></div></div>
+<div class="phase" id="phase">준비</div>
+<div class="counter" id="counter">-</div>
+<div class="cycles">사이클: <span id="cyc">0</span></div>
+<div class="btns">
+<button class="btn primary" id="startBtn" onclick="toggle()">시작</button>
+<button class="btn sec" onclick="stop()">리셋</button>
+</div>
+<div class="info">
+<strong>4-7-8 호흡법:</strong><br>
+들숨 4초 → 참기 7초 → 날숨 8초<br>
+스트레스 해소와 수면에 도움을 줍니다.
+</div>
+</div>
+<script>
+const phases=[{name:'들숨',dur:4,size:220},{name:'참기',dur:7,size:220},{name:'날숨',dur:8,size:80}];
+let running=false,timer=null,phaseIdx=0,sec=0,cycles=0;
+const circle=document.getElementById('circle'),phaseEl=document.getElementById('phase'),counterEl=document.getElementById('counter');
+function setCircle(s){circle.style.width=s+'px';circle.style.height=s+'px'}
+function tick(){
+  sec--;
+  if(sec<=0){
+    phaseIdx++;
+    if(phaseIdx>=phases.length){phaseIdx=0;cycles++;document.getElementById('cyc').textContent=cycles}
+    startPhase();
+    return;
+  }
+  counterEl.textContent=sec;
+}
+function startPhase(){
+  const p=phases[phaseIdx];
+  phaseEl.textContent=p.name;
+  sec=p.dur;
+  counterEl.textContent=sec;
+  setCircle(p.size);
+  if(p.name==='날숨'){
+    circle.style.transition='width '+p.dur+'s ease-out, height '+p.dur+'s ease-out';
+  }else if(p.name==='들숨'){
+    circle.style.transition='width '+p.dur+'s ease-in, height '+p.dur+'s ease-in';
+  }else{
+    circle.style.transition='none';
+  }
+}
+function toggle(){
+  if(running){clearInterval(timer);running=false;document.getElementById('startBtn').textContent='계속'}
+  else{
+    running=true;document.getElementById('startBtn').textContent='일시정지';
+    if(phaseEl.textContent==='준비'){startPhase()}
+    timer=setInterval(tick,1000);
+  }
+}
+function stop(){
+  clearInterval(timer);running=false;phaseIdx=0;sec=0;cycles=0;
+  phaseEl.textContent='준비';counterEl.textContent='-';
+  document.getElementById('cyc').textContent='0';
+  document.getElementById('startBtn').textContent='시작';
+  circle.style.transition='width 0.5s, height 0.5s';
+  setCircle(80);
+}
+</script>
+</body>
+</html>
