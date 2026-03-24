@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎮 놀이터 - 게임 · 심리테스트 · 운세</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;font-family:'Segoe UI',-apple-system,sans-serif;color:#fff;min-height:100vh}
+header{text-align:center;padding:35px 20px 15px;background:linear-gradient(180deg,#1a1a3e,#0f0f1e)}
+header h1{font-size:40px;background:linear-gradient(135deg,#FFD700,#FF6B6B,#7B68EE,#00CED1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px}
+header .sub{color:#888;font-size:14px}
+.nick-bar{display:flex;justify-content:center;align-items:center;gap:10px;margin-top:10px}
+.nick-bar input{background:#1a1a2e;border:1px solid #3a3a5a;color:#fff;padding:6px 14px;border-radius:8px;font-size:14px;width:160px;text-align:center}
+.nick-bar input:focus{outline:none;border-color:#FFD700}
+.nick-bar button{background:#4CAF50;border:none;color:#fff;padding:6px 14px;border-radius:8px;font-size:13px;cursor:pointer;font-weight:bold}
+.nick-display{color:#FFD700;font-size:16px;font-weight:bold;cursor:pointer}
+.nick-display:hover{text-decoration:underline}
+/* Tabs */
+.tabs{display:flex;justify-content:center;gap:6px;padding:15px 20px;position:sticky;top:0;z-index:50;background:#0f0f1e}
+.tab{padding:10px 24px;border-radius:10px;cursor:pointer;font-size:15px;font-weight:bold;transition:all .2s;border:2px solid transparent;background:#1a1a2e}
+.tab:hover{border-color:#555}
+.tab.active-game{border-color:#FFD700;background:#252535;color:#FFD700}
+.tab.active-test{border-color:#FF69B4;background:#2a1a2a;color:#FF69B4}
+.tab.active-destiny{border-color:#7B68EE;background:#1a1a3a;color:#7B68EE}
+.tab .badge{background:#FF6B6B;color:#fff;font-size:10px;padding:1px 6px;border-radius:10px;margin-left:5px}
+/* Grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px;max-width:1100px;margin:10px auto;padding:0 20px 30px}
+.card{background:#1a1a2e;border-radius:14px;overflow:hidden;border:1px solid #2a2a4a;transition:all .3s;cursor:pointer;text-decoration:none;color:inherit;display:block}
+.card:hover{transform:translateY(-5px);border-color:#5a5a8a;box-shadow:0 10px 30px rgba(100,100,255,0.12)}
+.card-thumb{height:130px;display:flex;align-items:center;justify-content:center;font-size:50px;position:relative}
+.card-info{padding:14px 16px}
+.card-info h3{font-size:17px;margin-bottom:4px}
+.card-info p{color:#888;font-size:12px;line-height:1.4}
+.card-tag{display:inline-block;background:#2a2a4a;padding:2px 8px;border-radius:5px;font-size:10px;color:#aaa;margin-top:6px}
+.card-score{position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,0.7);padding:3px 8px;border-radius:6px;font-size:11px;color:#FFD700}
+/* Leaderboard */
+.lb{max-width:800px;margin:0 auto 30px;padding:0 20px}
+.lb h2{font-size:20px;color:#FFD700;margin-bottom:12px;text-align:center}
+.lb table{width:100%;border-collapse:collapse;background:#1a1a2e;border-radius:12px;overflow:hidden}
+.lb th{background:#252545;padding:8px 12px;font-size:12px;color:#888;text-align:left}
+.lb td{padding:8px 12px;font-size:13px;border-top:1px solid #252545}
+.lb tr:hover td{background:#20203a}
+.lb .rank{width:35px;text-align:center;font-weight:bold}
+.lb .me{color:#7DF}
+.lb-tabs{display:flex;gap:5px;justify-content:center;margin-bottom:10px;flex-wrap:wrap}
+.lb-tab{background:#2a2a4a;border:1px solid #333;padding:3px 10px;border-radius:5px;cursor:pointer;font-size:11px;color:#aaa}
+.lb-tab:hover{border-color:#888}
+.lb-tab.active{border-color:#FFD700;color:#FFD700}
+footer{text-align:center;padding:20px;color:#444;font-size:12px}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>놀이터</h1>
+  <p class="sub">게임 · 심리테스트 · 운세</p>
+  <div class="nick-bar" id="nick-bar"></div>
+</header>
+
+<div class="tabs" id="tabs">
+  <div class="tab" onclick="switchTab('game')">🎮 게임 <span class="badge" id="game-count"></span></div>
+  <div class="tab" onclick="switchTab('test')">🧠 심리테스트 <span class="badge" id="test-count"></span></div>
+  <div class="tab" onclick="switchTab('destiny')">🔮 운세 <span class="badge" id="dest-count"></span></div>
+</div>
+
+<div class="grid" id="grid"></div>
+<div class="lb" id="lb-section" style="display:none">
+  <h2>🏆 리더보드</h2>
+  <div class="lb-tabs" id="lb-tabs"></div>
+  <table id="lb-table"></table>
+</div>
+
+<footer>놀이터 v1.0 · 브라우저에서 바로 즐기세요!</footer>
+
+<script>
+const HUB_KEY='game_hub',LB_KEY='game_leaderboard';
+function getHub(){return JSON.parse(localStorage.getItem(HUB_KEY)||'{}');}
+function getNick(){return getHub().nick||'';}
+function setNick(n){const h=getHub();h.nick=n;localStorage.setItem(HUB_KEY,JSON.stringify(h));}
+function getScores(){return getHub().scores||{};}
+function getLB(){return JSON.parse(localStorage.getItem(LB_KEY)||'{}');}
+
+const SCORE_UNITS={tetris:'점',snake:'점',flappy:'점',tower_defense:'웨이브',rhythm:'점',bullet_storm:'점',gomoku:'승',digging:'m',puzzle2048:'점',minesweeper:'승',pong:'승',runner:'m',memory:'점',shooting:'점',sliding:'점',hangman:'승',breakout:'점',colormatch:'점',typing:'점',cardgame:'승'};
+const GAME_NAMES={tetris:'블록쌓기',snake:'뱀키우기',flappy:'병아리',tower_defense:'성지키기',rhythm:'리듬스타',bullet_storm:'불렛스톰',gomoku:'오목',digging:'땅굴탐험',puzzle2048:'2048',minesweeper:'지뢰찾기',pong:'핑퐁',runner:'달려라',memory:'기억력',shooting:'사격장',sliding:'퍼즐',hangman:'단어맞추기',breakout:'벽돌깨기',colormatch:'색맞추기',typing:'타자게임',cardgame:'카드배틀'};
+
+let currentTab='game', lbFilter='all';
+
+// Items
+const GAMES=[
+  {file:'games/tetris.html',title:'블록 쌓기',desc:'클래식 테트리스',emoji:'🧱',id:'tetris',bg:'linear-gradient(135deg,#FF9AA2,#FFDAC1)'},
+  {file:'games/snake.html',title:'뱀 키우기',desc:'귀여운 뱀 먹이 먹기',emoji:'🐍',id:'snake',bg:'linear-gradient(135deg,#7EC8A0,#B5EAD7)'},
+  {file:'games/flappy.html',title:'날아라 병아리',desc:'장애물 피하기',emoji:'🐥',id:'flappy',bg:'linear-gradient(135deg,#87CEEB,#FFD700)'},
+  {file:'games/tower_defense.html',title:'성 지키기',desc:'무한 타워 디펜스',emoji:'🏰',id:'tower_defense',bg:'linear-gradient(135deg,#66BB6A,#4CAF50)'},
+  {file:'games/rhythm.html',title:'리듬 스타',desc:'키보드 리듬 게임',emoji:'🎵',id:'rhythm',bg:'linear-gradient(135deg,#E0B0FF,#7B68EE)'},
+  {file:'games/bullet_storm.html',title:'불렛 스톰',desc:'총알 피하기',emoji:'🚀',id:'bullet_storm',bg:'linear-gradient(135deg,#1a1a4a,#3a3a8a)'},
+  {file:'games/gomoku.html',title:'오목',desc:'AI 또는 2인 대전',emoji:'⚫',id:'gomoku',bg:'linear-gradient(135deg,#D4A76A,#8B6914)'},
+  {file:'games/digging.html',title:'땅굴 탐험',desc:'용암 피해 지하 하강',emoji:'⛏️',id:'digging',bg:'linear-gradient(135deg,#2a1a0a,#5a3a1a)'},
+  {file:'games/puzzle2048.html',title:'2048',desc:'숫자 타일 합치기',emoji:'🔢',id:'puzzle2048',bg:'linear-gradient(135deg,#EDB879,#F9D976)'},
+  {file:'games/minesweeper.html',title:'지뢰찾기',desc:'클래식 지뢰찾기',emoji:'💣',id:'minesweeper',bg:'linear-gradient(135deg,#607D8B,#90A4AE)'},
+  {file:'games/pong.html',title:'핑퐁',desc:'클래식 핑퐁 대전',emoji:'🏓',id:'pong',bg:'linear-gradient(135deg,#1a3a1a,#2a5a2a)'},
+  {file:'games/runner.html',title:'달려라!',desc:'끝없는 달리기',emoji:'🏃',id:'runner',bg:'linear-gradient(135deg,#FF7043,#FFB74D)'},
+  {file:'games/memory.html',title:'기억력 게임',desc:'카드 짝 맞추기',emoji:'🃏',id:'memory',bg:'linear-gradient(135deg,#CE93D8,#F48FB1)'},
+  {file:'games/shooting.html',title:'사격장',desc:'60초 타겟 사격',emoji:'🎯',id:'shooting',bg:'linear-gradient(135deg,#EF5350,#FF8A65)'},
+  {file:'games/sliding.html',title:'슬라이딩 퍼즐',desc:'15퍼즐 맞추기',emoji:'🧩',id:'sliding',bg:'linear-gradient(135deg,#4FC3F7,#4DD0E1)'},
+  {file:'games/hangman.html',title:'단어 맞추기',desc:'행맨 단어 퀴즈',emoji:'📝',id:'hangman',bg:'linear-gradient(135deg,#8D6E63,#A1887F)'},
+  {file:'games/breakout.html',title:'벽돌깨기',desc:'클래식 브레이크아웃',emoji:'🧱',id:'breakout',bg:'linear-gradient(135deg,#E91E63,#F48FB1)'},
+  {file:'games/colormatch.html',title:'색 맞추기',desc:'스트룹 반응 테스트',emoji:'🌈',id:'colormatch',bg:'linear-gradient(135deg,#00BCD4,#4DD0E1)'},
+  {file:'games/typing.html',title:'타자 게임',desc:'떨어지는 단어 타자',emoji:'⌨️',id:'typing',bg:'linear-gradient(135deg,#455A64,#78909C)'},
+  {file:'games/cardgame.html',title:'카드 배틀',desc:'카드 뒤집기 대전',emoji:'🃏',id:'cardgame',bg:'linear-gradient(135deg,#5C6BC0,#7986CB)'},
+];
+
+const TESTS=[
+  {file:'tests/mbti.html',title:'MBTI 테스트',desc:'나의 성격 유형은? 12문항 간이 테스트',emoji:'🧠',bg:'linear-gradient(135deg,#7B68EE,#9B59B6)'},
+  {file:'tests/blood.html',title:'혈액형 성격 분석',desc:'A/B/O/AB형 성격과 궁합',emoji:'🩸',bg:'linear-gradient(135deg,#FF6B6B,#FF9AA2)'},
+  {file:'tests/color.html',title:'색깔 심리 테스트',desc:'끌리는 색으로 보는 심리',emoji:'🎨',bg:'linear-gradient(135deg,#FF9800,#FFD700)'},
+  {file:'tests/love.html',title:'연애 유형 테스트',desc:'나의 연애 스타일은?',emoji:'💕',bg:'linear-gradient(135deg,#FF69B4,#FF9AA2)'},
+  {file:'tests/stress.html',title:'스트레스 지수',desc:'현재 스트레스 수준 체크',emoji:'😰',bg:'linear-gradient(135deg,#78909C,#B0BEC5)'},
+  {file:'tests/animal.html',title:'동물 성격 테스트',desc:'나를 닮은 동물은?',emoji:'🦊',bg:'linear-gradient(135deg,#FF8A65,#FFAB91)'},
+  {file:'tests/pastlife.html',title:'전생 테스트',desc:'전생에 나는 누구였을까?',emoji:'⏳',bg:'linear-gradient(135deg,#7E57C2,#B39DDB)'},
+  {file:'tests/brain.html',title:'좌뇌우뇌 테스트',desc:'논리 vs 감성, 나의 뇌 유형',emoji:'🧠',bg:'linear-gradient(135deg,#42A5F5,#EF5350)'},
+  {file:'tests/career.html',title:'직업 적성 테스트',desc:'나에게 맞는 직업은?',emoji:'💼',bg:'linear-gradient(135deg,#26A69A,#80CBC4)'},
+  {file:'tests/eq.html',title:'감성지능(EQ) 테스트',desc:'나의 감성 지능 수준은?',emoji:'💖',bg:'linear-gradient(135deg,#EC407A,#F48FB1)'},
+  {file:'tests/disc.html',title:'DISC 성격 유형',desc:'업무 스타일로 보는 성격',emoji:'📊',bg:'linear-gradient(135deg,#5C6BC0,#7986CB)'},
+  {file:'tests/insider.html',title:'인싸/아싸 테스트',desc:'나는 인싸? 아싸?',emoji:'🎉',bg:'linear-gradient(135deg,#FFD54F,#FFF176)'},
+  {file:'tests/leader.html',title:'리더십 유형',desc:'나의 리더십 스타일은?',emoji:'👑',bg:'linear-gradient(135deg,#FFB300,#FFD54F)'},
+  {file:'tests/money.html',title:'금전감각 테스트',desc:'나의 소비 습관 분석',emoji:'💰',bg:'linear-gradient(135deg,#66BB6A,#A5D6A7)'},
+  {file:'tests/travel.html',title:'여행 유형 테스트',desc:'나에게 맞는 여행 스타일',emoji:'✈️',bg:'linear-gradient(135deg,#29B6F6,#81D4FA)'},
+  {file:'tests/food.html',title:'음식 성격 테스트',desc:'좋아하는 음식으로 보는 성격',emoji:'🍕',bg:'linear-gradient(135deg,#FF7043,#FFAB91)'},
+  {file:'tests/focus.html',title:'집중력 테스트',desc:'나의 집중력 레벨 측정',emoji:'🎯',bg:'linear-gradient(135deg,#AB47BC,#CE93D8)'},
+  {file:'tests/empathy.html',title:'공감 능력 테스트',desc:'나의 공감력 수준은?',emoji:'🤝',bg:'linear-gradient(135deg,#4DB6AC,#80CBC4)'},
+  {file:'tests/firstimp.html',title:'첫인상 테스트',desc:'다른 사람이 보는 나의 첫인상',emoji:'👤',bg:'linear-gradient(135deg,#8D6E63,#BCAAA4)'},
+  {file:'tests/mental.html',title:'멘탈 강도 테스트',desc:'유리멘탈? 강철멘탈?',emoji:'💪',bg:'linear-gradient(135deg,#546E7A,#90A4AE)'},
+];
+
+const DESTINY=[
+  {file:'destiny/zodiac.html',title:'별자리 운세',desc:'12별자리 오늘의 운세',emoji:'⭐',bg:'linear-gradient(135deg,#1a1a4a,#3a3a8a)'},
+  {file:'destiny/tarot.html',title:'타로 카드',desc:'3장의 카드가 전하는 메시지',emoji:'🔮',bg:'linear-gradient(135deg,#4a1a5a,#2a1a3a)'},
+  {file:'destiny/saju.html',title:'생년월일 운세',desc:'사주 기반 오늘의 운세',emoji:'🏮',bg:'linear-gradient(135deg,#8B0000,#4a1a1a)'},
+  {file:'destiny/clover.html',title:'클로버 운세',desc:'네잎 클로버를 찾아라!',emoji:'🍀',bg:'linear-gradient(135deg,#1a3a1a,#2a5a2a)'},
+  {file:'destiny/hwatu.html',title:'화투 운세',desc:'화투 3장으로 보는 운세',emoji:'🎴',bg:'linear-gradient(135deg,#4a1a0a,#8B4513)'},
+  {file:'destiny/daily.html',title:'오늘의 운수',desc:'이름으로 보는 오늘의 운',emoji:'🌅',bg:'linear-gradient(135deg,#FF6F00,#FFB300)'},
+  {file:'destiny/dream.html',title:'꿈 해몽',desc:'꿈 속 상징의 의미는?',emoji:'💭',bg:'linear-gradient(135deg,#311B92,#5C6BC0)'},
+  {file:'destiny/dice.html',title:'주사위 운세',desc:'주사위를 굴려 운세 확인',emoji:'🎲',bg:'linear-gradient(135deg,#E65100,#FF9800)'},
+  {file:'destiny/coin.html',title:'동전 점',desc:'동전 3개로 보는 운세',emoji:'🪙',bg:'linear-gradient(135deg,#F9A825,#FDD835)'},
+  {file:'destiny/numerology.html',title:'수비학',desc:'생일 숫자의 비밀',emoji:'🔢',bg:'linear-gradient(135deg,#4527A0,#7C4DFF)'},
+  {file:'destiny/ohang.html',title:'오행 운세',desc:'목화토금수 오행의 기운',emoji:'☯️',bg:'linear-gradient(135deg,#1B5E20,#4CAF50)'},
+  {file:'destiny/face.html',title:'관상 테스트',desc:'얼굴형으로 보는 운세',emoji:'👤',bg:'linear-gradient(135deg,#4E342E,#8D6E63)'},
+  {file:'destiny/rune.html',title:'룬 문자 운세',desc:'고대 룬의 메시지',emoji:'ᚱ',bg:'linear-gradient(135deg,#263238,#455A64)'},
+  {file:'destiny/catfortune.html',title:'고양이 운세',desc:'고양이가 알려주는 운세',emoji:'🐱',bg:'linear-gradient(135deg,#FF8F00,#FFB74D)'},
+  {file:'destiny/coffee.html',title:'커피 운세',desc:'커피 취향으로 보는 운세',emoji:'☕',bg:'linear-gradient(135deg,#3E2723,#6D4C41)'},
+  {file:'destiny/flower.html',title:'꽃 운세',desc:'탄생화로 보는 운명',emoji:'🌷',bg:'linear-gradient(135deg,#AD1457,#EC407A)'},
+  {file:'destiny/pastlife_fortune.html',title:'전생 운세',desc:'전생이 현재에 미치는 영향',emoji:'🔄',bg:'linear-gradient(135deg,#4A148C,#7B1FA2)'},
+  {file:'destiny/spirit_animal.html',title:'수호 동물',desc:'나의 수호 동물의 메시지',emoji:'🐺',bg:'linear-gradient(135deg,#1A237E,#3949AB)'},
+  {file:'destiny/biorhythm.html',title:'바이오리듬',desc:'신체·감정·지성 리듬 분석',emoji:'📈',bg:'linear-gradient(135deg,#00695C,#26A69A)'},
+  {file:'destiny/color_fortune.html',title:'오늘의 색 운세',desc:'오늘의 행운 색은?',emoji:'🎨',bg:'linear-gradient(135deg,#C62828,#EF5350)'},
+];
+
+// Nick
+function renderNick(){
+  const bar=document.getElementById('nick-bar');
+  const nick=getNick();
+  if(nick){
+    bar.innerHTML=`<span class="nick-display" onclick="changeNick()" title="클릭하여 변경">🎮 ${nick}</span>`;
+  } else {
+    bar.innerHTML=`<input id="nick-input" placeholder="닉네임 입력" maxlength="12"><button onclick="saveNick()">시작</button>`;
+    document.getElementById('nick-input')?.addEventListener('keydown',e=>{if(e.key==='Enter')saveNick();});
+  }
+}
+function saveNick(){const i=document.getElementById('nick-input'),n=i.value.trim();if(!n)return i.focus();setNick(n);renderNick();renderGrid();}
+function changeNick(){const n=prompt('닉네임 변경:',getNick());if(n?.trim()){setNick(n.trim());renderNick();}}
+
+// Tabs
+function switchTab(tab){
+  currentTab=tab;
+  document.querySelectorAll('.tab').forEach(t=>t.className='tab');
+  const idx={game:0,test:1,destiny:2}[tab];
+  const cls=['active-game','active-test','active-destiny'][idx];
+  document.querySelectorAll('.tab')[idx].classList.add(cls);
+  document.getElementById('lb-section').style.display=tab==='game'?'block':'none';
+  renderGrid();
+  if(tab==='game')renderLB();
+}
+
+// Grid
+function renderGrid(){
+  const grid=document.getElementById('grid');
+  grid.innerHTML='';
+  const items=currentTab==='game'?GAMES:currentTab==='test'?TESTS:DESTINY;
+  const scores=getScores();
+
+  items.forEach(item=>{
+    const card=document.createElement('a');
+    card.className='card';
+    card.href=item.file;
+
+    const thumb=document.createElement('div');
+    thumb.className='card-thumb';
+    thumb.style.background=item.bg;
+    thumb.innerHTML=`<span>${item.emoji}</span>`;
+
+    if(item.id&&scores[item.id]){
+      const unit=SCORE_UNITS[item.id]||'점';
+      const sb=document.createElement('div');
+      sb.className='card-score';
+      sb.textContent=`🏆 ${scores[item.id]}${unit}`;
+      thumb.appendChild(sb);
+    }
+
+    const info=document.createElement('div');
+    info.className='card-info';
+    info.innerHTML=`<h3>${item.title}</h3><p>${item.desc}</p>`;
+
+    card.appendChild(thumb);
+    card.appendChild(info);
+    grid.appendChild(card);
+  });
+}
+
+// Leaderboard
+function renderLB(){
+  const lb=getLB(),nick=getNick();
+  const tabs=document.getElementById('lb-tabs'),table=document.getElementById('lb-table');
+  const ids=Object.keys(lb).filter(id=>lb[id].length>0);
+
+  tabs.innerHTML=`<div class="lb-tab ${lbFilter==='all'?'active':''}" onclick="lbFilter='all';renderLB()">종합</div>`+
+    ids.map(id=>`<div class="lb-tab ${lbFilter===id?'active':''}" onclick="lbFilter='${id}';renderLB()">${GAME_NAMES[id]||id}</div>`).join('');
+
+  if(ids.length===0){table.innerHTML='<tr><td style="text-align:center;padding:20px;color:#555">아직 기록이 없습니다</td></tr>';return;}
+
+  if(lbFilter==='all'){
+    const players={};
+    for(const id of ids){
+      lb[id].forEach(e=>{
+        if(!players[e.nick])players[e.nick]={nick:e.nick,games:0,details:{}};
+        players[e.nick].games++;
+        players[e.nick].details[id]=e.score;
+      });
+    }
+    const sorted=Object.values(players).sort((a,b)=>b.games-a.games);
+    const top5=ids.slice(0,5);
+    let html=`<tr><th class="rank">#</th><th>플레이어</th><th style="text-align:center">참여</th>`;
+    top5.forEach(id=>{html+=`<th style="text-align:right;font-size:11px">${GAME_NAMES[id]||id}</th>`;});
+    html+=`</tr>`;
+    sorted.slice(0,10).forEach((p,i)=>{
+      const medal=i<3?['🥇','🥈','🥉'][i]:(i+1);
+      const me=p.nick===nick;
+      html+=`<tr><td class="rank">${medal}</td><td class="${me?'me':''}">${p.nick}${me?' (나)':''}</td><td style="text-align:center;color:#888">${p.games}</td>`;
+      top5.forEach(id=>{
+        const s=p.details[id];
+        html+=`<td style="text-align:right;color:${s?'#FFD700':'#333'};font-size:12px">${s||'-'}</td>`;
+      });
+      html+=`</tr>`;
+    });
+    table.innerHTML=html;
+  } else {
+    const entries=lb[lbFilter]||[];
+    const unit=SCORE_UNITS[lbFilter]||'점';
+    let html=`<tr><th class="rank">#</th><th>플레이어</th><th style="text-align:right">기록</th><th style="text-align:right;color:#555">날짜</th></tr>`;
+    entries.slice(0,10).forEach((e,i)=>{
+      const medal=i<3?['🥇','🥈','🥉'][i]:(i+1);
+      const me=e.nick===nick;
+      html+=`<tr><td class="rank">${medal}</td><td class="${me?'me':''}">${e.nick}${me?' (나)':''}</td><td style="text-align:right;color:#FFD700;font-weight:bold">${e.score.toLocaleString()}${unit}</td><td style="text-align:right;color:#555;font-size:12px">${e.date||''}</td></tr>`;
+    });
+    table.innerHTML=html;
+  }
+}
+
+// Init
+renderNick();
+document.getElementById('game-count').textContent=GAMES.length;
+document.getElementById('test-count').textContent=TESTS.length;
+document.getElementById('dest-count').textContent=DESTINY.length;
+switchTab('game');
+</script>
+</body>
+</html>

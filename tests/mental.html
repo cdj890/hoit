@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>멘탈 강도 테스트</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px}
+.card{background:#1a1a2e;border-radius:16px;padding:30px;max-width:500px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.4);text-align:center}
+h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-size:.9em}
+.progress{height:6px;background:#2a2a3e;border-radius:3px;margin-bottom:24px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#636e72,#dfe6e9);transition:width .3s;width:0}
+.question{font-size:1.05em;margin-bottom:18px;line-height:1.5}
+.btn{display:block;width:100%;padding:12px;margin:8px 0;background:#2a2a3e;border:none;color:#e0e0e0;border-radius:10px;font-size:.95em;cursor:pointer;transition:background .2s}
+.btn:hover{background:#3a3a5e}
+.start-btn{background:linear-gradient(135deg,#636e72,#b2bec3);color:#fff;font-size:1.1em;padding:14px;margin-top:16px;font-weight:bold}
+.start-btn:hover{opacity:.9}
+.emoji{font-size:4em;margin:16px 0}.result-type{font-size:1.4em;font-weight:bold;color:#dfe6e9;margin-bottom:12px}
+.result-desc{color:#bbb;line-height:1.7;margin-bottom:10px;font-size:.95em}
+.tips{background:#2a2a3e;border-radius:10px;padding:14px;margin:12px 0;text-align:left;font-size:.9em;line-height:1.8;color:#ddd}
+.hidden{display:none}
+.meter{height:20px;background:#2a2a3e;border-radius:10px;margin:16px 0;overflow:hidden}
+.meter-fill{height:100%;border-radius:10px;transition:width 1s}
+.score-label{font-size:1.2em;color:#dfe6e9;margin:8px 0}
+</style></head><body>
+<a href="../index.html" style="position:fixed;top:10px;left:10px;z-index:9999;background:rgba(0,0,0,0.6);color:#fff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:13px;font-family:sans-serif" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<div class="card">
+<div id="intro">
+<div style="font-size:3em;margin-bottom:10px">🛡️</div>
+<h1>멘탈 강도 테스트</h1>
+<p class="sub">당신의 정신적 회복 탄력성을 알아보세요</p>
+<button class="btn start-btn" onclick="startQuiz()">테스트 시작하기</button>
+</div>
+<div id="quiz" class="hidden">
+<div class="progress"><div class="progress-fill" id="prog"></div></div>
+<div class="question" id="qText"></div>
+<div id="opts"></div>
+</div>
+<div id="result" class="hidden">
+<div class="emoji" id="rEmoji"></div>
+<div class="score-label" id="rScore"></div>
+<div class="meter"><div class="meter-fill" id="meterFill"></div></div>
+<div class="result-type" id="rType"></div>
+<div class="result-desc" id="rDesc"></div>
+<div class="tips" id="rTips"></div>
+<button class="btn start-btn" onclick="location.reload()">다시 하기</button>
+</div>
+</div>
+<script>
+const questions=[
+{q:"큰 실패를 경험하면?",a:[["오래 좌절하고 무기력해진다",1],["슬프지만 시간이 지나면 회복",2],["빠르게 다음 계획을 세운다",4]]},
+{q:"악성 댓글이나 비난을 받으면?",a:[["상처받아 계속 생각난다",1],["기분 나쁘지만 넘긴다",2],["신경 안 쓴다",4]]},
+{q:"갑자기 큰 변화가 생기면?",a:[["극도로 불안해진다",1],["적응하려 노력한다",3],["새로운 기회로 본다",4]]},
+{q:"혼자 있을 때 부정적 생각이?",a:[["자주 빠져든다",1],["가끔 있지만 통제 가능",3],["거의 없다",4]]},
+{q:"중요한 발표/시험 전날?",a:[["잠을 못 잔다",1],["약간 긴장되지만 괜찮다",3],["오히려 설렌다",4]]},
+{q:"친한 친구와 크게 싸우면?",a:[["오랫동안 괴롭다",1],["며칠 후 먼저 연락한다",3],["바로 대화로 해결한다",4]]},
+{q:"목표 달성이 어려워 보이면?",a:[["포기하고 싶어진다",1],["방법을 바꿔본다",3],["더 열심히 한다",4]]},
+{q:"주변 사람의 부정적 에너지에?",a:[["쉽게 영향받는다",1],["약간 영향받지만 회복한다",2],["나만의 경계를 유지한다",4]]},
+{q:"예상치 못한 문제가 발생하면?",a:[["패닉에 빠진다",1],["당황하지만 곧 대처한다",3],["침착하게 해결한다",4]]},
+{q:"과거의 실수를?",a:[["자주 곱씹으며 후회한다",1],["가끔 생각나지만 넘긴다",2],["교훈으로 삼고 잊는다",4]]}
+];
+let cur=0,total=0;
+function startQuiz(){document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();}
+function showQ(){const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=()=>pick(a[1]);o.appendChild(b);});}
+function pick(v){total+=v;cur++;if(cur<questions.length)showQ();else showResult();}
+function showResult(){const score=Math.min(100,Math.round(total/40*100));
+document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');
+document.getElementById('rScore').textContent='멘탈 강도: '+score+'점';
+const fill=document.getElementById('meterFill');fill.style.width=score+'%';
+let emoji,type,desc,tips,color;
+if(score>=80){emoji='🏔️';type='강철 멘탈';desc='당신의 멘탈은 강철처럼 단단합니다! 어떤 어려움에도 흔들리지 않는 놀라운 회복 탄력성을 가지고 있어요.';tips='<strong>💡 유지 팁:</strong><br>• 지금의 강한 멘탈을 유지하세요<br>• 주변 사람들에게도 힘이 되어주세요<br>• 가끔은 약한 모습을 보여도 괜찮아요';color='#00b894';}
+else if(score>=60){emoji='🔩';type='단단한 멘탈';desc='꽤 강한 멘탈의 소유자! 대부분의 상황에서 잘 버텨내며, 회복력도 좋은 편이에요.';tips='<strong>💡 강화 팁:</strong><br>• 규칙적인 운동으로 스트레스 관리<br>• 긍정적 자기대화 연습하기<br>• 실패를 성장의 기회로 재해석하기';color='#74b9ff';}
+else if(score>=40){emoji='🪨';type='보통 멘탈';desc='평균적인 멘탈 강도입니다. 일상적인 스트레스는 잘 견디지만, 큰 충격에는 흔들릴 수 있어요.';tips='<strong>💡 강화 팁:</strong><br>• 하루 10분 명상/호흡 연습<br>• 감정 일기 쓰기<br>• 작은 성공 경험 쌓기<br>• 신뢰할 수 있는 사람과 대화하기';color='#fdcb6e';}
+else{emoji='🫧';type='유리 멘탈';desc='섬세하고 감수성이 풍부한 당신! 쉽게 상처받을 수 있지만, 그만큼 세상을 깊이 느끼는 사람이에요.';tips='<strong>💡 강화 팁:</strong><br>• 전문 상담을 통한 마음 케어 추천<br>• SNS 디톡스로 비교심 줄이기<br>• 자기 긍정 확언 매일 3가지<br>• 충분한 수면과 규칙적 생활<br>• 나를 위한 작은 보상 주기';color='#ff7675';}
+fill.style.background=color;document.getElementById('rEmoji').textContent=emoji;document.getElementById('rType').textContent=type;document.getElementById('rDesc').textContent=desc;document.getElementById('rTips').innerHTML=tips;}
+</script></body></html>

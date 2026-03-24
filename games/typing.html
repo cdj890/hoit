@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>타자 연습</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI','Noto Sans KR',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;overflow:hidden}
+h1{font-size:1.8em;margin:10px 0 5px;background:linear-gradient(135deg,#34d399,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.info-bar{display:flex;gap:20px;justify-content:center;color:#aaa;font-size:0.85em;margin-bottom:8px}
+#gameCanvas{border-radius:12px;display:block;box-shadow:0 4px 24px rgba(0,0,0,0.5)}
+.input-area{margin-top:12px;display:flex;gap:8px;align-items:center}
+.input-area input{background:#1a1a2e;border:2px solid #3a3a6a;color:#e0e0e0;padding:10px 16px;border-radius:10px;font-size:1.1em;width:250px;outline:none;text-align:center}
+.input-area input:focus{border-color:#60a5fa;box-shadow:0 0 10px rgba(96,165,250,0.3)}
+.overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,15,30,0.95);display:flex;align-items:center;justify-content:center;z-index:100}
+.overlay-box{background:#1a1a2e;border-radius:20px;padding:40px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.6);max-width:400px;width:90%}
+.overlay-box h2{font-size:1.8em;margin-bottom:15px;background:linear-gradient(135deg,#34d399,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.overlay-box p{color:#ccc;margin:8px 0}
+.btn{padding:12px 32px;border:none;border-radius:12px;font-size:1em;cursor:pointer;transition:all 0.2s;font-weight:bold;margin:5px}
+.btn-primary{background:linear-gradient(135deg,#34d399,#60a5fa);color:#0f0f1e}
+.btn-primary:hover{transform:scale(1.05);box-shadow:0 4px 15px rgba(52,211,153,0.4)}
+.result-emoji{font-size:3em;margin-bottom:10px}
+.high-score{color:#ffd700;font-size:0.9em;margin-top:10px}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:10px;left:10px;z-index:9999;background:rgba(0,0,0,0.6);color:#fff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:13px;font-family:sans-serif" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<script>function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));if(h.nick){const lb=JSON.parse(localStorage.getItem('game_leaderboard')||'{}');if(!lb[id])lb[id]=[];const e=lb[id].find(x=>x.nick===h.nick);if(e){if(s>e.score){e.score=s;e.date=new Date().toLocaleDateString('ko');}}else lb[id].push({nick:h.nick,score:s,date:new Date().toLocaleDateString('ko')});lb[id].sort((a,b)=>b.score-a.score);lb[id]=lb[id].slice(0,20);localStorage.setItem('game_leaderboard',JSON.stringify(lb));}}</script>
+
+<div id="startScreen" class="overlay">
+<div class="overlay-box">
+<div class="result-emoji">⌨️</div>
+<h2>타자 연습</h2>
+<p>떨어지는 단어를 타이핑해서 없애세요!</p>
+<p style="font-size:0.85em;color:#aaa">단어가 바닥에 닿으면 생명이 줄어요<br>3번 놓치면 게임 오버!</p>
+<div class="high-score" id="startHighScore"></div>
+<br>
+<button class="btn btn-primary" onclick="startGame()">시작!</button>
+</div>
+</div>
+
+<div id="gameOverScreen" class="overlay" style="display:none">
+<div class="overlay-box">
+<div class="result-emoji" id="resultEmoji"></div>
+<h2>게임 오버!</h2>
+<p id="resultScore"></p>
+<div class="high-score" id="resultHighScore"></div>
+<br>
+<button class="btn btn-primary" onclick="startGame()">다시 하기</button>
+</div>
+</div>
+
+<div id="gameArea" style="display:none;text-align:center;padding-top:10px">
+<h1>타자 연습</h1>
+<div class="info-bar">
+<span>점수: <b id="scoreDisplay">0</b></span>
+<span>최고: <b id="bestDisplay">0</b></span>
+<span>생명: <b id="livesDisplay">❤️❤️❤️</b></span>
+</div>
+<canvas id="gameCanvas" width="480" height="420"></canvas>
+<div class="input-area">
+<input type="text" id="typingInput" placeholder="여기에 입력하세요..." autocomplete="off" autofocus>
+</div>
+</div>
+
+<script>
+const KO_WORDS=['사과','바나나','컴퓨터','학교','음악','사랑','하늘','바다','별','구름','나비','꽃','눈','비','달','고양이','강아지','토끼','기린','피아노','기타','축구','야구','자전거','비행기','로봇','수박','딸기','포도','레몬','커피','우유','빵','치즈','피자','햄버거','라면','김밥','떡볶이','만두','치킨','초콜릿','아이스크림','케이크','쿠키'];
+const EN_WORDS=['apple','banana','code','dream','energy','fire','game','happy','ice','jump','king','love','moon','night','ocean','piano','queen','rain','star','tree','unity','voice','water','xenon','yoga','zero','cloud','dance','earth','frog','grape','heart','island','jazz','kite','light','magic','noble','orbit','pearl'];
+
+const W=480,H=420;
+let canvas,ctx,words,score,highScore,lives,animId,gameRunning,spawnTimer,speed,inputEl;
+
+function loadHS(){highScore=parseInt(localStorage.getItem('typing_high')||'0')}
+function saveHS(){if(score>highScore){highScore=score;localStorage.setItem('typing_high',String(highScore))}_hub('typing',score)}
+
+function randItem(a){return a[Math.floor(Math.random()*a.length)]}
+
+function spawnWord(){
+const isKo=Math.random()<0.5;
+const text=isKo?randItem(KO_WORDS):randItem(EN_WORDS);
+const x=30+Math.random()*(W-100);
+words.push({text,x,y:-10,speed:0.4+speed,color:isKo?'#34d399':'#60a5fa'});
+}
+
+function startGame(){
+document.getElementById('startScreen').style.display='none';
+document.getElementById('gameOverScreen').style.display='none';
+document.getElementById('gameArea').style.display='block';
+canvas=document.getElementById('gameCanvas');
+ctx=canvas.getContext('2d');
+inputEl=document.getElementById('typingInput');
+inputEl.value='';
+inputEl.focus();
+loadHS();
+score=0;lives=3;speed=0;words=[];gameRunning=true;spawnTimer=0;
+updateUI();
+if(animId)cancelAnimationFrame(animId);
+loop();
+}
+
+function updateUI(){
+document.getElementById('scoreDisplay').textContent=score;
+document.getElementById('bestDisplay').textContent=highScore;
+document.getElementById('livesDisplay').textContent='❤️'.repeat(lives)+'🖤'.repeat(3-lives);
+}
+
+function draw(){
+ctx.clearRect(0,0,W,H);
+// danger line
+ctx.strokeStyle='rgba(239,68,68,0.3)';
+ctx.setLineDash([8,4]);
+ctx.beginPath();ctx.moveTo(0,H-30);ctx.lineTo(W,H-30);ctx.stroke();
+ctx.setLineDash([]);
+ctx.fillStyle='rgba(239,68,68,0.15)';
+ctx.fillRect(0,H-30,W,30);
+ctx.fillStyle='rgba(239,68,68,0.5)';
+ctx.font='11px sans-serif';
+ctx.fillText('위험 구역',W/2-25,H-12);
+
+words.forEach(w=>{
+ctx.font='bold 18px "Noto Sans KR",sans-serif';
+const tw=ctx.measureText(w.text).width;
+// bubble bg
+ctx.fillStyle='rgba(30,30,58,0.85)';
+ctx.beginPath();ctx.roundRect(w.x-8,w.y-18,tw+16,30,8);ctx.fill();
+ctx.strokeStyle=w.color;ctx.lineWidth=1.5;
+ctx.beginPath();ctx.roundRect(w.x-8,w.y-18,tw+16,30,8);ctx.stroke();
+// text
+ctx.fillStyle=w.color;
+ctx.fillText(w.text,w.x,w.y+4);
+});
+}
+
+function update(){
+if(!gameRunning)return;
+spawnTimer++;
+const interval=Math.max(40,120-score*2);
+if(spawnTimer>=interval){spawnTimer=0;spawnWord();}
+speed=Math.min(2,score*0.02);
+
+for(let i=words.length-1;i>=0;i--){
+words[i].y+=words[i].speed;
+if(words[i].y>H){
+words.splice(i,1);
+lives--;
+updateUI();
+if(lives<=0){endGame();return;}
+}
+}
+}
+
+function checkInput(){
+const val=inputEl.value.trim();
+if(!val)return;
+for(let i=0;i<words.length;i++){
+if(words[i].text===val){
+words.splice(i,1);
+score++;
+updateUI();
+inputEl.value='';
+return;
+}
+}
+}
+
+function loop(){
+update();draw();
+if(gameRunning)animId=requestAnimationFrame(loop);
+}
+
+function endGame(){
+gameRunning=false;
+cancelAnimationFrame(animId);
+saveHS();
+document.getElementById('gameArea').style.display='none';
+const s=document.getElementById('gameOverScreen');
+s.style.display='flex';
+document.getElementById('resultEmoji').textContent=score>=30?'🏆':score>=15?'🎉':'😊';
+document.getElementById('resultScore').textContent=`점수: ${score}개 단어`;
+document.getElementById('resultHighScore').textContent=`최고 기록: ${highScore}개`;
+}
+
+document.getElementById('typingInput').addEventListener('input',checkInput);
+document.getElementById('typingInput').addEventListener('keydown',e=>{
+if(e.key==='Enter')checkInput();
+});
+// Keep focus on input
+document.addEventListener('click',()=>{
+if(gameRunning&&inputEl)inputEl.focus();
+});
+
+loadHS();
+document.getElementById('startHighScore').textContent=highScore>0?`최고 기록: ${highScore}개`:'';
+</script>
+</body>
+</html>

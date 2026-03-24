@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>감성지능(EQ) 테스트</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px}
+.card{background:#1a1a2e;border-radius:16px;padding:30px;max-width:500px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.4);text-align:center}
+h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-size:.9em}
+.progress{height:6px;background:#2a2a3e;border-radius:3px;margin-bottom:24px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#fdcb6e,#f39c12);transition:width .3s;width:0}
+.question{font-size:1.05em;margin-bottom:18px;line-height:1.5}
+.btn{display:block;width:100%;padding:12px;margin:8px 0;background:#2a2a3e;border:none;color:#e0e0e0;border-radius:10px;font-size:.95em;cursor:pointer;transition:background .2s}
+.btn:hover{background:#3a3a5e}
+.start-btn{background:linear-gradient(135deg,#fdcb6e,#f39c12);color:#1a1a2e;font-size:1.1em;padding:14px;margin-top:16px;font-weight:bold}
+.start-btn:hover{opacity:.9}
+.emoji{font-size:4em;margin:16px 0}.result-type{font-size:1.4em;font-weight:bold;color:#fdcb6e;margin-bottom:12px}
+.result-desc{color:#bbb;line-height:1.7;margin-bottom:20px;font-size:.95em}.hidden{display:none}
+.gauge{width:200px;height:100px;margin:10px auto;position:relative;overflow:hidden}
+.gauge-bg{width:200px;height:100px;border-radius:100px 100px 0 0;background:#2a2a3e;position:absolute}
+.gauge-fill{width:200px;height:100px;border-radius:100px 100px 0 0;background:conic-gradient(from 0.75turn,#e17055,#fdcb6e,#00b894);position:absolute;transform-origin:bottom center;clip-path:inset(0 0 0 0)}
+.gauge-mask{width:160px;height:80px;border-radius:80px 80px 0 0;background:#1a1a2e;position:absolute;top:20px;left:20px}
+.gauge-needle{width:3px;height:80px;background:#fff;position:absolute;bottom:0;left:50%;transform-origin:bottom center;transform:translateX(-50%) rotate(-90deg);transition:transform 1s;border-radius:2px}
+.gauge-score{position:absolute;bottom:5px;width:100%;text-align:center;font-size:1.3em;font-weight:bold;color:#fdcb6e}
+</style></head><body>
+<a href="../index.html" style="position:fixed;top:10px;left:10px;z-index:9999;background:rgba(0,0,0,0.6);color:#fff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:13px;font-family:sans-serif" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<div class="card">
+<div id="intro">
+<div style="font-size:3em;margin-bottom:10px">💛</div>
+<h1>감성지능(EQ) 테스트</h1>
+<p class="sub">당신의 감성지능 수준을 측정해보세요</p>
+<button class="btn start-btn" onclick="startQuiz()">테스트 시작하기</button>
+</div>
+<div id="quiz" class="hidden">
+<div class="progress"><div class="progress-fill" id="prog"></div></div>
+<div class="question" id="qText"></div>
+<div id="opts"></div>
+</div>
+<div id="result" class="hidden">
+<div class="emoji" id="rEmoji"></div>
+<div class="gauge"><div class="gauge-bg"></div><div class="gauge-fill"></div><div class="gauge-mask"></div><div class="gauge-needle" id="needle"></div><div class="gauge-score" id="scoreText"></div></div>
+<div class="result-type" id="rType"></div>
+<div class="result-desc" id="rDesc"></div>
+<button class="btn start-btn" onclick="location.reload()">다시 하기</button>
+</div>
+</div>
+<script>
+const questions=[
+{q:"친구가 화가 나서 불합리한 말을 하면?",a:[["나도 화가 난다",1],["일단 들어주고 나중에 이야기한다",3],["왜 화가 났는지 이해하려 한다",4]]},
+{q:"실패했을 때 나의 반응은?",a:[["자책하며 오래 괴로워한다",1],["아쉽지만 빨리 털어낸다",3],["원인을 분석하고 다음에 반영한다",4]]},
+{q:"모르는 사람들과의 모임에서?",a:[["매우 불편하다",1],["어색하지만 노력한다",2],["먼저 다가가 대화한다",4]]},
+{q:"갑자기 계획이 변경되면?",a:[["매우 스트레스받는다",1],["약간 당황하지만 적응한다",3],["유연하게 대처한다",4]]},
+{q:"누군가 나를 비판하면?",a:[["감정적으로 반응한다",1],["기분이 나쁘지만 참는다",2],["건설적 부분을 수용한다",4]]},
+{q:"슬픈 영화를 볼 때?",a:[["잘 안 운다",2],["눈물이 좀 난다",3],["깊이 공감하며 운다",4]]},
+{q:"후배가 같은 실수를 반복하면?",a:[["짜증이 난다",1],["한번 더 설명해준다",3],["다른 방식으로 가르쳐본다",4]]},
+{q:"자신의 감정 상태를?",a:[["잘 모르겠다",1],["대략적으로 안다",2],["구체적으로 파악하고 있다",4]]},
+{q:"의견 충돌 시?",a:[["내 주장을 끝까지 한다",1],["적당히 양보한다",2],["서로 만족할 해결책을 찾는다",4]]},
+{q:"기분이 안 좋은 날?",a:[["주변에 티가 많이 난다",1],["혼자 삭인다",2],["원인을 찾고 기분전환한다",4]]}
+];
+let cur=0,total=0;
+function startQuiz(){document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();}
+function showQ(){const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=()=>pick(a[1]);o.appendChild(b);});}
+function pick(v){total+=v;cur++;if(cur<questions.length)showQ();else showResult();}
+function showResult(){const score=Math.min(100,Math.round(total/40*100));const deg=-90+score*1.8;
+document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');
+setTimeout(()=>document.getElementById('needle').style.transform='translateX(-50%) rotate('+deg+'deg)',100);
+document.getElementById('scoreText').textContent=score+'점';
+let emoji,type,desc;
+if(score>=80){emoji='🌟';type='EQ 마스터';desc='당신의 감성지능은 매우 높습니다! 자신과 타인의 감정을 잘 이해하고, 갈등 상황에서도 현명하게 대처합니다. 주변 사람들에게 정서적 안정감을 주는 존재예요.';}
+else if(score>=60){emoji='😊';type='감성 우수';desc='꽤 높은 감성지능을 가지고 있어요! 대부분의 상황에서 공감과 소통을 잘 하며, 감정 조절도 양호합니다. 조금만 더 노력하면 EQ 마스터가 될 수 있어요.';}
+else if(score>=40){emoji='🙂';type='감성 보통';desc='평균적인 감성지능 수준입니다. 감정을 인식하는 능력은 있지만, 조절과 표현에서 개선의 여지가 있어요. 타인의 감정에 좀 더 관심을 가져보세요.';}
+else{emoji='💪';type='감성 성장 중';desc='감성지능을 키울 여지가 많아요! 자신의 감정을 일기로 기록하고, 상대방의 입장에서 생각하는 연습을 해보세요. 작은 노력이 큰 변화를 만들어요.';}
+document.getElementById('rEmoji').textContent=emoji;document.getElementById('rType').textContent=type+' ('+score+'점)';document.getElementById('rDesc').textContent=desc;}
+</script></body></html>

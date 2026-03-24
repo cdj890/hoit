@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>전생 테스트</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px}
+.card{background:#1a1a2e;border-radius:16px;padding:30px;max-width:500px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.4);text-align:center}
+h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-size:.9em}
+.progress{height:6px;background:#2a2a3e;border-radius:3px;margin-bottom:24px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#e17055,#fdcb6e);transition:width .3s;width:0}
+.question{font-size:1.1em;margin-bottom:18px;line-height:1.5}
+.btn{display:block;width:100%;padding:12px;margin:8px 0;background:#2a2a3e;border:none;color:#e0e0e0;border-radius:10px;font-size:.95em;cursor:pointer;transition:background .2s}
+.btn:hover{background:#3a3a5e}
+.start-btn{background:linear-gradient(135deg,#e17055,#fdcb6e);color:#1a1a2e;font-size:1.1em;padding:14px;margin-top:16px;font-weight:bold}
+.start-btn:hover{opacity:.9}
+.emoji{font-size:4em;margin:16px 0}.result-type{font-size:1.4em;font-weight:bold;color:#fdcb6e;margin-bottom:12px}
+.result-desc{color:#bbb;line-height:1.7;margin-bottom:20px;font-size:.95em}.hidden{display:none}
+</style></head><body>
+<a href="../index.html" style="position:fixed;top:10px;left:10px;z-index:9999;background:rgba(0,0,0,0.6);color:#fff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:13px;font-family:sans-serif" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<div class="card">
+<div id="intro">
+<div style="font-size:3em;margin-bottom:10px">🔮</div>
+<h1>전생 테스트</h1>
+<p class="sub">당신의 전생은 어떤 모습이었을까요?</p>
+<button class="btn start-btn" onclick="startQuiz()">전생 알아보기</button>
+</div>
+<div id="quiz" class="hidden">
+<div class="progress"><div class="progress-fill" id="prog"></div></div>
+<div class="question" id="qText"></div>
+<div id="opts"></div>
+</div>
+<div id="result" class="hidden">
+<div class="emoji" id="rEmoji"></div>
+<div class="result-type" id="rType"></div>
+<div class="result-desc" id="rDesc"></div>
+<button class="btn start-btn" onclick="location.reload()">다시 하기</button>
+</div>
+</div>
+<script>
+const questions=[
+{q:"어릴 때부터 끌리는 시대는?",a:[["중세 유럽","knight"],["고대 이집트","royal"],["르네상스","artist"],["동양 고대","scholar"]]},
+{q:"반복적으로 꾸는 꿈이 있다면?",a:[["넓은 바다를 항해","explorer"],["화려한 궁전","royal"],["전쟁터","knight"],["시장에서 흥정","merchant"]]},
+{q:"처음 가본 곳인데 익숙한 느낌?",a:[["오래된 성당/사원","scholar"],["항구 도시","merchant"],["미술관","artist"],["깊은 숲","explorer"]]},
+{q:"타고난 재능이라고 느끼는 것은?",a:[["사람을 이끄는 힘","royal"],["용기와 정의감","knight"],["예술적 감각","artist"],["지식 탐구","scholar"]]},
+{q:"스트레스를 받으면?",a:[["혼자 여행 떠나고 싶다","explorer"],["비싼 거 사고 싶다","merchant"],["글이나 그림으로 표현","artist"],["체계적으로 정리","scholar"]]},
+{q:"가장 끌리는 아이템은?",a:[["고급 보석/왕관","royal"],["고대 칼/갑옷","knight"],["붓과 캔버스","artist"],["지도와 나침반","explorer"]]},
+{q:"사람들이 당신에게 자주 하는 말?",a:[["카리스마 있다","royal"],["정의롭다","knight"],["독특하다","artist"],["장사 수완이 좋다","merchant"]]},
+{q:"이유 없이 끌리는 음식은?",a:[["고급 코스 요리","royal"],["투박한 빵과 스튜","knight"],["이국적인 향신료 요리","merchant"],["자연 재료 음식","explorer"]]}
+];
+const types={royal:{e:"👑",n:"왕족",d:"전생에 당신은 왕실의 일원이었습니다! 타고난 리더십과 카리스마로 많은 사람을 이끌었죠. 지금도 고급스러운 취향과 당당한 기운이 남아있어요."},
+knight:{e:"⚔️",n:"기사",d:"전생에 당신은 용감한 기사였습니다! 정의를 위해 싸우는 강인한 전사였죠. 지금도 불의를 보면 참지 못하는 성격이 그 흔적이에요."},
+artist:{e:"🎨",n:"예술가",d:"전생에 당신은 천재 예술가였습니다! 아름다움을 창조하는 데 일생을 바쳤죠. 지금도 뛰어난 감성과 창의력이 빛나고 있어요."},
+scholar:{e:"📚",n:"학자",d:"전생에 당신은 위대한 학자였습니다! 진리를 탐구하며 지혜를 쌓았죠. 지금도 배움에 대한 열정과 깊은 사색이 그 증거예요."},
+explorer:{e:"🧭",n:"탐험가",d:"전생에 당신은 대담한 탐험가였습니다! 미지의 세계를 개척했죠. 지금도 새로운 경험과 자유를 갈망하는 영혼이에요."},
+merchant:{e:"💰",n:"무역상",d:"전생에 당신은 부유한 무역상이었습니다! 실크로드를 누비며 부를 쌓았죠. 지금도 뛰어난 사업 감각과 사교성이 돋보여요."}};
+let cur=0,scores={};
+function startQuiz(){document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();}
+function showQ(){const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=()=>pick(a[1]);o.appendChild(b);});}
+function pick(t){scores[t]=(scores[t]||0)+1;cur++;if(cur<questions.length)showQ();else showResult();}
+function showResult(){const top=Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];const r=types[top];document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');document.getElementById('rEmoji').textContent=r.e;document.getElementById('rType').textContent='당신의 전생은 '+r.n+'!';document.getElementById('rDesc').textContent=r.d;}
+</script></body></html>

@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>땅굴 탐험</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0a0a1a; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: 'Segoe UI', sans-serif; }
+canvas { border-radius: 12px; box-shadow: 0 0 40px rgba(255,150,50,0.15); }
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:10px;left:10px;z-index:9999;background:rgba(0,0,0,0.6);color:#fff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:13px;font-family:sans-serif" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<script>function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));if(h.nick){const lb=JSON.parse(localStorage.getItem('game_leaderboard')||'{}');if(!lb[id])lb[id]=[];const e=lb[id].find(x=>x.nick===h.nick);if(e){if(s>e.score){e.score=s;e.date=new Date().toLocaleDateString('ko');}}else lb[id].push({nick:h.nick,score:s,date:new Date().toLocaleDateString('ko')});lb[id].sort((a,b)=>b.score-a.score);lb[id]=lb[id].slice(0,20);localStorage.setItem('game_leaderboard',JSON.stringify(lb));}}</script>
+<canvas id="c"></canvas>
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const W = 400, H = 600;
+canvas.width = W; canvas.height = H;
+
+const GRAVITY = 0.42, MAX_FALL = 11, MOVE_SPEED = 5.5, MOVE_ACCEL = 0.7, FRICTION = 0.82;
+const PW = 30, PH = 32, PLAT_H = 12, PLAT_GAP = 75;
+const PLAT_NORMAL=0, PLAT_MOVING=1, PLAT_CRUMBLE=2, PLAT_SPIKE=3;
+
+let state = 'menu', highScore = parseInt(localStorage.getItem('dig_hs')||'0');
+let player, platforms, particles, pops, frame, score, maxDepth;
+let camY, lavaY, lavaSpeed, keys = {}, shakeT=0, shakeI=0, landFlash=0;
+
+function init() {
+  player = {x:W/2-PW/2, y:80, vx:0, vy:0, onGround:false, standPlat:null};
+  platforms = []; particles = []; pops = [];
+  frame = 0; score = 0; maxDepth = 0;
+  camY = -50; lavaY = -250; lavaSpeed = 0.55;
+  shakeT = 0; shakeI = 0; landFlash = 0;
+  // Initial platforms
+  platforms.push(makePlat(W/2-60, 120, 120, PLAT_NORMAL));
+  let y = 120;
+  for (let i = 0; i < 20; i++) {
+    y += PLAT_GAP + (Math.random()*20-5)|0;
+    const w = 50 + (Math.random()*45)|0;
+    platforms.push(makePlat(22 + Math.random()*(W-w-44), y, w, PLAT_NORMAL));
+  }
+}
+
+function makePlat(x, y, w, type) {
+  return {x, y, w, h:PLAT_H, type, alive:true,
+    moveSpd: type===PLAT_MOVING ? (Math.random()>0.5?1:-1)*(0.8+Math.random()*0.5) : 0,
+    crumbleT: 0, crumbling: false};
+}
+
+function spawnPlat(y) {
+  const w = 40 + (Math.random()*50)|0;
+  const x = 22 + Math.random()*(W-w-44);
+  const df = Math.min(maxDepth/5000, 1);
+  const r = Math.random();
+  let type = PLAT_NORMAL;
+  if (r < 0.05+df*0.08) type = PLAT_SPIKE;
+  else if (r < 0.15+df*0.1) type = PLAT_CRUMBLE;
+  else if (r < 0.30+df*0.1) type = PLAT_MOVING;
+  return makePlat(x, y, Math.max(40, w*(1-df*0.25)|0), type);
+}
+
+document.addEventListener('keydown', e => {
+  keys[e.key] = true;
+  if (state==='menu' && e.key===' ') { init(); state='playing'; }
+  if (state==='over' && e.key===' ') { init(); state='playing'; }
+  if (state==='over' && e.key==='m') state='menu';
+});
+document.addEventListener('keyup', e => { keys[e.key]=false; });
+
+function update() {
+  if (state !== 'playing') return;
+  frame++;
+
+  // Movement
+  let moving = false;
+  if (keys['ArrowLeft']||keys['a']) { player.vx -= MOVE_ACCEL; moving=true; }
+  if (keys['ArrowRight']||keys['d']) { player.vx += MOVE_ACCEL; moving=true; }
+  if (!moving) player.vx *= FRICTION;
+  player.vx = Math.max(-MOVE_SPEED, Math.min(MOVE_SPEED, player.vx));
+
+  // Standing on platform
+  if (player.standPlat) {
+    const p = player.standPlat;
+    if (p.alive && player.x+PW > p.x+3 && player.x < p.x+p.w-3) {
+      player.vy = 0;
+      player.y = p.y - PH;
+      if (p.type === PLAT_MOVING) player.x += p.moveSpd;
+    } else {
+      player.standPlat = null;
+      player.onGround = false;
+    }
+  }
+  if (!player.standPlat) {
+    player.vy += GRAVITY;
+    if (player.vy > MAX_FALL) player.vy = MAX_FALL;
+  }
+
+  player.x += player.vx;
+  player.y += player.vy;
+  // Wrap
+  if (player.x + PW < 0) player.x = W;
+  else if (player.x > W) player.x = -PW;
+
+  // Landing
+  if (!player.standPlat && player.vy > 0) {
+    const foot = {x:player.x+5, y:player.y+PH-5, w:PW-10, h:7};
+    for (const p of platforms) {
+      if (!p.alive) continue;
+      if (foot.x+foot.w<=p.x || foot.x>=p.x+p.w || foot.y+foot.h<=p.y || foot.y>=p.y+p.h) continue;
+      if (player.y+PH-player.vy > p.y+4) continue;
+      if (p.type === PLAT_SPIKE) { die(); return; }
+      player.y = p.y - PH; player.vy = 0;
+      player.onGround = true; player.standPlat = p;
+      landFlash = 10; shakeT = 5; shakeI = 3;
+      // Particles
+      for (let i = 0; i < 6; i++)
+        particles.push({x:player.x+PW/2+(Math.random()-0.5)*16, y:p.y,
+          vx:(Math.random()-0.5)*2, vy:-1-Math.random()*2,
+          color:['#B4A080','#8C6','#D0B888'][i%3], life:15+Math.random()*10, maxLife:25, size:2+Math.random()*2});
+      if (p.type===PLAT_CRUMBLE && !p.crumbling) p.crumbling = true;
+      break;
+    }
+  }
+
+  // Score
+  if (player.y > maxDepth) {
+    maxDepth = player.y;
+    const ns = (maxDepth/10)|0;
+    if (ns > score && ns % 5 === 0)
+      pops.push({x:player.x+PW/2, y:player.y-15, text:`+${ns-score}m`, life:35, maxLife:35, color:'#7FF'});
+    score = ns;
+  }
+
+  // Camera
+  camY += ((player.y - H*0.35) - camY) * 0.1;
+
+  // Lava
+  lavaSpeed = 0.55 + maxDepth/5000;
+  lavaY += lavaSpeed;
+  if (lavaY < camY - 180) lavaY = camY - 180;
+  if (player.y < lavaY + 5) { die(); return; }
+  if (player.y > camY + H + 150) { die(); return; }
+
+  // Platforms update
+  platforms.forEach(p => {
+    if (p.type===PLAT_MOVING) { p.x+=p.moveSpd; if(p.x<=18||p.x+p.w>=W-18) p.moveSpd*=-1; }
+    if (p.crumbling) { p.crumbleT++; if(p.crumbleT>25) p.alive=false; }
+  });
+  platforms = platforms.filter(p => p.alive && p.y > lavaY-50);
+
+  // Spawn
+  let lowest = platforms.length ? Math.max(...platforms.map(p=>p.y)) : camY;
+  while (lowest < camY + H + 400) {
+    const gap = PLAT_GAP + (Math.random()*25-5)|0;
+    lowest += gap * (1 + Math.min(maxDepth/20000, 0.25));
+    platforms.push(spawnPlat(lowest));
+  }
+
+  // Particles
+  particles.forEach(p => { p.x+=p.vx; p.y+=p.vy; p.vy+=0.08; p.life--; });
+  particles = particles.filter(p => p.life > 0);
+  pops.forEach(p => { p.y-=1.2; p.life--; });
+  pops = pops.filter(p => p.life > 0);
+  if (shakeT>0) { shakeT--; shakeI*=0.85; }
+  if (landFlash>0) landFlash--;
+
+  // Lava spark
+  if (frame%8===0) {
+    const lsy = lavaY - camY;
+    if (lsy < H+30)
+      particles.push({x:20+Math.random()*(W-40), y:lavaY,
+        vx:(Math.random()-0.5)*2, vy:-2-Math.random()*3,
+        color:['#FF0','#F80','#F42'][Math.floor(Math.random()*3)],
+        life:15+Math.random()*15, maxLife:30, size:2});
+  }
+}
+
+function die() {
+  state = 'over';
+  if (score > highScore) { highScore = score; localStorage.setItem('dig_hs', highScore); _hub('digging',score); }
+  for (let i = 0; i < 25; i++) {
+    const a = Math.random()*Math.PI*2, sp=1+Math.random()*5;
+    particles.push({x:player.x+PW/2,y:player.y+PH/2,
+      vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,
+      color:['#F44','#F80','#FF0','#FFF'][i%4],life:25+Math.random()*20,maxLife:45,size:2+Math.random()*3});
+  }
+  shakeT=15; shakeI=10;
+}
+
+function drawChar(px, py) {
+  const facing = player.vx >= 0 ? 1 : -1;
+  const walk = player.onGround && Math.abs(player.vx)>0.5 ? Math.sin(frame*0.3)*4 : 0;
+  const fall = !player.onGround ? Math.sin(frame*0.4)*3 : 0;
+  const cx = px+PW/2, cy = py+PH/2+2;
+
+  // Squash/stretch
+  let sx=1, sy=1;
+  if (landFlash>0) { sx=1.2; sy=0.85; }
+  else if (!player.onGround && player.vy<-1) { sx=0.9; sy=1.15; }
+  else if (!player.onGround && player.vy>3) { sx=0.85; sy=1.1; }
+
+  // Shadow
+  ctx.fillStyle='rgba(0,0,0,0.3)';
+  ctx.beginPath(); ctx.ellipse(cx, py+PH-1, 8*sx, 3, 0, 0, Math.PI*2); ctx.fill();
+  // Feet
+  ctx.fillStyle='#555';
+  ctx.beginPath(); ctx.ellipse(cx-6+fall, py+PH-3-walk, 5, 4, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(cx+6-fall, py+PH-3+walk, 5, 4, 0, 0, Math.PI*2); ctx.fill();
+  // Body
+  ctx.fillStyle = landFlash>0 ? '#7AF' : '#5AF';
+  ctx.beginPath(); ctx.ellipse(cx, cy, 10*sx, 7*sy, 0, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle='#38C';
+  ctx.fillRect(cx-3, cy+1, 6, 4);
+  // Arms
+  ctx.fillStyle='#FDB';
+  ctx.beginPath(); ctx.ellipse(cx-12+fall*0.5, cy+1, 4, 5, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(cx+12-fall*0.5, cy+1, 4, 5, 0, 0, Math.PI*2); ctx.fill();
+  // Head
+  const headW=12*sx, headH=10*sy;
+  ctx.fillStyle='#FDB';
+  ctx.beginPath(); ctx.ellipse(cx, py+8, headW, headH, 0, 0, Math.PI*2); ctx.fill();
+  // Helmet
+  ctx.fillStyle='#FFD700';
+  ctx.beginPath(); ctx.ellipse(cx, py+4, 13*sx, 7, 0, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle='#FFE47A';
+  ctx.beginPath(); ctx.ellipse(cx-2, py+2, 5, 3, 0, 0, Math.PI*2); ctx.fill();
+  // Light
+  const lx = cx+facing*8;
+  if (!player.onGround) {
+    ctx.fillStyle='rgba(255,255,200,0.1)';
+    ctx.beginPath(); ctx.moveTo(lx-6,py+6); ctx.lineTo(lx-12,py+35); ctx.lineTo(lx+12,py+35); ctx.lineTo(lx+6,py+6); ctx.fill();
+  }
+  ctx.fillStyle='#fff';
+  ctx.beginPath(); ctx.arc(lx, py+5, 3.5, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle='#FFE';
+  ctx.beginPath(); ctx.arc(lx, py+5, 2.5, 0, Math.PI*2); ctx.fill();
+  // Eyes
+  const ex = cx + facing*3;
+  ctx.fillStyle='#fff';
+  ctx.beginPath(); ctx.ellipse(ex-5, py+7, 4, 3.5, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(ex+3, py+7, 4, 3.5, 0, 0, Math.PI*2); ctx.fill();
+  const poff = !player.onGround&&player.vy>2 ? 1 : 0;
+  ctx.fillStyle='#222';
+  ctx.beginPath(); ctx.arc(ex-4+facing*1.5, py+7.5+poff, 2, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(ex+4+facing*1.5, py+7.5+poff, 2, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle='#fff';
+  ctx.beginPath(); ctx.arc(ex-3+facing, py+6.5, 0.8, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(ex+5+facing, py+6.5, 0.8, 0, Math.PI*2); ctx.fill();
+  // Cheeks
+  ctx.fillStyle='rgba(255,150,150,0.35)';
+  ctx.beginPath(); ctx.ellipse(cx-9, py+10, 3, 2, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(cx+9, py+10, 3, 2, 0, 0, Math.PI*2); ctx.fill();
+  // Mouth
+  ctx.strokeStyle='#B77'; ctx.lineWidth=1.2;
+  if (!player.onGround && player.vy > 4) {
+    ctx.beginPath(); ctx.ellipse(cx, py+13, 3, 2.5, 0, 0, Math.PI*2); ctx.stroke();
+  } else {
+    ctx.beginPath(); ctx.arc(cx, py+12, 3, 0.15*Math.PI, 0.85*Math.PI); ctx.stroke();
+  }
+}
+
+function drawPlat(p) {
+  const sy = p.y - camY;
+  if (sy < -20 || sy > H+20) return;
+  const rx = p.x|0, ry = sy|0;
+  if (p.type===PLAT_NORMAL) {
+    ctx.fillStyle='#8B5'; ctx.beginPath(); ctx.roundRect(rx, ry, p.w, 5, 3); ctx.fill();
+    ctx.fillStyle='#7A4530'; ctx.beginPath(); ctx.roundRect(rx, ry+4, p.w, p.h-4, [0,0,3,3]); ctx.fill();
+    // Grass tufts
+    for (let gx=rx+5; gx<rx+p.w-5; gx+=12) {
+      const gh = 3+Math.sin(gx+frame*0.05)*2;
+      ctx.strokeStyle='#6A3'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(gx,ry); ctx.lineTo(gx-2,ry-gh); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(gx+3,ry); ctx.lineTo(gx+5,ry-gh+1); ctx.stroke();
+    }
+  } else if (p.type===PLAT_MOVING) {
+    ctx.fillStyle='#36A'; ctx.beginPath(); ctx.roundRect(rx, ry, p.w, p.h, 4); ctx.fill();
+    ctx.fillStyle='#58C'; ctx.beginPath(); ctx.roundRect(rx+2, ry+1, p.w-4, 5, 3); ctx.fill();
+    const a = Math.abs(Math.sin(frame*0.1));
+    ctx.fillStyle=`rgb(${150+100*a|0},${200+55*a|0},255)`;
+    if (p.moveSpd > 0) ctx.beginPath(), ctx.moveTo(rx+p.w-14,ry+2), ctx.lineTo(rx+p.w-7,ry+p.h/2), ctx.lineTo(rx+p.w-14,ry+p.h-2), ctx.fill();
+    else ctx.beginPath(), ctx.moveTo(rx+14,ry+2), ctx.lineTo(rx+7,ry+p.h/2), ctx.lineTo(rx+14,ry+p.h-2), ctx.fill();
+  } else if (p.type===PLAT_CRUMBLE) {
+    const sh = p.crumbling ? (Math.random()*6-3)|0 : 0;
+    const al = 1-p.crumbleT/30;
+    ctx.globalAlpha=al;
+    ctx.fillStyle=p.crumbling?'#C86':'#A97';
+    ctx.beginPath(); ctx.roundRect(rx+sh, ry, p.w, p.h, 2); ctx.fill();
+    ctx.strokeStyle='#7543'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(rx+sh+p.w/3,ry); ctx.lineTo(rx+sh+p.w/3+3,ry+p.h); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(rx+sh+p.w*2/3,ry); ctx.lineTo(rx+sh+p.w*2/3-2,ry+p.h); ctx.stroke();
+    ctx.globalAlpha=1;
+  } else if (p.type===PLAT_SPIKE) {
+    ctx.fillStyle='#833'; ctx.beginPath(); ctx.roundRect(rx, ry+3, p.w, p.h-3, 2); ctx.fill();
+    const cnt = Math.max(2, p.w/12|0);
+    for (let i=0;i<cnt;i++) {
+      const sx = rx+6+i*(p.w-12)/Math.max(1,cnt-1);
+      const glow = Math.abs(Math.sin(frame*0.15+i));
+      ctx.fillStyle=`rgb(${180|0},50,50)`;
+      ctx.beginPath(); ctx.moveTo(sx-5,ry+3); ctx.lineTo(sx,ry-7); ctx.lineTo(sx+5,ry+3); ctx.fill();
+      ctx.fillStyle=`rgb(255,${100+150*glow|0},${50*glow|0})`;
+      ctx.beginPath(); ctx.moveTo(sx-2,ry+1); ctx.lineTo(sx,ry-5); ctx.lineTo(sx+2,ry+1); ctx.fill();
+    }
+  }
+}
+
+function drawLava() {
+  const lsy = (lavaY-camY)|0;
+  if (lsy > H+30) return;
+  const top = Math.max(-5, lsy-200);
+  ctx.fillStyle='#B42'; ctx.fillRect(0, top, W, Math.max(1,lsy-top+20));
+  // Wave
+  const pts = [];
+  for (let x=0; x<W+5; x+=4) {
+    const w1=Math.sin(x*0.03+frame*0.08)*8, w2=Math.sin(x*0.07+frame*0.13)*4;
+    pts.push([x, lsy+w1+w2]);
+  }
+  ctx.beginPath(); ctx.moveTo(0, top);
+  pts.forEach(([x,y])=>ctx.lineTo(x,y));
+  ctx.lineTo(W, top); ctx.closePath();
+  ctx.fillStyle='#F42'; ctx.fill();
+  // Glow line
+  ctx.beginPath(); pts.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));
+  ctx.strokeStyle='#F84'; ctx.lineWidth=3; ctx.stroke();
+  ctx.strokeStyle='#FF0'; ctx.lineWidth=1; ctx.stroke();
+  // Glow overlay
+  const grd = ctx.createLinearGradient(0,lsy,0,lsy+50);
+  grd.addColorStop(0,'rgba(255,100,20,0.25)'); grd.addColorStop(1,'rgba(255,100,20,0)');
+  ctx.fillStyle=grd; ctx.fillRect(0,lsy,W,50);
+  // Warning
+  if (player && player.y-lavaY < 180 && state==='playing') {
+    const pulse = Math.abs(Math.sin(frame*0.15));
+    if (pulse > 0.3) {
+      ctx.fillStyle=`rgba(255,${70+180*pulse|0},${50*pulse|0},${0.6+pulse*0.4})`;
+      ctx.font='bold 16px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('! 용암 접근 !', W/2, 55);
+      ctx.textAlign='left';
+    }
+  }
+}
+
+function drawHUD() {
+  ctx.fillStyle='rgba(0,0,0,0.5)'; ctx.fillRect(0,0,W,38);
+  // Depth icon
+  ctx.fillStyle='#7FF';
+  ctx.beginPath(); ctx.moveTo(8,18); ctx.lineTo(14,8); ctx.lineTo(20,18); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(8,22); ctx.lineTo(14,32); ctx.lineTo(20,22); ctx.fill();
+  ctx.fillStyle='#fff'; ctx.font='bold 18px sans-serif';
+  ctx.fillText(`${score}m`, 26, 26);
+  if (highScore>0) {
+    ctx.fillStyle='#888'; ctx.font='14px sans-serif';
+    ctx.textAlign='right'; ctx.fillText(`최고: ${highScore}m`, W-10, 16); ctx.textAlign='left';
+  }
+  // Lava bar
+  const dist = Math.max(0, player?player.y-lavaY:300);
+  const bw=80, bx=W/2-bw/2, by=30, ratio=Math.min(1,dist/300);
+  ctx.fillStyle='#333'; ctx.fillRect(bx,by,bw,5);
+  ctx.fillStyle = ratio>0.5?'#4C4':ratio>0.25?'#FF0':'#F44';
+  ctx.fillRect(bx,by,bw*ratio,5);
+  ctx.fillStyle='#F42'; ctx.beginPath(); ctx.arc(bx-6,by+2,4,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#FF0'; ctx.beginPath(); ctx.arc(bx-6,by+1,2,0,Math.PI*2); ctx.fill();
+}
+
+function drawParticles() {
+  particles.forEach(p => {
+    const sy = p.y - camY;
+    if (sy<-10||sy>H+10) return;
+    ctx.globalAlpha = p.life/p.maxLife;
+    ctx.fillStyle = p.color;
+    ctx.beginPath(); ctx.arc(p.x, sy, p.size*(p.life/p.maxLife), 0, Math.PI*2); ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+}
+
+function drawPops() {
+  pops.forEach(p => {
+    const sy = p.y - camY;
+    ctx.globalAlpha = p.life/p.maxLife;
+    ctx.fillStyle = p.color;
+    ctx.font = `bold ${14+6*(1-p.life/p.maxLife)}px sans-serif`;
+    ctx.textAlign='center'; ctx.fillText(p.text, p.x, sy); ctx.textAlign='left';
+  });
+  ctx.globalAlpha = 1;
+}
+
+function drawMenu() {
+  const grd=ctx.createLinearGradient(0,0,0,H);
+  grd.addColorStop(0,'#151530'); grd.addColorStop(1,'#252545');
+  ctx.fillStyle=grd; ctx.fillRect(0,0,W,H);
+  // Walls
+  for (let y=0;y<H;y+=24) {
+    ctx.fillStyle='#2A2520'; ctx.fillRect(0,y,16,22); ctx.fillRect(W-16,y,16,22);
+    ctx.strokeStyle='#1A1510'; ctx.lineWidth=1;
+    ctx.strokeRect(0,y,16,22); ctx.strokeRect(W-16,y,16,22);
+  }
+  ctx.textAlign='center';
+  ctx.fillStyle='#7FF'; ctx.font='bold 46px sans-serif'; ctx.fillText('땅굴', W/2, 110);
+  ctx.fillStyle='#FFD700'; ctx.font='bold 46px sans-serif'; ctx.fillText('탐험', W/2, 165);
+
+  // Character bounce
+  const bounce = Math.sin(Date.now()/300)*8;
+  drawMenuChar(W/2-15, 210+bounce);
+
+  // Arrow
+  const ay = 270+Math.sin(Date.now()/400)*5;
+  ctx.fillStyle='#7FF';
+  ctx.beginPath(); ctx.moveTo(W/2-12,ay); ctx.lineTo(W/2+12,ay); ctx.lineTo(W/2,ay+15); ctx.fill();
+
+  ctx.fillStyle='#888'; ctx.font='14px sans-serif';
+  ctx.fillText('← → 또는 A/D : 좌우 이동', W/2, 320);
+  ctx.fillText('발판 가장자리에서 떨어지면 하강!', W/2, 345);
+  ctx.fillText('올라오는 용암을 피하세요!', W/2, 370);
+
+  if (highScore>0) {
+    ctx.fillStyle='#FFD700'; ctx.font='16px sans-serif';
+    ctx.fillText(`최고 기록: ${highScore}m`, W/2, 430);
+  }
+  const t=Date.now()/1000;
+  ctx.globalAlpha=0.5+Math.sin(t*2.5)*0.5;
+  ctx.fillStyle='#7FF'; ctx.font='bold 20px sans-serif';
+  ctx.fillText('스페이스바로 시작', W/2, 480);
+  ctx.globalAlpha=1; ctx.textAlign='left';
+}
+
+function drawMenuChar(px, py) {
+  const cx=px+15, cy=py+16;
+  ctx.fillStyle='#5AF'; ctx.beginPath(); ctx.ellipse(cx,cy+2,10,7,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#FDB'; ctx.beginPath(); ctx.ellipse(cx,py+8,12,10,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#FFD700'; ctx.beginPath(); ctx.ellipse(cx,py+4,13,7,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#FFE47A'; ctx.beginPath(); ctx.ellipse(cx-2,py+2,5,3,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(cx+6,py+5,3.5,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#FFE'; ctx.beginPath(); ctx.arc(cx+6,py+5,2.5,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#fff';
+  ctx.beginPath(); ctx.ellipse(cx-4,py+7,3.5,3,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(cx+4,py+7,3.5,3,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#222';
+  ctx.beginPath(); ctx.arc(cx-3,py+7.5,1.8,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx+5,py+7.5,1.8,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='rgba(255,150,150,0.35)';
+  ctx.beginPath(); ctx.ellipse(cx-8,py+10,3,2,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(cx+8,py+10,3,2,0,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle='#B77'; ctx.lineWidth=1.2;
+  ctx.beginPath(); ctx.arc(cx,py+12,3,0.15*Math.PI,0.85*Math.PI); ctx.stroke();
+}
+
+function drawOver() {
+  ctx.fillStyle='rgba(0,0,0,0.7)'; ctx.fillRect(0,0,W,H);
+  ctx.textAlign='center';
+  ctx.fillStyle='#F66'; ctx.font='bold 36px sans-serif'; ctx.fillText('게임 오버', W/2, 180);
+  ctx.fillStyle='#fff'; ctx.font='bold 40px sans-serif'; ctx.fillText(`${score}m`, W/2, 240);
+  ctx.fillStyle='#888'; ctx.font='16px sans-serif'; ctx.fillText('깊이 도달', W/2, 270);
+  // Dead face
+  const cx=W/2, cy=320;
+  ctx.fillStyle='#FDB'; ctx.beginPath(); ctx.ellipse(cx,cy,16,14,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#FFD700'; ctx.beginPath(); ctx.ellipse(cx,cy-6,17,9,0,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle='#333'; ctx.lineWidth=2;
+  for (const ex of [cx-5,cx+5]) {
+    ctx.beginPath(); ctx.moveTo(ex-3,cy-2); ctx.lineTo(ex+3,cy+4); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ex+3,cy-2); ctx.lineTo(ex-3,cy+4); ctx.stroke();
+  }
+  ctx.beginPath();
+  [[cx-5,cy+8],[cx-2,cy+6],[cx+2,cy+8],[cx+5,cy+6]].forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));
+  ctx.stroke();
+
+  if (score>=highScore&&score>0) {
+    const pulse=Math.abs(Math.sin(Date.now()/200));
+    ctx.fillStyle=`rgb(255,${200+55*pulse|0},${50*pulse|0})`;
+    ctx.font='bold 20px sans-serif'; ctx.fillText('새 기록!', W/2, 380);
+  } else if (highScore>0) {
+    ctx.fillStyle='#888'; ctx.font='14px sans-serif'; ctx.fillText(`최고: ${highScore}m`, W/2, 380);
+  }
+  const t=Date.now()/1000;
+  ctx.globalAlpha=0.5+Math.sin(t*2)*0.5;
+  ctx.fillStyle='#7FF'; ctx.font='16px sans-serif';
+  ctx.fillText('[Space] 다시  [M] 메뉴', W/2, 440);
+  ctx.globalAlpha=1; ctx.textAlign='left';
+}
+
+function gameLoop() {
+  if (state==='menu') { drawMenu(); requestAnimationFrame(gameLoop); return; }
+
+  update();
+  const ox = shakeT>0?(Math.random()-0.5)*shakeI*2:0;
+  const oy = shakeT>0?(Math.random()-0.5)*shakeI*2:0;
+  ctx.save(); ctx.translate(ox,oy);
+
+  // BG
+  const df = Math.min(maxDepth/3000,1);
+  const grd=ctx.createLinearGradient(0,0,0,H);
+  grd.addColorStop(0,`rgb(${18*(1-df*0.5)|0},${15*(1-df*0.6)|0},${40*(1-df*0.3)|0})`);
+  grd.addColorStop(1,`rgb(${8|0},${6|0},${20|0})`);
+  ctx.fillStyle=grd; ctx.fillRect(0,0,W,H);
+
+  // Walls
+  const boff=(camY*0.5)%24|0;
+  const shade=Math.max(20,50-df*30|0);
+  for (let y=-24;y<H+48;y+=24) {
+    const ay=y-boff;
+    ctx.fillStyle=`rgb(${shade},${Math.max(0,shade-5)},${Math.max(0,shade-10)})`;
+    ctx.fillRect(0,ay,16,22); ctx.fillRect(W-16,ay,16,22);
+    ctx.strokeStyle=`rgb(${Math.max(0,shade-15)},${Math.max(0,shade-20)},${Math.max(0,shade-25)})`;
+    ctx.lineWidth=1; ctx.strokeRect(0,ay,16,22); ctx.strokeRect(W-16,ay,16,22);
+  }
+
+  drawParticles();
+  platforms.forEach(p => drawPlat(p));
+  drawPops();
+  if (state==='playing') drawChar(player.x|0, (player.y-camY)|0);
+  drawLava();
+  drawHUD();
+  ctx.restore();
+
+  if (state==='over') {
+    particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=0.05;p.life--;});
+    particles=particles.filter(p=>p.life>0);
+    drawOver();
+  }
+  requestAnimationFrame(gameLoop);
+}
+
+init();
+requestAnimationFrame(gameLoop);
+</script>
+</body>
+</html>

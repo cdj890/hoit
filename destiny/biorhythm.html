@@ -1,0 +1,50 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>바이오리듬</title><style>*{margin:0;padding:0;box-sizing:border-box}body{min-height:100vh;background:linear-gradient(135deg,#0a0a1a,#0a1a2e,#0a0a2e);color:#e0d0ff;font-family:'Segoe UI',sans-serif;display:flex;flex-direction:column;align-items:center;padding:20px}h1{margin:30px 0 10px;font-size:2em;text-shadow:0 0 20px rgba(100,200,255,.5)}.sub{color:#88aabb;margin-bottom:25px}.input-area{text-align:center;margin:15px 0}input[type=date]{background:rgba(255,255,255,.08);border:1px solid rgba(100,200,255,.3);color:#fff;padding:12px 20px;border-radius:12px;font-size:1.1em;outline:none}button{background:linear-gradient(135deg,#3d9ee8,#2d7eb8);color:#fff;border:none;padding:12px 30px;border-radius:12px;font-size:1em;cursor:pointer;margin-top:15px;transition:all .3s}button:hover{transform:scale(1.05)}.result{display:none;max-width:600px;width:100%;animation:fadeIn .8s;margin-top:25px}.rbox{background:rgba(255,255,255,.05);border:1px solid rgba(100,200,255,.15);border-radius:16px;padding:25px;line-height:1.8}canvas{width:100%;max-width:560px;border-radius:12px;margin:15px 0;background:rgba(0,0,0,.3)}.legend{display:flex;justify-content:center;gap:20px;margin:10px 0;font-size:.9em}.legend span{display:flex;align-items:center;gap:5px}.dot{width:12px;height:12px;border-radius:50%;display:inline-block}.scores{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:15px 0}.score-card{background:rgba(255,255,255,.05);border-radius:12px;padding:15px;text-align:center}.score-val{font-size:2em;font-weight:bold}@keyframes fadeIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}</style></head><body>
+<a href="../index.html" style="position:fixed;top:10px;left:10px;z-index:9999;background:rgba(0,0,0,0.6);color:#fff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:13px;font-family:sans-serif" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<h1>📈 바이오리듬</h1><p class="sub">생년월일로 계산하는 신체/감성/지성 리듬</p>
+<div class="input-area"><input type="date" id="bday"><br><button onclick="calc()">바이오리듬 계산</button></div>
+<div class="result" id="result"></div>
+<script>
+function calc(){
+const bday=document.getElementById('bday').value;if(!bday){alert('생년월일을 선택해주세요!');return}
+const birth=new Date(bday),today=new Date();
+today.setHours(0,0,0,0);birth.setHours(0,0,0,0);
+const days=Math.floor((today-birth)/(1000*60*60*24));
+const phys=Math.sin(2*Math.PI*days/23)*100;
+const emot=Math.sin(2*Math.PI*days/28)*100;
+const intel=Math.sin(2*Math.PI*days/33)*100;
+const el=document.getElementById('result');
+el.innerHTML=`<div class="rbox"><h2 style="text-align:center;margin-bottom:5px">📊 바이오리듬 그래프</h2><p style="text-align:center;color:#88aabb;font-size:.9em">오늘은 탄생 후 ${days.toLocaleString()}일째입니다</p><canvas id="chart" width="560" height="280"></canvas><div class="legend"><span><span class="dot" style="background:#ff6b6b"></span> 신체 (23일)</span><span><span class="dot" style="background:#4ecdc4"></span> 감성 (28일)</span><span><span class="dot" style="background:#ffe66d"></span> 지성 (33일)</span></div><div class="scores"><div class="score-card" style="border:1px solid rgba(255,107,107,.3)"><div style="color:#ff6b6b;font-size:.85em">💪 신체</div><div class="score-val" style="color:#ff6b6b">${Math.round(phys)}%</div></div><div class="score-card" style="border:1px solid rgba(78,205,196,.3)"><div style="color:#4ecdc4;font-size:.85em">💕 감성</div><div class="score-val" style="color:#4ecdc4">${Math.round(emot)}%</div></div><div class="score-card" style="border:1px solid rgba(255,230,109,.3)"><div style="color:#ffe66d;font-size:.85em">🧠 지성</div><div class="score-val" style="color:#ffe66d">${Math.round(intel)}%</div></div></div><hr style="border-color:rgba(100,200,255,.1);margin:15px 0"><h3 style="text-align:center">🔮 오늘의 해석</h3><p>${getInterp(phys,'신체')} ${getInterp(emot,'감성')} ${getInterp(intel,'지성')}</p><br><p style="text-align:center"><b>💡 종합 조언:</b> ${getAdvice(phys,emot,intel)}</p></div><br><button onclick="document.getElementById('result').style.display='none'">다시 하기</button>`;
+el.style.display='block';
+drawChart(days);
+el.scrollIntoView({behavior:'smooth'})}
+function getInterp(v,name){
+if(v>60)return`${name} 리듬이 최고조! 에너지가 넘칩니다.`;
+if(v>20)return`${name} 리듬이 상승 중입니다. 좋은 컨디션이에요.`;
+if(v>-20)return`${name} 리듬이 전환기입니다. 변화에 주의하세요.`;
+if(v>-60)return`${name} 리듬이 하강 중입니다. 무리하지 마세요.`;
+return`${name} 리듬이 저조합니다. 충분히 쉬세요.`}
+function getAdvice(p,e,i){
+const avg=(p+e+i)/3;
+if(avg>40)return'모든 리듬이 좋습니다! 중요한 일을 추진하기 최적의 타이밍입니다.';
+if(avg>0)return'전반적으로 양호합니다. 균형 잡힌 하루를 보내세요.';
+if(avg>-40)return'일부 리듬이 저조합니다. 무리하지 말고 여유를 가지세요.';
+return'리듬이 전반적으로 낮습니다. 오늘은 휴식을 취하고 에너지를 축적하세요.'}
+function drawChart(days){
+const c=document.getElementById('chart'),ctx=c.getContext('2d');
+const W=c.width,H=c.height,mid=H/2,range=30;
+ctx.fillStyle='rgba(0,0,0,.2)';ctx.fillRect(0,0,W,H);
+ctx.strokeStyle='rgba(255,255,255,.1)';ctx.lineWidth=1;
+ctx.beginPath();ctx.moveTo(0,mid);ctx.lineTo(W,mid);ctx.stroke();
+for(let x=0;x<W;x+=W/range){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}
+const colors=['#ff6b6b','#4ecdc4','#ffe66d'],periods=[23,28,33];
+const todayX=Math.floor(W/2);
+ctx.strokeStyle='rgba(255,255,255,.25)';ctx.lineWidth=2;
+ctx.beginPath();ctx.moveTo(todayX,0);ctx.lineTo(todayX,H);ctx.stroke();
+ctx.fillStyle='rgba(255,255,255,.5)';ctx.font='11px sans-serif';ctx.fillText('오늘',todayX+4,15);
+colors.forEach((col,ci)=>{
+ctx.strokeStyle=col;ctx.lineWidth=2.5;ctx.beginPath();
+for(let x=0;x<W;x++){const d=days-range/2+x*range/W;const v=Math.sin(2*Math.PI*d/periods[ci]);const y=mid-v*(mid-20);if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)}
+ctx.stroke();
+const tv=Math.sin(2*Math.PI*days/periods[ci]);const ty=mid-tv*(mid-20);
+ctx.fillStyle=col;ctx.beginPath();ctx.arc(todayX,ty,5,0,Math.PI*2);ctx.fill()})}
+</script></body></html>

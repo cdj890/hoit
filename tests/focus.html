@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>집중력 테스트</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px}
+.card{background:#1a1a2e;border-radius:16px;padding:30px;max-width:500px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.4);text-align:center}
+h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-size:.9em}
+.btn{display:inline-block;padding:12px 24px;margin:6px;background:#2a2a3e;border:none;color:#e0e0e0;border-radius:10px;font-size:1.2em;cursor:pointer;transition:background .2s;min-width:60px}
+.btn:hover{background:#3a3a5e}
+.start-btn{background:linear-gradient(135deg,#a29bfe,#6c5ce7);color:#fff;font-size:1.1em;padding:14px 32px;margin-top:16px;font-weight:bold;display:block;width:100%}
+.start-btn:hover{opacity:.9}
+.emoji{font-size:4em;margin:16px 0}.result-type{font-size:1.4em;font-weight:bold;color:#a29bfe;margin-bottom:12px}
+.result-desc{color:#bbb;line-height:1.7;margin-bottom:20px;font-size:.95em}.hidden{display:none}
+.display{font-size:3em;letter-spacing:12px;margin:20px 0;color:#a29bfe;font-weight:bold;min-height:60px}
+.status{color:#888;margin:10px 0;font-size:.95em}
+.level{font-size:1.1em;color:#a29bfe;margin:10px 0;font-weight:bold}
+.grid{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:16px 0}
+.timer-bar{height:6px;background:#2a2a3e;border-radius:3px;margin:16px 0;overflow:hidden}
+.timer-fill{height:100%;background:linear-gradient(90deg,#a29bfe,#fd79a8);transition:width .1s linear;width:100%}
+</style></head><body>
+<a href="../index.html" style="position:fixed;top:10px;left:10px;z-index:9999;background:rgba(0,0,0,0.6);color:#fff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:13px;font-family:sans-serif" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<div class="card">
+<div id="intro">
+<div style="font-size:3em;margin-bottom:10px">🎯</div>
+<h1>집중력 테스트</h1>
+<p class="sub">숫자를 기억하고 순서대로 입력하세요!<br>레벨이 올라갈수록 숫자가 늘어납니다.</p>
+<button class="btn start-btn" onclick="startGame()">게임 시작</button>
+</div>
+<div id="game" class="hidden">
+<div class="level" id="lvl"></div>
+<div class="timer-bar"><div class="timer-fill" id="timer"></div></div>
+<div class="display" id="display"></div>
+<div class="status" id="status"></div>
+<div class="grid" id="grid"></div>
+</div>
+<div id="result" class="hidden">
+<div class="emoji" id="rEmoji"></div>
+<div class="result-type" id="rType"></div>
+<div class="result-desc" id="rDesc"></div>
+<button class="btn start-btn" onclick="location.reload()">다시 하기</button>
+</div>
+</div>
+<script>
+let level=1,seq=[],userSeq=[],phase='',timerInt;
+function startGame(){document.getElementById('intro').classList.add('hidden');document.getElementById('game').classList.remove('hidden');nextRound();}
+function nextRound(){const len=level+2;seq=[];for(let i=0;i<len;i++)seq.push(Math.floor(Math.random()*10));userSeq=[];phase='show';
+document.getElementById('lvl').textContent='레벨 '+level+' (숫자 '+len+'개)';
+document.getElementById('status').textContent='숫자를 기억하세요!';document.getElementById('grid').innerHTML='';
+const d=document.getElementById('display');d.textContent=seq.join(' ');
+document.getElementById('timer').style.width='100%';
+const showTime=1500+level*500;let elapsed=0;const step=50;
+timerInt=setInterval(()=>{elapsed+=step;document.getElementById('timer').style.width=((1-elapsed/showTime)*100)+'%';
+if(elapsed>=showTime){clearInterval(timerInt);startInput();}},step);}
+function startInput(){phase='input';document.getElementById('display').textContent='_ '.repeat(seq.length).trim();
+document.getElementById('status').textContent='숫자를 순서대로 눌러주세요!';
+const g=document.getElementById('grid');g.innerHTML='';
+for(let i=0;i<=9;i++){const b=document.createElement('button');b.className='btn';b.textContent=i;b.onclick=()=>pressNum(i);g.appendChild(b);}}
+function pressNum(n){if(phase!=='input')return;userSeq.push(n);
+const d=document.getElementById('display');let txt='';for(let i=0;i<seq.length;i++)txt+=(i<userSeq.length?userSeq[i]:'_')+' ';d.textContent=txt.trim();
+const idx=userSeq.length-1;
+if(userSeq[idx]!==seq[idx]){gameOver();return;}
+if(userSeq.length===seq.length){level++;document.getElementById('status').textContent='정답! 🎉 다음 레벨로...';phase='wait';setTimeout(nextRound,1200);}}
+function gameOver(){phase='done';clearInterval(timerInt);const streak=level-1;
+document.getElementById('game').classList.add('hidden');document.getElementById('result').classList.remove('hidden');
+let emoji,type,desc;
+if(streak>=8){emoji='🧠';type='천재급 집중력! (레벨 '+streak+')';desc='놀라운 집중력과 기억력의 소유자! 숫자 10개 이상을 기억하다니, 당신의 뇌는 슈퍼컴퓨터급입니다.';}
+else if(streak>=5){emoji='🌟';type='우수한 집중력! (레벨 '+streak+')';desc='평균 이상의 뛰어난 집중력! 복잡한 정보도 잘 처리하는 능력을 가지고 있어요. 꾸준히 훈련하면 더 높은 레벨도 가능해요!';}
+else if(streak>=3){emoji='👍';type='보통 집중력 (레벨 '+streak+')';desc='일반적인 수준의 집중력입니다. 짧은 시간 집중하는 건 잘하지만, 긴 시퀀스에선 어려움을 느낄 수 있어요. 명상이나 집중력 훈련을 추천해요!';}
+else{emoji='💪';type='집중력 훈련 필요 (레벨 '+streak+')';desc='집중력을 키울 여지가 많아요! 하루 10분 명상, 숫자 외우기 게임 등으로 꾸준히 훈련해보세요. 분명 좋아질 거예요!';}
+document.getElementById('rEmoji').textContent=emoji;document.getElementById('rType').textContent=type;document.getElementById('rDesc').textContent=desc;}
+</script></body></html>

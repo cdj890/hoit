@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>생년월일 운세</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center}.wrap{max-width:500px;width:100%;padding:20px;text-align:center}h1{font-size:30px;margin-bottom:8px}.sub{color:#888;margin-bottom:25px}.input-group{display:flex;gap:8px;justify-content:center;margin:20px 0}.input-group select,.input-group input{background:#1a1a2e;border:2px solid #333;color:#fff;padding:10px;border-radius:10px;font-size:15px;text-align:center}.input-group select:focus,.input-group input:focus{border-color:#FFD700;outline:none}.btn{background:linear-gradient(135deg,#FF6B6B,#FFD700);border:none;color:#000;padding:12px 30px;border-radius:10px;font-size:16px;cursor:pointer;font-weight:bold;width:100%;margin-top:15px}.result{background:#1a1a2e;border-radius:16px;padding:25px;border:1px solid #2a2a4a;text-align:left;margin-top:15px}.section{background:#252545;border-radius:10px;padding:13px;margin:10px 0}.section h3{font-size:14px;margin-bottom:6px}.section p{color:#ccc;font-size:13px;line-height:1.6}a.back{position:fixed;top:10px;left:10px;z-index:99;background:rgba(0,0,0,0.6);color:#fff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:13px}a.back:hover{background:rgba(0,0,0,0.85)}</style></head><body>
+<a class="back" href="../index.html">← 뒤로</a>
+<div class="wrap" id="app"></div>
+<script>
+const 천간=['갑','을','병','정','무','기','경','신','임','계'];
+const 지지=['자','축','인','묘','진','사','오','미','신','유','술','해'];
+const 오행=['목','화','토','금','수'];
+const 오행색=['#4CAF50','#F44336','#FFD700','#C0C0C0','#2196F3'];
+const 띠=['쥐','소','호랑이','토끼','용','뱀','말','양','원숭이','닭','개','돼지'];
+const 띠이모=['🐭','🐮','🐯','🐰','🐲','🐍','🐴','🐑','🐵','🐔','🐶','🐷'];
+
+const 성격={
+  목:'성장과 발전을 추구하며, 인자하고 진취적입니다. 나무처럼 꾸준히 자라는 성격으로, 새로운 것을 시작하는 것을 좋아해요.',
+  화:'열정적이고 에너지가 넘칩니다. 표현력이 풍부하고 리더십이 있어요. 하지만 급한 성격을 주의해야 합니다.',
+  토:'안정적이고 신뢰할 수 있는 성격입니다. 중재자 역할을 잘 하며, 포용력이 큽니다. 변화보다는 안정을 추구해요.',
+  금:'결단력과 의지가 강하며 원칙적입니다. 깔끔하고 정리정돈을 좋아하며, 정의감이 투철합니다.',
+  수:'지혜롭고 유연한 성격입니다. 적응력이 뛰어나고 직관력이 있어요. 깊이 있는 사고를 하며 학문에 소질이 있습니다.',
+};
+
+const 운세메시지={
+  재물:['큰 재물이 들어올 수 있는 운입니다','꾸준한 저축이 빛을 볼 시기','뜻밖의 지출을 조심하세요','투자보다 안정이 유리합니다','새로운 수입원이 생길 수 있어요','금전 관련 좋은 소식이 있어요'],
+  건강:['건강 운이 좋습니다, 활력 넘쳐요','과로를 피하고 충분히 쉬세요','운동을 시작하기 좋은 시기','스트레스 관리가 중요합니다','규칙적인 생활습관이 건강의 비결','면역력을 높이는 노력이 필요해요'],
+  연애:['좋은 인연이 찾아올 수 있어요','현재 관계가 더 깊어지는 시기','솔직한 감정 표현이 행운의 열쇠','새로운 만남의 기회가 있어요','상대를 이해하는 마음이 중요','연애보다 자기 발전에 집중할 시기'],
+};
+
+function showInput(){
+  const y=new Date().getFullYear();
+  let yOpts='';for(let i=y;i>=1940;i--)yOpts+=`<option value="${i}">${i}</option>`;
+  let mOpts='';for(let i=1;i<=12;i++)mOpts+=`<option value="${i}">${i}월</option>`;
+  let dOpts='';for(let i=1;i<=31;i++)dOpts+=`<option value="${i}">${i}일</option>`;
+  document.getElementById('app').innerHTML=`
+    <h1>🏮 생년월일 운세</h1>
+    <p class="sub">생년월일을 입력하면 사주 기반 운세를 알려드려요</p>
+    <div style="font-size:60px;margin:15px 0">🏮</div>
+    <div class="input-group">
+      <select id="year">${yOpts}</select>
+      <select id="month">${mOpts}</select>
+      <select id="day">${dOpts}</select>
+    </div>
+    <button class="btn" onclick="analyze()">운세 보기</button>
+    <p style="color:#555;font-size:11px;margin-top:15px">※ 재미로 보는 간이 운세입니다</p>`;
+}
+
+function analyze(){
+  const y=+document.getElementById('year').value;
+  const m=+document.getElementById('month').value;
+  const d=+document.getElementById('day').value;
+
+  const 띠idx=(y-4)%12;
+  const 천간idx=(y-4)%10;
+  const 오행idx=Math.floor(천간idx/2);
+  const myElement=오행[오행idx];
+  const my띠=띠[띠idx];
+
+  const today=new Date();
+  const seed=y*10000+m*100+d+today.getMonth()+today.getDate();
+  const rng=(i)=>{let x=(seed*9301+49297+i*37)%233280;return x/233280;};
+
+  const scores={재물:(rng(1)*40+60)|0,건강:(rng(2)*40+60)|0,연애:(rng(3)*40+60)|0,학업:(rng(4)*40+60)|0};
+  const total=((scores.재물+scores.건강+scores.연애+scores.학업)/4)|0;
+
+  document.getElementById('app').innerHTML=`<div class="result">
+    <div style="text-align:center">
+      <div style="font-size:50px">${띠이모[띠idx]}</div>
+      <h2 style="margin:8px 0">${y}년 ${m}월 ${d}일생</h2>
+      <div style="display:flex;gap:10px;justify-content:center;margin:10px 0">
+        <span style="background:#252545;padding:6px 14px;border-radius:8px;font-size:13px">${천간[천간idx]}${지지[띠idx]}년</span>
+        <span style="background:#252545;padding:6px 14px;border-radius:8px;font-size:13px">띠: ${my띠} ${띠이모[띠idx]}</span>
+        <span style="background:#252545;padding:6px 14px;border-radius:8px;font-size:13px;color:${오행색[오행idx]}">오행: ${myElement}</span>
+      </div>
+      <div style="font-size:32px;font-weight:bold;color:#FFD700;margin:10px 0">오늘의 운세: ${total}점</div>
+    </div>
+
+    <div class="section"><h3 style="color:${오행색[오행idx]}">🌿 ${myElement}의 기운을 가진 당신</h3><p>${성격[myElement]}</p></div>
+
+    <div class="section"><h3 style="color:#FFD700">💰 재물운 ${scores.재물}점</h3><p>${운세메시지.재물[(rng(5)*6)|0]}</p></div>
+    <div class="section"><h3 style="color:#4CAF50">🏥 건강운 ${scores.건강}점</h3><p>${운세메시지.건강[(rng(6)*6)|0]}</p></div>
+    <div class="section"><h3 style="color:#FF69B4">💕 연애운 ${scores.연애}점</h3><p>${운세메시지.연애[(rng(7)*6)|0]}</p></div>
+    <div class="section"><h3 style="color:#64B5F6">📚 학업/직장운 ${scores.학업}점</h3><p>노력한 만큼 결실을 맺는 시기입니다. 꾸준한 자기 계발이 중요해요.</p></div>
+
+    <button class="btn" onclick="showInput()">다시 보기</button></div>`;
+}
+showInput();
+</script></body></html>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>사격장</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;overflow:hidden;user-select:none}
+#wrap{text-align:center;position:relative}
+canvas{border-radius:16px;display:block;margin:0 auto;cursor:crosshair}
+#overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(15,15,30,0.92);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10}
+#overlay h2{font-size:36px;margin-bottom:12px;color:#fdcb6e}
+#overlay p{font-size:16px;color:#dfe6e9;margin-bottom:6px}
+.btn{display:inline-block;margin-top:16px;padding:12px 32px;background:#fdcb6e;color:#2d3436;border:none;border-radius:12px;font-size:16px;cursor:pointer;font-weight:bold}
+.btn:hover{background:#ffeaa7}
+#hi{font-size:13px;color:#636e72;margin-top:8px}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:10px;left:10px;z-index:9999;background:rgba(0,0,0,0.6);color:#fff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:13px;font-family:sans-serif" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<script>function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));if(h.nick){const lb=JSON.parse(localStorage.getItem('game_leaderboard')||'{}');if(!lb[id])lb[id]=[];const e=lb[id].find(x=>x.nick===h.nick);if(e){if(s>e.score){e.score=s;e.date=new Date().toLocaleDateString('ko');}}else lb[id].push({nick:h.nick,score:s,date:new Date().toLocaleDateString('ko')});lb[id].sort((a,b)=>b.score-a.score);lb[id]=lb[id].slice(0,20);localStorage.setItem('game_leaderboard',JSON.stringify(lb));}}</script>
+
+<div id="wrap">
+<div id="overlay">
+<h2>🎯 사격장</h2>
+<p>60초 안에 최대한 많은 표적을 맞추세요!</p>
+<p style="font-size:13px;color:#b2bec3">클릭 또는 터치로 사격</p>
+<button class="btn" onclick="startGame()">게임 시작</button>
+</div>
+<canvas id="cv" width="500" height="400"></canvas>
+<div id="hi"></div>
+</div>
+
+<script>
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+const W=500,H=400,GAME_TIME=60;
+let targets,score,shots,timeLeft,running,timerID,particles,combo,lastHitTime;
+
+const TARGET_TYPES=[
+ {emoji:'🎈',r:24,points:1,color:'#ff6b6b'},
+ {emoji:'⭐',r:20,points:2,color:'#feca57'},
+ {emoji:'💎',r:16,points:3,color:'#48dbfb'},
+ {emoji:'🌟',r:14,points:5,color:'#ff9ff3'},
+];
+
+function startGame(){
+ document.getElementById('overlay').style.display='none';
+ targets=[];score=0;shots=0;timeLeft=GAME_TIME;running=true;particles=[];combo=0;lastHitTime=0;
+ clearInterval(timerID);
+ timerID=setInterval(tick,1000);
+ spawnLoop();loop();
+}
+
+function tick(){
+ timeLeft--;
+ if(timeLeft<=0){
+  running=false;clearInterval(timerID);
+  let hi=parseInt(localStorage.getItem('shoot_hi')||'0');
+  if(score>hi){hi=score;localStorage.setItem('shoot_hi',hi);}
+  document.getElementById('hi').textContent='최고 점수: '+hi;
+  _hub('shooting',score);
+  let acc=shots>0?Math.round(score/shots*100):0;
+  let ov=document.getElementById('overlay');ov.style.display='flex';
+  ov.innerHTML=`<h2>⏱ 시간 종료!</h2><p style="font-size:24px;color:#ffeaa7">점수: ${score}</p><p>발사: ${shots}회 | 명중률: ${acc}%</p><p style="font-size:13px;color:#b2bec3">최고 점수: ${hi}</p><button class="btn" onclick="startGame()">다시 하기</button>`;
+ }
+}
+
+function spawnTarget(){
+ if(!running)return;
+ let t=TARGET_TYPES[Math.floor(Math.random()*TARGET_TYPES.length)];
+ let r=t.r+Math.random()*6;
+ targets.push({
+  x:r+Math.random()*(W-r*2),
+  y:r+40+Math.random()*(H-r*2-60),
+  r:r,emoji:t.emoji,points:t.points,color:t.color,
+  life:2+Math.random()*2,born:Date.now(),
+  scale:0,popping:false
+ });
+}
+
+function spawnLoop(){
+ if(!running)return;
+ spawnTarget();
+ let delay=Math.max(300,1200-((GAME_TIME-timeLeft)*15));
+ setTimeout(spawnLoop,delay);
+}
+
+function shoot(mx,my){
+ if(!running)return;
+ shots++;
+ let hit=false;
+ // check targets in reverse (top-most first)
+ for(let i=targets.length-1;i>=0;i--){
+  let t=targets[i];
+  let dx=mx-t.x,dy=my-t.y;
+  if(dx*dx+dy*dy<t.r*t.r){
+   let now=Date.now();
+   if(now-lastHitTime<1000)combo++;else combo=1;
+   lastHitTime=now;
+   let pts=t.points*(combo>2?2:1);
+   score+=pts;
+   // particles
+   for(let j=0;j<8;j++){
+    particles.push({x:t.x,y:t.y,vx:(Math.random()-0.5)*8,vy:(Math.random()-0.5)*8,
+     r:Math.random()*4+2,color:t.color,life:1});
+   }
+   // floating score
+   particles.push({x:t.x,y:t.y,vx:0,vy:-2,r:0,color:'#fff',life:1,text:'+'+pts});
+   targets.splice(i,1);hit=true;break;
+  }
+ }
+ if(!hit){
+  // miss particles
+  for(let j=0;j<3;j++){
+   particles.push({x:mx,y:my,vx:(Math.random()-0.5)*4,vy:(Math.random()-0.5)*4,
+    r:2,color:'rgba(255,255,255,0.3)',life:0.5});
+  }
+ }
+}
+
+function draw(){
+ ctx.fillStyle='#0f0f1e';ctx.fillRect(0,0,W,H);
+ // targets
+ targets.forEach(t=>{
+  let age=(Date.now()-t.born)/1000;
+  let s=Math.min(1,age*5);// pop-in
+  let fade=t.life-age;if(fade<0.5)s*=fade*2;
+  ctx.save();ctx.translate(t.x,t.y);ctx.scale(s,s);
+  // glow
+  ctx.fillStyle=t.color+'40';
+  ctx.beginPath();ctx.arc(0,0,t.r+8,0,Math.PI*2);ctx.fill();
+  // body
+  ctx.fillStyle=t.color+'80';
+  ctx.beginPath();ctx.arc(0,0,t.r,0,Math.PI*2);ctx.fill();
+  ctx.font=`${t.r}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(t.emoji,0,2);
+  ctx.restore();
+ });
+ // particles
+ particles.forEach(p=>{
+  if(p.text){
+   ctx.fillStyle=`rgba(255,255,255,${p.life})`;
+   ctx.font='bold 16px sans-serif';ctx.textAlign='center';
+   ctx.fillText(p.text,p.x,p.y);
+  }else{
+   ctx.fillStyle=p.color;ctx.globalAlpha=p.life;
+   ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();
+   ctx.globalAlpha=1;
+  }
+ });
+ // HUD
+ ctx.fillStyle='#ffeaa7';ctx.font='bold 22px sans-serif';ctx.textAlign='left';
+ ctx.fillText('점수: '+score,16,30);
+ ctx.fillStyle=timeLeft<=10?'#ff6b6b':'#dfe6e9';ctx.textAlign='right';
+ ctx.fillText('⏱ '+timeLeft+'초',W-16,30);
+ if(combo>1){
+  ctx.fillStyle='#ff9ff3';ctx.textAlign='center';ctx.font='bold 14px sans-serif';
+  ctx.fillText(combo+'연속!',W/2,30);
+ }
+}
+
+function update(){
+ let now=Date.now();
+ targets=targets.filter(t=>(now-t.born)/1000<t.life);
+ particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.life-=0.03;});
+ particles=particles.filter(p=>p.life>0);
+}
+
+function loop(){
+ if(!running){draw();return;}
+ update();draw();requestAnimationFrame(loop);
+}
+
+cv.addEventListener('click',e=>{
+ let r=cv.getBoundingClientRect();
+ shoot(e.clientX-r.left,e.clientY-r.top);
+});
+cv.addEventListener('touchstart',e=>{
+ e.preventDefault();
+ let r=cv.getBoundingClientRect();
+ shoot(e.touches[0].clientX-r.left,e.touches[0].clientY-r.top);
+});
+
+// initial draw
+ctx.fillStyle='#0f0f1e';ctx.fillRect(0,0,W,H);
+</script>
+</body>
+</html>

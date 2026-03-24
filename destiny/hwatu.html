@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>화투 운세</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#1a0a0a;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center}.wrap{max-width:550px;width:100%;padding:20px;text-align:center}h1{font-size:30px;margin-bottom:8px;color:#FFD700}.sub{color:#888;margin-bottom:20px}
+.cards{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:20px 0}
+.hcard{width:70px;height:105px;background:linear-gradient(135deg,#8B0000,#4a0000);border:2px solid #B8860B;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;flex-direction:column;transition:all .3s;position:relative;overflow:hidden}
+.hcard::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(135deg,rgba(255,215,0,0.1),transparent);pointer-events:none}
+.hcard:hover{transform:translateY(-8px);box-shadow:0 8px 20px rgba(255,215,0,0.2);border-color:#FFD700}
+.hcard .month{font-size:10px;color:#B8860B;margin-bottom:2px}
+.hcard .flower{font-size:32px}
+.hcard .name{font-size:10px;margin-top:3px;color:#ddd}
+.result{background:#1a1a2e;border-radius:16px;padding:25px;border:1px solid #B8860B20;text-align:left}
+.btn{background:linear-gradient(135deg,#B8860B,#8B6914);border:none;color:#fff;padding:12px 30px;border-radius:10px;font-size:15px;cursor:pointer;margin-top:15px;font-weight:bold;width:100%}
+a.back{position:fixed;top:10px;left:10px;z-index:99;background:rgba(0,0,0,0.6);color:#fff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:13px}a.back:hover{background:rgba(0,0,0,0.85)}
+</style></head><body>
+<a class="back" href="../index.html">← 뒤로</a>
+<div class="wrap" id="app"></div>
+<script>
+const MONTHS=[
+  {m:1,name:'송학',flower:'🌸',emoji:'🏔️',desc:'소나무와 학',fortune:'새로운 시작의 기운! 높은 이상을 향해 나아가세요. 학처럼 우아하게, 소나무처럼 꿋꿋하게.',love:'고귀한 인연이 찾아올 수 있어요',money:'장기 투자에 유리',lucky:'동쪽 방향'},
+  {m:2,name:'매조',flower:'🌺',emoji:'🐦',desc:'매화와 꾀꼬리',fortune:'봄의 기운처럼 새로운 기회가 다가옵니다. 적극적으로 움직이세요!',love:'달콤한 사랑의 시작',money:'작은 수입이 모여 큰 부로',lucky:'남쪽 방향'},
+  {m:3,name:'벚꽃',flower:'🌸',emoji:'🎌',desc:'벚꽃과 막',fortune:'화려하지만 짧은 기회! 지금 이 순간을 잡으세요. 망설이면 흩어져요.',love:'짧지만 강렬한 만남',money:'한 번의 큰 기회가 온다',lucky:'서쪽 방향'},
+  {m:4,name:'등나무',flower:'💐',emoji:'🐦',desc:'등나무와 두견새',fortune:'인내의 시기. 등나무처럼 천천히 올라가세요. 기다림이 결실을 맺습니다.',love:'기다리면 좋은 인연이',money:'절약이 곧 재산',lucky:'북쪽 방향'},
+  {m:5,name:'난초',flower:'🌿',emoji:'🌉',desc:'난초와 다리',fortune:'다리가 이어지듯 좋은 인연이 연결됩니다. 소통을 중시하세요.',love:'소울메이트를 만날 수 있어요',money:'협업으로 큰 수익',lucky:'중앙'},
+  {m:6,name:'모란',flower:'🌹',emoji:'🦋',desc:'모란과 나비',fortune:'부귀영화의 상징! 큰 행운이 찾아올 수 있어요. 자신감을 가지세요.',love:'화려하고 로맨틱한 사랑',money:'큰 재물운! 적극적으로',lucky:'동남쪽'},
+  {m:7,name:'홍싸리',flower:'🌾',emoji:'🐗',desc:'싸리와 멧돼지',fortune:'돌진하는 기운! 목표를 정했으면 주저하지 마세요.',love:'직진 사랑이 통해요',money:'과감한 투자가 유리',lucky:'남서쪽'},
+  {m:8,name:'공산',flower:'🌕',emoji:'🦢',desc:'억새와 기러기',fortune:'보름달처럼 둥근 완성의 기운. 하던 일이 마무리됩니다.',love:'완성된 사랑, 깊은 신뢰',money:'안정적인 수입',lucky:'서북쪽'},
+  {m:9,name:'국진',flower:'🌼',emoji:'🍶',desc:'국화와 술잔',fortune:'풍류와 여유의 기운. 쉬어가며 즐기세요. 인생은 마라톤입니다.',love:'여유로운 만남이 좋아요',money:'부업이나 취미가 수익으로',lucky:'동북쪽'},
+  {m:10,name:'단풍',flower:'🍁',emoji:'🦌',desc:'단풍과 사슴',fortune:'변화의 시기. 단풍처럼 아름다운 변화를 받아들이세요.',love:'관계의 전환점',money:'변화 속에 기회가',lucky:'서쪽'},
+  {m:11,name:'오동',flower:'🍂',emoji:'🐓',desc:'오동나무와 봉황',fortune:'봉황이 오동나무에 앉듯, 준비된 자에게 기회가! 실력을 갈고닦으세요.',love:'운명적 만남의 가능성',money:'준비한 만큼의 보상',lucky:'남쪽'},
+  {m:12,name:'비',flower:'🌧️',emoji:'⛩️',desc:'비와 대감',fortune:'비 온 뒤 땅이 굳는다! 힘든 시기가 지나고 단단해집니다.',love:'시련 후 더 강한 사랑',money:'어려움 뒤 큰 보상',lucky:'북쪽'},
+];
+
+let picked=[];
+
+function show(){
+  picked=[];
+  const shuffled=[...Array(12).keys()].sort(()=>Math.random()-0.5);
+  document.getElementById('app').innerHTML=`
+    <h1>🎴 화투 운세</h1>
+    <p class="sub">마음을 가다듬고 3장의 화투를 뽑아주세요</p>
+    <p style="color:#B8860B;font-size:14px;margin-bottom:5px">${picked.length}/3 선택</p>
+    <div class="cards">
+      ${shuffled.map(i=>`<div class="hcard" onclick="pick(${i},this)">
+        <div class="month">${MONTHS[i].m}월</div>
+        <div class="flower">${MONTHS[i].flower}</div>
+        <div class="name">${MONTHS[i].name}</div>
+      </div>`).join('')}
+    </div>
+    <p style="color:#555;font-size:11px">3장을 선택하면 결과를 볼 수 있어요</p>`;
+}
+
+function pick(i,el){
+  if(picked.includes(i)||picked.length>=3)return;
+  picked.push(i);
+  el.style.borderColor='#FFD700';el.style.background='linear-gradient(135deg,#5a2020,#3a1010)';
+  el.style.boxShadow='0 0 15px rgba(255,215,0,0.3)';
+  if(picked.length===3)setTimeout(showResult,600);
+}
+
+function showResult(){
+  const labels=['첫째 패: 현재 상황','둘째 패: 조언','셋째 패: 미래 전망'];
+  let html=`<h1>🎴 화투 운세 결과</h1><p class="sub" style="margin-bottom:15px">세 장의 화투가 전하는 메시지</p>`;
+  picked.forEach((idx,i)=>{
+    const m=MONTHS[idx];
+    html+=`<div class="result" style="margin-bottom:12px">
+      <div style="color:#B8860B;font-size:12px;margin-bottom:6px">${labels[i]}</div>
+      <div style="display:flex;gap:12px;align-items:center">
+        <div style="font-size:40px">${m.flower}${m.emoji}</div>
+        <div><div style="font-size:18px;font-weight:bold;color:#FFD700">${m.m}월 ${m.name}</div>
+        <div style="color:#888;font-size:12px">${m.desc}</div></div>
+      </div>
+      <p style="color:#ccc;font-size:14px;line-height:1.7;margin-top:10px">${m.fortune}</p>
+      <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+        <span style="background:#252545;padding:4px 10px;border-radius:6px;font-size:11px">💕 ${m.love}</span>
+        <span style="background:#252545;padding:4px 10px;border-radius:6px;font-size:11px">💰 ${m.money}</span>
+        <span style="background:#252545;padding:4px 10px;border-radius:6px;font-size:11px">🧭 행운방향: ${m.lucky}</span>
+      </div>
+    </div>`;
+  });
+  html+=`<button class="btn" onclick="show()">다시 뽑기</button>`;
+  document.getElementById('app').innerHTML=html;
+}
+show();
+</script></body></html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>전생 운세</title><style>*{margin:0;padding:0;box-sizing:border-box}body{min-height:100vh;background:linear-gradient(135deg,#0a0a1a,#1a0a2e,#0a1a2e);color:#e0d0ff;font-family:'Segoe UI',sans-serif;display:flex;flex-direction:column;align-items:center;padding:20px}h1{margin:30px 0 10px;font-size:2em;text-shadow:0 0 20px rgba(150,100,255,.5)}.sub{color:#9988bb;margin-bottom:25px}.input-area{text-align:center;margin:15px 0}input{background:rgba(255,255,255,.08);border:1px solid rgba(150,100,255,.3);color:#fff;padding:12px 18px;border-radius:12px;font-size:1em;outline:none;margin:5px}input:focus{border-color:rgba(150,100,255,.7)}button{background:linear-gradient(135deg,#6a3de8,#4a2db8);color:#fff;border:none;padding:12px 30px;border-radius:12px;font-size:1em;cursor:pointer;margin-top:15px;transition:all .3s}button:hover{transform:scale(1.05)}.result{display:none;max-width:520px;width:100%;animation:fadeIn .8s;margin-top:25px}.rbox{background:rgba(255,255,255,.05);border:1px solid rgba(150,100,255,.15);border-radius:16px;padding:25px;line-height:1.8;text-align:center}.bigemo{font-size:4em;margin:10px 0}.rbox h2{color:#c8a0ff}@keyframes fadeIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}</style></head><body>
+<a href="../index.html" style="position:fixed;top:10px;left:10px;z-index:9999;background:rgba(0,0,0,0.6);color:#fff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:13px;font-family:sans-serif" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<h1>🔄 전생 운세</h1><p class="sub">이름과 생년월일로 알아보는 전생과 현세의 인연</p>
+<div class="input-area"><input type="text" id="name" placeholder="이름" maxlength="20"><br><input type="date" id="bday"><br><button onclick="calc()">전생 알아보기</button></div>
+<div class="result" id="result"></div>
+<script>
+const lives=[
+{e:'👑',t:'중세 유럽의 왕족',era:'14세기 유럽',desc:'화려한 궁전에서 태어나 나라를 다스렸습니다. 고귀한 혈통과 리더십으로 백성들의 존경을 받았습니다.',effect:'전생의 리더십이 현세에서도 빛을 발합니다. 타고난 카리스마와 결단력으로 높은 자리에 오를 운명입니다.',love:78,money:88,health:72,work:95},
+{e:'🎨',t:'르네상스 시대의 화가',era:'15세기 이탈리아',desc:'붓 하나로 세상을 아름답게 만들었습니다. 천재적인 예술 감각으로 수많은 걸작을 남겼습니다.',effect:'전생의 예술적 재능이 현세에도 이어집니다. 창의력이 뛰어나며 아름다움을 추구하는 삶을 살고 있습니다.',love:85,money:65,health:70,work:82},
+{e:'⚔️',t:'고대 동양의 장군',era:'삼국시대 동아시아',desc:'전장을 누비며 승리를 이끈 전설적인 장군이었습니다. 용맹과 전략으로 역사에 이름을 남겼습니다.',effect:'전생의 용기가 현세에서 강한 의지력으로 나타납니다. 어려운 상황에서도 굴하지 않는 강인함이 있습니다.',love:60,money:78,health:85,work:90},
+{e:'📚',t:'고대 그리스의 철학자',era:'기원전 5세기 그리스',desc:'아테네의 광장에서 지혜를 나누었습니다. 깊은 사색과 토론으로 후세에 큰 영향을 미쳤습니다.',effect:'전생의 지혜가 현세에서 깊은 통찰력으로 이어집니다. 학문과 진리 탐구에 재능이 있습니다.',love:65,money:70,health:75,work:88},
+{e:'🌸',t:'일본 헤이안 시대의 귀족',era:'10세기 일본',desc:'와카를 읊고 아름다운 정원에서 풍류를 즐겼습니다. 섬세한 감수성과 고상한 취향의 소유자였습니다.',effect:'전생의 섬세함이 현세에서도 빛납니다. 감성이 풍부하고 문화적 소양이 높습니다.',love:90,money:72,health:68,work:75},
+{e:'🧙',t:'중세의 연금술사',era:'13세기 유럽',desc:'비밀 연구실에서 세상의 비밀을 탐구했습니다. 과학과 마법의 경계에서 놀라운 발견을 했습니다.',effect:'전생의 탐구심이 현세에서 강한 지적 호기심으로 나타납니다. 신비로운 직감이 뛰어납니다.',love:62,money:75,health:70,work:85},
+{e:'🏺',t:'이집트의 신관',era:'고대 이집트',desc:'신전에서 신들의 뜻을 전하는 신성한 역할을 수행했습니다. 영적 세계와 소통하는 능력이 있었습니다.',effect:'전생의 영적 능력이 현세에서 강한 직감과 예지력으로 나타납니다. 운세와 점술에 특별한 인연이 있습니다.',love:72,money:68,health:80,work:78},
+{e:'🎭',t:'조선시대의 판소리 명창',era:'18세기 조선',desc:'소리 하나로 관객의 마음을 울리고 웃겼습니다. 뛰어난 예술성과 인간미로 사랑받았습니다.',effect:'전생의 표현력이 현세에서도 이어집니다. 사람들의 감정을 이해하고 공감하는 능력이 뛰어납니다.',love:88,money:65,health:72,work:80},
+{e:'🌊',t:'바이킹 탐험가',era:'9세기 스칸디나비아',desc:'미지의 바다를 누비며 새로운 세계를 발견했습니다. 대담한 모험심과 강인한 체력의 소유자였습니다.',effect:'전생의 모험심이 현세에서 도전 정신으로 나타납니다. 새로운 것에 대한 두려움이 없습니다.',love:68,money:80,health:90,work:82},
+{e:'🏥',t:'동양의 명의',era:'고대 중국',desc:'수많은 환자를 치료하고 의학서를 집필한 전설적인 의사였습니다. 자비로운 마음으로 사람들을 구했습니다.',effect:'전생의 치유 능력이 현세에서 다른 사람을 돕는 성향으로 나타납니다. 봉사와 헌신에 보람을 느낍니다.',love:82,money:72,health:95,work:78},
+{e:'💃',t:'무굴 제국의 무용수',era:'16세기 인도',desc:'우아한 춤으로 황제와 귀족을 매료시켰습니다. 예술적 재능과 아름다움을 겸비한 존재였습니다.',effect:'전생의 매력이 현세에서도 빛납니다. 타고난 카리스마로 사람들을 끌어당기는 힘이 있습니다.',love:95,money:70,health:75,work:72},
+{e:'🗡️',t:'로마의 검투사',era:'기원전 1세기 로마',desc:'콜로세움에서 승리를 거듭하며 자유를 쟁취한 전설적인 검투사였습니다. 불굴의 의지로 운명에 맞섰습니다.',effect:'전생의 투쟁심이 현세에서 강인한 생존력으로 나타납니다. 어떤 역경도 극복하는 힘이 있습니다.',love:58,money:75,health:88,work:85}
+];
+function sr(s){let h=0;for(let i=0;i<s.length;i++)h=((h<<5)-h)+s.charCodeAt(i),h|=0;return function(){h^=h<<13;h^=h>>17;h^=h<<5;return(h>>>0)/4294967296}}
+function calc(){
+const name=document.getElementById('name').value.trim(),bday=document.getElementById('bday').value;
+if(!name||!bday){alert('이름과 생년월일을 모두 입력해주세요!');return}
+const r=sr(name+bday),idx=Math.floor(r()*lives.length),l=lives[idx];
+const r2=sr(name+bday+new Date().toDateString());
+const todayLuck=Math.floor(r2()*31)+65;
+const el=document.getElementById('result');
+el.innerHTML=`<div class="rbox"><div class="bigemo">${l.e}</div><h2>${l.t}</h2><p style="color:#a088cc;margin:8px 0">${l.era}</p><br><p><b>🔮 전생의 삶</b></p><p style="margin:8px 0">${l.desc}</p><br><p><b>✨ 현세에 미치는 영향</b></p><p style="margin:8px 0">${l.effect}</p><hr style="border-color:rgba(150,100,255,.15);margin:15px 0"><p><b>📊 오늘의 운세 (전생 영향 반영)</b></p><p>오늘의 총운: ${todayLuck}점</p><br><p>💕 연애운: ${l.love}점 | 💰 금전운: ${l.money}점</p><p>💪 건강운: ${l.health}점 | 💼 직장운: ${l.work}점</p><br><p>🔢 전생과 연결된 행운의 숫자: ${Math.floor(r2()*99)+1}</p></div><br><button onclick="document.getElementById('result').style.display='none'">다시 하기</button>`;
+el.style.display='block';el.scrollIntoView({behavior:'smooth'})}
+</script></body></html>

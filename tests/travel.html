@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>여행 유형 테스트</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px}
+.card{background:#1a1a2e;border-radius:16px;padding:30px;max-width:500px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.4);text-align:center}
+h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-size:.9em}
+.progress{height:6px;background:#2a2a3e;border-radius:3px;margin-bottom:24px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#00cec9,#81ecec);transition:width .3s;width:0}
+.question{font-size:1.05em;margin-bottom:18px;line-height:1.5}
+.btn{display:block;width:100%;padding:12px;margin:8px 0;background:#2a2a3e;border:none;color:#e0e0e0;border-radius:10px;font-size:.95em;cursor:pointer;transition:background .2s}
+.btn:hover{background:#3a3a5e}
+.start-btn{background:linear-gradient(135deg,#00cec9,#81ecec);color:#1a1a2e;font-size:1.1em;padding:14px;margin-top:16px;font-weight:bold}
+.start-btn:hover{opacity:.9}
+.emoji{font-size:4em;margin:16px 0}.result-type{font-size:1.4em;font-weight:bold;color:#81ecec;margin-bottom:12px}
+.result-desc{color:#bbb;line-height:1.7;margin-bottom:10px;font-size:.95em}
+.dest{background:#2a2a3e;border-radius:10px;padding:14px;margin:12px 0;text-align:left;font-size:.9em;line-height:1.8;color:#ddd}
+.hidden{display:none}
+</style></head><body>
+<a href="../index.html" style="position:fixed;top:10px;left:10px;z-index:9999;background:rgba(0,0,0,0.6);color:#fff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:13px;font-family:sans-serif" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<div class="card">
+<div id="intro">
+<div style="font-size:3em;margin-bottom:10px">✈️</div>
+<h1>여행 유형 테스트</h1>
+<p class="sub">당신에게 딱 맞는 여행 스타일은?</p>
+<button class="btn start-btn" onclick="startQuiz()">테스트 시작하기</button>
+</div>
+<div id="quiz" class="hidden">
+<div class="progress"><div class="progress-fill" id="prog"></div></div>
+<div class="question" id="qText"></div>
+<div id="opts"></div>
+</div>
+<div id="result" class="hidden">
+<div class="emoji" id="rEmoji"></div>
+<div class="result-type" id="rType"></div>
+<div class="result-desc" id="rDesc"></div>
+<div class="dest" id="rDest"></div>
+<button class="btn start-btn" onclick="location.reload()">다시 하기</button>
+</div>
+</div>
+<script>
+const questions=[
+{q:"여행 준비 스타일은?",a:[["최소한의 짐만!","backpack"],["호텔/리조트 예약 완벽히","hotel"],["맛집 리스트 작성","food"],["박물관/유적지 조사","culture"],["자연 명소 검색","nature"]]},
+{q:"여행지에서 아침에 일어나면?",a:[["바로 밖으로 나간다","backpack"],["여유롭게 조식 즐기기","hotel"],["아침부터 현지 맛집","food"],["오늘 갈 곳 체크","culture"],["창밖 풍경 감상","nature"]]},
+{q:"여행 예산 배분은?",a:[["교통/이동에 투자","backpack"],["숙소에 투자","hotel"],["음식에 투자","food"],["입장료/체험에 투자","culture"],["장소 접근성에 투자","nature"]]},
+{q:"여행에서 가장 기억에 남는 것?",a:[["예상치 못한 모험","backpack"],["편안한 휴식","hotel"],["맛있었던 음식","food"],["배운 것들","culture"],["아름다운 풍경","nature"]]},
+{q:"여행 사진은 주로?",a:[["셀카/액션샷","backpack"],["호텔/풍경","hotel"],["음식 사진","food"],["건축물/유적지","culture"],["자연 풍경","nature"]]},
+{q:"이상적인 여행 동반자는?",a:[["모험을 즐기는 친구","backpack"],["편하게 쉴 수 있는 사람","hotel"],["식도락 메이트","food"],["지적 대화가 통하는 사람","culture"],["조용히 함께할 수 있는 사람","nature"]]},
+{q:"비가 오는 여행 날씨에?",a:[["빗속 산책도 좋다!","backpack"],["호텔에서 여유롭게","hotel"],["실내 맛집 투어","food"],["실내 미술관/박물관","culture"],["비 오는 풍경 감상","nature"]]},
+{q:"여행 후 가장 하고 싶은 말?",a:[["다음엔 어디 가지?","backpack"],["완전 재충전됐어!","hotel"],["그 음식 또 먹고 싶다","food"],["많이 배웠어","culture"],["힐링 완료!","nature"]]}
+];
+const types={backpack:{e:"🎒",n:"배낭여행형",d:"자유로운 영혼의 모험가! 정해진 계획보다 즉흥적인 여행을 즐기며, 새로운 경험과 만남을 소중히 여겨요.",dest:"<strong>🗺️ 추천 여행지:</strong><br>• 동남아 배낭여행 (태국, 베트남)<br>• 유럽 인터레일<br>• 남미 (페루, 볼리비아)<br>• 제주 올레길"},
+hotel:{e:"🏨",n:"호캉스형",d:"여행은 곧 휴식! 좋은 숙소에서 편안하게 재충전하는 게 진정한 여행이라 생각해요. 퀄리티 있는 휴식을 추구합니다.",dest:"<strong>🗺️ 추천 여행지:</strong><br>• 몰디브/발리 리조트<br>• 제주 풀빌라<br>• 강원도 스파 호텔<br>• 싱가포르 마리나베이"},
+food:{e:"🍽️",n:"맛집투어형",d:"여행의 핵심은 음식! 현지 맛집을 찾아다니며 그 나라의 문화를 맛으로 경험하는 진정한 미식가입니다.",dest:"<strong>🗺️ 추천 여행지:</strong><br>• 일본 오사카 (식도락의 도시)<br>• 이탈리아 (정통 파스타/피자)<br>• 전주 한옥마을 (한식 투어)<br>• 태국 방콕 (길거리 음식)"},
+culture:{e:"🏛️",n:"문화탐방형",d:"역사와 문화를 깊이 탐구하는 지적 여행자! 박물관, 유적지, 전시회를 통해 새로운 지식을 쌓는 것을 즐겨요.",dest:"<strong>🗺️ 추천 여행지:</strong><br>• 로마/아테네 (고대 유적)<br>• 경주 (역사 탐방)<br>• 이집트 (피라미드)<br>• 교토 (전통 문화)"},
+nature:{e:"🌿",n:"자연힐링형",d:"자연 속에서 진정한 평화를 찾는 타입! 산, 바다, 숲 등 자연의 아름다움에 깊이 감동하며 힐링하는 여행을 좋아해요.",dest:"<strong>🗺️ 추천 여행지:</strong><br>• 뉴질랜드 (대자연)<br>• 제주 한라산<br>• 스위스 알프스<br>• 강원도 속초/양양"}};
+let cur=0,scores={};
+function startQuiz(){document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();}
+function showQ(){const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=()=>pick(a[1]);o.appendChild(b);});}
+function pick(t){scores[t]=(scores[t]||0)+1;cur++;if(cur<questions.length)showQ();else showResult();}
+function showResult(){const top=Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];const r=types[top];document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');document.getElementById('rEmoji').textContent=r.e;document.getElementById('rType').textContent=r.n;document.getElementById('rDesc').textContent=r.d;document.getElementById('rDest').innerHTML=r.dest;}
+</script></body></html>

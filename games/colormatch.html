@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>색 맞추기</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI','Noto Sans KR',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;user-select:none}
+.container{text-align:center;max-width:460px;width:90%;padding:20px}
+h1{font-size:2em;margin-bottom:8px;background:linear-gradient(135deg,#f472b6,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.info-bar{display:flex;justify-content:space-between;margin:12px 0;color:#aaa;font-size:0.9em}
+.color-word{font-size:3.5em;font-weight:900;margin:30px 0;min-height:80px;transition:transform 0.1s}
+.color-word.shake{animation:shake 0.3s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.choices{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:20px 0}
+.choice-btn{padding:14px 24px;border:2px solid transparent;border-radius:14px;font-size:1.1em;font-weight:bold;cursor:pointer;transition:all 0.15s;min-width:100px;color:#fff}
+.choice-btn:hover{transform:scale(1.08);box-shadow:0 4px 15px rgba(0,0,0,0.3)}
+.choice-btn:active{transform:scale(0.95)}
+.timer-bar{width:100%;height:8px;background:#1e1e3a;border-radius:4px;margin:15px 0;overflow:hidden}
+.timer-fill{height:100%;border-radius:4px;transition:width 0.1s linear;background:linear-gradient(90deg,#f472b6,#a78bfa)}
+.feedback{font-size:1.5em;min-height:40px;margin:10px 0}
+.overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,15,30,0.95);display:flex;align-items:center;justify-content:center;z-index:100}
+.overlay-box{background:#1a1a2e;border-radius:20px;padding:40px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.6);max-width:400px;width:90%}
+.overlay-box h2{font-size:1.8em;margin-bottom:15px;background:linear-gradient(135deg,#f472b6,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.overlay-box p{color:#ccc;margin:8px 0}
+.btn{padding:12px 32px;border:none;border-radius:12px;font-size:1em;cursor:pointer;transition:all 0.2s;font-weight:bold;margin:5px}
+.btn-primary{background:linear-gradient(135deg,#f472b6,#a78bfa);color:#fff}
+.btn-primary:hover{transform:scale(1.05);box-shadow:0 4px 15px rgba(244,114,182,0.4)}
+.result-emoji{font-size:3em;margin-bottom:10px}
+.high-score{color:#ffd700;font-size:0.9em;margin-top:10px}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:10px;left:10px;z-index:9999;background:rgba(0,0,0,0.6);color:#fff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:13px;font-family:sans-serif" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<script>function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));if(h.nick){const lb=JSON.parse(localStorage.getItem('game_leaderboard')||'{}');if(!lb[id])lb[id]=[];const e=lb[id].find(x=>x.nick===h.nick);if(e){if(s>e.score){e.score=s;e.date=new Date().toLocaleDateString('ko');}}else lb[id].push({nick:h.nick,score:s,date:new Date().toLocaleDateString('ko')});lb[id].sort((a,b)=>b.score-a.score);lb[id]=lb[id].slice(0,20);localStorage.setItem('game_leaderboard',JSON.stringify(lb));}}</script>
+
+<div id="startScreen" class="overlay">
+<div class="overlay-box">
+<div class="result-emoji">🎨</div>
+<h2>색 맞추기</h2>
+<p>글자의 <b>색상</b>을 맞춰보세요!</p>
+<p style="font-size:0.85em;color:#aaa">글자의 뜻이 아닌 글자의 <b>색</b>을 선택하세요<br>30초 안에 최대한 많이 맞추세요!</p>
+<div class="high-score" id="startHighScore"></div>
+<br>
+<button class="btn btn-primary" onclick="startGame()">시작!</button>
+</div>
+</div>
+
+<div id="gameOverScreen" class="overlay" style="display:none">
+<div class="overlay-box">
+<div class="result-emoji" id="resultEmoji"></div>
+<h2>시간 종료!</h2>
+<p id="resultScore"></p>
+<p id="resultAccuracy"></p>
+<div class="high-score" id="resultHighScore"></div>
+<br>
+<button class="btn btn-primary" onclick="startGame()">다시 하기</button>
+</div>
+</div>
+
+<div class="container" id="gameArea" style="display:none">
+<h1>색 맞추기</h1>
+<div class="info-bar">
+<span>점수: <b id="scoreDisplay">0</b></span>
+<span>최고: <b id="bestDisplay">0</b></span>
+<span>시간: <b id="timeDisplay">30</b>초</span>
+</div>
+<div class="timer-bar"><div class="timer-fill" id="timerFill" style="width:100%"></div></div>
+<div class="color-word" id="colorWord">준비!</div>
+<div class="feedback" id="feedback"></div>
+<div class="choices" id="choices"></div>
+</div>
+
+<script>
+const COLORS=[
+{name:'빨강',hex:'#ef4444',bg:'#ef4444'},
+{name:'파랑',hex:'#3b82f6',bg:'#3b82f6'},
+{name:'초록',hex:'#22c55e',bg:'#22c55e'},
+{name:'노랑',hex:'#eab308',bg:'#eab308'},
+{name:'보라',hex:'#a855f7',bg:'#a855f7'},
+{name:'주황',hex:'#f97316',bg:'#f97316'},
+{name:'분홍',hex:'#ec4899',bg:'#ec4899'},
+];
+
+let score,highScore,total,correct,timeLeft,timerId,timerInterval,gameRunning;
+
+function loadHS(){highScore=parseInt(localStorage.getItem('colormatch_high')||'0')}
+function saveHS(){if(score>highScore){highScore=score;localStorage.setItem('colormatch_high',String(highScore))}_hub('colormatch',score)}
+
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+function pick(arr,n){return shuffle(arr).slice(0,n)}
+function randItem(arr){return arr[Math.floor(Math.random()*arr.length)]}
+
+function nextRound(){
+if(!gameRunning)return;
+// Pick the word (text) and the display color (different from word)
+const wordColor=randItem(COLORS);
+let displayColor;
+do{displayColor=randItem(COLORS)}while(displayColor.name===wordColor.name);
+
+const word=document.getElementById('colorWord');
+word.textContent=wordColor.name;
+word.style.color=displayColor.hex;
+
+// Build 4 choices including the correct answer (displayColor)
+let options=[displayColor];
+const others=COLORS.filter(c=>c.name!==displayColor.name);
+const picked=pick(others,3);
+options=shuffle([...options,...picked]);
+
+const choicesDiv=document.getElementById('choices');
+choicesDiv.innerHTML='';
+options.forEach(c=>{
+const btn=document.createElement('button');
+btn.className='choice-btn';
+btn.textContent=c.name;
+btn.style.background=c.bg;
+btn.onclick=()=>handleChoice(c.name===displayColor.name);
+choicesDiv.appendChild(btn);
+});
+}
+
+function handleChoice(isCorrect){
+if(!gameRunning)return;
+total++;
+const fb=document.getElementById('feedback');
+const word=document.getElementById('colorWord');
+if(isCorrect){
+score++;correct++;
+fb.textContent='O 정답!';
+fb.style.color='#4ade80';
+}else{
+fb.textContent='X 틀렸어요!';
+fb.style.color='#ef4444';
+word.classList.add('shake');
+setTimeout(()=>word.classList.remove('shake'),300);
+}
+document.getElementById('scoreDisplay').textContent=score;
+setTimeout(()=>{fb.textContent='';nextRound()},300);
+}
+
+function startGame(){
+document.getElementById('startScreen').style.display='none';
+document.getElementById('gameOverScreen').style.display='none';
+document.getElementById('gameArea').style.display='block';
+loadHS();
+score=0;total=0;correct=0;timeLeft=30;gameRunning=true;
+document.getElementById('scoreDisplay').textContent=0;
+document.getElementById('bestDisplay').textContent=highScore;
+document.getElementById('timeDisplay').textContent=30;
+document.getElementById('timerFill').style.width='100%';
+document.getElementById('feedback').textContent='';
+nextRound();
+
+clearInterval(timerInterval);
+const startTime=Date.now();
+timerInterval=setInterval(()=>{
+const elapsed=(Date.now()-startTime)/1000;
+timeLeft=Math.max(0,30-elapsed);
+document.getElementById('timeDisplay').textContent=Math.ceil(timeLeft);
+document.getElementById('timerFill').style.width=(timeLeft/30*100)+'%';
+if(timeLeft<=0)endGame();
+},100);
+}
+
+function endGame(){
+gameRunning=false;
+clearInterval(timerInterval);
+saveHS();
+document.getElementById('gameArea').style.display='none';
+const s=document.getElementById('gameOverScreen');
+s.style.display='flex';
+document.getElementById('resultEmoji').textContent=score>=15?'🏆':score>=8?'🎉':'😊';
+document.getElementById('resultScore').textContent=`점수: ${score}점`;
+const acc=total>0?Math.round(correct/total*100):0;
+document.getElementById('resultAccuracy').textContent=`정확도: ${acc}% (${correct}/${total})`;
+document.getElementById('resultHighScore').textContent=`최고 기록: ${highScore}점`;
+}
+
+loadHS();
+document.getElementById('startHighScore').textContent=highScore>0?`최고 기록: ${highScore}점`:'';
+</script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>색깔 심리 테스트</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center}.wrap{max-width:500px;width:100%;padding:20px;text-align:center}h1{font-size:30px;margin-bottom:8px}.sub{color:#888;margin-bottom:25px}
+.colors{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0}
+.color-btn{border-radius:16px;padding:35px 10px;cursor:pointer;font-size:14px;font-weight:bold;transition:all .2s;border:3px solid transparent}
+.color-btn:hover{transform:scale(1.08);border-color:#fff3}
+.result{background:#1a1a2e;border-radius:16px;padding:28px;border:1px solid #2a2a4a;text-align:left}
+.r-color{width:80px;height:80px;border-radius:50%;margin:0 auto 15px;display:flex;align-items:center;justify-content:center;font-size:36px}
+.section{margin:12px 0;padding:13px;background:#252545;border-radius:10px}
+.section h3{font-size:14px;margin-bottom:6px}
+.section p{color:#ccc;font-size:13px;line-height:1.6}
+.btn{background:#7B68EE;border:none;color:#fff;padding:12px 30px;border-radius:10px;font-size:15px;cursor:pointer;margin-top:18px;font-weight:bold;width:100%}
+a.back{position:fixed;top:10px;left:10px;z-index:99;background:rgba(0,0,0,0.6);color:#fff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:13px}a.back:hover{background:rgba(0,0,0,0.85)}
+</style></head><body>
+<a class="back" href="../index.html">← 뒤로</a>
+<div class="wrap" id="app"></div>
+<script>
+const COLORS=[
+  {name:'빨강',bg:'#E74C3C',emoji:'🔥',psych:'열정적이고 에너지가 넘치는 당신!',
+    detail:'강한 의지와 리더십을 가지고 있어요. 도전을 즐기고 목표 지향적입니다. 가끔 충동적일 수 있지만 그만큼 행동력이 있어요.',
+    love:'열정적이고 로맨틱! 직접적인 표현을 좋아해요.',stress:'운동이나 활동적인 취미로 해소',lucky:'주황색과의 조합이 행운을 가져다줘요'},
+  {name:'파랑',bg:'#3498DB',emoji:'🌊',psych:'차분하고 신뢰감 있는 당신!',
+    detail:'냉정하고 분석적인 사고를 하며, 다른 사람에게 신뢰감을 줘요. 평화를 사랑하고 안정적인 환경을 선호합니다.',
+    love:'진지하고 깊은 관계를 추구해요. 시간이 걸리지만 한번 빠지면 깊어요.',stress:'물가나 자연에서 힐링',lucky:'하늘색과 흰색이 당신의 행운색'},
+  {name:'초록',bg:'#2ECC71',emoji:'🌿',psych:'조화롭고 치유하는 힘이 있는 당신!',
+    detail:'자연을 사랑하고 균형 잡힌 성격이에요. 다른 사람을 배려하며 치유하는 능력이 있어요. 성장과 발전을 중시합니다.',
+    love:'안정적이고 편안한 관계를 원해요. 상대방을 편하게 해주는 능력이 있어요.',stress:'자연 속 산책이나 식물 가꾸기',lucky:'갈색과 베이지가 당신의 행운색'},
+  {name:'노랑',bg:'#F1C40F',emoji:'☀️',psych:'밝고 창의적인 당신!',
+    detail:'긍정적이고 낙천적인 성격! 창의력이 뛰어나고 주변을 밝게 만들어요. 호기심이 많고 새로운 것을 배우는 걸 좋아합니다.',
+    love:'유쾌하고 재미있는 관계를 원해요. 함께 웃을 수 있는 사람이 최고!',stress:'재미있는 활동이나 친구와의 수다',lucky:'금색과 주황색이 당신에게 행운'},
+  {name:'보라',bg:'#9B59B6',emoji:'🔮',psych:'신비롭고 직관적인 당신!',
+    detail:'예술적 감각이 뛰어나고 직관력이 강해요. 독특한 세계관을 가지고 있으며, 영적인 것에 관심이 많을 수 있어요.',
+    love:'깊고 신비로운 관계를 원해요. 정신적 교감을 중요하게 생각합니다.',stress:'명상, 예술 활동, 음악 감상',lucky:'남색과 은색이 당신의 행운색'},
+  {name:'분홍',bg:'#E91E86',emoji:'💖',psych:'사랑스럽고 공감력 높은 당신!',
+    detail:'따뜻하고 사랑이 넘치는 성격! 다른 사람의 감정을 잘 읽고 공감해요. 로맨틱하고 아름다운 것을 사랑합니다.',
+    love:'달콤하고 로맨틱한 관계를 꿈꿔요. 작은 것에도 감동받아요.',stress:'예쁜 카페나 쇼핑으로 기분 전환',lucky:'라벤더와 흰색이 당신의 행운색'},
+];
+
+function showColors(){
+  document.getElementById('app').innerHTML=`
+    <h1>🎨 색깔 심리 테스트</h1>
+    <p class="sub">지금 가장 끌리는 색깔을 직감적으로 선택하세요!</p>
+    <p style="color:#666;font-size:12px;margin-bottom:15px">너무 오래 생각하지 말고 본능적으로!</p>
+    <div class="colors">
+      ${COLORS.map((c,i)=>`<div class="color-btn" style="background:${c.bg}" onclick="showResult(${i})">${c.emoji}<br>${c.name}</div>`).join('')}
+    </div>`;
+}
+
+function showResult(i){
+  const c=COLORS[i];
+  document.getElementById('app').innerHTML=`
+    <div class="result">
+      <div class="r-color" style="background:${c.bg}">${c.emoji}</div>
+      <h2 style="text-align:center;color:${c.bg}">${c.name}을 선택한 당신</h2>
+      <p style="text-align:center;color:#aaa;margin:8px 0 15px">${c.psych}</p>
+      <div class="section"><h3 style="color:#FFD700">🧠 심리 분석</h3><p>${c.detail}</p></div>
+      <div class="section"><h3 style="color:#FF69B4">💕 연애 스타일</h3><p>${c.love}</p></div>
+      <div class="section"><h3 style="color:#7FFFD4">🧘 스트레스 해소법</h3><p>${c.stress}</p></div>
+      <div class="section"><h3 style="color:#FFD700">🍀 행운</h3><p>${c.lucky}</p></div>
+      <button class="btn" onclick="showColors()">다시 선택하기</button>
+    </div>`;
+}
+showColors();
+</script></body></html>

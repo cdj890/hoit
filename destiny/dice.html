@@ -1,0 +1,28 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>주사위 운세</title><style>*{margin:0;padding:0;box-sizing:border-box}body{min-height:100vh;background:linear-gradient(135deg,#0a0a1a,#1a0a2e,#0a1a2e);color:#e0d0ff;font-family:'Segoe UI',sans-serif;display:flex;flex-direction:column;align-items:center;padding:20px}h1{margin:30px 0 10px;font-size:2em;text-shadow:0 0 20px rgba(150,100,255,.5)}.sub{color:#9988bb;margin-bottom:30px}.dice-area{display:flex;gap:30px;margin:30px 0}.die{width:100px;height:100px;background:linear-gradient(145deg,#2a1a4a,#1a0a3a);border:2px solid rgba(150,100,255,.3);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:3em;font-weight:bold;box-shadow:0 5px 20px rgba(0,0,0,.5);transition:transform .1s}.die.rolling{animation:shake .15s infinite}@keyframes shake{0%,100%{transform:rotate(0) scale(1)}25%{transform:rotate(-15deg) scale(1.1)}50%{transform:rotate(10deg) scale(.95)}75%{transform:rotate(-8deg) scale(1.05)}}button{background:linear-gradient(135deg,#6a3de8,#4a2db8);color:#fff;border:none;padding:14px 35px;border-radius:12px;font-size:1.1em;cursor:pointer;margin:20px 0;transition:all .3s}button:hover{transform:scale(1.05);box-shadow:0 0 25px rgba(106,61,232,.5)}button:disabled{opacity:.5;transform:none}.result{display:none;text-align:center;max-width:450px;animation:fadeIn .6s;margin-top:20px}.result-box{background:rgba(255,255,255,.05);border:1px solid rgba(150,100,255,.15);border-radius:16px;padding:25px;line-height:1.8}.sum-display{font-size:3em;font-weight:bold;margin:15px 0;background:linear-gradient(135deg,#e84de8,#6a3de8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}@keyframes fadeIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}</style></head><body>
+<a href="../index.html" style="position:fixed;top:10px;left:10px;z-index:9999;background:rgba(0,0,0,0.6);color:#fff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:13px;font-family:sans-serif" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<h1>🎲 주사위 운세</h1><p class="sub">주사위를 굴려 오늘의 운세를 확인하세요!</p>
+<div class="dice-area"><div class="die" id="d1">?</div><div class="die" id="d2">?</div></div>
+<button id="rollBtn" onclick="roll()">🎲 주사위 굴리기</button>
+<div class="result" id="result"></div>
+<script>
+const faces=['⚀','⚁','⚂','⚃','⚄','⚅'];
+const fortunes={2:{t:'🌟 대길!',m:'최고의 행운이 찾아옵니다! 모든 일이 뜻대로 될 거예요.',s:98},3:{t:'✨ 길!',m:'좋은 일이 연달아 일어날 조짐입니다. 적극적으로 움직이세요.',s:88},4:{t:'🌙 소길',m:'작지만 확실한 행운이 찾아옵니다. 세심하게 살펴보세요.',s:75},5:{t:'🍀 평운',m:'평화롭고 안정적인 하루입니다. 마음의 여유를 가지세요.',s:65},6:{t:'💫 희망운',m:'아직 결과가 나오지 않았지만, 희망적인 기운이 있습니다.',s:60},7:{t:'🔮 변화운',m:'예상치 못한 변화가 찾아옵니다. 유연하게 대처하세요.',s:55},8:{t:'🌈 회복운',m:'어려움이 있었다면 곧 회복됩니다. 인내하세요.',s:50},9:{t:'⚡ 도전운',m:'도전적인 상황이 오지만, 극복하면 큰 성장이 있습니다.',s:45},10:{t:'🔥 열정운',m:'뜨거운 열정이 필요한 날입니다. 최선을 다하세요!',s:70},11:{t:'🌊 흐름운',m:'흐름에 몸을 맡기세요. 자연스럽게 좋은 결과가 옵니다.',s:72},12:{t:'👑 최고 대길!',m:'더블 식스! 이보다 좋을 순 없습니다. 무엇이든 도전하세요!',s:100}};
+const cats=['💕 연애','💰 금전','💪 건강','💼 직장'];
+let rolling=false;
+function roll(){
+if(rolling)return;rolling=true;
+const btn=document.getElementById('rollBtn');btn.disabled=true;
+const d1=document.getElementById('d1'),d2=document.getElementById('d2');
+d1.classList.add('rolling');d2.classList.add('rolling');
+document.getElementById('result').style.display='none';
+let count=0;const iv=setInterval(()=>{d1.textContent=faces[Math.floor(Math.random()*6)];d2.textContent=faces[Math.floor(Math.random()*6)];count++;if(count>15){clearInterval(iv);const v1=Math.floor(Math.random()*6),v2=Math.floor(Math.random()*6);d1.textContent=faces[v1];d2.textContent=faces[v2];d1.classList.remove('rolling');d2.classList.remove('rolling');showResult(v1+1,v2+1);rolling=false;btn.disabled=false}},100)}
+function sr(s){let h=0;for(let i=0;i<s.length;i++)h=((h<<5)-h)+s.charCodeAt(i),h|=0;return function(){h^=h<<13;h^=h>>17;h^=h<<5;return(h>>>0)/4294967296}}
+function showResult(a,b){
+const sum=a+b,f=fortunes[sum],r=sr(sum+new Date().toDateString());
+let catScores=cats.map(c=>({n:c,v:Math.floor(r()*41)+f.s-20}));
+catScores=catScores.map(c=>({...c,v:Math.max(10,Math.min(100,c.v))}));
+let html=`<div class="result-box"><div class="sum-display">${a} + ${b} = ${sum}</div><h2>${f.t}</h2><p style="margin:15px 0;font-size:1.1em">${f.m}</p><p><b>운세 점수:</b> ${f.s}점</p><br>`;
+catScores.forEach(c=>{html+=`<p>${c.n}: ${'★'.repeat(Math.round(c.v/20))}${'☆'.repeat(5-Math.round(c.v/20))} ${c.v}점</p>`});
+html+=`<br><p>🔢 행운의 숫자: ${Math.floor(r()*99)+1}</p></div><br><button onclick="document.getElementById('result').style.display='none';document.getElementById('d1').textContent='?';document.getElementById('d2').textContent='?'">다시 하기</button>`;
+const el=document.getElementById('result');el.innerHTML=html;el.style.display='block';el.scrollIntoView({behavior:'smooth'})}
+</script></body></html>

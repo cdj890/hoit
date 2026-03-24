@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>핑퐁</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;overflow:hidden;user-select:none}
+#wrap{text-align:center;position:relative}
+canvas{border-radius:16px;display:block;margin:0 auto}
+#overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(15,15,30,0.92);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10}
+#overlay h2{font-size:36px;margin-bottom:12px;color:#a29bfe}
+#overlay p{font-size:16px;color:#dfe6e9;margin-bottom:6px}
+.btn{display:inline-block;margin-top:16px;padding:12px 32px;background:#6c5ce7;color:#fff;border:none;border-radius:12px;font-size:16px;cursor:pointer;font-weight:bold}
+.btn:hover{background:#5f27cd}
+#stats{font-size:13px;color:#636e72;margin-top:8px}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:10px;left:10px;z-index:9999;background:rgba(0,0,0,0.6);color:#fff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:13px;font-family:sans-serif" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<script>function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));if(h.nick){const lb=JSON.parse(localStorage.getItem('game_leaderboard')||'{}');if(!lb[id])lb[id]=[];const e=lb[id].find(x=>x.nick===h.nick);if(e){if(s>e.score){e.score=s;e.date=new Date().toLocaleDateString('ko');}}else lb[id].push({nick:h.nick,score:s,date:new Date().toLocaleDateString('ko')});lb[id].sort((a,b)=>b.score-a.score);lb[id]=lb[id].slice(0,20);localStorage.setItem('game_leaderboard',JSON.stringify(lb));}}</script>
+
+<div id="wrap">
+<div id="overlay" id="startScreen">
+<h2>🏓 핑퐁</h2>
+<p>AI를 상대로 핑퐁 대결!</p>
+<p style="font-size:13px;color:#b2bec3">마우스 또는 터치로 패들 조작 | 10점 먼저 득점하면 승리</p>
+<button class="btn" onclick="startGame()">게임 시작</button>
+</div>
+<canvas id="cv" width="500" height="400"></canvas>
+<div id="stats"></div>
+</div>
+
+<script>
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+const W=500,H=400,PW=14,PH=70,BR=10,WIN_SCORE=10;
+let playerY,aiY,ballX,ballY,bvx,bvy,pScore,aScore,running,animID,totalWins,mouseY=H/2;
+
+totalWins=parseInt(localStorage.getItem('pong_wins')||'0');
+updateStats();
+
+function reset(){
+ playerY=H/2-PH/2;aiY=H/2-PH/2;
+ ballX=W/2;ballY=H/2;
+ let angle=(Math.random()*0.8-0.4);
+ let dir=Math.random()<0.5?1:-1;
+ bvx=5*dir;bvy=4*Math.sin(angle);
+}
+
+function startGame(){
+ document.getElementById('overlay').style.display='none';
+ pScore=0;aScore=0;running=true;
+ reset();loop();
+}
+
+function drawRoundRect(x,y,w,h,r,color){
+ ctx.fillStyle=color;ctx.beginPath();
+ ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+ ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+ ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+ ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.fill();
+}
+
+function drawEyes(x,y,w,h){
+ let ex1=x+w*0.3,ex2=x+w*0.7,ey=y+h*0.35,er=3;
+ ctx.fillStyle='#2d3436';
+ ctx.beginPath();ctx.arc(ex1,ey,er,0,Math.PI*2);ctx.fill();
+ ctx.beginPath();ctx.arc(ex2,ey,er,0,Math.PI*2);ctx.fill();
+}
+
+function draw(){
+ ctx.fillStyle='#0f0f1e';ctx.fillRect(0,0,W,H);
+ // center line
+ ctx.setLineDash([6,6]);ctx.strokeStyle='rgba(255,255,255,0.1)';
+ ctx.beginPath();ctx.moveTo(W/2,0);ctx.lineTo(W/2,H);ctx.stroke();ctx.setLineDash([]);
+ // paddles
+ drawRoundRect(10,playerY,PW,PH,6,'#74b9ff');
+ drawEyes(10,playerY,PW,PH);
+ drawRoundRect(W-10-PW,aiY,PW,PH,6,'#fd79a8');
+ drawEyes(W-10-PW,aiY,PW,PH);
+ // ball with face
+ ctx.fillStyle='#ffeaa7';
+ ctx.beginPath();ctx.arc(ballX,ballY,BR,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='#2d3436';
+ ctx.beginPath();ctx.arc(ballX-3,ballY-2,2,0,Math.PI*2);ctx.fill();
+ ctx.beginPath();ctx.arc(ballX+3,ballY-2,2,0,Math.PI*2);ctx.fill();
+ ctx.beginPath();ctx.arc(ballX,ballY+3,3,0,Math.PI,false);ctx.stroke();
+ // scores
+ ctx.fillStyle='#dfe6e9';ctx.font='bold 32px sans-serif';ctx.textAlign='center';
+ ctx.fillText(pScore,W/4,50);ctx.fillText(aScore,3*W/4,50);
+ ctx.font='12px sans-serif';ctx.fillStyle='#636e72';
+ ctx.fillText('나',W/4,68);ctx.fillText('AI',3*W/4,68);
+}
+
+function update(){
+ // player follows mouse
+ playerY+=(mouseY-PH/2-playerY)*0.15;
+ playerY=Math.max(0,Math.min(H-PH,playerY));
+ // AI
+ let aiTarget=ballY-PH/2;
+ let aiSpeed=3.5;
+ if(aiY<aiTarget-aiSpeed)aiY+=aiSpeed;
+ else if(aiY>aiTarget+aiSpeed)aiY-=aiSpeed;
+ aiY=Math.max(0,Math.min(H-PH,aiY));
+ // ball
+ ballX+=bvx;ballY+=bvy;
+ if(ballY-BR<0){ballY=BR;bvy=-bvy;}
+ if(ballY+BR>H){ballY=H-BR;bvy=-bvy;}
+ // paddle collision
+ if(ballX-BR<10+PW&&ballY>playerY&&ballY<playerY+PH&&bvx<0){
+  bvx=-bvx*1.05;bvy+=(ballY-(playerY+PH/2))*0.15;ballX=10+PW+BR;
+ }
+ if(ballX+BR>W-10-PW&&ballY>aiY&&ballY<aiY+PH&&bvx>0){
+  bvx=-bvx*1.05;bvy+=(ballY-(aiY+PH/2))*0.15;ballX=W-10-PW-BR;
+ }
+ // scoring
+ if(ballX<-BR){aScore++;afterPoint();}
+ if(ballX>W+BR){pScore++;afterPoint();}
+}
+
+function afterPoint(){
+ if(pScore>=WIN_SCORE||aScore>=WIN_SCORE){
+  running=false;
+  let won=pScore>=WIN_SCORE;
+  if(won){totalWins++;localStorage.setItem('pong_wins',totalWins);_hub('pong',totalWins);}
+  updateStats();
+  let ov=document.getElementById('overlay');ov.style.display='flex';
+  ov.innerHTML=`<h2>${won?'🎉 승리!':'😢 패배...'}</h2><p>${pScore} : ${aScore}</p><p>총 승리: ${totalWins}회</p><button class="btn" onclick="startGame()">다시 하기</button>`;
+  return;
+ }
+ reset();
+}
+
+function loop(){
+ if(!running)return;
+ update();draw();animID=requestAnimationFrame(loop);
+}
+
+cv.addEventListener('mousemove',e=>{let r=cv.getBoundingClientRect();mouseY=e.clientY-r.top;});
+cv.addEventListener('touchmove',e=>{e.preventDefault();let r=cv.getBoundingClientRect();mouseY=e.touches[0].clientY-r.top;},{passive:false});
+
+function updateStats(){document.getElementById('stats').textContent='총 승리: '+totalWins+'회';}
+draw();
+</script>
+</body>
+</html>

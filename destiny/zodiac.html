@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>별자리 운세</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center}.wrap{max-width:550px;width:100%;padding:20px;text-align:center}h1{font-size:30px;margin-bottom:8px}.sub{color:#888;margin-bottom:20px}.signs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:20px 0}.sign{background:#1a1a2e;border:2px solid #333;border-radius:12px;padding:12px 8px;cursor:pointer;transition:all .2s}.sign:hover{border-color:#FFD700;transform:scale(1.05)}.sign .emoji{font-size:28px}.sign .name{font-size:12px;margin-top:4px}.sign .date{font-size:10px;color:#666;margin-top:2px}.result{background:#1a1a2e;border-radius:16px;padding:25px;border:1px solid #2a2a4a;text-align:left}.fortune-bar{display:flex;align-items:center;gap:8px;margin:8px 0}.fortune-bar .label{width:50px;font-size:12px;color:#888}.fortune-bar .bar{flex:1;height:8px;background:#252545;border-radius:4px;overflow:hidden}.fortune-bar .fill{height:100%;border-radius:4px}.btn{background:#FFD700;border:none;color:#000;padding:12px 30px;border-radius:10px;font-size:15px;cursor:pointer;margin-top:15px;font-weight:bold;width:100%}a.back{position:fixed;top:10px;left:10px;z-index:99;background:rgba(0,0,0,0.6);color:#fff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:13px}a.back:hover{background:rgba(0,0,0,0.85)}</style></head><body>
+<a class="back" href="../index.html">← 뒤로</a>
+<div class="wrap" id="app"></div>
+<script>
+const SIGNS=[
+  {name:'양자리',emoji:'♈',date:'3/21-4/19',el:'불'},
+  {name:'황소자리',emoji:'♉',date:'4/20-5/20',el:'땅'},
+  {name:'쌍둥이자리',emoji:'♊',date:'5/21-6/21',el:'바람'},
+  {name:'게자리',emoji:'♋',date:'6/22-7/22',el:'물'},
+  {name:'사자자리',emoji:'♌',date:'7/23-8/22',el:'불'},
+  {name:'처녀자리',emoji:'♍',date:'8/23-9/22',el:'땅'},
+  {name:'천칭자리',emoji:'♎',date:'9/23-10/22',el:'바람'},
+  {name:'전갈자리',emoji:'♏',date:'10/23-11/21',el:'물'},
+  {name:'사수자리',emoji:'♐',date:'11/22-12/21',el:'불'},
+  {name:'염소자리',emoji:'♑',date:'12/22-1/19',el:'땅'},
+  {name:'물병자리',emoji:'♒',date:'1/20-2/18',el:'바람'},
+  {name:'물고기자리',emoji:'♓',date:'2/19-3/20',el:'물'},
+];
+
+const FORTUNE_MSGS={
+  love:['사랑이 찾아올 예감!','현재 관계가 깊어져요','마음을 열면 좋은 인연이','솔직한 대화가 열쇠','작은 배려가 큰 감동으로','뜻밖의 만남이 기다려요','감정을 정리할 시간','이미 곁에 소중한 사람이'],
+  money:['재물운이 상승 중!','절약이 곧 투자','뜻밖의 수입이 생겨요','지출을 줄이세요','새로운 기회가 찾아와요','안정적인 재정 관리를','투자보다는 저축이 유리','협업에서 수익이 생겨요'],
+  work:['승진/합격의 기운!','새로운 도전이 기다려요','인내가 결실을 맺어요','창의적 아이디어가 빛나요','동료와의 협력이 중요','리더십을 발휘할 때','배움의 자세가 필요해요','준비한 만큼 결과가 나와요'],
+  health:['활력이 넘치는 시기','규칙적인 운동이 필요해요','충분한 수면을 취하세요','스트레스 관리가 중요','식습관을 점검해보세요','야외 활동이 도움돼요','무리하지 마세요','정기 검진을 추천해요'],
+  lucky:['빨간색','파란색','초록색','노란색','보라색','분홍색','주황색','흰색'],
+  luckyNum:['3,7','1,9','2,8','4,6','5,11','7,13','6,12','8,14'],
+};
+
+function seed(){const d=new Date();return d.getFullYear()*10000+d.getMonth()*100+d.getDate();}
+function rng(s,i){let x=(s*9301+49297+i*31)%233280;return x/233280;}
+
+function show(){
+  document.getElementById('app').innerHTML=`<h1>⭐ 오늘의 별자리 운세</h1><p class="sub">${new Date().toLocaleDateString('ko',{year:'numeric',month:'long',day:'numeric'})}</p>
+    <div class="signs">${SIGNS.map((s,i)=>`<div class="sign" onclick="fortune(${i})"><div class="emoji">${s.emoji}</div><div class="name">${s.name}</div><div class="date">${s.date}</div></div>`).join('')}</div>`;
+}
+
+function fortune(i){
+  const s=SIGNS[i],sd=seed()+i;
+  const scores={love:(rng(sd,1)*40+60)|0,money:(rng(sd,2)*40+60)|0,work:(rng(sd,3)*40+60)|0,health:(rng(sd,4)*40+60)|0};
+  const total=((scores.love+scores.money+scores.work+scores.health)/4)|0;
+  const loveMsg=FORTUNE_MSGS.love[(rng(sd,5)*8)|0];
+  const moneyMsg=FORTUNE_MSGS.money[(rng(sd,6)*8)|0];
+  const workMsg=FORTUNE_MSGS.work[(rng(sd,7)*8)|0];
+  const healthMsg=FORTUNE_MSGS.health[(rng(sd,8)*8)|0];
+  const lucky=FORTUNE_MSGS.lucky[(rng(sd,9)*8)|0];
+  const luckyNum=FORTUNE_MSGS.luckyNum[(rng(sd,10)*8)|0];
+
+  const barColor=v=>v>=80?'#4CAF50':v>=60?'#FF9800':'#F44336';
+  document.getElementById('app').innerHTML=`<div class="result">
+    <div style="text-align:center"><div style="font-size:50px">${s.emoji}</div>
+    <h2 style="margin:8px 0">${s.name}</h2>
+    <p style="color:#888;font-size:13px">${s.date} · ${s.el}의 원소</p>
+    <div style="font-size:36px;font-weight:bold;color:#FFD700;margin:12px 0">${total}점</div></div>
+    <div class="fortune-bar"><span class="label">💕 연애</span><div class="bar"><div class="fill" style="width:${scores.love}%;background:${barColor(scores.love)}"></div></div><span style="font-size:12px;color:#aaa;width:30px">${scores.love}</span></div>
+    <p style="color:#ccc;font-size:13px;margin:0 0 12px 58px">${loveMsg}</p>
+    <div class="fortune-bar"><span class="label">💰 금전</span><div class="bar"><div class="fill" style="width:${scores.money}%;background:${barColor(scores.money)}"></div></div><span style="font-size:12px;color:#aaa;width:30px">${scores.money}</span></div>
+    <p style="color:#ccc;font-size:13px;margin:0 0 12px 58px">${moneyMsg}</p>
+    <div class="fortune-bar"><span class="label">💼 직장</span><div class="bar"><div class="fill" style="width:${scores.work}%;background:${barColor(scores.work)}"></div></div><span style="font-size:12px;color:#aaa;width:30px">${scores.work}</span></div>
+    <p style="color:#ccc;font-size:13px;margin:0 0 12px 58px">${workMsg}</p>
+    <div class="fortune-bar"><span class="label">🏥 건강</span><div class="bar"><div class="fill" style="width:${scores.health}%;background:${barColor(scores.health)}"></div></div><span style="font-size:12px;color:#aaa;width:30px">${scores.health}</span></div>
+    <p style="color:#ccc;font-size:13px;margin:0 0 12px 58px">${healthMsg}</p>
+    <div style="display:flex;gap:10px;justify-content:center;margin:15px 0">
+      <div style="background:#252545;padding:10px 18px;border-radius:10px;font-size:13px">🎨 행운 색: <b style="color:#FFD700">${lucky}</b></div>
+      <div style="background:#252545;padding:10px 18px;border-radius:10px;font-size:13px">🔢 행운 수: <b style="color:#FFD700">${luckyNum}</b></div>
+    </div>
+    <button class="btn" onclick="show()">다른 별자리 보기</button></div>`;
+}
+show();
+</script></body></html>

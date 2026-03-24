@@ -1,0 +1,42 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>관상 테스트</title><style>*{margin:0;padding:0;box-sizing:border-box}body{min-height:100vh;background:linear-gradient(135deg,#0a0a1a,#1a0a2e,#0a1a2e);color:#e0d0ff;font-family:'Segoe UI',sans-serif;display:flex;flex-direction:column;align-items:center;padding:20px}h1{margin:30px 0 10px;font-size:2em;text-shadow:0 0 20px rgba(150,100,255,.5)}.sub{color:#9988bb;margin-bottom:20px}.step{display:none;max-width:500px;width:100%;text-align:center;animation:fadeIn .5s}.step.active{display:block}.step h2{margin-bottom:20px;font-size:1.2em}.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px}.opt{background:rgba(255,255,255,.06);border:1px solid rgba(150,100,255,.15);border-radius:14px;padding:18px 12px;cursor:pointer;transition:all .3s;text-align:center}.opt:hover{background:rgba(150,100,255,.15);transform:translateY(-3px)}.opt .emo{font-size:2.2em;display:block;margin-bottom:8px}.progress{display:flex;gap:6px;margin:20px 0}.dot{width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,.15)}.dot.done{background:#6a3de8}.dot.cur{background:#e84de8;box-shadow:0 0 8px #e84de8}.result{display:none;max-width:500px;width:100%;animation:fadeIn .8s}.rbox{background:rgba(255,255,255,.05);border:1px solid rgba(150,100,255,.15);border-radius:16px;padding:25px;line-height:1.8;text-align:center}button{background:linear-gradient(135deg,#6a3de8,#4a2db8);color:#fff;border:none;padding:12px 28px;border-radius:12px;font-size:1em;cursor:pointer;margin-top:15px;transition:all .3s}button:hover{transform:scale(1.05)}@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}</style></head><body>
+<a href="../index.html" style="position:fixed;top:10px;left:10px;z-index:9999;background:rgba(0,0,0,0.6);color:#fff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:13px;font-family:sans-serif" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<h1>👤 관상 테스트</h1><p class="sub">얼굴 특징으로 알아보는 성격과 운세</p>
+<div class="progress" id="prog"></div>
+<div id="steps"></div>
+<div class="result" id="result"></div>
+<script>
+const questions=[
+{q:'얼굴형을 선택하세요',opts:[{e:'🥚',t:'계란형',v:0},{e:'🔵',t:'둥근형',v:1},{e:'🔷',t:'각진형',v:2},{e:'🔻',t:'역삼각형',v:3}]},
+{q:'눈 모양을 선택하세요',opts:[{e:'👁️',t:'큰 눈',v:0},{e:'🌙',t:'가는 눈',v:1},{e:'🔘',t:'동그란 눈',v:2},{e:'🐱',t:'고양이 눈',v:3}]},
+{q:'코 모양을 선택하세요',opts:[{e:'📐',t:'높은 코',v:0},{e:'🔵',t:'둥근 코',v:1},{e:'📏',t:'곧은 코',v:2},{e:'🔽',t:'작은 코',v:3}]},
+{q:'입 모양을 선택하세요',opts:[{e:'👄',t:'도톰한 입술',v:0},{e:'➖',t:'얇은 입술',v:1},{e:'😊',t:'올라간 입꼬리',v:2},{e:'😐',t:'일자 입',v:3}]},
+{q:'이마를 선택하세요',opts:[{e:'📐',t:'넓은 이마',v:0},{e:'📏',t:'좁은 이마',v:1},{e:'🔵',t:'둥근 이마',v:2},{e:'📦',t:'평평한 이마',v:3}]}
+];
+const readings=[
+{type:'리더형',emoji:'👑',desc:'타고난 리더의 관상입니다. 결단력과 카리스마가 얼굴에 드러나 있습니다. 높은 자리에 오를 운명이며, 주변 사람들이 자연스럽게 따릅니다.',love:72,money:85,health:75,work:95},
+{type:'예술가형',emoji:'🎨',desc:'예술적 감수성이 뛰어난 관상입니다. 창의적이고 독특한 시각을 가지고 있으며, 아름다움을 추구합니다. 예술 분야에서 큰 성공을 거둘 수 있습니다.',love:85,money:65,health:70,work:80},
+{type:'학자형',emoji:'📚',desc:'지적이고 분석적인 관상입니다. 깊은 통찰력과 학문적 재능이 있습니다. 연구나 전문직에서 두각을 나타냅니다.',love:60,money:75,health:80,work:88},
+{type:'복덕형',emoji:'🍀',desc:'복과 덕이 가득한 관상입니다! 재물운이 특히 좋으며, 주변 사람들에게도 행운을 가져다줍니다. 넉넉하고 여유로운 인생을 살 것입니다.',love:80,money:95,health:85,work:75},
+{type:'매력형',emoji:'💫',desc:'인간관계의 달인! 매력적인 관상으로 사람들을 끌어당깁니다. 연애운이 특히 강하며, 사교 활동에서 빛을 발합니다.',love:95,money:70,health:72,work:78},
+{type:'강인형',emoji:'💪',desc:'강인하고 의지가 굳은 관상입니다. 어떤 역경에도 굴하지 않는 힘이 있으며, 끈기와 인내로 목표를 달성합니다.',love:65,money:80,health:90,work:85}
+];
+let cur=0,ans=[];
+const stepsEl=document.getElementById('steps'),progEl=document.getElementById('prog');
+function render(){
+progEl.innerHTML='';
+for(let i=0;i<questions.length;i++){const d=document.createElement('div');d.className='dot'+(i<cur?' done':'')+(i===cur?' cur':'');progEl.appendChild(d)}
+stepsEl.innerHTML='';
+if(cur>=questions.length){showResult();return}
+const q=questions[cur],step=document.createElement('div');step.className='step active';
+step.innerHTML=`<h2>${q.q}</h2><div class="opts">${q.opts.map(o=>`<div class="opt" onclick="pick(${o.v})"><span class="emo">${o.e}</span>${o.t}</div>`).join('')}</div>`;
+stepsEl.appendChild(step)}
+function pick(v){ans.push(v);cur++;render()}
+function showResult(){
+const sum=ans.reduce((a,b)=>a+b,0);const idx=sum%readings.length;const rd=readings[idx];
+function sr(s){let h=0;for(let i=0;i<s.length;i++)h=((h<<5)-h)+s.charCodeAt(i),h|=0;return function(){h^=h<<13;h^=h>>17;h^=h<<5;return(h>>>0)/4294967296}}
+const r=sr(ans.join('')+new Date().toDateString());
+const el=document.getElementById('result');
+el.innerHTML=`<div class="rbox"><p style="font-size:3em">${rd.emoji}</p><h2 style="margin:10px 0;font-size:1.5em">${rd.type}</h2><p style="margin:15px 0">${rd.desc}</p><hr style="border-color:rgba(150,100,255,.15);margin:15px 0"><h3>📊 운세 점수</h3><p>💕 연애운: ${rd.love}점 | 💰 금전운: ${rd.money}점</p><p>💪 건강운: ${rd.health}점 | 💼 직장운: ${rd.work}점</p><br><p>🔢 행운의 숫자: ${Math.floor(r()*99)+1}</p><p>🎨 행운의 색: ${['빨강','파랑','초록','노랑','보라','분홍'][Math.floor(r()*6)]}</p></div><br><button onclick="cur=0;ans=[];document.getElementById('result').style.display='none';render()">다시 하기</button>`;
+el.style.display='block';stepsEl.innerHTML=''}
+render();
+</script></body></html>

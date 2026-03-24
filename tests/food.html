@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>음식 성격 테스트</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px}
+.card{background:#1a1a2e;border-radius:16px;padding:30px;max-width:500px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.4);text-align:center}
+h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-size:.9em}
+.progress{height:6px;background:#2a2a3e;border-radius:3px;margin-bottom:24px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#ff7675,#fab1a0);transition:width .3s;width:0}
+.question{font-size:1.1em;margin-bottom:18px;line-height:1.5}
+.pair{display:flex;gap:10px;margin:8px 0}
+.pair .btn{flex:1;padding:16px 12px;font-size:1.1em}
+.btn{display:block;width:100%;padding:12px;margin:8px 0;background:#2a2a3e;border:none;color:#e0e0e0;border-radius:10px;font-size:.95em;cursor:pointer;transition:background .2s}
+.btn:hover{background:#3a3a5e}
+.start-btn{background:linear-gradient(135deg,#ff7675,#fab1a0);color:#1a1a2e;font-size:1.1em;padding:14px;margin-top:16px;font-weight:bold}
+.start-btn:hover{opacity:.9}
+.emoji{font-size:4em;margin:16px 0}.result-type{font-size:1.4em;font-weight:bold;color:#fab1a0;margin-bottom:12px}
+.result-desc{color:#bbb;line-height:1.7;margin-bottom:20px;font-size:.95em}.hidden{display:none}
+</style></head><body>
+<a href="../index.html" style="position:fixed;top:10px;left:10px;z-index:9999;background:rgba(0,0,0,0.6);color:#fff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:13px;font-family:sans-serif" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<div class="card">
+<div id="intro">
+<div style="font-size:3em;margin-bottom:10px">🍕</div>
+<h1>음식 성격 테스트</h1>
+<p class="sub">좋아하는 음식으로 알아보는 내 성격!</p>
+<button class="btn start-btn" onclick="startQuiz()">테스트 시작하기</button>
+</div>
+<div id="quiz" class="hidden">
+<div class="progress"><div class="progress-fill" id="prog"></div></div>
+<div class="question" id="qText"></div>
+<div id="opts"></div>
+</div>
+<div id="result" class="hidden">
+<div class="emoji" id="rEmoji"></div>
+<div class="result-type" id="rType"></div>
+<div class="result-desc" id="rDesc"></div>
+<button class="btn start-btn" onclick="location.reload()">다시 하기</button>
+</div>
+</div>
+<script>
+const questions=[
+{q:"둘 중 하나만 고른다면?",a:[["🍕 피자","adv"],["🍚 집밥","com"]]},
+{q:"더 끌리는 맛은?",a:[["🌶️ 매운맛","pas"],["🍬 단맛","rom"]]},
+{q:"오늘 점심은?",a:[["🍣 초밥","per"],["🍔 햄버거","adv"]]},
+{q:"디저트를 고른다면?",a:[["🍰 케이크","rom"],["🍪 쿠키","com"]]},
+{q:"여행지에서?",a:[["🦐 현지 음식 도전","adv"],["🍝 익숙한 음식","com"]]},
+{q:"라면 스타일은?",a:[["🔥 불닭볶음면","pas"],["🍜 순한 라면","per"]]},
+{q:"치킨을 시킨다면?",a:[["🍗 양념치킨","pas"],["🍗 후라이드치킨","per"]]},
+{q:"아침 음료는?",a:[["☕ 아메리카노","per"],["🥤 달달한 라떼","rom"]]}
+];
+const types={adv:{e:"🌮",n:"모험가형",d:"새로운 음식에 도전하는 것을 즐기는 당신! 호기심이 많고 개방적인 성격으로, 삶에서도 새로운 경험을 추구해요. 두려움 없이 도전하는 용감한 사람입니다!"},
+com:{e:"🍚",n:"안정추구형",d:"익숙하고 편안한 음식을 좋아하는 당신! 신뢰감 있고 꾸준한 성격이에요. 변화보다 안정을 중시하며, 주변 사람들에게 든든한 존재입니다."},
+pas:{e:"🌶️",n:"열정가형",d:"강렬한 맛을 좋아하는 당신! 열정적이고 에너지 넘치는 성격이에요. 뭐든 화끈하게 해내며, 주변에 활력을 불어넣는 사람입니다!"},
+rom:{e:"🍰",n:"로맨티스트형",d:"달콤한 음식을 사랑하는 당신! 감성적이고 낭만적인 성격이에요. 아름다운 것을 좋아하고, 주변 사람들에게 따뜻한 사랑을 나누는 사람입니다."},
+per:{e:"🍣",n:"완벽주의형",d:"깔끔하고 정갈한 음식을 선호하는 당신! 섬세하고 꼼꼼한 성격이에요. 품질을 중시하며, 모든 일에 최선을 다하는 프로페셔널입니다."}};
+let cur=0,scores={};
+function startQuiz(){document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();}
+function showQ(){const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';const d=document.createElement('div');d.className='pair';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=()=>pick(a[1]);d.appendChild(b);});o.appendChild(d);}
+function pick(t){scores[t]=(scores[t]||0)+1;cur++;if(cur<questions.length)showQ();else showResult();}
+function showResult(){const top=Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];const r=types[top];document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');document.getElementById('rEmoji').textContent=r.e;document.getElementById('rType').textContent=r.n;document.getElementById('rDesc').textContent=r.d;}
+</script></body></html>

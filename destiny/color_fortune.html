@@ -1,0 +1,30 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>오늘의 색 운세</title><style>*{margin:0;padding:0;box-sizing:border-box}body{min-height:100vh;background:linear-gradient(135deg,#0a0a1a,#1a0a2e,#0a1a2e);color:#e0d0ff;font-family:'Segoe UI',sans-serif;display:flex;flex-direction:column;align-items:center;padding:20px}h1{margin:30px 0 10px;font-size:2em;text-shadow:0 0 20px rgba(255,150,200,.5)}.sub{color:#9988bb;margin-bottom:25px}button{background:linear-gradient(135deg,#e84d9e,#b83d7e);color:#fff;border:none;padding:14px 35px;border-radius:12px;font-size:1.1em;cursor:pointer;margin:20px 0;transition:all .3s}button:hover{transform:scale(1.05);box-shadow:0 0 25px rgba(232,77,158,.4)}.result{display:none;max-width:500px;width:100%;animation:fadeIn .8s;margin-top:15px}.rbox{background:rgba(255,255,255,.05);border:1px solid rgba(255,150,200,.15);border-radius:16px;padding:25px;line-height:1.8;text-align:center}.color-circle{width:150px;height:150px;border-radius:50%;margin:20px auto;box-shadow:0 0 40px rgba(255,255,255,.2);transition:all 1s}.compat-colors{display:flex;gap:10px;justify-content:center;margin:15px 0;flex-wrap:wrap}.compat-dot{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7em;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.5)}@keyframes fadeIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}</style></head><body>
+<a href="../index.html" style="position:fixed;top:10px;left:10px;z-index:9999;background:rgba(0,0,0,0.6);color:#fff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:13px;font-family:sans-serif" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<h1>🎨 오늘의 색 운세</h1><p class="sub">오늘 당신에게 행운을 가져다 줄 색은?</p>
+<button id="btn" onclick="generate()">🌈 오늘의 행운 색 확인</button>
+<div class="result" id="result"></div>
+<script>
+const colors=[
+{n:'빨강',hex:'#e84040',meaning:'열정과 에너지의 색. 오늘은 적극적으로 행동하면 좋은 결과가 있습니다.',wear:'빨간 양말이나 빨간 포인트 액세서리를 착용하세요.',compat:['주황','분홍','금색'],love:85,money:75,health:70,work:82},
+{n:'주황',hex:'#e88030',meaning:'활력과 창의력의 색. 새로운 아이디어가 떠오르는 날입니다.',wear:'주황색 머플러나 주황 톤의 립밤을 사용해보세요.',compat:['빨강','노랑','갈색'],love:78,money:80,health:75,work:78},
+{n:'노랑',hex:'#e8d030',meaning:'희망과 지성의 색. 밝은 에너지로 주변을 환하게 만드세요.',wear:'노란색 카디건이나 노란 핸드폰 케이스가 행운을 가져옵니다.',compat:['주황','초록','흰색'],love:75,money:85,health:78,work:80},
+{n:'초록',hex:'#30b830',meaning:'성장과 치유의 색. 마음의 평화를 찾고 건강에 좋은 날입니다.',wear:'초록색 상의나 식물 무늬 아이템을 추천합니다.',compat:['파랑','노랑','갈색'],love:72,money:78,health:92,work:75},
+{n:'파랑',hex:'#3060e8',meaning:'신뢰와 지혜의 색. 중요한 결정을 내리기에 좋은 날입니다.',wear:'파란 셔츠나 파란 넥타이가 신뢰감을 높여줍니다.',compat:['초록','보라','흰색'],love:68,money:82,health:78,work:90},
+{n:'남색',hex:'#1a1a80',meaning:'직감과 통찰의 색. 내면의 목소리에 귀를 기울이세요.',wear:'남색 블레이저나 진한 데님이 잘 어울립니다.',compat:['보라','파랑','은색'],love:70,money:75,health:80,work:85},
+{n:'보라',hex:'#8830e8',meaning:'신비와 영감의 색. 창의적인 활동에 최적인 날입니다.',wear:'보라색 스카프나 보라 톤 액세서리를 착용하세요.',compat:['남색','분홍','은색'],love:82,money:72,health:75,work:80},
+{n:'분홍',hex:'#e870a0',meaning:'사랑과 부드러움의 색. 연애운이 빛나는 날입니다!',wear:'분홍색 상의나 분홍 립스틱이 매력을 높여줍니다.',compat:['빨강','보라','흰색'],love:95,money:68,health:78,work:70},
+{n:'흰색',hex:'#e8e8e8',meaning:'순수와 새 시작의 색. 깨끗한 마음으로 새 출발하세요.',wear:'흰 셔츠나 흰 운동화가 상쾌한 기운을 줍니다.',compat:['파랑','분홍','노랑'],love:75,money:78,health:85,work:78},
+{n:'금색',hex:'#d4a832',meaning:'풍요와 성공의 색. 재물운이 빛나는 특별한 날입니다!',wear:'금색 액세서리나 골드 톤 시계를 착용하세요.',compat:['빨강','주황','갈색'],love:72,money:95,health:75,work:88},
+{n:'은색',hex:'#b0b0c0',meaning:'우아와 직감의 색. 고급스러운 선택이 행운을 가져옵니다.',wear:'실버 주얼리나 은색 가방이 운을 높여줍니다.',compat:['보라','남색','흰색'],love:78,money:85,health:80,work:82},
+{n:'갈색',hex:'#8b5e3c',meaning:'안정과 신뢰의 색. 든든한 하루가 될 것입니다.',wear:'갈색 가죽 벨트나 갈색 구두가 안정감을 줍니다.',compat:['초록','주황','금색'],love:68,money:80,health:82,work:78}
+];
+function sr(s){let h=0;for(let i=0;i<s.length;i++)h=((h<<5)-h)+s.charCodeAt(i),h|=0;return function(){h^=h<<13;h^=h>>17;h^=h<<5;return(h>>>0)/4294967296}}
+function generate(){
+const d=new Date(),ds=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+const r=sr(ds+'color'),idx=Math.floor(r()*colors.length),c=colors[idx];
+const lucky=Math.floor(r()*99)+1;
+const el=document.getElementById('result');
+el.innerHTML=`<div class="rbox"><p style="font-size:.9em;color:#9988bb">${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일의 행운 색</p><div class="color-circle" style="background:${c.hex}"></div><h2 style="font-size:1.8em;color:${c.hex}">${c.n}</h2><br><p>🎨 <b>의미:</b> ${c.meaning}</p><br><p>👗 <b>오늘 뭘 입을까?</b></p><p>${c.wear}</p><br><h3>🤝 어울리는 색</h3><div class="compat-colors">${c.compat.map(cn=>{const cc=colors.find(x=>x.n===cn);return`<div class="compat-dot" style="background:${cc?cc.hex:'#888'}">${cn}</div>`}).join('')}</div><hr style="border-color:rgba(255,150,200,.1);margin:15px 0"><h3>📊 오늘의 운세</h3><p>💕 연애운: ${c.love}점 | 💰 금전운: ${c.money}점</p><p>💪 건강운: ${c.health}점 | 💼 직장운: ${c.work}점</p><br><p>🔢 행운의 숫자: ${lucky}</p></div><br><button onclick="document.getElementById('result').style.display='none';window.scrollTo({top:0,behavior:'smooth'})">다시 하기</button>`;
+el.style.display='block';el.scrollIntoView({behavior:'smooth'})}
+generate();
+</script></body></html>

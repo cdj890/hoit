@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>슬라이딩 퍼즐</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;overflow:hidden;user-select:none}
+#wrap{text-align:center}
+h1{font-size:36px;margin-bottom:6px;color:#a29bfe}
+.sub{font-size:14px;color:#aaa;margin-bottom:12px}
+#info{font-size:15px;margin-bottom:10px;color:#dfe6e9;display:flex;justify-content:center;gap:20px}
+#board{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:12px;background:rgba(255,255,255,0.04);border-radius:16px;width:320px;margin:0 auto}
+.tile{width:68px;height:68px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:bold;cursor:pointer;transition:all .15s ease}
+.tile-num{background:linear-gradient(135deg,#a29bfe,#6c5ce7);color:#fff;box-shadow:0 2px 8px rgba(108,92,231,0.3)}
+.tile-num:hover{transform:scale(1.05);box-shadow:0 4px 14px rgba(108,92,231,0.45)}
+.tile-empty{background:rgba(255,255,255,0.03)}
+.tile-correct{background:linear-gradient(135deg,#00b894,#00a381)!important;box-shadow:0 2px 8px rgba(0,184,148,0.3)!important}
+#overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,15,30,0.92);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100}
+#overlay h2{font-size:32px;margin-bottom:12px;color:#a29bfe}
+#overlay p{font-size:16px;color:#dfe6e9;margin-bottom:6px}
+.btn{display:inline-block;margin-top:16px;padding:12px 32px;background:#6c5ce7;color:#fff;border:none;border-radius:12px;font-size:16px;cursor:pointer;font-weight:bold}
+.btn:hover{background:#5f27cd}
+#hi{font-size:13px;color:#636e72;margin-top:8px}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:10px;left:10px;z-index:9999;background:rgba(0,0,0,0.6);color:#fff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:13px;font-family:sans-serif" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<script>function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));if(h.nick){const lb=JSON.parse(localStorage.getItem('game_leaderboard')||'{}');if(!lb[id])lb[id]=[];const e=lb[id].find(x=>x.nick===h.nick);if(e){if(s>e.score){e.score=s;e.date=new Date().toLocaleDateString('ko');}}else lb[id].push({nick:h.nick,score:s,date:new Date().toLocaleDateString('ko')});lb[id].sort((a,b)=>b.score-a.score);lb[id]=lb[id].slice(0,20);localStorage.setItem('game_leaderboard',JSON.stringify(lb));}}</script>
+
+<div id="wrap">
+<div id="overlay">
+<h2>🧩 슬라이딩 퍼즐</h2>
+<p>숫자 타일을 밀어서 1~15 순서로 맞추세요!</p>
+<p style="font-size:13px;color:#b2bec3">빈 칸 옆의 타일을 클릭하여 이동</p>
+<button class="btn" onclick="startGame()">게임 시작</button>
+</div>
+<h1>🧩 슬라이딩 퍼즐</h1>
+<div class="sub">타일을 밀어 순서대로 맞추세요!</div>
+<div id="info"><span>이동: <span id="moves">0</span></span><span>⏱ <span id="timer">0</span>초</span></div>
+<div id="board"></div>
+<div id="hi"></div>
+</div>
+
+<script>
+const FACES=['😊','😄','😆','😁','🤩','😎','🥳','😍','🤗','💖','⭐','🌟','✨','🎀','🎪'];
+let tiles,emptyIdx,moves,seconds,timerID,gameOver;
+
+function isSolvable(arr){
+ let inv=0;
+ let flat=arr.filter(x=>x!==0);
+ for(let i=0;i<flat.length;i++)for(let j=i+1;j<flat.length;j++)if(flat[i]>flat[j])inv++;
+ let emptyRow=Math.floor(arr.indexOf(0)/4);
+ // for 4x4: solvable if (inv + emptyRow from bottom) is even
+ let emptyFromBottom=3-emptyRow;
+ return (inv+emptyFromBottom)%2===0;
+}
+
+function shuffle(){
+ let arr;
+ do{
+  arr=[...Array(16).keys()];// 0-15, 0=empty
+  for(let i=arr.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
+ }while(!isSolvable(arr)||isSolved(arr));
+ return arr;
+}
+
+function isSolved(t){
+ for(let i=0;i<15;i++)if(t[i]!==i+1)return false;
+ return t[15]===0;
+}
+
+function startGame(){
+ document.getElementById('overlay').style.display='none';
+ tiles=shuffle();emptyIdx=tiles.indexOf(0);moves=0;seconds=0;gameOver=false;
+ clearInterval(timerID);
+ timerID=setInterval(()=>{if(!gameOver){seconds++;document.getElementById('timer').textContent=seconds;}},1000);
+ document.getElementById('moves').textContent='0';
+ document.getElementById('timer').textContent='0';
+ render();
+}
+
+function clickTile(idx){
+ if(gameOver)return;
+ let r=Math.floor(idx/4),c=idx%4;
+ let er=Math.floor(emptyIdx/4),ec=emptyIdx%4;
+ if((Math.abs(r-er)+Math.abs(c-ec))!==1)return;
+ tiles[emptyIdx]=tiles[idx];tiles[idx]=0;emptyIdx=idx;
+ moves++;document.getElementById('moves').textContent=moves;
+ render();
+ if(isSolved(tiles)){
+  gameOver=true;clearInterval(timerID);
+  let score=Math.max(0,10000-moves*10-seconds*5);
+  let hi=parseInt(localStorage.getItem('slide_hi')||'0');
+  if(score>hi){hi=score;localStorage.setItem('slide_hi',hi);}
+  document.getElementById('hi').textContent='최고 점수: '+hi;
+  _hub('sliding',score);
+  setTimeout(()=>{
+   let ov=document.getElementById('overlay');ov.style.display='flex';
+   ov.innerHTML=`<h2>🎉 완성!</h2><p>이동: ${moves}회 | 시간: ${seconds}초</p><p style="font-size:20px;color:#ffeaa7;margin:4px 0">점수: ${score}</p><p style="font-size:13px;color:#b2bec3">최고 점수: ${hi}</p><button class="btn" onclick="startGame()">다시 하기</button>`;
+  },400);
+ }
+}
+
+function render(){
+ const b=document.getElementById('board');b.innerHTML='';
+ tiles.forEach((v,i)=>{
+  let d=document.createElement('div');
+  d.className='tile';
+  if(v===0){
+   d.className+=' tile-empty';
+  }else{
+   d.className+=' tile-num';
+   if(v===i+1)d.className+=' tile-correct';
+   d.innerHTML=`<div><div style="font-size:12px;line-height:1">${FACES[v-1]}</div><div>${v}</div></div>`;
+   d.addEventListener('click',()=>clickTile(i));
+  }
+  b.appendChild(d);
+ });
+}
+
+// keyboard support
+document.addEventListener('keydown',e=>{
+ if(gameOver)return;
+ let er=Math.floor(emptyIdx/4),ec=emptyIdx%4,ti=-1;
+ if(e.key==='ArrowUp'&&er<3)ti=(er+1)*4+ec;
+ else if(e.key==='ArrowDown'&&er>0)ti=(er-1)*4+ec;
+ else if(e.key==='ArrowLeft'&&ec<3)ti=er*4+(ec+1);
+ else if(e.key==='ArrowRight'&&ec>0)ti=er*4+(ec-1);
+ if(ti>=0){e.preventDefault();clickTile(ti);}
+});
+</script>
+</body>
+</html>

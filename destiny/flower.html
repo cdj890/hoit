@@ -1,0 +1,29 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>꽃 운세</title><style>*{margin:0;padding:0;box-sizing:border-box}body{min-height:100vh;background:linear-gradient(135deg,#0a0a1a,#1a0a2e,#1a0a1a);color:#e0d0ff;font-family:'Segoe UI',sans-serif;display:flex;flex-direction:column;align-items:center;padding:20px}h1{margin:30px 0 10px;font-size:2em;text-shadow:0 0 20px rgba(255,150,200,.5)}.sub{color:#bb88aa;margin-bottom:25px}.months{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:420px;width:100%;margin:20px 0}.month{background:rgba(255,255,255,.05);border:1px solid rgba(255,150,200,.15);border-radius:14px;padding:14px 8px;text-align:center;cursor:pointer;transition:all .3s;font-size:.9em}.month:hover{background:rgba(255,150,200,.12);transform:translateY(-3px)}.month .emo{font-size:1.8em;display:block;margin-bottom:4px}.result{display:none;max-width:500px;width:100%;animation:fadeIn .8s;margin-top:20px}.rbox{background:linear-gradient(135deg,rgba(255,150,200,.06),rgba(150,100,255,.04));border:1px solid rgba(255,150,200,.15);border-radius:18px;padding:25px;line-height:1.8;text-align:center}.bigflower{font-size:5em;margin:10px 0}.rbox h2{color:#ffb0d0}button{background:linear-gradient(135deg,#e84d9e,#b83d7e);color:#fff;border:none;padding:12px 28px;border-radius:12px;font-size:1em;cursor:pointer;margin-top:15px;transition:all .3s}button:hover{transform:scale(1.05)}@keyframes fadeIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}</style></head><body>
+<a href="../index.html" style="position:fixed;top:10px;left:10px;z-index:9999;background:rgba(0,0,0,0.6);color:#fff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:13px;font-family:sans-serif" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<h1>🌸 꽃 운세</h1><p class="sub">태어난 달을 선택하세요</p>
+<div class="months" id="months"></div>
+<div class="result" id="result"></div>
+<script>
+const flowers=[
+{m:1,e:'❄️',f:'스노드롭',fl:'🤍',lang:'희망, 위로',desc:'겨울 추위를 뚫고 피는 첫 꽃처럼, 당신은 어려움 속에서도 희망을 잃지 않는 강인한 사람입니다.',fortune:'희망을 품으면 반드시 이루어집니다. 어둠 뒤에 빛이 기다리고 있어요.',love:75,money:70,health:72,work:80},
+{m:2,e:'💜',f:'제비꽃',fl:'💟',lang:'겸손, 성실',desc:'소박하지만 아름다운 제비꽃처럼, 당신은 겸손하고 성실한 성품을 지녔습니다.',fortune:'성실한 노력이 보상받는 시기입니다. 묵묵히 걸어온 길이 빛을 발합니다.',love:80,money:78,health:75,work:85},
+{m:3,e:'🌷',f:'튤립',fl:'🌷',lang:'사랑의 고백, 매력',desc:'화사한 튤립처럼 당신은 매력적이고 사랑스러운 사람입니다. 주변을 밝게 만드는 힘이 있어요.',fortune:'사랑의 기운이 가득한 시기! 마음을 표현하면 좋은 결과가 있습니다.',love:92,money:68,health:78,work:72},
+{m:4,e:'🌼',f:'데이지',fl:'🌼',lang:'순수, 희망',desc:'맑고 순수한 데이지처럼 당신은 긍정적이고 밝은 에너지를 가지고 있습니다.',fortune:'순수한 마음이 행운을 가져옵니다. 진실된 태도로 임하세요.',love:82,money:72,health:80,work:75},
+{m:5,e:'🌺',f:'은방울꽃',fl:'🔔',lang:'행복의 귀환, 순결',desc:'은방울꽃의 청초한 아름다움처럼, 당신은 깊은 내면의 아름다움을 가진 사람입니다.',fortune:'행복이 돌아오는 시기입니다. 소중한 것들을 다시 만나게 될 거예요.',love:85,money:75,health:82,work:78},
+{m:6,e:'🌹',f:'장미',fl:'🌹',lang:'사랑, 열정',desc:'장미처럼 아름답고 열정적인 당신! 사랑과 아름다움의 상징이며, 강한 카리스마를 지녔습니다.',fortune:'열정을 발산할 때입니다! 사랑에서도 일에서도 뜨거운 결과가 기다립니다.',love:95,money:78,health:70,work:82},
+{m:7,e:'🪻',f:'라벤더',fl:'💜',lang:'기다림, 침묵의 사랑',desc:'은은한 향기의 라벤더처럼, 당신은 차분하고 깊은 매력을 가진 사람입니다.',fortune:'조용한 기다림이 결실을 맺습니다. 차분하게 때를 기다리세요.',love:78,money:70,health:88,work:75},
+{m:8,e:'🌻',f:'해바라기',fl:'🌻',lang:'동경, 숭배',desc:'태양을 향해 자라는 해바라기처럼, 당신은 밝고 긍정적인 에너지로 가득합니다.',fortune:'밝은 에너지가 좋은 일을 끌어당깁니다. 자신감을 가지세요!',love:80,money:82,health:85,work:80},
+{m:9,e:'🌾',f:'아스터',fl:'💗',lang:'추억, 신뢰',desc:'가을의 아스터처럼, 당신은 깊은 신뢰감을 주는 사람입니다. 성숙하고 지혜롭습니다.',fortune:'축적된 경험이 빛을 발하는 시기. 당신의 지혜를 나누어주세요.',love:75,money:85,health:78,work:88},
+{m:10,e:'🏵️',f:'금잔화',fl:'🧡',lang:'이별의 슬픔, 인내',desc:'가을빛 금잔화처럼, 당신은 인내력이 강하고 끈기 있는 사람입니다.',fortune:'인내의 결실을 거두는 때입니다. 포기하지 않은 것들이 보상받습니다.',love:68,money:80,health:75,work:85},
+{m:11,e:'🌺',f:'국화',fl:'💛',lang:'고결, 절개',desc:'서리 속에서도 피는 국화처럼, 당신은 고결하고 의지가 강한 사람입니다.',fortune:'굳건한 의지가 성공을 이끕니다. 자신의 신념을 지키세요.',love:72,money:78,health:80,work:82},
+{m:12,e:'🎄',f:'포인세티아',fl:'❤️',lang:'축복, 기쁨',desc:'겨울을 밝히는 포인세티아처럼, 당신은 주변에 따뜻함과 기쁨을 선사하는 사람입니다.',fortune:'축복과 기쁨이 가득한 시기! 사랑하는 사람들과 함께하세요.',love:88,money:75,health:78,work:72}
+];
+function sr(s){let h=0;for(let i=0;i<s.length;i++)h=((h<<5)-h)+s.charCodeAt(i),h|=0;return function(){h^=h<<13;h^=h>>17;h^=h<<5;return(h>>>0)/4294967296}}
+const container=document.getElementById('months');
+flowers.forEach(f=>{const el=document.createElement('div');el.className='month';el.innerHTML=`<span class="emo">${f.e}</span>${f.m}월`;el.onclick=()=>show(f.m-1);container.appendChild(el)});
+function show(i){
+const f=flowers[i],r=sr(f.f+new Date().toDateString()),lucky=Math.floor(r()*99)+1;
+const el=document.getElementById('result');
+el.innerHTML=`<div class="rbox"><div class="bigflower">${f.fl}</div><h2>${f.m}월의 탄생화: ${f.f}</h2><p style="color:#ffb0d0;font-size:1.1em;margin:8px 0">꽃말: ${f.lang}</p><br><p>${f.desc}</p><br><p>🔮 <b>오늘의 꽃 운세</b></p><p style="margin:8px 0">${f.fortune}</p><hr style="border-color:rgba(255,150,200,.15);margin:15px 0"><p>💕 연애운: ${f.love}점 | 💰 금전운: ${f.money}점</p><p>💪 건강운: ${f.health}점 | 💼 직장운: ${f.work}점</p><br><p>🔢 행운의 숫자: ${lucky}</p><p>🎨 행운의 색: ${['분홍','빨강','하늘색','노랑','보라','초록'][Math.floor(r()*6)]}</p></div><br><button onclick="document.getElementById('result').style.display='none';window.scrollTo({top:0,behavior:'smooth'})">다시 하기</button>`;
+el.style.display='block';el.scrollIntoView({behavior:'smooth'})}
+</script></body></html>

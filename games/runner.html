@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>달려라!</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;overflow:hidden;user-select:none}
+#wrap{text-align:center;position:relative}
+canvas{border-radius:16px;display:block;margin:0 auto}
+#overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(15,15,30,0.92);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10}
+#overlay h2{font-size:36px;margin-bottom:12px;color:#00b894}
+#overlay p{font-size:16px;color:#dfe6e9;margin-bottom:6px}
+.btn{display:inline-block;margin-top:16px;padding:12px 32px;background:#00b894;color:#fff;border:none;border-radius:12px;font-size:16px;cursor:pointer;font-weight:bold}
+.btn:hover{background:#00a381}
+#hi{font-size:13px;color:#636e72;margin-top:8px}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:10px;left:10px;z-index:9999;background:rgba(0,0,0,0.6);color:#fff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:13px;font-family:sans-serif" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<script>function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));if(h.nick){const lb=JSON.parse(localStorage.getItem('game_leaderboard')||'{}');if(!lb[id])lb[id]=[];const e=lb[id].find(x=>x.nick===h.nick);if(e){if(s>e.score){e.score=s;e.date=new Date().toLocaleDateString('ko');}}else lb[id].push({nick:h.nick,score:s,date:new Date().toLocaleDateString('ko')});lb[id].sort((a,b)=>b.score-a.score);lb[id]=lb[id].slice(0,20);localStorage.setItem('game_leaderboard',JSON.stringify(lb));}}</script>
+
+<div id="wrap">
+<div id="overlay">
+<h2>🏃 달려라!</h2>
+<p>장애물을 피해 끝없이 달리세요!</p>
+<p style="font-size:13px;color:#b2bec3">스페이스바 / 클릭 / 터치로 점프</p>
+<button class="btn" onclick="startGame()">게임 시작</button>
+</div>
+<canvas id="cv" width="600" height="300"></canvas>
+<div id="hi"></div>
+</div>
+
+<script>
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+const W=600,H=300,GROUND=H-50,GRAVITY=0.7,JUMP=-13;
+let px,py,vy,jumping,score,speed,obstacles,particles,running,frame;
+
+function startGame(){
+ document.getElementById('overlay').style.display='none';
+ px=80;py=GROUND;vy=0;jumping=false;score=0;speed=5;
+ obstacles=[];particles=[];running=true;frame=0;
+ loop();
+}
+
+function jump(){
+ if(!running)return;
+ if(!jumping){vy=JUMP;jumping=true;}
+}
+
+function spawnObstacle(){
+ let types=[
+  {w:24,h:36,color:'#e17055',emoji:'🌵'},
+  {w:20,h:28,color:'#d63031',emoji:'🪨'},
+  {w:30,h:24,color:'#6c5ce7',emoji:'📦'},
+ ];
+ let t=types[Math.floor(Math.random()*types.length)];
+ obstacles.push({x:W+20,y:GROUND-t.h,w:t.w,h:t.h,color:t.color,emoji:t.emoji});
+}
+
+function drawChar(x,y){
+ // body
+ ctx.fillStyle='#55efc4';
+ ctx.beginPath();ctx.arc(x,y-18,18,0,Math.PI*2);ctx.fill();
+ // eyes
+ ctx.fillStyle='#2d3436';
+ ctx.beginPath();ctx.arc(x-6,y-22,3,0,Math.PI*2);ctx.fill();
+ ctx.beginPath();ctx.arc(x+6,y-22,3,0,Math.PI*2);ctx.fill();
+ // mouth
+ ctx.beginPath();ctx.arc(x,y-14,5,0,Math.PI);ctx.stroke();
+ // blush
+ ctx.fillStyle='rgba(253,121,168,0.4)';
+ ctx.beginPath();ctx.arc(x-12,y-14,4,0,Math.PI*2);ctx.fill();
+ ctx.beginPath();ctx.arc(x+12,y-14,4,0,Math.PI*2);ctx.fill();
+ // legs animation
+ let legOff=Math.sin(frame*0.3)*6;
+ ctx.strokeStyle='#55efc4';ctx.lineWidth=3;ctx.lineCap='round';
+ ctx.beginPath();ctx.moveTo(x-5,y);ctx.lineTo(x-5+legOff,y+10);ctx.stroke();
+ ctx.beginPath();ctx.moveTo(x+5,y);ctx.lineTo(x+5-legOff,y+10);ctx.stroke();
+ ctx.lineWidth=1;
+}
+
+function draw(){
+ // sky
+ ctx.fillStyle='#0f0f1e';ctx.fillRect(0,0,W,H);
+ // stars
+ ctx.fillStyle='rgba(255,255,255,0.3)';
+ for(let i=0;i<20;i++){
+  let sx=(i*137+frame*0.2)%W,sy=(i*73)%( GROUND-40)+10;
+  ctx.beginPath();ctx.arc(sx,sy,1,0,Math.PI*2);ctx.fill();
+ }
+ // ground
+ ctx.fillStyle='rgba(255,255,255,0.06)';
+ ctx.fillRect(0,GROUND+10,W,H-GROUND-10);
+ ctx.strokeStyle='rgba(255,255,255,0.15)';
+ ctx.beginPath();ctx.moveTo(0,GROUND+10);ctx.lineTo(W,GROUND+10);ctx.stroke();
+ // ground dots
+ for(let i=0;i<30;i++){
+  let gx=(i*43-frame*speed*0.5)%W;if(gx<0)gx+=W;
+  ctx.fillStyle='rgba(255,255,255,0.08)';
+  ctx.beginPath();ctx.arc(gx,GROUND+20+Math.sin(i)*8,2,0,Math.PI*2);ctx.fill();
+ }
+ // obstacles
+ obstacles.forEach(o=>{
+  ctx.fillStyle=o.color;
+  ctx.beginPath();
+  let r=6;
+  ctx.moveTo(o.x+r,o.y);ctx.lineTo(o.x+o.w-r,o.y);ctx.quadraticCurveTo(o.x+o.w,o.y,o.x+o.w,o.y+r);
+  ctx.lineTo(o.x+o.w,o.y+o.h);ctx.lineTo(o.x,o.y+o.h);ctx.lineTo(o.x,o.y+r);
+  ctx.quadraticCurveTo(o.x,o.y,o.x+r,o.y);ctx.fill();
+  ctx.font='16px sans-serif';ctx.textAlign='center';
+  ctx.fillText(o.emoji,o.x+o.w/2,o.y-4);
+ });
+ // particles
+ particles.forEach(p=>{
+  ctx.fillStyle=`rgba(255,118,117,${p.life})`;
+  ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();
+ });
+ // character
+ drawChar(px,py);
+ // score
+ ctx.fillStyle='#ffeaa7';ctx.font='bold 20px sans-serif';ctx.textAlign='left';
+ ctx.fillText('거리: '+score+'m',16,30);
+}
+
+function update(){
+ frame++;
+ score=Math.floor(frame*speed/20);
+ speed=5+frame*0.002;
+ // jump
+ vy+=GRAVITY;py+=vy;
+ if(py>=GROUND){py=GROUND;vy=0;jumping=false;}
+ // obstacles
+ if(frame%Math.max(30,80-Math.floor(frame/100))===0)spawnObstacle();
+ obstacles.forEach(o=>o.x-=speed);
+ obstacles=obstacles.filter(o=>o.x+o.w>-20);
+ // collision
+ obstacles.forEach(o=>{
+  if(px+12>o.x&&px-12<o.x+o.w&&py>o.y&&py-36<o.y+o.h){
+   gameOverFn();
+  }
+ });
+ // particles
+ particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.life-=0.03;});
+ particles=particles.filter(p=>p.life>0);
+}
+
+function gameOverFn(){
+ running=false;
+ for(let i=0;i<15;i++)particles.push({x:px,y:py-18,vx:(Math.random()-0.5)*6,vy:(Math.random()-0.5)*6,r:Math.random()*4+2,life:1});
+ draw();
+ let hi=parseInt(localStorage.getItem('runner_hi')||'0');
+ if(score>hi){hi=score;localStorage.setItem('runner_hi',hi);}
+ document.getElementById('hi').textContent='최고 기록: '+hi+'m';
+ _hub('runner',score);
+ setTimeout(()=>{
+  let ov=document.getElementById('overlay');ov.style.display='flex';
+  ov.innerHTML=`<h2>💥 게임 오버!</h2><p>거리: ${score}m</p><p style="font-size:13px;color:#b2bec3">최고 기록: ${hi}m</p><button class="btn" onclick="startGame()">다시 하기</button>`;
+ },600);
+}
+
+function loop(){
+ if(!running){draw();return;}
+ update();draw();requestAnimationFrame(loop);
+}
+
+document.addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();jump();}});
+cv.addEventListener('click',jump);
+cv.addEventListener('touchstart',e=>{e.preventDefault();jump();});
+draw();
+</script>
+</body>
+</html>

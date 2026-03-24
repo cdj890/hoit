@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>DISC 성격 유형 테스트</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px}
+.card{background:#1a1a2e;border-radius:16px;padding:30px;max-width:500px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.4);text-align:center}
+h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-size:.9em}
+.progress{height:6px;background:#2a2a3e;border-radius:3px;margin-bottom:24px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#e74c3c,#e67e22);transition:width .3s;width:0}
+.question{font-size:1.05em;margin-bottom:18px;line-height:1.5}
+.btn{display:block;width:100%;padding:12px;margin:8px 0;background:#2a2a3e;border:none;color:#e0e0e0;border-radius:10px;font-size:.95em;cursor:pointer;transition:background .2s}
+.btn:hover{background:#3a3a5e}
+.start-btn{background:linear-gradient(135deg,#e74c3c,#e67e22);color:#fff;font-size:1.1em;padding:14px;margin-top:16px;font-weight:bold}
+.start-btn:hover{opacity:.9}
+.emoji{font-size:4em;margin:16px 0}.result-type{font-size:1.4em;font-weight:bold;color:#e67e22;margin-bottom:12px}
+.result-desc{color:#bbb;line-height:1.7;margin-bottom:10px;font-size:.95em}
+.traits{background:#2a2a3e;border-radius:10px;padding:14px;margin:12px 0;text-align:left;font-size:.9em;line-height:1.8;color:#ddd}
+.hidden{display:none}
+</style></head><body>
+<a href="../index.html" style="position:fixed;top:10px;left:10px;z-index:9999;background:rgba(0,0,0,0.6);color:#fff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:13px;font-family:sans-serif" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<div class="card">
+<div id="intro">
+<div style="font-size:3em;margin-bottom:10px">🎯</div>
+<h1>DISC 성격 유형 테스트</h1>
+<p class="sub">직장에서의 당신의 행동 유형은?</p>
+<button class="btn start-btn" onclick="startQuiz()">테스트 시작하기</button>
+</div>
+<div id="quiz" class="hidden">
+<div class="progress"><div class="progress-fill" id="prog"></div></div>
+<div class="question" id="qText"></div>
+<div id="opts"></div>
+</div>
+<div id="result" class="hidden">
+<div class="emoji" id="rEmoji"></div>
+<div class="result-type" id="rType"></div>
+<div class="result-desc" id="rDesc"></div>
+<div class="traits" id="rTraits"></div>
+<button class="btn start-btn" onclick="location.reload()">다시 하기</button>
+</div>
+</div>
+<script>
+const questions=[
+{q:"회의에서 의견 충돌이 생기면?",a:[["내 의견을 강하게 주장한다","D"],["분위기를 풀어 합의를 이끈다","I"],["다수 의견을 따른다","S"],["데이터로 논리적 판단한다","C"]]},
+{q:"새 프로젝트를 맡으면?",a:[["바로 실행한다","D"],["팀원들과 아이디어 회의","I"],["기존 방법을 참고한다","S"],["철저히 계획을 세운다","C"]]},
+{q:"상사에게 부당한 지시를 받으면?",a:[["직접 이의를 제기한다","D"],["우회적으로 의견을 전달","I"],["일단 따르고 나중에 고민","S"],["근거를 정리해 보고한다","C"]]},
+{q:"팀원이 실수했을 때?",a:[["결과에 집중하여 지적한다","D"],["격려하며 해결책을 같이 찾는다","I"],["이해하고 도와준다","S"],["원인을 분석해 재발 방지","C"]]},
+{q:"업무 스타일은?",a:[["빠르고 결과지향적","D"],["다양한 일을 동시에","I"],["꾸준하고 안정적","S"],["정확하고 꼼꼼하게","C"]]},
+{q:"칭찬을 받으면?",a:[["당연한 결과라 생각","D"],["기분 좋게 모두와 나눈다","I"],["쑥스럽지만 기쁘다","S"],["객관적 평가인지 확인한다","C"]]},
+{q:"점심 메뉴 정할 때?",a:[["내가 정한다","D"],["다같이 투표하자!","I"],["남들이 정하는 거 따라간다","S"],["리뷰 확인 후 결정","C"]]},
+{q:"이메일 작성 스타일은?",a:[["짧고 핵심만","D"],["친근하고 이모티콘도 사용","I"],["정중하고 부드럽게","S"],["상세하고 정확하게","C"]]}
+];
+const types={D:{e:"🦁",n:"D - 주도형 (Dominance)",d:"목표 지향적이고 결단력이 있는 리더! 빠른 판단과 추진력으로 결과를 만들어냅니다.",t:"<strong>💪 강점:</strong> 결단력, 추진력, 리더십, 도전정신<br><strong>🏢 업무 스타일:</strong> 빠른 의사결정, 결과중심, 효율 추구<br><strong>⚠️ 주의점:</strong> 타인의 감정을 고려하면 더 좋은 리더가 될 수 있어요"},
+I:{e:"🌟",n:"I - 사교형 (Influence)",d:"밝은 에너지로 사람들을 이끄는 인플루언서! 소통과 설득력이 뛰어납니다.",t:"<strong>💪 강점:</strong> 소통능력, 열정, 창의성, 낙관적<br><strong>🏢 업무 스타일:</strong> 협업 선호, 아이디어 제안, 분위기 메이커<br><strong>⚠️ 주의점:</strong> 디테일과 마감 관리에 신경 쓰면 완벽해져요"},
+S:{e:"🕊️",n:"S - 안정형 (Steadiness)",d:"믿음직하고 따뜻한 팀의 기둥! 안정적이고 인내심이 강합니다.",t:"<strong>💪 강점:</strong> 인내심, 경청, 협조성, 신뢰감<br><strong>🏢 업무 스타일:</strong> 꾸준한 실행, 팀워크 중시, 안정적<br><strong>⚠️ 주의점:</strong> 자기 의견을 더 표현하면 성장이 빨라져요"},
+C:{e:"🔍",n:"C - 신중형 (Conscientiousness)",d:"정확하고 분석적인 완벽주의자! 품질과 정확성을 최우선으로 합니다.",t:"<strong>💪 강점:</strong> 분석력, 정확성, 체계성, 전문성<br><strong>🏢 업무 스타일:</strong> 데이터 기반, 완벽 추구, 체계적 관리<br><strong>⚠️ 주의점:</strong> 완벽하지 않아도 된다는 여유를 가져보세요"}};
+let cur=0,scores={};
+function startQuiz(){document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();}
+function showQ(){const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=()=>pick(a[1]);o.appendChild(b);});}
+function pick(t){scores[t]=(scores[t]||0)+1;cur++;if(cur<questions.length)showQ();else showResult();}
+function showResult(){const top=Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];const r=types[top];document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');document.getElementById('rEmoji').textContent=r.e;document.getElementById('rType').textContent=r.n;document.getElementById('rDesc').textContent=r.d;document.getElementById('rTraits').innerHTML=r.t;}
+</script></body></html>

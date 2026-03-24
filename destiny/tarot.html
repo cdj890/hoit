@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>타로 카드 운세</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0a0a18;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center}.wrap{max-width:550px;width:100%;padding:20px;text-align:center}h1{font-size:30px;margin-bottom:8px}.sub{color:#888;margin-bottom:20px}
+.cards-row{display:flex;gap:12px;justify-content:center;margin:25px 0;perspective:800px}
+.card{width:100px;height:150px;border-radius:12px;cursor:pointer;position:relative;transform-style:preserve-3d;transition:transform 0.6s;background:linear-gradient(135deg,#2a1a4a,#1a1a3e);border:2px solid #4a3a6a;display:flex;align-items:center;justify-content:center;font-size:36px}
+.card:hover{border-color:#FFD700;transform:scale(1.05)}
+.card.flipped{transform:rotateY(180deg);pointer-events:none}
+.card-face{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-direction:column}
+.card-back{background:linear-gradient(135deg,#2a1a5a,#1a1a3e);border:2px solid #5a4a7a}
+.card-front{transform:rotateY(180deg);padding:8px}
+.result{background:#1a1a2e;border-radius:16px;padding:25px;border:1px solid #2a2a4a;text-align:left;margin-top:20px}
+.btn{background:linear-gradient(135deg,#7B68EE,#9B59B6);border:none;color:#fff;padding:12px 30px;border-radius:10px;font-size:15px;cursor:pointer;margin-top:15px;font-weight:bold;width:100%}
+.btn:hover{opacity:0.9}
+a.back{position:fixed;top:10px;left:10px;z-index:99;background:rgba(0,0,0,0.6);color:#fff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:13px}a.back:hover{background:rgba(0,0,0,0.85)}
+@keyframes glow{0%,100%{box-shadow:0 0 15px rgba(123,104,238,0.3)}50%{box-shadow:0 0 30px rgba(123,104,238,0.6)}}
+.glowing{animation:glow 2s infinite}
+</style></head><body>
+<a class="back" href="../index.html">← 뒤로</a>
+<div class="wrap" id="app"></div>
+<script>
+const MAJOR=[
+  {name:'바보',emoji:'🃏',num:0,up:'새로운 시작, 모험, 순수함, 자유로운 영혼',down:'무모함, 방향 상실, 경솔한 판단'},
+  {name:'마법사',emoji:'🧙',num:1,up:'능력, 창의력, 집중, 의지력으로 목표 달성',down:'재능 낭비, 속임수, 미숙함'},
+  {name:'여사제',emoji:'🌙',num:2,up:'직관, 내면의 지혜, 비밀이 밝혀짐',down:'감정 억압, 직관 무시, 비밀'},
+  {name:'여황제',emoji:'👑',num:3,up:'풍요, 모성, 창조, 자연과의 조화',down:'의존, 과잉보호, 창의력 고갈'},
+  {name:'황제',emoji:'🏛️',num:4,up:'리더십, 안정, 구조, 권위와 통제력',down:'독재, 경직, 과도한 통제'},
+  {name:'교황',emoji:'📿',num:5,up:'전통, 가르침, 영적 지도, 신뢰할 수 있는 조언',down:'교조적, 비관습적 도전 필요'},
+  {name:'연인',emoji:'💕',num:6,up:'사랑, 조화, 선택, 가치관의 일치',down:'불균형, 갈등, 잘못된 선택'},
+  {name:'전차',emoji:'⚔️',num:7,up:'승리, 의지, 결단력, 장애물 극복',down:'공격성, 방향 상실, 자기 의심'},
+  {name:'힘',emoji:'🦁',num:8,up:'용기, 인내, 내면의 강인함, 부드러운 힘',down:'자기 의심, 원시적 감정, 통제력 상실'},
+  {name:'은둔자',emoji:'🏔️',num:9,up:'내면 탐색, 지혜, 고독 속 깨달음',down:'고립, 외로움, 지나친 은둔'},
+  {name:'운명의 수레바퀴',emoji:'🎡',num:10,up:'행운, 전환점, 운명의 변화',down:'불운, 저항, 통제 불가'},
+  {name:'정의',emoji:'⚖️',num:11,up:'공정, 진실, 균형, 인과응보',down:'불공정, 책임 회피, 편견'},
+  {name:'매달린 사람',emoji:'🙃',num:12,up:'새로운 관점, 희생, 기다림의 지혜',down:'지연, 저항, 무의미한 희생'},
+  {name:'죽음',emoji:'🦋',num:13,up:'변화, 끝과 시작, 변환, 놓아주기',down:'변화에 대한 두려움, 정체'},
+  {name:'절제',emoji:'🌈',num:14,up:'균형, 인내, 조화, 중용의 미덕',down:'과잉, 불균형, 조급함'},
+  {name:'악마',emoji:'😈',num:15,up:'유혹에 대한 인식, 집착에서 벗어남',down:'중독, 집착, 물질주의'},
+  {name:'탑',emoji:'🌩️',num:16,up:'갑작스러운 변화, 깨달음, 해방',down:'파괴, 혼란, 예상치 못한 재난'},
+  {name:'별',emoji:'⭐',num:17,up:'희망, 영감, 평화, 밝은 미래',down:'절망, 믿음 상실, 무감각'},
+  {name:'달',emoji:'🌕',num:18,up:'상상력, 직관, 꿈, 무의식의 메시지',down:'혼란, 불안, 환상과 현실의 괴리'},
+  {name:'태양',emoji:'☀️',num:19,up:'성공, 기쁨, 활력, 긍정적 에너지',down:'과시, 번아웃, 비현실적 낙관'},
+  {name:'심판',emoji:'📯',num:20,up:'부활, 깨달음, 자기 평가, 새로운 기회',down:'자기 의심, 후회, 판단 거부'},
+  {name:'세계',emoji:'🌍',num:21,up:'완성, 성취, 통합, 여행',down:'미완성, 목표 부재, 지연'},
+];
+
+let picked=[], state='pick';
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*i+1|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function show(){
+  state='pick';picked=[];
+  const shuffled=shuffle([...Array(22).keys()]);
+  const pool=shuffled.slice(0,9);
+  document.getElementById('app').innerHTML=`
+    <h1>🔮 타로 카드 운세</h1>
+    <p class="sub">마음을 집중하고 카드 3장을 뽑아주세요</p>
+    <p style="color:#FFD700;font-size:14px;margin-bottom:5px">뽑은 카드: ${picked.length}/3</p>
+    <p style="color:#666;font-size:12px;margin-bottom:20px">과거 · 현재 · 미래를 알려드립니다</p>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center">
+      ${pool.map((ci,i)=>`<div class="card glowing" onclick="pickCard(${ci},this)" style="width:85px;height:125px"><span style="font-size:28px">🂠</span><br><span style="font-size:10px;color:#888">카드</span></div>`).join('')}
+    </div>`;
+}
+
+function pickCard(ci,el){
+  if(picked.length>=3)return;
+  const isReversed=Math.random()>0.5;
+  picked.push({idx:ci,rev:isReversed});
+  el.style.borderColor='#FFD700';
+  el.style.background='linear-gradient(135deg,#3a2a6a,#2a2a5e)';
+  el.innerHTML=`<span style="font-size:24px">${MAJOR[ci].emoji}</span><br><span style="font-size:9px;color:#FFD700">${MAJOR[ci].name}</span>`;
+  el.style.pointerEvents='none';
+  el.classList.remove('glowing');
+  if(picked.length===3)setTimeout(showResult,800);
+}
+
+function showResult(){
+  const labels=['🕰️ 과거','📍 현재','🔮 미래'];
+  let html=`<h1>🔮 당신의 타로 리딩</h1><p class="sub" style="margin-bottom:20px">3장의 카드가 말하는 이야기</p>`;
+  picked.forEach((p,i)=>{
+    const c=MAJOR[p.idx];
+    const msg=p.rev?c.down:c.up;
+    const dir=p.rev?'역방향 🔄':'정방향 ✨';
+    html+=`<div class="result" style="margin-bottom:12px">
+      <div style="display:flex;gap:15px;align-items:center">
+        <div style="font-size:40px;${p.rev?'transform:rotate(180deg)':''}">${c.emoji}</div>
+        <div><div style="color:#888;font-size:12px">${labels[i]}</div>
+        <div style="font-size:18px;font-weight:bold">${c.name} <span style="font-size:12px;color:${p.rev?'#FF6B6B':'#4CAF50'}">(${dir})</span></div></div>
+      </div>
+      <p style="color:#ccc;font-size:14px;line-height:1.7;margin-top:12px">${msg}</p>
+    </div>`;
+  });
+  // Overall reading
+  const positive=picked.filter(p=>!p.rev).length;
+  let overall;
+  if(positive===3)overall='매우 긍정적인 흐름! 앞으로 좋은 일이 가득할 거예요. ✨';
+  else if(positive===2)overall='전반적으로 좋은 흐름이에요. 한 가지 주의할 점만 챙기면 완벽!';
+  else if(positive===1)overall='도전이 있지만 극복할 수 있어요. 인내심을 가지세요.';
+  else overall='시련의 시기이지만, 이것은 성장의 기회입니다. 내면의 힘을 믿으세요.';
+
+  html+=`<div style="background:#252545;border-radius:12px;padding:15px;margin-top:15px;text-align:center">
+    <h3 style="color:#FFD700;font-size:15px;margin-bottom:8px">📜 종합 해석</h3>
+    <p style="color:#ccc;font-size:14px;line-height:1.6">${overall}</p></div>
+    <button class="btn" onclick="show()">다시 뽑기</button>`;
+  document.getElementById('app').innerHTML=html;
+}
+show();
+</script></body></html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>룬 문자 운세</title><style>*{margin:0;padding:0;box-sizing:border-box}body{min-height:100vh;background:linear-gradient(135deg,#0a0a1a,#1a0a2e,#0d1a2e);color:#e0d0ff;font-family:'Segoe UI',sans-serif;display:flex;flex-direction:column;align-items:center;padding:20px}h1{margin:30px 0 10px;font-size:2em;text-shadow:0 0 20px rgba(100,180,255,.5)}.sub{color:#9988bb;margin-bottom:25px;text-align:center}.runes{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;max-width:450px;margin:20px 0}.rune{width:80px;height:90px;background:rgba(255,255,255,.05);border:1px solid rgba(100,150,255,.2);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .3s;font-size:.8em}.rune:hover{background:rgba(100,150,255,.15);transform:translateY(-4px);box-shadow:0 5px 15px rgba(100,150,255,.2)}.rune .sym{font-size:2.2em;margin-bottom:4px}.rune.selected{background:rgba(100,150,255,.25);border-color:rgba(100,180,255,.6);box-shadow:0 0 20px rgba(100,150,255,.3)}.result{display:none;max-width:500px;width:100%;animation:fadeIn .8s;margin-top:25px}.rbox{background:rgba(255,255,255,.05);border:1px solid rgba(100,150,255,.15);border-radius:16px;padding:25px;line-height:1.8;text-align:center}.bigrune{font-size:5em;margin:15px 0;text-shadow:0 0 30px rgba(100,150,255,.5)}button{background:linear-gradient(135deg,#3d6ae8,#2d4ab8);color:#fff;border:none;padding:12px 28px;border-radius:12px;font-size:1em;cursor:pointer;margin-top:15px;transition:all .3s}button:hover{transform:scale(1.05)}@keyframes fadeIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}</style></head><body>
+<a href="../index.html" style="position:fixed;top:10px;left:10px;z-index:9999;background:rgba(0,0,0,0.6);color:#fff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:13px;font-family:sans-serif" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<h1>ᚱ 룬 문자 운세</h1><p class="sub">고대 북유럽의 신비로운 룬 문자를 선택하세요<br>직감이 이끄는 대로 하나를 고르세요</p>
+<div class="runes" id="runes"></div>
+<div class="result" id="result"></div>
+<script>
+const runes=[
+{s:'ᚠ',n:'페후(Fehu)',k:'재물',m:'풍요와 번영의 룬입니다. 재물운이 강하게 상승하고 있습니다. 새로운 수입원이 생기거나 투자가 좋은 결과를 가져올 것입니다.',love:70,money:95,health:72,work:80,adv:'재물에 감사하고 나눔을 실천하세요.'},
+{s:'ᚢ',n:'우루즈(Uruz)',k:'힘',m:'야생 황소의 힘을 가진 룬입니다. 신체적, 정신적 에너지가 넘칩니다. 건강이 회복되고 활력이 넘치는 시기입니다.',love:65,money:70,health:95,work:78,adv:'이 에너지를 건설적으로 사용하세요.'},
+{s:'ᚦ',n:'투리사즈(Thurisaz)',k:'보호',m:'토르의 망치를 상징하는 강력한 보호의 룬입니다. 외부의 위험에서 당신을 지켜줄 것입니다. 결단의 시간이 왔습니다.',love:55,money:72,health:80,work:75,adv:'신중하게 판단하되, 결정하면 과감히 행동하세요.'},
+{s:'ᚨ',n:'안수즈(Ansuz)',k:'지혜',m:'오딘의 룬, 신성한 지혜의 상징입니다. 의사소통 능력이 향상되고, 중요한 메시지를 받게 될 것입니다.',love:78,money:68,health:70,work:90,adv:'주변의 조언에 귀를 기울이세요.'},
+{s:'ᚱ',n:'라이도(Raidho)',k:'여정',m:'여행과 이동의 룬입니다. 새로운 여정이 시작됩니다. 물리적 여행이든 정신적 성장이든, 움직임이 행운을 가져옵니다.',love:75,money:65,health:72,work:82,adv:'변화를 두려워하지 말고 나아가세요.'},
+{s:'ᚲ',n:'케나즈(Kenaz)',k:'빛',m:'횃불의 룬, 내면의 빛을 밝히세요. 창의력과 영감이 솟아오릅니다. 어둠 속에서도 길을 찾을 수 있습니다.',love:82,money:70,health:68,work:85,adv:'창의적인 활동에 시간을 투자하세요.'},
+{s:'ᚷ',n:'게보(Gebo)',k:'선물',m:'선물과 파트너십의 룬입니다. 예상치 못한 선물이나 기회가 찾아옵니다. 관계에서 주고받음의 균형이 중요합니다.',love:92,money:78,health:70,work:72,adv:'베풀면 돌아옵니다. 관대함을 실천하세요.'},
+{s:'ᚹ',n:'운요(Wunjo)',k:'기쁨',m:'기쁨과 행복의 룬입니다! 소원이 이루어지고, 마음의 평화를 찾게 됩니다. 모든 것이 조화를 이루는 시기입니다.',love:88,money:82,health:85,work:80,adv:'이 행복한 에너지를 주변과 나누세요.'},
+{s:'ᛁ',n:'이사(Isa)',k:'정지',m:'얼음의 룬, 잠시 멈추라는 메시지입니다. 서두르지 마세요. 내면을 돌아보고 에너지를 축적할 때입니다.',love:45,money:50,health:75,work:55,adv:'인내하세요. 봄은 반드시 옵니다.'},
+{s:'ᛊ',n:'소울루(Sowilo)',k:'태양',m:'태양의 룬! 승리와 성공의 강력한 에너지입니다. 목표를 향해 당당히 나아가세요. 빛나는 결과가 기다리고 있습니다.',love:85,money:88,health:90,work:95,adv:'자신감을 가지세요. 당신은 빛나는 존재입니다!'}
+];
+const container=document.getElementById('runes');
+runes.forEach((r,i)=>{const el=document.createElement('div');el.className='rune';el.innerHTML=`<span class="sym">${r.s}</span><span>${r.k}</span>`;el.onclick=()=>show(i);container.appendChild(el)});
+function show(i){
+document.querySelectorAll('.rune').forEach((el,j)=>el.classList.toggle('selected',j===i));
+const r=runes[i],el=document.getElementById('result');
+function sr(s){let h=0;for(let i=0;i<s.length;i++)h=((h<<5)-h)+s.charCodeAt(i),h|=0;return function(){h^=h<<13;h^=h>>17;h^=h<<5;return(h>>>0)/4294967296}}
+const rng=sr(r.n+new Date().toDateString()),lucky=Math.floor(rng()*99)+1;
+el.innerHTML=`<div class="rbox"><div class="bigrune">${r.s}</div><h2>${r.n}</h2><p style="color:#88aaff;font-size:1.1em;margin:8px 0">「${r.k}」의 룬</p><p style="margin:15px 0">${r.m}</p><hr style="border-color:rgba(100,150,255,.15);margin:15px 0"><h3>📊 운세 점수</h3><p>💕 연애운: ${r.love}점 | 💰 금전운: ${r.money}점</p><p>💪 건강운: ${r.health}점 | 💼 직장운: ${r.work}점</p><br><p>🔢 행운의 숫자: ${lucky}</p><p>💡 <b>룬의 조언:</b> ${r.adv}</p></div><br><button onclick="document.getElementById('result').style.display='none';document.querySelectorAll('.rune').forEach(e=>e.classList.remove('selected'));window.scrollTo({top:0,behavior:'smooth'})">다시 하기</button>`;
+el.style.display='block';el.scrollIntoView({behavior:'smooth'})}
+</script></body></html>

@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>리듬 스타</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0a0a1a; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+canvas { border-radius: 12px; box-shadow: 0 0 60px rgba(150,100,255,0.2); }
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:10px;left:10px;z-index:9999;background:rgba(0,0,0,0.6);color:#fff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:13px;font-family:sans-serif" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<script>function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));if(h.nick){const lb=JSON.parse(localStorage.getItem('game_leaderboard')||'{}');if(!lb[id])lb[id]=[];const e=lb[id].find(x=>x.nick===h.nick);if(e){if(s>e.score){e.score=s;e.date=new Date().toLocaleDateString('ko');}}else lb[id].push({nick:h.nick,score:s,date:new Date().toLocaleDateString('ko')});lb[id].sort((a,b)=>b.score-a.score);lb[id]=lb[id].slice(0,20);localStorage.setItem('game_leaderboard',JSON.stringify(lb));}}</script>
+<canvas id="c"></canvas>
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const W = 500, H = 650;
+canvas.width = W; canvas.height = H;
+
+const LANES = 4;
+const LANE_W = 80;
+const TOTAL_W = LANES * LANE_W;
+const OFFSET_X = (W - TOTAL_W) / 2;
+const JUDGE_Y = H - 100;
+const NOTE_R = 18;
+const NOTE_SPEED = 3.5;
+
+const LANE_COLORS = ['#FF69B4','#7FFFD4','#DDA0DD','#FFDAB9'];
+const LANE_KEYS = ['D','F','J','K'];
+const KEY_CODES = ['KeyD','KeyF','KeyJ','KeyK'];
+
+const JUDGE_WINDOW = {perfect: 25, good: 50, ok: 80};
+
+// Songs - procedurally generated patterns
+const SONGS = [
+  {name: '봄 바람', bpm: 100, duration: 45, difficulty: '쉬움', color: '#FFB6C1'},
+  {name: '별빛 축제', bpm: 130, duration: 50, difficulty: '보통', color: '#87CEEB'},
+  {name: '폭풍 질주', bpm: 160, duration: 55, difficulty: '어려움', color: '#FF6B6B'},
+];
+
+function generateNotes(song) {
+  const notes = [];
+  const beatInterval = 60 / song.bpm;
+  const totalBeats = song.duration / beatInterval;
+
+  for (let i = 0; i < totalBeats; i++) {
+    const time = i * beatInterval;
+    const t = time / song.duration;
+
+    // Pattern generation using sine waves
+    const p1 = Math.sin(i * 0.7) > 0.3;
+    const p2 = Math.sin(i * 1.3 + 1) > 0.4;
+    const p3 = Math.sin(i * 0.5 + 2) > 0.5;
+    const p4 = Math.cos(i * 0.9) > 0.6;
+
+    // Density increases over time
+    const density = 0.3 + t * 0.4;
+
+    if (p1 && Math.random() < density) notes.push({time, lane: 0});
+    if (p2 && Math.random() < density) notes.push({time, lane: 1});
+    if (p3 && Math.random() < density * 0.8) notes.push({time, lane: 2});
+    if (p4 && Math.random() < density * 0.7) notes.push({time, lane: 3});
+
+    // Patterns: stairs
+    if (i % 8 === 0 && Math.random() < 0.3) {
+      for (let j = 0; j < 4; j++)
+        notes.push({time: time + j * beatInterval * 0.25, lane: j});
+    }
+    // doubles
+    if (i % 6 === 0 && Math.random() < 0.2) {
+      const l1 = Math.floor(Math.random()*2);
+      notes.push({time, lane: l1});
+      notes.push({time, lane: l1 + 2});
+    }
+  }
+
+  // Remove duplicates (same time & lane)
+  const unique = [];
+  const seen = new Set();
+  notes.forEach(n => {
+    const key = `${Math.round(n.time*100)}_${n.lane}`;
+    if (!seen.has(key)) { seen.add(key); unique.push(n); }
+  });
+  return unique.sort((a,b) => a.time - b.time);
+}
+
+let state = 'menu'; // menu, playing, results
+let selectedSong = 0;
+let notes, noteStates; // noteStates: null=active, 'perfect','good','ok','miss'
+let startTime, score, combo, maxCombo, totalNotes;
+let perfects, goods, oks, misses;
+let lanePressed = [false,false,false,false];
+let laneFlash = [0,0,0,0];
+let judgePops = []; // {text, color, life, x}
+let particles = [];
+let bgPulse = 0;
+let frame = 0;
+let highScores = JSON.parse(localStorage.getItem('rhythm_hs') || '[0,0,0]');
+
+function startGame(songIdx) {
+  selectedSong = songIdx;
+  const song = SONGS[songIdx];
+  notes = generateNotes(song);
+  noteStates = notes.map(() => null);
+  startTime = performance.now() / 1000 + 2; // 2초 대기
+  score = 0; combo = 0; maxCombo = 0;
+  perfects = 0; goods = 0; oks = 0; misses = 0;
+  totalNotes = notes.length;
+  particles = []; judgePops = [];
+  bgPulse = 0;
+  state = 'playing';
+}
+
+function getCurrentTime() {
+  return performance.now() / 1000 - startTime;
+}
+
+function hitLane(lane) {
+  if (state !== 'playing') return;
+  lanePressed[lane] = true;
+  laneFlash[lane] = 10;
+
+  const now = getCurrentTime();
+  let bestIdx = -1, bestDist = Infinity;
+
+  notes.forEach((n, i) => {
+    if (noteStates[i] !== null || n.lane !== lane) return;
+    const dist = Math.abs(n.time - now);
+    if (dist < bestDist) { bestDist = dist; bestIdx = i; }
+  });
+
+  if (bestIdx >= 0 && bestDist < JUDGE_WINDOW.ok / 60) {
+    let judge, pts;
+    if (bestDist < JUDGE_WINDOW.perfect / 60) {
+      judge = '완벽!'; pts = 300; perfects++; noteStates[bestIdx] = 'perfect';
+      bgPulse = 0.3;
+      // sparkle particles
+      const nx = OFFSET_X + notes[bestIdx].lane * LANE_W + LANE_W/2;
+      for (let i = 0; i < 10; i++) {
+        const a = Math.random()*Math.PI*2;
+        particles.push({x:nx,y:JUDGE_Y,vx:Math.cos(a)*4,vy:Math.sin(a)*4-2,
+          color:LANE_COLORS[lane],life:25,maxLife:25,size:3+Math.random()*2});
+      }
+    } else if (bestDist < JUDGE_WINDOW.good / 60) {
+      judge = '좋아!'; pts = 200; goods++; noteStates[bestIdx] = 'good';
+      bgPulse = 0.15;
+    } else {
+      judge = '괜찮아'; pts = 100; oks++; noteStates[bestIdx] = 'ok';
+    }
+    combo++;
+    if (combo > maxCombo) maxCombo = combo;
+    const mult = 1 + Math.floor(combo / 10) * 0.1;
+    score += Math.floor(pts * mult);
+
+    const jx = OFFSET_X + lane * LANE_W + LANE_W/2;
+    judgePops.push({text: judge, x: jx, y: JUDGE_Y - 30, life: 30, maxLife: 30,
+      color: judge === '완벽!' ? '#FFD700' : judge === '좋아!' ? '#7FFFD4' : '#FFDAB9'});
+  }
+}
+
+function releaseLane(lane) {
+  lanePressed[lane] = false;
+}
+
+document.addEventListener('keydown', e => {
+  if (state === 'menu') {
+    if (e.code === 'ArrowUp') { selectedSong = (selectedSong - 1 + SONGS.length) % SONGS.length; }
+    if (e.code === 'ArrowDown') { selectedSong = (selectedSong + 1) % SONGS.length; }
+    if (e.code === 'Space' || e.code === 'Enter') { e.preventDefault(); startGame(selectedSong); }
+    return;
+  }
+  if (state === 'results') {
+    if (e.code === 'Space' || e.code === 'Enter') { state = 'menu'; }
+    return;
+  }
+  const idx = KEY_CODES.indexOf(e.code);
+  if (idx >= 0 && !e.repeat) hitLane(idx);
+});
+document.addEventListener('keyup', e => {
+  const idx = KEY_CODES.indexOf(e.code);
+  if (idx >= 0) releaseLane(idx);
+});
+
+function update() {
+  if (state !== 'playing') return;
+  frame++;
+  const now = getCurrentTime();
+  const song = SONGS[selectedSong];
+
+  // Check missed notes
+  notes.forEach((n, i) => {
+    if (noteStates[i] !== null) return;
+    if (now - n.time > JUDGE_WINDOW.ok / 60 + 0.1) {
+      noteStates[i] = 'miss';
+      misses++;
+      combo = 0;
+      const jx = OFFSET_X + n.lane * LANE_W + LANE_W/2;
+      judgePops.push({text:'놓침...', x:jx, y:JUDGE_Y-30, life:25, maxLife:25, color:'#FF6B6B'});
+    }
+  });
+
+  // Song end
+  if (now > song.duration + 3) {
+    if (score > highScores[selectedSong]) {
+      highScores[selectedSong] = score;
+      localStorage.setItem('rhythm_hs', JSON.stringify(highScores));
+      _hub('rhythm', score);
+    }
+    state = 'results';
+  }
+
+  // Update
+  laneFlash.forEach((f,i) => { if (f > 0) laneFlash[i]--; });
+  bgPulse *= 0.92;
+  judgePops.forEach(p => p.life--);
+  judgePops = judgePops.filter(p => p.life > 0);
+  particles.forEach(p => { p.x+=p.vx; p.y+=p.vy; p.vy+=0.12; p.life--; });
+  particles = particles.filter(p => p.life > 0);
+}
+
+function drawLanes() {
+  // background glow
+  if (bgPulse > 0) {
+    ctx.fillStyle = `rgba(150,100,255,${bgPulse})`;
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  // lane backgrounds
+  for (let i = 0; i < LANES; i++) {
+    const x = OFFSET_X + i * LANE_W;
+    const alpha = laneFlash[i] > 0 ? 0.15 : 0.05;
+    ctx.fillStyle = LANE_COLORS[i] + (laneFlash[i] > 0 ? '30' : '15');
+    ctx.fillRect(x, 0, LANE_W, H);
+    // lane border
+    ctx.strokeStyle = LANE_COLORS[i] + '40';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+  }
+  // right border
+  ctx.beginPath(); ctx.moveTo(OFFSET_X + TOTAL_W, 0); ctx.lineTo(OFFSET_X + TOTAL_W, H); ctx.stroke();
+
+  // judgment line
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(OFFSET_X, JUDGE_Y); ctx.lineTo(OFFSET_X + TOTAL_W, JUDGE_Y); ctx.stroke();
+
+  // key indicators
+  for (let i = 0; i < LANES; i++) {
+    const x = OFFSET_X + i * LANE_W + LANE_W/2;
+    const pressed = lanePressed[i];
+    // circle
+    ctx.fillStyle = pressed ? LANE_COLORS[i] : LANE_COLORS[i] + '40';
+    ctx.beginPath(); ctx.arc(x, JUDGE_Y + 35, 22, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = LANE_COLORS[i];
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(x, JUDGE_Y + 35, 22, 0, Math.PI*2); ctx.stroke();
+    // key label
+    ctx.fillStyle = pressed ? '#fff' : '#aaa';
+    ctx.font = 'bold 18px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(LANE_KEYS[i], x, JUDGE_Y + 41);
+  }
+}
+
+function drawNotes() {
+  if (state !== 'playing') return;
+  const now = getCurrentTime();
+
+  notes.forEach((n, i) => {
+    if (noteStates[i] !== null) return;
+    const timeUntil = n.time - now;
+    const y = JUDGE_Y - timeUntil * (JUDGE_Y / (NOTE_SPEED));
+    if (y < -30 || y > H) return;
+
+    const x = OFFSET_X + n.lane * LANE_W + LANE_W/2;
+    const color = LANE_COLORS[n.lane];
+
+    // glow
+    ctx.fillStyle = color + '30';
+    ctx.beginPath(); ctx.arc(x, y, NOTE_R + 5, 0, Math.PI*2); ctx.fill();
+    // note body
+    ctx.fillStyle = color;
+    ctx.beginPath(); ctx.arc(x, y, NOTE_R, 0, Math.PI*2); ctx.fill();
+    // shine
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.beginPath(); ctx.arc(x - 4, y - 5, 6, 0, Math.PI*2); ctx.fill();
+    // face
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(x-4, y-2, 3, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x+4, y-2, 3, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#333';
+    ctx.beginPath(); ctx.arc(x-3, y-1, 1.5, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x+5, y-1, 1.5, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#555'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(x, y+4, 2.5, 0.1*Math.PI, 0.9*Math.PI); ctx.stroke();
+  });
+}
+
+function drawHUD() {
+  // top bar
+  ctx.fillStyle = 'rgba(0,0,0,0.6)';
+  ctx.fillRect(0, 0, W, 55);
+
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 20px sans-serif';
+  ctx.fillText(`${score.toLocaleString()}`, 15, 25);
+
+  ctx.fillStyle = '#aaa';
+  ctx.font = '12px sans-serif';
+  ctx.fillText('점수', 15, 42);
+
+  // combo
+  if (combo > 1) {
+    ctx.textAlign = 'center';
+    const scale = Math.min(1.3, 1 + combo * 0.005);
+    ctx.fillStyle = '#FFD700';
+    ctx.font = `bold ${16 * scale}px sans-serif`;
+    ctx.fillText(`${combo} 콤보!`, W/2, 30);
+  }
+
+  // song progress
+  const song = SONGS[selectedSong];
+  const now = getCurrentTime();
+  const progress = Math.max(0, Math.min(1, now / song.duration));
+  ctx.fillStyle = '#333';
+  ctx.fillRect(15, 48, W-30, 4);
+  ctx.fillStyle = SONGS[selectedSong].color;
+  ctx.fillRect(15, 48, (W-30) * progress, 4);
+
+  // song name
+  ctx.textAlign = 'right';
+  ctx.fillStyle = '#888';
+  ctx.font = '13px sans-serif';
+  ctx.fillText(song.name, W-15, 25);
+  ctx.fillText(song.difficulty, W-15, 42);
+  ctx.textAlign = 'left';
+}
+
+function drawJudgePops() {
+  judgePops.forEach(p => {
+    const a = p.life / p.maxLife;
+    const scale = 1 + (1 - a) * 0.3;
+    ctx.globalAlpha = a;
+    ctx.fillStyle = p.color;
+    ctx.font = `bold ${16 * scale}px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText(p.text, p.x, p.y - (1-a)*20);
+  });
+  ctx.globalAlpha = 1;
+  ctx.textAlign = 'left';
+}
+
+function drawParticles() {
+  particles.forEach(p => {
+    ctx.globalAlpha = p.life/p.maxLife;
+    ctx.fillStyle = p.color;
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.size*(p.life/p.maxLife), 0, Math.PI*2); ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+}
+
+function drawMenu() {
+  ctx.fillStyle = '#0a0a1a';
+  ctx.fillRect(0, 0, W, H);
+
+  // decorative notes floating
+  const t = Date.now() / 1000;
+  for (let i = 0; i < 8; i++) {
+    const nx = W/2 + Math.sin(t*0.5+i*1.2) * 150;
+    const ny = 100 + Math.cos(t*0.3+i*0.8) * 50 + i * 40;
+    ctx.globalAlpha = 0.15;
+    ctx.fillStyle = LANE_COLORS[i%4];
+    ctx.beginPath(); ctx.arc(nx, ny, 10, 0, Math.PI*2); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#E0B0FF';
+  ctx.font = 'bold 42px sans-serif';
+  ctx.fillText('리듬 스타', W/2, 120);
+
+  ctx.fillStyle = '#888';
+  ctx.font = '15px sans-serif';
+  ctx.fillText(`키: ${LANE_KEYS.join('  ')}`, W/2, 160);
+
+  // song selection
+  SONGS.forEach((s, i) => {
+    const y = 220 + i * 80;
+    const selected = i === selectedSong;
+
+    ctx.fillStyle = selected ? 'rgba(100,80,150,0.4)' : 'rgba(40,40,60,0.5)';
+    ctx.beginPath(); ctx.roundRect(W/2-160, y-25, 320, 60, 10); ctx.fill();
+    if (selected) {
+      ctx.strokeStyle = s.color;
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.roundRect(W/2-160, y-25, 320, 60, 10); ctx.stroke();
+    }
+
+    ctx.fillStyle = selected ? '#fff' : '#aaa';
+    ctx.font = `bold 20px sans-serif`;
+    ctx.fillText(s.name, W/2, y + 3);
+
+    ctx.fillStyle = s.color;
+    ctx.font = '13px sans-serif';
+    ctx.fillText(`${s.difficulty} · BPM ${s.bpm}`, W/2, y + 22);
+
+    if (highScores[i] > 0) {
+      ctx.fillStyle = '#FFD700';
+      ctx.font = '12px sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText(`최고: ${highScores[i].toLocaleString()}`, W/2+150, y+5);
+      ctx.textAlign = 'center';
+    }
+  });
+
+  ctx.fillStyle = '#666';
+  ctx.font = '14px sans-serif';
+  ctx.fillText('↑↓ 곡 선택 · Space 시작', W/2, H - 60);
+
+  const blink = Math.sin(t*3) > 0;
+  if (blink) {
+    ctx.fillStyle = '#E0B0FF';
+    ctx.fillText('▶', W/2 - 175, 220 + selectedSong * 80 + 3);
+  }
+  ctx.textAlign = 'left';
+}
+
+function getGrade() {
+  const ratio = totalNotes > 0 ? perfects / totalNotes : 0;
+  const accuracy = totalNotes > 0 ? ((perfects*100 + goods*80 + oks*50) / totalNotes) : 0;
+  if (accuracy >= 95) return {grade:'S', color:'#FFD700'};
+  if (accuracy >= 85) return {grade:'A', color:'#7FFFD4'};
+  if (accuracy >= 70) return {grade:'B', color:'#87CEEB'};
+  if (accuracy >= 50) return {grade:'C', color:'#FFA500'};
+  return {grade:'D', color:'#FF6B6B'};
+}
+
+function drawResults() {
+  ctx.fillStyle = '#0a0a1a';
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#E0B0FF';
+  ctx.font = 'bold 30px sans-serif';
+  ctx.fillText('결과', W/2, 70);
+
+  ctx.fillStyle = '#aaa';
+  ctx.font = '16px sans-serif';
+  ctx.fillText(SONGS[selectedSong].name, W/2, 100);
+
+  // Grade
+  const {grade, color} = getGrade();
+  ctx.fillStyle = color;
+  ctx.font = 'bold 80px sans-serif';
+  ctx.fillText(grade, W/2, 200);
+
+  // Score
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 32px sans-serif';
+  ctx.fillText(score.toLocaleString(), W/2, 260);
+  ctx.fillStyle = '#888';
+  ctx.font = '14px sans-serif';
+  ctx.fillText('점수', W/2, 280);
+
+  if (score >= highScores[selectedSong]) {
+    ctx.fillStyle = '#FFD700';
+    ctx.font = 'bold 18px sans-serif';
+    ctx.fillText('새 기록!', W/2, 310);
+  }
+
+  // Stats
+  const stats = [
+    ['완벽', perfects, '#FFD700'],
+    ['좋아', goods, '#7FFFD4'],
+    ['괜찮아', oks, '#FFDAB9'],
+    ['놓침', misses, '#FF6B6B'],
+  ];
+  stats.forEach((s, i) => {
+    const y = 350 + i * 32;
+    ctx.fillStyle = s[2];
+    ctx.font = '16px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(s[0], W/2 - 20, y);
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#fff';
+    ctx.fillText(s[1], W/2 + 20, y);
+  });
+
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#aaa';
+  ctx.font = '14px sans-serif';
+  ctx.fillText(`최대 콤보: ${maxCombo}`, W/2, 500);
+
+  const accuracy = totalNotes > 0 ? ((perfects*100 + goods*80 + oks*50) / totalNotes).toFixed(1) : '0';
+  ctx.fillText(`정확도: ${accuracy}%`, W/2, 525);
+
+  const t = Date.now()/1000;
+  ctx.globalAlpha = 0.5+Math.sin(t*2)*0.5;
+  ctx.fillStyle = '#E0B0FF';
+  ctx.font = '18px sans-serif';
+  ctx.fillText('Space로 돌아가기', W/2, H - 50);
+  ctx.globalAlpha = 1;
+  ctx.textAlign = 'left';
+}
+
+function gameLoop() {
+  ctx.fillStyle = '#0a0a1a';
+  ctx.fillRect(0, 0, W, H);
+
+  if (state === 'menu') {
+    drawMenu();
+  } else if (state === 'playing') {
+    update();
+    drawLanes();
+    drawNotes();
+    drawParticles();
+    drawJudgePops();
+    drawHUD();
+  } else if (state === 'results') {
+    drawResults();
+  }
+
+  requestAnimationFrame(gameLoop);
+}
+requestAnimationFrame(gameLoop);
+</script>
+</body>
+</html>

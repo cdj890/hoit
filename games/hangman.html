@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>단어 맞추기</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI','Noto Sans KR',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+.container{text-align:center;max-width:500px;width:90%;padding:20px}
+h1{font-size:2em;margin-bottom:10px;background:linear-gradient(135deg,#ff9a9e,#fad0c4);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{color:#aaa;font-size:0.9em;margin-bottom:20px}
+canvas{background:#1a1a2e;border-radius:16px;margin:15px auto;display:block;box-shadow:0 4px 20px rgba(0,0,0,0.4)}
+.word-display{font-size:2em;letter-spacing:12px;margin:20px 0;font-weight:bold;color:#fad0c4;min-height:50px}
+.hint{color:#ff9a9e;font-size:0.9em;margin-bottom:15px}
+.keyboard{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:15px 0}
+.keyboard button{width:38px;height:38px;border:none;border-radius:10px;background:#1e1e3a;color:#e0e0e0;font-size:14px;cursor:pointer;transition:all 0.2s;font-weight:bold}
+.keyboard button:hover:not(:disabled){background:#3a3a6a;transform:scale(1.1)}
+.keyboard button:disabled{opacity:0.3;cursor:default}
+.keyboard button.correct{background:#4ade80;color:#0f0f1e}
+.keyboard button.wrong{background:#ef4444;color:#fff}
+.chances{margin:10px 0;font-size:0.95em;color:#ffa07a}
+.score-display{color:#aaa;font-size:0.85em;margin:10px 0}
+.btn{padding:12px 32px;border:none;border-radius:12px;font-size:1em;cursor:pointer;transition:all 0.2s;font-weight:bold;margin:5px}
+.btn-primary{background:linear-gradient(135deg,#ff9a9e,#fad0c4);color:#0f0f1e}
+.btn-primary:hover{transform:scale(1.05);box-shadow:0 4px 15px rgba(255,154,158,0.4)}
+.overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,15,30,0.95);display:flex;align-items:center;justify-content:center;z-index:100}
+.overlay-box{background:#1a1a2e;border-radius:20px;padding:40px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.6);max-width:400px;width:90%}
+.overlay-box h2{font-size:1.8em;margin-bottom:15px;background:linear-gradient(135deg,#ff9a9e,#fad0c4);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.overlay-box p{color:#ccc;margin:8px 0;font-size:1em}
+.result-emoji{font-size:3em;margin-bottom:10px}
+.high-score{color:#ffd700;font-size:0.9em;margin-top:10px}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:10px;left:10px;z-index:9999;background:rgba(0,0,0,0.6);color:#fff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:13px;font-family:sans-serif" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<script>function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));if(h.nick){const lb=JSON.parse(localStorage.getItem('game_leaderboard')||'{}');if(!lb[id])lb[id]=[];const e=lb[id].find(x=>x.nick===h.nick);if(e){if(s>e.score){e.score=s;e.date=new Date().toLocaleDateString('ko');}}else lb[id].push({nick:h.nick,score:s,date:new Date().toLocaleDateString('ko')});lb[id].sort((a,b)=>b.score-a.score);lb[id]=lb[id].slice(0,20);localStorage.setItem('game_leaderboard',JSON.stringify(lb));}}</script>
+
+<div id="startScreen" class="overlay">
+<div class="overlay-box">
+<div class="result-emoji">🎯</div>
+<h2>단어 맞추기</h2>
+<p>숨겨진 한글 단어를 맞춰보세요!</p>
+<p style="font-size:0.85em;color:#aaa">자음과 모음 버튼으로 글자를 추측하세요<br>6번의 기회가 있어요!</p>
+<div class="high-score" id="startHighScore"></div>
+<br>
+<button class="btn btn-primary" onclick="startGame()">게임 시작!</button>
+</div>
+</div>
+
+<div id="gameOverScreen" class="overlay" style="display:none">
+<div class="overlay-box">
+<div class="result-emoji" id="resultEmoji"></div>
+<h2 id="resultTitle"></h2>
+<p id="resultWord"></p>
+<p id="resultScore"></p>
+<div class="high-score" id="resultHighScore"></div>
+<br>
+<button class="btn btn-primary" onclick="startGame()">다시 하기</button>
+</div>
+</div>
+
+<div class="container" id="gameArea" style="display:none">
+<h1>단어 맞추기</h1>
+<div class="score-display">승리: <span id="wins">0</span> | 최고기록: <span id="best">0</span></div>
+<canvas id="canvas" width="200" height="200"></canvas>
+<div class="hint" id="hintText"></div>
+<div class="word-display" id="wordDisplay"></div>
+<div class="chances" id="chancesText"></div>
+<div class="keyboard" id="keyboard"></div>
+</div>
+
+<script>
+const WORDS=[
+{word:'사과',hint:'빨간 과일'},
+{word:'바나나',hint:'노란 과일'},
+{word:'컴퓨터',hint:'전자기기'},
+{word:'학교',hint:'공부하는 곳'},
+{word:'음악',hint:'귀로 듣는 예술'},
+{word:'사랑',hint:'마음의 감정'},
+{word:'하늘',hint:'머리 위에 있는 것'},
+{word:'바다',hint:'넓고 푸른 물'},
+{word:'산',hint:'높이 솟은 땅'},
+{word:'꽃',hint:'식물의 아름다운 부분'},
+{word:'나비',hint:'날개 달린 곤충'},
+{word:'별',hint:'밤하늘에 빛나는 것'},
+{word:'달',hint:'밤에 뜨는 천체'},
+{word:'구름',hint:'하늘에 떠다니는 것'},
+{word:'눈',hint:'겨울에 내리는 것'},
+{word:'비',hint:'하늘에서 내리는 물'},
+{word:'무지개',hint:'비 온 뒤 나타나는 것'},
+{word:'고양이',hint:'야옹 하는 동물'},
+{word:'강아지',hint:'멍멍 하는 동물'},
+{word:'토끼',hint:'귀가 긴 동물'},
+{word:'호랑이',hint:'줄무늬 맹수'},
+{word:'기린',hint:'목이 긴 동물'},
+{word:'코끼리',hint:'코가 긴 동물'},
+{word:'피아노',hint:'건반 악기'},
+{word:'기타',hint:'줄을 튕기는 악기'},
+{word:'축구',hint:'발로 차는 운동'},
+{word:'야구',hint:'방망이로 치는 운동'},
+{word:'자전거',hint:'두 바퀴 탈것'},
+{word:'비행기',hint:'하늘을 나는 탈것'},
+{word:'로봇',hint:'기계로 만든 인형'}
+];
+
+// Korean jamo for guessing
+const JAMO='ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ';
+
+let currentWord,currentHint,guessedJamo,wrong,wins,highScore,canvas,ctx;
+
+function decompose(char){
+const code=char.charCodeAt(0);
+if(code<0xAC00||code>0xD7A3)return[char];
+const base=code-0xAC00;
+const lead=Math.floor(base/588);
+const vowel=Math.floor((base%588)/28);
+const tail=base%28;
+const leads='ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ';
+const vowels='ㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ';
+const tails='ㄱㄲㄳㄴㄵㄶㄷㄹㄺㄻㄼㄽㄾㄿㅀㅁㅂㅄㅅㅆㅇㅈㅊㅋㅌㅍㅎ';
+const parts=[leads[lead],vowels[vowel]];
+if(tail>0)parts.push(tails[tail-1]);
+return parts;
+}
+
+function getWordJamo(word){
+const s=new Set();
+for(const ch of word){
+decompose(ch).forEach(j=>s.add(j));
+}
+return s;
+}
+
+function isCharRevealed(char){
+const parts=decompose(char);
+return parts.every(j=>guessedJamo.has(j));
+}
+
+function loadScore(){
+highScore=parseInt(localStorage.getItem('hangman_high')||'0');
+}
+
+function saveScore(){
+if(wins>highScore){
+highScore=wins;
+localStorage.setItem('hangman_high',String(highScore));
+}
+_hub('hangman',wins);
+}
+
+function startGame(){
+document.getElementById('startScreen').style.display='none';
+document.getElementById('gameOverScreen').style.display='none';
+document.getElementById('gameArea').style.display='block';
+loadScore();
+wins=0;
+nextRound();
+}
+
+function nextRound(){
+const item=WORDS[Math.floor(Math.random()*WORDS.length)];
+currentWord=item.word;
+currentHint=item.hint;
+guessedJamo=new Set();
+wrong=0;
+document.getElementById('wins').textContent=wins;
+document.getElementById('best').textContent=highScore;
+document.getElementById('hintText').textContent='힌트: '+currentHint;
+canvas=document.getElementById('canvas');
+ctx=canvas.getContext('2d');
+buildKeyboard();
+updateDisplay();
+drawHangman();
+}
+
+function buildKeyboard(){
+const kb=document.getElementById('keyboard');
+kb.innerHTML='';
+for(const j of JAMO){
+const btn=document.createElement('button');
+btn.textContent=j;
+btn.onclick=()=>guessJamo(j,btn);
+kb.appendChild(btn);
+}
+}
+
+function guessJamo(j,btn){
+if(guessedJamo.has(j))return;
+guessedJamo.add(j);
+const needed=getWordJamo(currentWord);
+if(needed.has(j)){
+btn.classList.add('correct');
+}else{
+btn.classList.add('wrong');
+wrong++;
+}
+btn.disabled=true;
+drawHangman();
+updateDisplay();
+checkWin();
+}
+
+function updateDisplay(){
+let display='';
+for(const ch of currentWord){
+if(isCharRevealed(ch)){
+display+=ch;
+}else{
+display+='_';
+}
+}
+document.getElementById('wordDisplay').textContent=display;
+document.getElementById('chancesText').textContent=`남은 기회: ${'❤️'.repeat(6-wrong)}${'🖤'.repeat(wrong)}`;
+}
+
+function checkWin(){
+const allRevealed=[...currentWord].every(ch=>isCharRevealed(ch));
+if(allRevealed){
+wins++;
+saveScore();
+setTimeout(()=>{
+showResult(true);
+},500);
+}else if(wrong>=6){
+saveScore();
+setTimeout(()=>{
+showResult(false);
+},500);
+}
+}
+
+function showResult(won){
+document.getElementById('gameArea').style.display='none';
+const screen=document.getElementById('gameOverScreen');
+screen.style.display='flex';
+document.getElementById('resultEmoji').textContent=won?'🎉':'😢';
+document.getElementById('resultTitle').textContent=won?'정답!':'아쉬워요...';
+document.getElementById('resultWord').textContent=`단어: ${currentWord}`;
+document.getElementById('resultScore').textContent=`현재 승리: ${wins}회`;
+document.getElementById('resultHighScore').textContent=`최고 기록: ${highScore}회`;
+if(won){
+setTimeout(()=>{
+screen.style.display='none';
+document.getElementById('gameArea').style.display='block';
+nextRound();
+},1500);
+}
+}
+
+function drawHangman(){
+ctx.clearRect(0,0,200,200);
+ctx.strokeStyle='#555';
+ctx.lineWidth=3;
+ctx.lineCap='round';
+// base
+ctx.beginPath();ctx.moveTo(20,180);ctx.lineTo(80,180);ctx.stroke();
+// pole
+ctx.beginPath();ctx.moveTo(50,180);ctx.lineTo(50,30);ctx.stroke();
+// top
+ctx.beginPath();ctx.moveTo(50,30);ctx.lineTo(130,30);ctx.stroke();
+// rope
+ctx.beginPath();ctx.moveTo(130,30);ctx.lineTo(130,50);ctx.stroke();
+
+if(wrong>=1){
+// head
+ctx.beginPath();ctx.arc(130,65,15,0,Math.PI*2);ctx.strokeStyle='#fad0c4';ctx.stroke();
+// cute face
+if(wrong<6){
+ctx.fillStyle='#fad0c4';
+ctx.beginPath();ctx.arc(125,62,2,0,Math.PI*2);ctx.fill();
+ctx.beginPath();ctx.arc(135,62,2,0,Math.PI*2);ctx.fill();
+ctx.beginPath();ctx.arc(130,70,4,0,Math.PI,false);ctx.stroke();
+}else{
+// sad face
+ctx.fillStyle='#ef4444';
+ctx.beginPath();ctx.moveTo(123,60);ctx.lineTo(127,64);ctx.stroke();
+ctx.beginPath();ctx.moveTo(127,60);ctx.lineTo(123,64);ctx.stroke();
+ctx.beginPath();ctx.moveTo(133,60);ctx.lineTo(137,64);ctx.stroke();
+ctx.beginPath();ctx.moveTo(137,60);ctx.lineTo(133,64);ctx.stroke();
+ctx.beginPath();ctx.arc(130,72,4,Math.PI,0,false);ctx.stroke();
+}
+}
+ctx.strokeStyle='#fad0c4';
+if(wrong>=2){
+// body
+ctx.beginPath();ctx.moveTo(130,80);ctx.lineTo(130,125);ctx.stroke();
+}
+if(wrong>=3){
+// left arm
+ctx.beginPath();ctx.moveTo(130,90);ctx.lineTo(110,110);ctx.stroke();
+}
+if(wrong>=4){
+// right arm
+ctx.beginPath();ctx.moveTo(130,90);ctx.lineTo(150,110);ctx.stroke();
+}
+if(wrong>=5){
+// left leg
+ctx.beginPath();ctx.moveTo(130,125);ctx.lineTo(110,155);ctx.stroke();
+}
+if(wrong>=6){
+// right leg
+ctx.beginPath();ctx.moveTo(130,125);ctx.lineTo(150,155);ctx.stroke();
+}
+}
+
+// Show high score on start
+loadScore();
+document.getElementById('startHighScore').textContent=highScore>0?`최고 기록: ${highScore}회`:'';
+</script>
+</body>
+</html>

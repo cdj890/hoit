@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>카드 배틀</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI','Noto Sans KR',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;user-select:none}
+.container{text-align:center;max-width:500px;width:90%;padding:20px}
+h1{font-size:2em;margin-bottom:8px;background:linear-gradient(135deg,#f59e0b,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.score-bar{display:flex;justify-content:space-around;margin:15px 0;padding:12px;background:#1a1a2e;border-radius:12px}
+.score-item{text-align:center}
+.score-item .label{font-size:0.75em;color:#888}
+.score-item .value{font-size:1.4em;font-weight:bold;color:#fbbf24}
+.battle-area{display:flex;justify-content:center;align-items:center;gap:30px;margin:25px 0;min-height:200px}
+.card{width:120px;height:170px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:3em;font-weight:900;cursor:pointer;transition:all 0.4s;position:relative;perspective:600px}
+.card-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform 0.5s}
+.card-inner.flipped{transform:rotateY(180deg)}
+.card-face{position:absolute;width:100%;height:100%;border-radius:14px;display:flex;align-items:center;justify-content:center;backface-visibility:hidden;flex-direction:column}
+.card-back{background:linear-gradient(135deg,#1e1e3a,#2a2a4a);border:2px solid #4a4a7a;font-size:2em}
+.card-back::after{content:'?';font-size:1em;color:#6a6a9a}
+.card-front{background:linear-gradient(135deg,#2a1a3e,#1a2a4e);border:2px solid;transform:rotateY(180deg)}
+.card-front .num{font-size:2.5em;font-weight:900}
+.card-front .suit{font-size:1.2em;margin-top:4px}
+.player-card .card-front{border-color:#60a5fa}
+.cpu-card .card-front{border-color:#ef4444}
+.vs-text{font-size:1.5em;font-weight:bold;color:#fbbf24;min-width:40px}
+.round-result{font-size:1.3em;min-height:40px;margin:10px 0;font-weight:bold}
+.round-info{color:#aaa;font-size:0.9em;margin:10px 0}
+.btn{padding:12px 32px;border:none;border-radius:12px;font-size:1em;cursor:pointer;transition:all 0.2s;font-weight:bold;margin:5px}
+.btn-primary{background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff}
+.btn-primary:hover{transform:scale(1.05);box-shadow:0 4px 15px rgba(245,158,11,0.4)}
+.btn:disabled{opacity:0.4;cursor:default;transform:none!important}
+.overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,15,30,0.95);display:flex;align-items:center;justify-content:center;z-index:100}
+.overlay-box{background:#1a1a2e;border-radius:20px;padding:40px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.6);max-width:400px;width:90%}
+.overlay-box h2{font-size:1.8em;margin-bottom:15px;background:linear-gradient(135deg,#f59e0b,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.overlay-box p{color:#ccc;margin:8px 0}
+.result-emoji{font-size:3em;margin-bottom:10px}
+.high-score{color:#ffd700;font-size:0.9em;margin-top:10px}
+.card-glow-win{box-shadow:0 0 20px rgba(74,222,128,0.6)}
+.card-glow-lose{box-shadow:0 0 20px rgba(239,68,68,0.6)}
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.1)}100%{transform:scale(1)}}
+.pop{animation:pop 0.3s ease}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:10px;left:10px;z-index:9999;background:rgba(0,0,0,0.6);color:#fff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:13px;font-family:sans-serif" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<script>function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));if(h.nick){const lb=JSON.parse(localStorage.getItem('game_leaderboard')||'{}');if(!lb[id])lb[id]=[];const e=lb[id].find(x=>x.nick===h.nick);if(e){if(s>e.score){e.score=s;e.date=new Date().toLocaleDateString('ko');}}else lb[id].push({nick:h.nick,score:s,date:new Date().toLocaleDateString('ko')});lb[id].sort((a,b)=>b.score-a.score);lb[id]=lb[id].slice(0,20);localStorage.setItem('game_leaderboard',JSON.stringify(lb));}}</script>
+
+<div id="startScreen" class="overlay">
+<div class="overlay-box">
+<div class="result-emoji">🃏</div>
+<h2>카드 배틀</h2>
+<p>CPU와 카드 대결!</p>
+<p style="font-size:0.85em;color:#aaa">카드를 뒤집어 더 큰 숫자가 나오면 승리!<br>10라운드 중 더 많이 이기세요!</p>
+<div class="high-score" id="startHighScore"></div>
+<br>
+<button class="btn btn-primary" onclick="startGame()">대결 시작!</button>
+</div>
+</div>
+
+<div id="matchOverScreen" class="overlay" style="display:none">
+<div class="overlay-box">
+<div class="result-emoji" id="matchEmoji"></div>
+<h2 id="matchTitle"></h2>
+<p id="matchResult"></p>
+<p id="matchRecord"></p>
+<div class="high-score" id="matchHighScore"></div>
+<br>
+<button class="btn btn-primary" onclick="startGame()">다시 대결!</button>
+</div>
+</div>
+
+<div class="container" id="gameArea" style="display:none">
+<h1>카드 배틀</h1>
+<div class="score-bar">
+<div class="score-item"><div class="label">나</div><div class="value" id="playerScore">0</div></div>
+<div class="score-item"><div class="label">라운드</div><div class="value" id="roundDisplay">1/10</div></div>
+<div class="score-item"><div class="label">CPU</div><div class="value" id="cpuScore">0</div></div>
+</div>
+<div class="round-info" id="roundInfo">카드를 클릭해서 뒤집으세요!</div>
+<div class="battle-area">
+<div class="card player-card" id="playerCard" onclick="flipCards()">
+<div class="card-inner" id="playerInner">
+<div class="card-face card-back"></div>
+<div class="card-face card-front" id="playerFront">
+<div class="num" id="playerNum"></div>
+<div class="suit" id="playerSuit"></div>
+</div>
+</div>
+</div>
+<div class="vs-text">VS</div>
+<div class="card cpu-card" id="cpuCard">
+<div class="card-inner" id="cpuInner">
+<div class="card-face card-back"></div>
+<div class="card-face card-front" id="cpuFront">
+<div class="num" id="cpuNum"></div>
+<div class="suit" id="cpuSuit"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="round-result" id="roundResult"></div>
+<button class="btn btn-primary" id="nextBtn" onclick="nextRound()" style="display:none">다음 라운드</button>
+</div>
+
+<script>
+const SUITS=['♠','♥','♦','♣'];
+const SUIT_COLORS={'♠':'#60a5fa','♥':'#ef4444','♦':'#f59e0b','♣':'#34d399'};
+
+let round,playerWins,cpuWins,draws,totalWins,highScore,playerVal,cpuVal,canFlip;
+
+function loadHS(){highScore=parseInt(localStorage.getItem('cardgame_high')||'0');totalWins=parseInt(localStorage.getItem('cardgame_totalwins')||'0')}
+function saveHS(){
+localStorage.setItem('cardgame_totalwins',String(totalWins));
+if(totalWins>highScore){highScore=totalWins;localStorage.setItem('cardgame_high',String(highScore))}
+_hub('cardgame',totalWins);
+}
+
+function randInt(a,b){return a+Math.floor(Math.random()*(b-a+1))}
+function randSuit(){return SUITS[Math.floor(Math.random()*4)]}
+
+function startGame(){
+document.getElementById('startScreen').style.display='none';
+document.getElementById('matchOverScreen').style.display='none';
+document.getElementById('gameArea').style.display='block';
+loadHS();
+round=0;playerWins=0;cpuWins=0;draws=0;
+prepareRound();
+}
+
+function prepareRound(){
+round++;
+canFlip=true;
+playerVal=randInt(1,10);cpuVal=randInt(1,10);
+document.getElementById('playerScore').textContent=playerWins;
+document.getElementById('cpuScore').textContent=cpuWins;
+document.getElementById('roundDisplay').textContent=`${round}/10`;
+document.getElementById('roundInfo').textContent='카드를 클릭해서 뒤집으세요!';
+document.getElementById('roundResult').textContent='';
+document.getElementById('nextBtn').style.display='none';
+
+// Reset cards
+const pi=document.getElementById('playerInner');
+const ci=document.getElementById('cpuInner');
+pi.classList.remove('flipped');ci.classList.remove('flipped');
+document.getElementById('playerCard').classList.remove('card-glow-win','card-glow-lose','pop');
+document.getElementById('cpuCard').classList.remove('card-glow-win','card-glow-lose','pop');
+
+const ps=randSuit(),cs=randSuit();
+document.getElementById('playerNum').textContent=playerVal;
+document.getElementById('playerSuit').textContent=ps;
+document.getElementById('playerFront').style.color=SUIT_COLORS[ps];
+document.getElementById('cpuNum').textContent=cpuVal;
+document.getElementById('cpuSuit').textContent=cs;
+document.getElementById('cpuFront').style.color=SUIT_COLORS[cs];
+}
+
+function flipCards(){
+if(!canFlip)return;
+canFlip=false;
+const pi=document.getElementById('playerInner');
+const ci=document.getElementById('cpuInner');
+pi.classList.add('flipped');
+setTimeout(()=>{ci.classList.add('flipped');},300);
+setTimeout(()=>{resolveRound();},800);
+}
+
+function resolveRound(){
+const rr=document.getElementById('roundResult');
+const pc=document.getElementById('playerCard');
+const cc=document.getElementById('cpuCard');
+
+if(playerVal>cpuVal){
+playerWins++;
+rr.textContent='승리! 🎉';
+rr.style.color='#4ade80';
+pc.classList.add('card-glow-win','pop');
+cc.classList.add('card-glow-lose');
+}else if(cpuVal>playerVal){
+cpuWins++;
+rr.textContent='패배... 😢';
+rr.style.color='#ef4444';
+cc.classList.add('card-glow-win','pop');
+pc.classList.add('card-glow-lose');
+}else{
+draws++;
+rr.textContent='무승부! 🤝';
+rr.style.color='#fbbf24';
+}
+document.getElementById('playerScore').textContent=playerWins;
+document.getElementById('cpuScore').textContent=cpuWins;
+document.getElementById('roundInfo').textContent=`${playerVal} vs ${cpuVal}`;
+
+if(round>=10){
+setTimeout(endMatch,1200);
+}else{
+document.getElementById('nextBtn').style.display='inline-block';
+}
+}
+
+function nextRound(){
+prepareRound();
+}
+
+function endMatch(){
+const won=playerWins>cpuWins;
+const tied=playerWins===cpuWins;
+if(won)totalWins++;
+saveHS();
+
+document.getElementById('gameArea').style.display='none';
+const s=document.getElementById('matchOverScreen');
+s.style.display='flex';
+document.getElementById('matchEmoji').textContent=won?'🏆':tied?'🤝':'😢';
+document.getElementById('matchTitle').textContent=won?'승리!':tied?'무승부!':'패배...';
+document.getElementById('matchResult').textContent=`${playerWins}승 ${cpuWins}패 ${draws}무`;
+document.getElementById('matchRecord').textContent=`총 승리 횟수: ${totalWins}회`;
+document.getElementById('matchHighScore').textContent=`최고 기록: ${highScore}회 승리`;
+}
+
+loadHS();
+document.getElementById('startHighScore').textContent=highScore>0?`최고 기록: ${highScore}회 승리`:'';
+</script>
+</body>
+</html>

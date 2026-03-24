@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>혈액형 성격 분석</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center}.container{max-width:500px;width:100%;padding:20px;text-align:center}h1{font-size:32px;margin-bottom:8px}.sub{color:#888;margin-bottom:30px}
+.blood-btns{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin:30px 0}
+.blood-btn{background:#1a1a2e;border:2px solid #333;border-radius:16px;padding:30px 20px;cursor:pointer;transition:all .2s}
+.blood-btn:hover{border-color:#FF6B6B;transform:scale(1.05);box-shadow:0 8px 25px rgba(255,100,100,0.15)}
+.blood-btn .type{font-size:42px;font-weight:bold;margin-bottom:5px}
+.blood-btn .label{color:#888;font-size:14px}
+.result{background:#1a1a2e;border-radius:16px;padding:30px;border:1px solid #2a2a4a;text-align:left}
+.result h2{text-align:center;font-size:28px;margin-bottom:5px}
+.result .emoji{text-align:center;font-size:50px;margin:10px 0}
+.section{margin:15px 0;padding:15px;background:#252545;border-radius:10px}
+.section h3{color:#FFD700;font-size:15px;margin-bottom:8px}
+.section p{color:#ccc;font-size:14px;line-height:1.7}
+.compat{display:flex;gap:10px;justify-content:center;margin:15px 0;flex-wrap:wrap}
+.compat-item{background:#252545;padding:8px 16px;border-radius:10px;font-size:14px}
+.compat-item.good{border:1px solid #4CAF50;color:#4CAF50}
+.compat-item.bad{border:1px solid #FF6B6B;color:#FF6B6B}
+.btn{background:#FF6B6B;border:none;color:#fff;padding:12px 30px;border-radius:10px;font-size:16px;cursor:pointer;margin-top:20px;font-weight:bold;display:block;width:100%;text-align:center}
+a.back{position:fixed;top:10px;left:10px;z-index:99;background:rgba(0,0,0,0.6);color:#fff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:13px}a.back:hover{background:rgba(0,0,0,0.85)}
+</style></head><body>
+<a class="back" href="../index.html">← 뒤로</a>
+<div class="container" id="app"></div>
+<script>
+const DATA={
+  A:{emoji:'🌸',color:'#FF9AA2',title:'꼼꼼한 완벽주의자',
+    personality:'섬세하고 꼼꼼한 성격. 약속을 잘 지키고 책임감이 강해요. 계획을 세우는 것을 좋아하며, 다른 사람의 감정에 민감합니다.',
+    love:'상대에게 헌신적이며 세심하게 배려해요. 하지만 질투심이 강할 수 있어요. 안정적인 관계를 추구합니다.',
+    work:'꼼꼼하고 성실해서 어떤 일이든 완벽하게 해내요. 팀워크를 중시하며, 규칙을 잘 따릅니다.',
+    weakness:'걱정이 많고, 때로는 너무 신중해서 기회를 놓칠 수 있어요. 스트레스에 취약한 편.',
+    goodWith:['O형','A형'],badWith:['B형']},
+  B:{emoji:'🔥',color:'#FFB347',title:'자유로운 마이웨이',
+    personality:'자유분방하고 창의적! 규칙에 얽매이는 것을 싫어하며, 자기만의 방식으로 살아가요. 호기심이 많고 다재다능합니다.',
+    love:'솔직하고 직설적인 표현을 해요. 자유를 중시하지만 좋아하는 사람에게는 한없이 다정합니다.',
+    work:'창의적인 아이디어가 넘치며 독자적으로 일할 때 능력을 발휘해요. 하지만 반복적인 일은 싫어해요.',
+    weakness:'변덕이 심하고 쉽게 질려할 수 있어요. 다른 사람의 감정을 간과할 때가 있습니다.',
+    goodWith:['O형','AB형'],badWith:['A형']},
+  O:{emoji:'💪',color:'#87CEEB',title:'리더십의 아이콘',
+    personality:'대범하고 리더십이 강해요! 목표를 정하면 강하게 밀고 나가며, 사교적이고 정이 많습니다. 어디서든 중심이 되는 타입.',
+    love:'열정적이고 적극적으로 다가가요. 질투심이 있지만 그만큼 상대를 아끼는 마음이 커요.',
+    work:'추진력이 강하고 결단력이 있어요. 리더 역할을 맡으면 팀을 잘 이끌어갑니다.',
+    weakness:'고집이 세고 자기 의견이 확고해서 충돌이 있을 수 있어요. 승부욕이 지나칠 때도.',
+    goodWith:['A형','O형'],badWith:['AB형']},
+  AB:{emoji:'🎭',color:'#DDA0DD',title:'천재적 이중인격(?)',
+    personality:'독특하고 다면적인 성격! A형과 B형의 특성을 모두 가지고 있어서 상황에 따라 다른 모습을 보여요. 분석력과 창의력을 겸비.',
+    love:'쿨하고 이성적으로 보이지만 속으로는 로맨틱해요. 상대의 지적인 면에 끌리며, 깊은 대화를 좋아합니다.',
+    work:'분석력이 뛰어나고 합리적인 판단을 해요. 다양한 관점에서 문제를 볼 수 있는 능력자.',
+    weakness:'감정 표현이 서툴고 가끔 냉정해 보일 수 있어요. 결정을 내리기 어려워할 때가 있습니다.',
+    goodWith:['B형','AB형'],badWith:['O형']},
+};
+
+function showSelect(){
+  document.getElementById('app').innerHTML=`
+    <h1>🩸 혈액형 성격 분석</h1>
+    <p class="sub">당신의 혈액형을 선택하세요!</p>
+    <div class="blood-btns">
+      ${Object.entries(DATA).map(([t,d])=>`
+        <div class="blood-btn" onclick="showResult('${t}')" style="border-color:${d.color}30">
+          <div class="type" style="color:${d.color}">${t}형</div>
+          <div class="label">${d.emoji} ${d.title}</div>
+        </div>`).join('')}
+    </div>`;
+}
+
+function showResult(type){
+  const d=DATA[type];
+  document.getElementById('app').innerHTML=`
+    <div class="result">
+      <h2 style="color:${d.color}">${type}형</h2>
+      <div class="emoji">${d.emoji}</div>
+      <h2 style="font-size:20px">${d.title}</h2>
+      <div class="section"><h3>🧑 성격</h3><p>${d.personality}</p></div>
+      <div class="section"><h3>💕 연애</h3><p>${d.love}</p></div>
+      <div class="section"><h3>💼 직장/학교</h3><p>${d.work}</p></div>
+      <div class="section"><h3>⚠️ 약점</h3><p>${d.weakness}</p></div>
+      <h3 style="text-align:center;margin-top:15px;color:#888">궁합</h3>
+      <div class="compat">
+        ${d.goodWith.map(t=>`<div class="compat-item good">💚 ${t} 좋음</div>`).join('')}
+        ${d.badWith.map(t=>`<div class="compat-item bad">💔 ${t} 주의</div>`).join('')}
+      </div>
+      <button class="btn" onclick="showSelect()">다른 혈액형 보기</button>
+    </div>`;
+}
+showSelect();
+</script></body></html>

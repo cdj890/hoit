@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>MBTI 간이 테스트</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center}
+.container{max-width:500px;width:100%;padding:20px;text-align:center}
+h1{font-size:32px;margin-bottom:8px}
+.sub{color:#888;margin-bottom:30px}
+.q-card{background:#1a1a2e;border-radius:16px;padding:24px;margin-bottom:20px;border:1px solid #2a2a4a}
+.q-num{color:#888;font-size:13px;margin-bottom:8px}
+.q-text{font-size:17px;margin-bottom:18px;line-height:1.5}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{background:#252545;border:2px solid #333;border-radius:12px;padding:14px;cursor:pointer;font-size:15px;transition:all .2s;text-align:left}
+.opt:hover{border-color:#7B68EE;transform:scale(1.02)}
+.progress{background:#1a1a2e;border-radius:10px;height:8px;margin-bottom:20px;overflow:hidden}
+.progress-fill{background:linear-gradient(90deg,#7B68EE,#FF6B6B);height:100%;border-radius:10px;transition:width .3s}
+.result{background:#1a1a2e;border-radius:16px;padding:30px;border:1px solid #2a2a4a}
+.result-type{font-size:48px;color:#FFD700;font-weight:bold;margin:15px 0}
+.result-title{font-size:22px;margin-bottom:10px;color:#7DF}
+.result-desc{color:#aaa;font-size:14px;line-height:1.7;text-align:left}
+.btn{background:#7B68EE;border:none;color:#fff;padding:12px 30px;border-radius:10px;font-size:16px;cursor:pointer;margin-top:20px;font-weight:bold}
+.btn:hover{background:#6a5acd}
+.share-btns{display:flex;gap:8px;justify-content:center;margin-top:15px;flex-wrap:wrap}
+.share-btn{background:#2a2a4a;border:1px solid #444;color:#aaa;padding:6px 14px;border-radius:8px;cursor:pointer;font-size:12px}
+.share-btn:hover{border-color:#888;color:#fff}
+a.back{position:fixed;top:10px;left:10px;z-index:99;background:rgba(0,0,0,0.6);color:#fff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:13px}
+a.back:hover{background:rgba(0,0,0,0.85)}
+</style></head><body>
+<a class="back" href="../index.html">← 뒤로</a>
+<div class="container" id="app"></div>
+<script>
+const Q=[
+  {q:"주말에 뭐 할까?",a:["친구들 만나서 신나게 놀기! 🎉","집에서 혼자 쉬면서 충전 🏠"],d:"EI"},
+  {q:"새로운 사람을 만나면?",a:["먼저 말 걸고 대화를 이끌어가요","상대가 먼저 말 걸어주길 기다려요"],d:"EI"},
+  {q:"여행 계획은?",a:["즉흥적으로! 가서 정하자","세세하게 일정표를 짜요"],d:"JP"},
+  {q:"문제를 해결할 때?",a:["논리적으로 분석해서 해결","감정과 직감을 따라가요"],d:"TF"},
+  {q:"친구가 고민을 말하면?",a:["해결책을 제시해줘요","공감하고 들어줘요"],d:"TF"},
+  {q:"어떤 이야기가 좋아요?",a:["확실한 사실과 구체적 경험","상상력 넘치는 아이디어와 가능성"],d:"SN"},
+  {q:"일할 때 나는?",a:["한 가지에 꾸준히 집중","여러 가지를 동시에 진행"],d:"JP"},
+  {q:"사람들 사이에서 나는?",a:["에너지를 얻어요! 더 활발해짐","에너지가 소모돼요... 혼자 충전 필요"],d:"EI"},
+  {q:"결정을 내릴 때?",a:["머리(논리)로 판단","가슴(감정)으로 판단"],d:"TF"},
+  {q:"새로운 것을 배울 때?",a:["단계별로 차근차근","전체 그림을 먼저 보고 싶어요"],d:"SN"},
+  {q:"약속 시간에?",a:["보통 일찍 도착해요","종종 늦기도 해요..."],d:"JP"},
+  {q:"관심 가는 건?",a:["현실적이고 실용적인 것","추상적이고 새로운 개념"],d:"SN"},
+];
+
+const TYPES={
+  INTJ:{title:"전략가",emoji:"🧠",desc:"독립적이고 전략적인 사고를 하는 당신! 높은 기준을 가지고 있으며 효율성을 중시해요. 혼자서 깊이 생각하는 것을 좋아하고, 장기적 비전을 가지고 움직입니다."},
+  INTP:{title:"논리술사",emoji:"🔬",desc:"호기심 많은 분석가! 논리와 이론을 사랑하며, 복잡한 문제를 풀 때 가장 행복해요. 조용하지만 아이디어가 넘치는 당신입니다."},
+  ENTJ:{title:"통솔자",emoji:"👑",desc:"타고난 리더! 효율적이고 결단력 있으며, 목표를 향해 강하게 밀고 나가요. 당신이 있으면 일이 척척 진행됩니다."},
+  ENTP:{title:"변론가",emoji:"💡",desc:"창의적 도전자! 새로운 아이디어를 던지고 토론하는 것을 즐겨요. 기존 관념에 도전하는 것을 두려워하지 않습니다."},
+  INFJ:{title:"옹호자",emoji:"🌟",desc:"이상주의적 조력자! 조용하지만 강한 신념을 가지고 있어요. 다른 사람을 돕는 것에서 보람을 느끼며, 깊은 관계를 중시합니다."},
+  INFP:{title:"중재자",emoji:"🦋",desc:"이상주의적 몽상가! 풍부한 감정과 상상력을 가지고 있어요. 자신의 가치관에 충실하며, 세상을 더 좋은 곳으로 만들고 싶어합니다."},
+  ENFJ:{title:"선도자",emoji:"🌈",desc:"카리스마 넘치는 리더! 사람들에게 영감을 주고 이끄는 능력이 탁월해요. 공감력이 뛰어나고 다른 사람의 성장을 돕습니다."},
+  ENFP:{title:"활동가",emoji:"🎨",desc:"열정 넘치는 자유영혼! 새로운 가능성을 보는 눈이 있고, 사람들과 어울리는 것을 좋아해요. 창의적이고 에너지가 넘칩니다."},
+  ISTJ:{title:"현실주의자",emoji:"📋",desc:"신뢰할 수 있는 책임감의 달인! 규칙과 질서를 중시하며, 맡은 일은 반드시 해내요. 꼼꼼하고 성실한 당신입니다."},
+  ISFJ:{title:"수호자",emoji:"🛡️",desc:"따뜻한 수호자! 조용하지만 헌신적이며, 주변 사람들을 세심하게 챙겨요. 안정적이고 신뢰할 수 있는 존재입니다."},
+  ESTJ:{title:"경영자",emoji:"📊",desc:"조직의 기둥! 체계적이고 실용적이며, 목표 달성을 위해 효율적으로 움직여요. 리더십과 관리 능력이 뛰어납니다."},
+  ESFJ:{title:"집정관",emoji:"🤝",desc:"사교적인 돌봄이! 다른 사람의 필요를 잘 파악하고, 조화로운 관계를 만들어요. 따뜻하고 친절한 당신입니다."},
+  ISTP:{title:"장인",emoji:"🔧",desc:"냉철한 분석가! 실용적이고 관찰력이 뛰어나며, 손재주가 좋아요. 문제가 생기면 즉시 해결할 수 있는 능력자입니다."},
+  ISFP:{title:"모험가",emoji:"🎵",desc:"온화한 예술가! 현재를 즐기며, 아름다움과 감각적 경험을 중시해요. 조용하지만 내면에 풍부한 감성을 가지고 있습니다."},
+  ESTP:{title:"사업가",emoji:"⚡",desc:"대담한 행동파! 현실적이고 에너지가 넘치며, 즉각적인 결과를 만들어내요. 모험을 즐기고 적응력이 뛰어납니다."},
+  ESFP:{title:"연예인",emoji:"🎭",desc:"즉흥적인 엔터테이너! 주변을 밝게 만드는 태양 같은 존재예요. 재미와 경험을 중시하며, 사람들과 함께하는 것을 좋아합니다."},
+};
+
+let cur=0,answers={EI:0,SN:0,TF:0,JP:0};
+
+function render(){
+  const app=document.getElementById('app');
+  if(cur<Q.length){
+    const q=Q[cur];
+    const pct=((cur/Q.length)*100).toFixed(0);
+    app.innerHTML=`
+      <h1>MBTI 테스트</h1>
+      <p class="sub">나의 성격 유형은?</p>
+      <div class="progress"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="q-card">
+        <div class="q-num">${cur+1} / ${Q.length}</div>
+        <div class="q-text">${q.q}</div>
+        <div class="opts">
+          <div class="opt" onclick="answer(0)">${q.a[0]}</div>
+          <div class="opt" onclick="answer(1)">${q.a[1]}</div>
+        </div>
+      </div>`;
+  } else showResult();
+}
+
+function answer(i){
+  const q=Q[cur];
+  const dim=q.d;
+  if(i===0)answers[dim]++;
+  cur++;render();
+}
+
+function showResult(){
+  const E=answers.EI>=Q.filter(q=>q.d==='EI').length/2?'E':'I';
+  const S=answers.SN>=Q.filter(q=>q.d==='SN').length/2?'S':'N';
+  const T=answers.TF>=Q.filter(q=>q.d==='TF').length/2?'T':'F';
+  const J=answers.JP>=Q.filter(q=>q.d==='JP').length/2?'J':'P';
+  const type=E+S+T+J;
+  const info=TYPES[type]||{title:'탐험가',emoji:'🌍',desc:'독특한 유형!'};
+  document.getElementById('app').innerHTML=`
+    <div class="result">
+      <h1>당신의 MBTI는</h1>
+      <div class="result-type">${type}</div>
+      <div style="font-size:40px">${info.emoji}</div>
+      <div class="result-title">${info.title}</div>
+      <div class="result-desc">${info.desc}</div>
+      <div class="share-btns">
+        <div class="share-btn" onclick="navigator.clipboard.writeText('나의 MBTI: ${type} (${info.title}) ${info.emoji}').then(()=>alert('복사됨!'))">결과 복사</div>
+      </div>
+      <button class="btn" onclick="cur=0;answers={EI:0,SN:0,TF:0,JP:0};render()">다시 하기</button>
+    </div>`;
+}
+render();
+</script></body></html>

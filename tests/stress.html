@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>스트레스 지수 테스트</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center}.wrap{max-width:500px;width:100%;padding:20px;text-align:center}h1{font-size:28px;margin-bottom:8px}.sub{color:#888;margin-bottom:20px}.q-card{background:#1a1a2e;border-radius:16px;padding:22px;border:1px solid #2a2a4a;margin-bottom:12px}.q-text{font-size:16px;margin-bottom:16px}.opts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}.opt{background:#252545;border:2px solid #333;border-radius:10px;padding:10px 18px;cursor:pointer;font-size:13px;transition:all .2s;min-width:60px}.opt:hover{border-color:#7B68EE;transform:scale(1.05)}.progress{background:#1a1a2e;border-radius:10px;height:8px;margin-bottom:15px;overflow:hidden}.progress-fill{background:linear-gradient(90deg,#4CAF50,#FF9800,#F44336);height:100%;border-radius:10px;transition:width .3s}.result{background:#1a1a2e;border-radius:16px;padding:28px;border:1px solid #2a2a4a}.meter{width:100%;height:24px;background:#252545;border-radius:12px;margin:15px 0;overflow:hidden}.meter-fill{height:100%;border-radius:12px;transition:width 1s}.btn{background:#7B68EE;border:none;color:#fff;padding:12px 30px;border-radius:10px;font-size:15px;cursor:pointer;margin-top:18px;font-weight:bold;width:100%}a.back{position:fixed;top:10px;left:10px;z-index:99;background:rgba(0,0,0,0.6);color:#fff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:13px}a.back:hover{background:rgba(0,0,0,0.85)}</style></head><body>
+<a class="back" href="../index.html">← 뒤로</a>
+<div class="wrap" id="app"></div>
+<script>
+const Q=[
+  "최근 잠을 잘 못 자고 있다","사소한 일에 짜증이 난다","집중이 잘 안 된다","머리가 자주 아프거나 몸이 뻐근하다",
+  "식욕이 줄었거나 폭식하게 된다","미래에 대한 불안감이 있다","혼자 있고 싶을 때가 많다","일이나 공부에 의욕이 없다",
+  "SNS나 핸드폰을 과도하게 본다","운동이나 취미를 할 에너지가 없다","눈물이 나거나 감정 기복이 크다","자기 전에 생각이 많아진다",
+];
+
+const OPTS=[{t:'전혀 아님',s:0},{t:'가끔',s:1},{t:'자주',s:2},{t:'항상',s:3}];
+let cur=0,total=0;
+
+function render(){
+  const app=document.getElementById('app');
+  if(cur<Q.length){
+    const pct=(cur/Q.length*100)|0;
+    app.innerHTML=`<h1>😰 스트레스 지수 테스트</h1><p class="sub">최근 2주간을 기준으로 답해주세요</p>
+      <div class="progress"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="q-card"><div style="color:#888;font-size:13px;margin-bottom:8px">${cur+1}/${Q.length}</div>
+      <div class="q-text">${Q[cur]}</div>
+      <div class="opts">${OPTS.map(o=>`<div class="opt" onclick="pick(${o.s})">${o.t}</div>`).join('')}</div></div>`;
+  } else showResult();
+}
+
+function pick(s){total+=s;cur++;render();}
+
+function showResult(){
+  const max=Q.length*3,pct=(total/max*100)|0;
+  let level,emoji,color,desc,tips;
+  if(pct<=25){level='낮음';emoji='😊';color='#4CAF50';desc='스트레스가 거의 없는 안정적인 상태예요! 현재 생활 패턴을 잘 유지하고 계시네요.';tips=['현재 루틴을 꾸준히 유지하세요','주변 사람들에게도 긍정 에너지를 나눠주세요','가끔 자기 자신에게 작은 선물을 해보세요'];}
+  else if(pct<=50){level='보통';emoji='😐';color='#FF9800';desc='약간의 스트레스가 있지만 관리 가능한 수준이에요. 가벼운 스트레스 해소 활동을 추천해요.';tips=['규칙적인 운동 (하루 30분 걷기만으로도 OK!)','취미 생활에 시간을 투자하세요','충분한 수면을 확보하세요 (7-8시간)'];}
+  else if(pct<=75){level='높음';emoji='😟';color='#FF5722';desc='스트레스 수준이 높아요. 적극적인 관리가 필요한 시점입니다. 혼자 감당하지 말고 주변에 도움을 요청해보세요.';tips=['매일 10분 명상이나 깊은 호흡 연습','신뢰할 수 있는 사람에게 고민 나누기','카페인과 알코올 줄이기','자연 속에서 시간 보내기'];}
+  else{level='매우 높음';emoji='😢';color='#F44336';desc='스트레스가 매우 높은 상태예요. 전문가 상담을 고려해보시는 것을 추천합니다. 당신의 마음 건강이 가장 중요해요.';tips=['전문 상담사와 상담 받아보기','무리한 일정 줄이기','충분한 휴식과 자기 돌봄','정신건강 위기상담전화: 1577-0199'];}
+
+  document.getElementById('app').innerHTML=`<div class="result">
+    <div style="font-size:50px">${emoji}</div>
+    <h2 style="margin:10px 0">스트레스 지수</h2>
+    <div style="font-size:42px;font-weight:bold;color:${color}">${pct}%</div>
+    <div style="color:${color};font-size:18px;margin:5px 0">${level}</div>
+    <div class="meter"><div class="meter-fill" style="width:${pct}%;background:${color}"></div></div>
+    <p style="color:#aaa;font-size:14px;line-height:1.7;margin:15px 0;text-align:left">${desc}</p>
+    <div style="background:#252545;border-radius:10px;padding:15px;text-align:left;margin-top:12px">
+      <h3 style="color:#FFD700;font-size:14px;margin-bottom:10px">💡 추천 관리법</h3>
+      ${tips.map(t=>`<p style="color:#ccc;font-size:13px;margin:6px 0">• ${t}</p>`).join('')}
+    </div>
+    <button class="btn" onclick="cur=0;total=0;render()">다시 하기</button></div>`;
+}
+render();
+</script></body></html>

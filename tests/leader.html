@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>리더십 유형 테스트</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px}
+.card{background:#1a1a2e;border-radius:16px;padding:30px;max-width:500px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.4);text-align:center}
+h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-size:.9em}
+.progress{height:6px;background:#2a2a3e;border-radius:3px;margin-bottom:24px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#0984e3,#74b9ff);transition:width .3s;width:0}
+.question{font-size:1.05em;margin-bottom:18px;line-height:1.5}
+.btn{display:block;width:100%;padding:12px;margin:8px 0;background:#2a2a3e;border:none;color:#e0e0e0;border-radius:10px;font-size:.95em;cursor:pointer;transition:background .2s}
+.btn:hover{background:#3a3a5e}
+.start-btn{background:linear-gradient(135deg,#0984e3,#74b9ff);color:#fff;font-size:1.1em;padding:14px;margin-top:16px;font-weight:bold}
+.start-btn:hover{opacity:.9}
+.emoji{font-size:4em;margin:16px 0}.result-type{font-size:1.4em;font-weight:bold;color:#74b9ff;margin-bottom:12px}
+.result-desc{color:#bbb;line-height:1.7;margin-bottom:10px;font-size:.95em}
+.traits{background:#2a2a3e;border-radius:10px;padding:14px;margin:12px 0;text-align:left;font-size:.9em;line-height:1.8;color:#ddd}
+.hidden{display:none}
+</style></head><body>
+<a href="../index.html" style="position:fixed;top:10px;left:10px;z-index:9999;background:rgba(0,0,0,0.6);color:#fff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:13px;font-family:sans-serif" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<div class="card">
+<div id="intro">
+<div style="font-size:3em;margin-bottom:10px">👑</div>
+<h1>리더십 유형 테스트</h1>
+<p class="sub">당신은 어떤 타입의 리더인가요?</p>
+<button class="btn start-btn" onclick="startQuiz()">테스트 시작하기</button>
+</div>
+<div id="quiz" class="hidden">
+<div class="progress"><div class="progress-fill" id="prog"></div></div>
+<div class="question" id="qText"></div>
+<div id="opts"></div>
+</div>
+<div id="result" class="hidden">
+<div class="emoji" id="rEmoji"></div>
+<div class="result-type" id="rType"></div>
+<div class="result-desc" id="rDesc"></div>
+<div class="traits" id="rTraits"></div>
+<button class="btn start-btn" onclick="location.reload()">다시 하기</button>
+</div>
+</div>
+<script>
+const questions=[
+{q:"팀이 위기 상황에 처하면?",a:[["내가 결정하고 이끈다","cha"],["팀원들의 의견을 먼저 듣는다","dem"],["팀원들을 격려하고 지원한다","ser"],["새로운 비전을 제시한다","tra"]]},
+{q:"성과를 낼 때 중요한 것은?",a:[["강한 추진력","cha"],["팀원 모두의 참여","dem"],["팀원의 성장","ser"],["혁신적인 변화","tra"]]},
+{q:"팀원이 실수했을 때?",a:[["즉시 지적하고 바로잡는다","cha"],["함께 원인을 분석한다","dem"],["이해하고 다시 기회를 준다","ser"],["실수에서 배울 점을 찾는다","tra"]]},
+{q:"의사결정 방식은?",a:[["빠르게 내가 결정","cha"],["투표/합의로 결정","dem"],["팀원들에게 위임","ser"],["미래 비전에 맞게 결정","tra"]]},
+{q:"팀 분위기를 이렇게 만들고 싶다",a:[["긴장감 있고 효율적","cha"],["자유롭고 민주적","dem"],["따뜻하고 서로 돕는","ser"],["열정적이고 도전적","tra"]]},
+{q:"가장 중요하게 생각하는 것은?",a:[["결과와 성과","cha"],["공정한 과정","dem"],["팀원의 행복","ser"],["미래의 가능성","tra"]]},
+{q:"새 팀원이 합류하면?",a:[["역할과 기대치를 명확히","cha"],["팀에 소개하고 의견을 물어본다","dem"],["멘토를 붙여주고 케어한다","ser"],["팀의 비전과 꿈을 공유한다","tra"]]},
+{q:"나의 리더십 롤모델은?",a:[["스티브 잡스","cha"],["오바마","dem"],["테레사 수녀","ser"],["일론 머스크","tra"]]}
+];
+const types={cha:{e:"🔥",n:"카리스마 리더",d:"강력한 존재감과 추진력으로 팀을 이끄는 리더! 위기 상황에서 빛나며, 빠른 판단과 실행력이 강점입니다.",t:"<strong>강점:</strong> 결단력, 추진력, 위기대응, 영향력<br><strong>리더십 스타일:</strong> 명확한 방향 제시, 빠른 실행<br><strong>닮은 인물:</strong> 스티브 잡스, 이순신"},
+dem:{e:"🤝",n:"민주적 리더",d:"모든 팀원의 의견을 존중하고 합의를 이끌어내는 리더! 공정한 과정을 통해 최선의 결정을 내립니다.",t:"<strong>강점:</strong> 경청, 공정성, 합의도출, 소통<br><strong>리더십 스타일:</strong> 참여형, 토론과 합의 중시<br><strong>닮은 인물:</strong> 넬슨 만델라, 세종대왕"},
+ser:{e:"💚",n:"서번트 리더",d:"팀원의 성장과 행복을 최우선으로 생각하는 리더! 섬김과 지원을 통해 팀의 잠재력을 이끌어냅니다.",t:"<strong>강점:</strong> 공감, 헌신, 멘토링, 신뢰구축<br><strong>리더십 스타일:</strong> 지원형, 팀원 중심 성장<br><strong>닮은 인물:</strong> 간디, 유관순"},
+tra:{e:"🚀",n:"변혁적 리더",d:"혁신적인 비전으로 팀에 영감을 주는 리더! 현재에 안주하지 않고 끊임없이 변화와 도전을 추구합니다.",t:"<strong>강점:</strong> 비전, 혁신, 열정, 영감부여<br><strong>리더십 스타일:</strong> 비전 제시형, 변화 주도<br><strong>닮은 인물:</strong> 일론 머스크, 정주영"}};
+let cur=0,scores={};
+function startQuiz(){document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();}
+function showQ(){const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=()=>pick(a[1]);o.appendChild(b);});}
+function pick(t){scores[t]=(scores[t]||0)+1;cur++;if(cur<questions.length)showQ();else showResult();}
+function showResult(){const top=Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];const r=types[top];document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');document.getElementById('rEmoji').textContent=r.e;document.getElementById('rType').textContent=r.n;document.getElementById('rDesc').textContent=r.d;document.getElementById('rTraits').innerHTML=r.t;}
+</script></body></html>

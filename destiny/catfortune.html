@@ -1,0 +1,36 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>고양이 운세</title><style>*{margin:0;padding:0;box-sizing:border-box}body{min-height:100vh;background:linear-gradient(135deg,#0a0a1a,#1a0a2e,#1a1a0a);color:#e0d0ff;font-family:'Segoe UI',sans-serif;display:flex;flex-direction:column;align-items:center;padding:20px}h1{margin:30px 0 10px;font-size:2em;text-shadow:0 0 20px rgba(255,180,100,.5)}.sub{color:#9988bb;margin-bottom:25px}.cat-area{text-align:center;margin:20px 0;position:relative}.cat-display{font-size:8em;cursor:pointer;transition:transform .3s;user-select:none;display:inline-block}.cat-display:hover{transform:scale(1.1)}.cat-display.thinking{animation:catThink 1.5s ease-in-out}.bubble{display:none;background:rgba(255,255,255,.1);border:1px solid rgba(255,180,100,.2);border-radius:20px;padding:12px 20px;margin:10px auto;max-width:300px;font-size:.95em}@keyframes catThink{0%{transform:rotate(0)}20%{transform:rotate(-10deg)}40%{transform:rotate(10deg)}60%{transform:rotate(-5deg)}80%{transform:rotate(5deg)}100%{transform:rotate(0)}}button{background:linear-gradient(135deg,#e8a03d,#c87820);color:#1a0a00;border:none;padding:14px 35px;border-radius:12px;font-size:1.1em;cursor:pointer;margin:15px 0;font-weight:bold;transition:all .3s}button:hover{transform:scale(1.05);box-shadow:0 0 25px rgba(232,160,61,.4)}.result{display:none;max-width:480px;width:100%;animation:fadeIn .8s;margin-top:15px}.card{background:linear-gradient(135deg,rgba(255,180,100,.08),rgba(255,100,200,.05));border:1px solid rgba(255,180,100,.2);border-radius:20px;padding:30px;line-height:1.8;text-align:center}.card h2{color:#ffc080}.paw{display:inline-block;animation:pawPrint .5s ease-out}@keyframes pawPrint{from{opacity:0;transform:scale(2)}to{opacity:1;transform:scale(1)}}@keyframes fadeIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}</style></head><body>
+<a href="../index.html" style="position:fixed;top:10px;left:10px;z-index:9999;background:rgba(0,0,0,0.6);color:#fff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:13px;font-family:sans-serif" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<h1>🐱 고양이 운세</h1><p class="sub">신비로운 점술 고양이가 운세를 봐드립니다</p>
+<div class="cat-area"><div class="cat-display" id="cat" onclick="askCat()">🐱</div><div class="bubble" id="bubble">냥~?</div></div>
+<button id="askBtn" onclick="askCat()">🐾 고양이에게 물어보기</button>
+<div class="result" id="result"></div>
+<script>
+const fortunes=[
+{t:'🐟 생선 카드',m:'풍요로운 한 주가 될 거예요, 냥! 맛있는 것(=좋은 일)이 가득할 거라냥~',love:85,money:90,health:78,work:80,adv:'기회가 올 때 놓치지 말라냥!'},
+{t:'🧶 실뭉치 카드',m:'엉킨 실타래처럼 복잡한 일이 있지만, 차근차근 풀면 된다냥~',love:65,money:70,health:72,work:75,adv:'서두르지 말고 하나씩 해결하라냥~'},
+{t:'☀️ 양지 카드',m:'따뜻한 햇살 아래 누워있는 기분! 평화롭고 행복한 시간이 온다냥~',love:88,money:75,health:90,work:72,adv:'여유를 즐기라냥. 행복은 가까이 있다냥~'},
+{t:'🌙 달빛 카드',m:'밤의 직감이 빛나는 시기다냥! 느낌이 오면 그대로 따라가라냥~',love:78,money:68,health:75,work:82,adv:'직감을 믿으라냥! 고양이처럼!'},
+{t:'🐾 발자국 카드',m:'새로운 길이 열리고 있다냥! 용기를 내서 한 발짝 내딛어보라냥~',love:72,money:78,health:70,work:88,adv:'도전하면 좋은 일이 생긴다냥!'},
+{t:'😺 기지개 카드',m:'에너지 충전 완료! 활력이 넘치는 시기다냥! 무엇이든 할 수 있다냥~',love:80,money:82,health:95,work:85,adv:'이 에너지를 현명하게 쓰라냥!'},
+{t:'🎀 리본 카드',m:'사랑의 기운이 가득하다냥~ 소중한 인연이 나타날 수 있다냥!',love:95,money:65,health:75,work:70,adv:'마음을 열고 주변을 살펴보라냥~'},
+{t:'📦 상자 카드',m:'깜짝 선물이 올 수도 있다냥! 예상치 못한 행운이 찾아온다냥~',love:75,money:88,health:72,work:78,adv:'열린 마음으로 받아들이라냥!'},
+{t:'🐈‍⬛ 검은 고양이 카드',m:'신비로운 힘이 당신을 보호하고 있다냥. 불운은 피해갈 것이다냥!',love:70,money:75,health:85,work:80,adv:'두려워하지 말라냥. 행운의 부적이다냥!'},
+{t:'💤 낮잠 카드',m:'오늘은 쉬어가는 날이다냥~ 무리하지 말고 충분히 쉬라냥~',love:60,money:55,health:88,work:50,adv:'쉬는 것도 실력이다냥~'}
+];
+const catFaces=['🐱','😺','😸','😻','🙀','😽','😹','😿','😾','🐈'];
+const sounds=['냐옹~','냥냥!','프르르르...','야옹~','먀우!','그르르르...','냥?','삐뽀삐뽀냥!'];
+let asking=false;
+function sr(s){let h=0;for(let i=0;i<s.length;i++)h=((h<<5)-h)+s.charCodeAt(i),h|=0;return function(){h^=h<<13;h^=h>>17;h^=h<<5;return(h>>>0)/4294967296}}
+function askCat(){
+if(asking)return;asking=true;
+document.getElementById('askBtn').disabled=true;
+document.getElementById('result').style.display='none';
+const cat=document.getElementById('cat'),bub=document.getElementById('bubble');
+cat.classList.add('thinking');bub.style.display='block';
+let count=0;const iv=setInterval(()=>{cat.textContent=catFaces[Math.floor(Math.random()*catFaces.length)];bub.textContent=sounds[Math.floor(Math.random()*sounds.length)];count++;if(count>10){clearInterval(iv);cat.textContent='😺';cat.classList.remove('thinking');bub.textContent='이거다냥! 🐾';setTimeout(()=>{bub.style.display='none';showResult()},800)}},200)}
+function showResult(){
+const r=sr(Date.now().toString()),f=fortunes[Math.floor(r()*fortunes.length)];
+const el=document.getElementById('result');
+el.innerHTML=`<div class="card"><span class="paw" style="font-size:3em">🐾</span><h2>${f.t}</h2><p style="margin:15px 0;font-size:1.05em">${f.m}</p><hr style="border-color:rgba(255,180,100,.15);margin:15px 0"><p>💕 연애운: ${f.love}점 | 💰 금전운: ${f.money}점</p><p>💪 건강운: ${f.health}점 | 💼 직장운: ${f.work}점</p><br><p>🐾 <b>고양이의 조언:</b> ${f.adv}</p><p>🔢 <b>행운의 숫자:</b> ${Math.floor(r()*99)+1}</p></div><br><button onclick="document.getElementById('result').style.display='none';document.getElementById('cat').textContent='🐱';asking=false;document.getElementById('askBtn').disabled=false">다시 하기</button>`;
+el.style.display='block';asking=false;document.getElementById('askBtn').disabled=false;el.scrollIntoView({behavior:'smooth'})}
+</script></body></html>

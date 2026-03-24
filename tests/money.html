@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>금전감각 테스트</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px}
+.card{background:#1a1a2e;border-radius:16px;padding:30px;max-width:500px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.4);text-align:center}
+h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-size:.9em}
+.progress{height:6px;background:#2a2a3e;border-radius:3px;margin-bottom:24px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#00b894,#ffeaa7);transition:width .3s;width:0}
+.question{font-size:1.05em;margin-bottom:18px;line-height:1.5}
+.btn{display:block;width:100%;padding:12px;margin:8px 0;background:#2a2a3e;border:none;color:#e0e0e0;border-radius:10px;font-size:.95em;cursor:pointer;transition:background .2s}
+.btn:hover{background:#3a3a5e}
+.start-btn{background:linear-gradient(135deg,#00b894,#ffeaa7);color:#1a1a2e;font-size:1.1em;padding:14px;margin-top:16px;font-weight:bold}
+.start-btn:hover{opacity:.9}
+.emoji{font-size:4em;margin:16px 0}.result-type{font-size:1.4em;font-weight:bold;color:#ffeaa7;margin-bottom:12px}
+.result-desc{color:#bbb;line-height:1.7;margin-bottom:10px;font-size:.95em}
+.advice{background:#2a2a3e;border-radius:10px;padding:14px;margin:12px 0;text-align:left;font-size:.9em;line-height:1.8;color:#ddd}
+.hidden{display:none}
+</style></head><body>
+<a href="../index.html" style="position:fixed;top:10px;left:10px;z-index:9999;background:rgba(0,0,0,0.6);color:#fff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:13px;font-family:sans-serif" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<div class="card">
+<div id="intro">
+<div style="font-size:3em;margin-bottom:10px">💰</div>
+<h1>금전감각 테스트</h1>
+<p class="sub">당신의 소비/저축 스타일은?</p>
+<button class="btn start-btn" onclick="startQuiz()">테스트 시작하기</button>
+</div>
+<div id="quiz" class="hidden">
+<div class="progress"><div class="progress-fill" id="prog"></div></div>
+<div class="question" id="qText"></div>
+<div id="opts"></div>
+</div>
+<div id="result" class="hidden">
+<div class="emoji" id="rEmoji"></div>
+<div class="result-type" id="rType"></div>
+<div class="result-desc" id="rDesc"></div>
+<div class="advice" id="rAdvice"></div>
+<button class="btn start-btn" onclick="location.reload()">다시 하기</button>
+</div>
+</div>
+<script>
+const questions=[
+{q:"월급날! 가장 먼저 하는 것은?",a:[["저축 계좌로 이체",1],["고정비 정리 후 저축",2],["일단 필요한 거 사기",3],["쇼핑 GO!",4]]},
+{q:"마음에 드는 옷이 비싸다면?",a:[["절대 안 산다",1],["할인 때까지 기다린다",2],["고민하다 산다",3],["바로 산다",4]]},
+{q:"편의점에서?",a:[["꼭 필요한 것만",1],["1+1 위주로",2],["눈에 띄면 사기도",3],["손 가는 대로",4]]},
+{q:"친구 생일 선물 예산?",a:[["만원 이하",1],["2~3만원",2],["5만원 정도",3],["가격 상관없이 좋은 걸로",4]]},
+{q:"가계부를?",a:[["매일 쓴다",1],["앱으로 관리한다",2],["가끔 쓴다",3],["안 쓴다",4]]},
+{q:"갑자기 100만원이 생기면?",a:[["전액 저축",1],["80% 저축 20% 사용",2],["반반",3],["일단 쓰고 본다",4]]},
+{q:"택시 vs 버스?",a:[["무조건 버스",1],["보통 버스, 급할 때 택시",2],["상황에 따라 반반",3],["편한 게 최고 택시!",4]]},
+{q:"세일 기간에?",a:[["관심 없다",1],["필요한 것만 산다",2],["좀 사게 된다",3],["지름신 강림!",4]]}
+];
+const types=[
+{min:8,max:13,e:"💎",n:"짠돌이/짠순이",d:"철저한 절약 정신의 소유자! 한 푼도 허투루 쓰지 않는 저축왕입니다.",a:"<strong>💡 재테크 조언:</strong><br>• 절약은 훌륭하지만 가끔은 자신에게 투자하세요<br>• 저축한 돈을 투자로 불리는 것도 고려해보세요<br>• 경험에 대한 소비도 가치 있답니다"},
+{min:14,max:19,e:"🐿️",n:"알뜰족",d:"현명한 소비와 저축의 균형! 필요한 곳에 쓰되 불필요한 지출은 꼭 줄이는 합리적 타입입니다.",a:"<strong>💡 재테크 조언:</strong><br>• 이미 좋은 습관을 가지고 있어요!<br>• 재테크 공부를 통해 자산을 늘려보세요<br>• 비상금은 월급의 3개월치를 추천해요"},
+{min:20,max:25,e:"⚖️",n:"밸런스형",d:"적당히 쓰고 적당히 모으는 타입! YOLO와 저축 사이에서 균형을 찾고 있어요.",a:"<strong>💡 재테크 조언:</strong><br>• 자동이체로 저축 비율을 조금 높여보세요<br>• 충동구매 전 24시간 룰을 적용해보세요<br>• 소비 기록을 시작하면 변화가 시작됩니다"},
+{min:26,max:32,e:"🛍️",n:"플렉스왕",d:"인생은 즐기는 거! 원하는 것에 과감히 투자하는 YOLO 타입입니다. 현재의 행복을 중시해요.",a:"<strong>💡 재테크 조언:</strong><br>• 월급의 최소 20%는 저축하는 습관을 만들어보세요<br>• 위시리스트를 만들고 우선순위를 정해보세요<br>• 구독 서비스 정리만으로도 큰 절약이 돼요"}
+];
+let cur=0,total=0;
+function startQuiz(){document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();}
+function showQ(){const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=()=>pick(a[1]);o.appendChild(b);});}
+function pick(v){total+=v;cur++;if(cur<questions.length)showQ();else showResult();}
+function showResult(){const r=types.find(t=>total>=t.min&&total<=t.max)||types[2];document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');document.getElementById('rEmoji').textContent=r.e;document.getElementById('rType').textContent=r.n;document.getElementById('rDesc').textContent=r.d;document.getElementById('rAdvice').innerHTML=r.a;}
+</script></body></html>
