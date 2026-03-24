@@ -206,15 +206,20 @@ checkWin();
 
 function updateDisplay(){
 let display='';
+let hintParts='';
 for(const ch of currentWord){
 if(isCharRevealed(ch)){
-display+=ch;
+display+=ch+' ';
 }else{
-display+='_';
+// Show partial hint: which jamo are found
+const parts=decompose(ch);
+const partial=parts.map(j=>guessedJamo.has(j)?j:'·').join('');
+display+='_ ';
+hintParts+=ch+'('+partial+') ';
 }
 }
-document.getElementById('wordDisplay').textContent=display;
-document.getElementById('chancesText').textContent=`남은 기회: ${'❤️'.repeat(6-wrong)}${'🖤'.repeat(wrong)}`;
+document.getElementById('wordDisplay').textContent=display.trim();
+document.getElementById('chancesText').innerHTML=`남은 기회: ${'❤️'.repeat(6-wrong)}${'🖤'.repeat(wrong)}<br><span style="font-size:12px;color:#888">${hintParts?'찾은 자모: '+hintParts:''}</span>`;
 }
 
 function checkWin(){
