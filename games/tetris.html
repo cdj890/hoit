@@ -73,7 +73,8 @@ function spawnPiece() {
   spawnNext();
   if (collides(currentShape, currentX, currentY)) {
     gameOver = true;
-    if (score > highScore) { highScore = score; localStorage.setItem('tetris_hs', highScore); _hub('tetris',score); }
+    if (score > highScore) { highScore = score; localStorage.setItem('tetris_hs', highScore); }
+    _hub('tetris',score);
   }
 }
 
@@ -168,9 +169,10 @@ function ghostY() {
 
 document.addEventListener('keydown', e => {
   if (!started) { started = true; init(); return; }
-  if (gameOver) { if (e.key === ' ' || e.key === 'r') { init(); started = true; } return; }
-  if (e.key === 'p') { paused = !paused; return; }
+  if (gameOver) { if (e.key === ' ' || e.key === 'r' || e.key === 'R') { init(); started = true; } return; }
+  if (e.key === 'p' || e.key === 'P') { paused = !paused; return; }
   if (paused) return;
+  if (['ArrowLeft','ArrowRight','ArrowDown','ArrowUp'].includes(e.key)) e.preventDefault();
   switch(e.key) {
     case 'ArrowLeft':
       if (!collides(currentShape, currentX-1, currentY)) currentX--;
@@ -432,6 +434,34 @@ function drawGameOver() {
   ctx.globalAlpha = 1;
   ctx.textAlign = 'left';
 }
+
+let tetrisTouchX, tetrisTouchY;
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  tetrisTouchX = e.touches[0].clientX;
+  tetrisTouchY = e.touches[0].clientY;
+  if (!started) { started = true; init(); return; }
+  if (gameOver) { init(); started = true; return; }
+}, {passive: false});
+canvas.addEventListener('touchend', e => {
+  if (!started || gameOver || paused) return;
+  const dx = e.changedTouches[0].clientX - tetrisTouchX;
+  const dy = e.changedTouches[0].clientY - tetrisTouchY;
+  if (Math.abs(dx) < 15 && Math.abs(dy) < 15) {
+    // Tap = rotate
+    const r = rotate(currentShape);
+    let nx = currentX;
+    if (collides(r, nx, currentY)) { nx--; }
+    if (collides(r, nx, currentY)) { nx += 2; }
+    if (!collides(r, nx, currentY)) { currentShape = r; currentX = nx; }
+    return;
+  }
+  if (Math.abs(dy) > Math.abs(dx) && dy > 30) { hardDrop(); return; }
+  if (Math.abs(dx) > Math.abs(dy)) {
+    if (dx > 0 && !collides(currentShape, currentX+1, currentY)) currentX++;
+    else if (dx < 0 && !collides(currentShape, currentX-1, currentY)) currentX--;
+  }
+});
 
 let lastTime = 0;
 started = false;

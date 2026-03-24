@@ -91,7 +91,8 @@ function update() {
 
 function die() {
   gameOver = true;
-  if (score > highScore) { highScore = score; localStorage.setItem('snake_hs', highScore); _hub('snake',score); }
+  if (score > highScore) { highScore = score; localStorage.setItem('snake_hs', highScore); }
+  _hub('snake',score);
   for (const s of snake)
     for (let i = 0; i < 3; i++)
       particles.push({
@@ -102,8 +103,9 @@ function die() {
 }
 
 document.addEventListener('keydown', e => {
+  if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) e.preventDefault();
   if (!started) { started = true; init(); return; }
-  if (gameOver) { if (e.key === ' ' || e.key === 'r') { init(); started = true; } return; }
+  if (gameOver) { if (e.key === ' ' || e.key === 'r' || e.key === 'R') { init(); started = true; } return; }
   switch(e.key) {
     case 'ArrowUp': case 'w': case 'W': if (dir.y===0) nextDir={x:0,y:-1}; break;
     case 'ArrowDown': case 's': case 'S': if (dir.y===0) nextDir={x:0,y:1}; break;
@@ -135,8 +137,9 @@ function drawSnake() {
       // head - bigger
       ctx.fillStyle = SNAKE_COLOR;
       ctx.beginPath(); ctx.arc(cx, cy, r+1, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = SNAKE_DARK;
-      ctx.beginPath(); ctx.arc(cx, cy, r+1, 0, Math.PI*2); ctx.stroke;
+      ctx.strokeStyle = SNAKE_DARK;
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(cx, cy, r+1, 0, Math.PI*2); ctx.stroke();
 
       // eyes
       const ex = dir.x * 4, ey = dir.y * 4;
@@ -363,6 +366,26 @@ function gameLoop(time) {
 
   requestAnimationFrame(gameLoop);
 }
+
+let touchStartX, touchStartY;
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+  if (!started) { started = true; init(); return; }
+  if (gameOver) { init(); started = true; }
+}, {passive: false});
+canvas.addEventListener('touchend', e => {
+  if (!touchStartX || gameOver || !started) return;
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dy = e.changedTouches[0].clientY - touchStartY;
+  if (Math.abs(dx) < 20 && Math.abs(dy) < 20) return;
+  if (Math.abs(dx) > Math.abs(dy)) {
+    if (dir.x === 0) nextDir = {x: dx > 0 ? 1 : -1, y: 0};
+  } else {
+    if (dir.y === 0) nextDir = {x: 0, y: dy > 0 ? 1 : -1};
+  }
+});
 
 started = false;
 requestAnimationFrame(gameLoop);

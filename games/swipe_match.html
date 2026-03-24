@@ -49,7 +49,7 @@ function trySwap(r1,c1,r2,c2){
   setTimeout(()=>{
     while(removeMatches())fillGaps();
     animating=false;
-    if(score>hs){hs=score;localStorage.setItem('swipe_hs',hs);_hub('swipe_match',score);}
+    _hub('swipe_match',score);if(score>hs){hs=score;localStorage.setItem('swipe_hs',hs);}
   },200);
 }
 

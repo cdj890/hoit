@@ -37,7 +37,7 @@ canvas{max-width:100%!important;height:auto!important;display:block;margin:0 aut
 <script>
 const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
 const W=500,H=400,GAME_TIME=60;
-let targets,score,shots,timeLeft,running,timerID,particles,combo,lastHitTime;
+let targets,score,shots,hits,timeLeft,running,timerID,particles,combo,lastHitTime,spawnTimeoutID;
 
 const TARGET_TYPES=[
  {emoji:'🎈',r:24,points:1,color:'#ff6b6b'},
@@ -48,21 +48,23 @@ const TARGET_TYPES=[
 
 function startGame(){
  document.getElementById('overlay').style.display='none';
- targets=[];score=0;shots=0;timeLeft=GAME_TIME;running=true;particles=[];combo=0;lastHitTime=0;
+ targets=[];score=0;shots=0;hits=0;timeLeft=GAME_TIME;running=true;particles=[];combo=0;lastHitTime=0;
  clearInterval(timerID);
+ clearTimeout(spawnTimeoutID);
  timerID=setInterval(tick,1000);
  spawnLoop();loop();
 }
 
 function tick(){
+ if(!running)return;
  timeLeft--;
  if(timeLeft<=0){
-  running=false;clearInterval(timerID);
+  running=false;clearInterval(timerID);clearTimeout(spawnTimeoutID);
   let hi=parseInt(localStorage.getItem('shoot_hi')||'0');
   if(score>hi){hi=score;localStorage.setItem('shoot_hi',hi);}
   document.getElementById('hi').textContent='최고 점수: '+hi;
   _hub('shooting',score);
-  let acc=shots>0?Math.round(score/shots*100):0;
+  let acc=shots>0?Math.round(hits/shots*100):0;
   let ov=document.getElementById('overlay');ov.style.display='flex';
   ov.innerHTML=`<h2>⏱ 시간 종료!</h2><p style="font-size:24px;color:#ffeaa7">점수: ${score}</p><p>발사: ${shots}회 | 명중률: ${acc}%</p><p style="font-size:13px;color:#b2bec3">최고 점수: ${hi}</p><button class="btn" onclick="startGame()">다시 하기</button>`;
  }
@@ -85,7 +87,7 @@ function spawnLoop(){
  if(!running)return;
  spawnTarget();
  let delay=Math.max(300,1200-((GAME_TIME-timeLeft)*15));
- setTimeout(spawnLoop,delay);
+ spawnTimeoutID=setTimeout(spawnLoop,delay);
 }
 
 function shoot(mx,my){
@@ -109,7 +111,7 @@ function shoot(mx,my){
    }
    // floating score
    particles.push({x:t.x,y:t.y,vx:0,vy:-2,r:0,color:'#fff',life:1,text:'+'+pts});
-   targets.splice(i,1);hit=true;break;
+   targets.splice(i,1);hit=true;hits++;break;
   }
  }
  if(!hit){
@@ -176,13 +178,13 @@ function loop(){
 
 cv.addEventListener('click',e=>{
  let r=cv.getBoundingClientRect();
- shoot(e.clientX-r.left,e.clientY-r.top);
+ shoot((e.clientX-r.left)*(W/r.width),(e.clientY-r.top)*(H/r.height));
 });
 cv.addEventListener('touchstart',e=>{
  e.preventDefault();
  let r=cv.getBoundingClientRect();
- shoot(e.touches[0].clientX-r.left,e.touches[0].clientY-r.top);
-});
+ shoot((e.touches[0].clientX-r.left)*(W/r.width),(e.touches[0].clientY-r.top)*(H/r.height));
+},{passive:false});
 
 // initial draw
 ctx.fillStyle='#0f0f1e';ctx.fillRect(0,0,W,H);

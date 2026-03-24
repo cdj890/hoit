@@ -168,6 +168,7 @@ if(timeLeft<=0)endGame();
 }
 
 function endGame(){
+if(!gameRunning)return;
 gameRunning=false;
 clearInterval(timerInterval);
 saveHS();

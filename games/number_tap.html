@@ -25,7 +25,7 @@ function shuffle(){nums=[];for(let i=1;i<=25;i++)nums.push(i);for(let i=24;i>0;i
 function render(){
   const app=document.getElementById('app');
   if(state==='menu'){
-    app.innerHTML=`<div style="font-size:36px">🔢</div><h1 style="font-size:26px;margin:8px 0">숫자 순서 터치</h1><p style="color:#aaa;font-size:14px;margin-bottom:20px">1부터 25까지 순서대로 빠르게!</p><button class="btn" ontouchstart="startGame(event)" onclick="startGame(event)">시작!</button>${hs?`<p style="color:#888;margin-top:10px;font-size:14px">최고: ${(hs/1000).toFixed(1)}초</p>`:''}`;
+    app.innerHTML=`<div style="font-size:36px">🔢</div><h1 style="font-size:26px;margin:8px 0">숫자 순서 터치</h1><p style="color:#aaa;font-size:14px;margin-bottom:20px">1부터 25까지 순서대로 빠르게!</p><button class="btn" ontouchstart="startGame(event)" onclick="startGame(event)">시작!</button>${hs?`<p style="color:#888;margin-top:10px;font-size:14px">최고: ${((60000-hs)/1000).toFixed(1)}초</p>`:''}`;
   } else if(state==='playing'){
     app.innerHTML=`<div class="hud"><span>다음: <b style="color:#FFD700">${current}</b></span><span>⏱️ ${(elapsed/1000).toFixed(1)}초</span></div>
       <div class="grid">${nums.map((n,i)=>{
@@ -39,7 +39,7 @@ function render(){
   } else {
     const sc=Math.max(0,60000-elapsed);
     const isNew=sc>hs||!hs;
-    if(isNew){hs=sc;localStorage.setItem('numtap_hs',sc);_hub('number_tap',sc);}
+    if(isNew){hs=sc;localStorage.setItem('numtap_hs',sc);}_hub('number_tap',sc);
     app.innerHTML=`<div style="font-size:36px">🎉</div><h1 style="font-size:26px;margin:8px 0">${(elapsed/1000).toFixed(2)}초!</h1><p style="color:#aaa;font-size:14px">${isNew?'🏆 새 기록!':''}</p>${hs?`<p style="color:#888;font-size:14px;margin:5px 0">최고: ${((60000-hs)/1000).toFixed(2)}초</p>`:''}
       <button class="btn" ontouchstart="backToMenu(event)" onclick="backToMenu(event)">다시 하기</button>`;
   }

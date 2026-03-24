@@ -159,6 +159,7 @@ if(ball.y-ball.r<0){ball.y=ball.r;ball.dy=-ball.dy}
 if(ball.dy>0&&ball.y+ball.r>=paddle.y&&ball.y+ball.r<=paddle.y+paddle.h&&ball.x>=paddle.x&&ball.x<=paddle.x+paddle.w){
 ball.dy=-ball.dy;
 ball.dx+=((ball.x-(paddle.x+paddle.w/2))/paddle.w)*3;
+ball.dx=Math.max(-8,Math.min(8,ball.dx));
 ball.y=paddle.y-ball.r;
 }
 // bricks
@@ -183,6 +184,7 @@ if(allDead){initBricks();resetBall();}
 }
 
 function loop(){
+if(!gameRunning){draw();return;}
 update();draw();
 animId=requestAnimationFrame(loop);
 }
@@ -203,12 +205,20 @@ document.getElementById('resultHighScore').textContent=`최고 기록: ${highSco
 document.addEventListener('keydown',e=>{keys[e.key]=true;if(['ArrowLeft','ArrowRight'].includes(e.key))e.preventDefault()});
 document.addEventListener('keyup',e=>{keys[e.key]=false});
 document.addEventListener('mousemove',e=>{
-if(!canvas)return;
+if(!canvas||!gameRunning)return;
 const rect=canvas.getBoundingClientRect();
-const mx=e.clientX-rect.left;
+const mx=(e.clientX-rect.left)*(W/rect.width);
 paddle.x=mx-paddle.w/2;
 paddle.x=Math.max(0,Math.min(W-paddle.w,paddle.x));
 });
+document.addEventListener('touchmove',e=>{
+if(!canvas||!gameRunning)return;
+e.preventDefault();
+const rect=canvas.getBoundingClientRect();
+const mx=(e.touches[0].clientX-rect.left)*(W/rect.width);
+paddle.x=mx-paddle.w/2;
+paddle.x=Math.max(0,Math.min(W-paddle.w,paddle.x));
+},{passive:false});
 
 loadHS();
 document.getElementById('startHighScore').textContent=highScore>0?`최고 기록: ${highScore}점`:'';

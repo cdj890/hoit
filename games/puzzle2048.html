@@ -150,14 +150,16 @@ function endGame(){
 }
 
 document.addEventListener('keydown',e=>{
+ if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key))e.preventDefault();
  if(e.key==='ArrowLeft')move('left');
  else if(e.key==='ArrowRight')move('right');
- else if(e.key==='ArrowUp'){e.preventDefault();move('up');}
- else if(e.key==='ArrowDown'){e.preventDefault();move('down');}
+ else if(e.key==='ArrowUp')move('up');
+ else if(e.key==='ArrowDown')move('down');
 });
 
 let tx,ty;
-document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY;});
+document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY;},{passive:true});
+document.addEventListener('touchmove',e=>{if(!gameOver)e.preventDefault();},{passive:false});
 document.addEventListener('touchend',e=>{
  let dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;
  if(Math.abs(dx)<30&&Math.abs(dy)<30)return;

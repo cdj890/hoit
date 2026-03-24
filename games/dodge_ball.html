@@ -34,7 +34,7 @@ function update(){
   // collision
   for(const b of balls){
     const d=Math.sqrt((b.x-px)**2+(b.y-(H-40))**2);
-    if(d<b.r+12){state='done';if(score>hs){hs=score;localStorage.setItem('dodge_hs',hs);_hub('dodge_ball',score);}return;}
+    if(d<b.r+12){state='done';if(score>hs){hs=score;localStorage.setItem('dodge_hs',hs);}_hub('dodge_ball',score);return;}
   }
 }
 

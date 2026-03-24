@@ -24,7 +24,7 @@ canvas{max-width:100%!important;height:auto!important;display:block;margin:0 aut
 <script>function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));if(h.nick){const lb=JSON.parse(localStorage.getItem('game_leaderboard')||'{}');if(!lb[id])lb[id]=[];const e=lb[id].find(x=>x.nick===h.nick);if(e){if(s>e.score){e.score=s;e.date=new Date().toLocaleDateString('ko');}}else lb[id].push({nick:h.nick,score:s,date:new Date().toLocaleDateString('ko')});lb[id].sort((a,b)=>b.score-a.score);lb[id]=lb[id].slice(0,20);localStorage.setItem('game_leaderboard',JSON.stringify(lb));}}</script>
 
 <div id="wrap">
-<div id="overlay" id="startScreen">
+<div id="overlay">
 <h2>🏓 핑퐁</h2>
 <p>AI를 상대로 핑퐁 대결!</p>
 <p style="font-size:13px;color:#b2bec3">마우스 또는 터치로 패들 조작 | 10점 먼저 득점하면 승리</p>
@@ -53,6 +53,7 @@ function reset(){
 function startGame(){
  document.getElementById('overlay').style.display='none';
  pScore=0;aScore=0;running=true;
+ if(animID)cancelAnimationFrame(animID);
  reset();loop();
 }
 
@@ -112,9 +113,11 @@ function update(){
  // paddle collision
  if(ballX-BR<10+PW&&ballY>playerY&&ballY<playerY+PH&&bvx<0){
   bvx=-bvx*1.05;bvy+=(ballY-(playerY+PH/2))*0.15;ballX=10+PW+BR;
+  if(Math.abs(bvx)>12)bvx=12*(bvx>0?1:-1);
  }
  if(ballX+BR>W-10-PW&&ballY>aiY&&ballY<aiY+PH&&bvx>0){
   bvx=-bvx*1.05;bvy+=(ballY-(aiY+PH/2))*0.15;ballX=W-10-PW-BR;
+  if(Math.abs(bvx)>12)bvx=12*(bvx>0?1:-1);
  }
  // scoring
  if(ballX<-BR){aScore++;afterPoint();}
@@ -139,8 +142,8 @@ function loop(){
  update();draw();animID=requestAnimationFrame(loop);
 }
 
-cv.addEventListener('mousemove',e=>{let r=cv.getBoundingClientRect();mouseY=e.clientY-r.top;});
-cv.addEventListener('touchmove',e=>{e.preventDefault();let r=cv.getBoundingClientRect();mouseY=e.touches[0].clientY-r.top;},{passive:false});
+cv.addEventListener('mousemove',e=>{let r=cv.getBoundingClientRect();mouseY=(e.clientY-r.top)*(H/r.height);});
+cv.addEventListener('touchmove',e=>{e.preventDefault();let r=cv.getBoundingClientRect();mouseY=(e.touches[0].clientY-r.top)*(H/r.height);},{passive:false});
 
 function updateStats(){document.getElementById('stats').textContent='총 승리: '+totalWins+'회';}
 draw();

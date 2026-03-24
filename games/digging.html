@@ -65,12 +65,36 @@ function spawnPlat(y) {
 }
 
 document.addEventListener('keydown', e => {
+  if (['ArrowLeft','ArrowRight','ArrowDown','ArrowUp',' '].includes(e.key)) e.preventDefault();
   keys[e.key] = true;
   if (state==='menu' && e.key===' ') { init(); state='playing'; }
   if (state==='over' && e.key===' ') { init(); state='playing'; }
-  if (state==='over' && e.key==='m') state='menu';
+  if (state==='over' && (e.key==='m'||e.key==='M')) state='menu';
 });
 document.addEventListener('keyup', e => { keys[e.key]=false; });
+
+let digTouchX = null;
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  digTouchX = e.touches[0].clientX;
+  if (state==='menu') { init(); state='playing'; }
+  else if (state==='over') { init(); state='playing'; }
+}, {passive: false});
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (state==='playing' && digTouchX !== null) {
+    const rect = canvas.getBoundingClientRect();
+    const tx = (e.touches[0].clientX - rect.left) * (W / rect.width);
+    const center = W/2;
+    if (tx < center - 30) { keys['ArrowLeft']=true; keys['ArrowRight']=false; }
+    else if (tx > center + 30) { keys['ArrowRight']=true; keys['ArrowLeft']=false; }
+    else { keys['ArrowLeft']=false; keys['ArrowRight']=false; }
+  }
+}, {passive: false});
+canvas.addEventListener('touchend', () => {
+  digTouchX = null;
+  keys['ArrowLeft']=false; keys['ArrowRight']=false;
+});
 
 function update() {
   if (state !== 'playing') return;
@@ -182,7 +206,8 @@ function update() {
 
 function die() {
   state = 'over';
-  if (score > highScore) { highScore = score; localStorage.setItem('dig_hs', highScore); _hub('digging',score); }
+  if (score > highScore) { highScore = score; localStorage.setItem('dig_hs', highScore); }
+  _hub('digging',score);
   for (let i = 0; i < 25; i++) {
     const a = Math.random()*Math.PI*2, sp=1+Math.random()*5;
     particles.push({x:player.x+PW/2,y:player.y+PH/2,

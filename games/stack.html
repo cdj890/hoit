@@ -25,7 +25,7 @@ function drop(){
   const overlap_left=Math.max(current.x,prev.x);
   const overlap_right=Math.min(current.x+current.w,prev.x+prev.w);
   const overlap=overlap_right-overlap_left;
-  if(overlap<=0){state='done';if(score>hs){hs=score;localStorage.setItem('stack_hs',hs);_hub('stack',score);}return;}
+  if(overlap<=0){state='done';if(score>hs){hs=score;localStorage.setItem('stack_hs',hs);}_hub('stack',score);return;}
   blocks.push({x:overlap_left,w:overlap,y:current.y,color:current.color});
   score++;speed=Math.min(6,2+score*0.15);
   current={x:0,w:overlap,y:current.y-BH,color:hsl(score*30)};dir=1;

@@ -32,8 +32,8 @@ c.addEventListener('click',e=>{
   const i=posToBubble(e.clientX,e.clientY);if(i>=0)popBubble(i);
 });
 
-function startGame(){state='playing';score=0;timeLeft=30;bubbles=[];pops=[];combo=0;frame=0;
-  timer=setInterval(()=>{timeLeft--;if(timeLeft<=0){clearInterval(timer);state='done';if(score>hs){hs=score;localStorage.setItem('bubble_hs',hs);_hub('bubble',score);}}},1000);}
+function startGame(){clearInterval(timer);state='playing';score=0;timeLeft=30;bubbles=[];pops=[];combo=0;frame=0;
+  timer=setInterval(()=>{timeLeft--;if(timeLeft<=0){clearInterval(timer);state='done';if(score>hs){hs=score;localStorage.setItem('bubble_hs',hs);}_hub('bubble',score);}},1000);}
 
 function popBubble(i){
   const b=bubbles[i];

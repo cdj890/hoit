@@ -118,7 +118,8 @@ function update() {
 function die() {
   gameOver = true;
   flashAlpha = 1;
-  if (score > highScore) { highScore = score; localStorage.setItem('flappy_hs', highScore); _hub('flappy',score); }
+  if (score > highScore) { highScore = score; localStorage.setItem('flappy_hs', highScore); }
+  _hub('flappy',score);
   for (let i = 0; i < 15; i++) {
     const a = Math.random()*Math.PI*2;
     particles.push({
@@ -287,7 +288,7 @@ function drawStart() {
   ctx.beginPath(); ctx.ellipse(2, 5, 14, 10, 0, 0, Math.PI*2); ctx.fill();
   ctx.fillStyle = '#FFA500';
   const wf = Math.sin(Date.now()/150) * 6;
-  ctx.beginPath(); ctx.ellipse(-8, wf, 14, 8, -0.3, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(-8, wf, 14, 8, -0.3, 0, Math.PI*2); ctx.fill();
   ctx.fillStyle = '#fff';
   ctx.beginPath(); ctx.arc(10, -5, 7, 0, Math.PI*2); ctx.fill();
   ctx.fillStyle = '#222';

@@ -23,12 +23,12 @@ function render(){
     app.innerHTML=`<div class="timer">${timeLeft.toFixed(1)}초</div><div class="score">${taps}</div><div class="circle" style="background:hsl(${taps*8%360},70%,55%)" ontouchstart="tap(event)" onclick="tap(event)">👆</div><p class="info">빠르게 탭!</p>`;
   } else {
     const isNew=taps>hs;
-    if(isNew){hs=taps;localStorage.setItem('tap_hs',hs);_hub('tap_speed',taps);}
+    if(isNew){hs=taps;localStorage.setItem('tap_hs',hs);}_hub('tap_speed',taps);
     app.innerHTML=`<div style="font-size:48px;margin-bottom:10px">${isNew?'🎉':'👆'}</div><div class="score">${taps}탭</div><p class="info">${isNew?'새 기록!':'게임 오버'}</p><div class="hs">최고: ${hs}탭</div><div class="circle" style="background:#4CAF50" ontouchstart="reset(event)" onclick="reset(event)">다시</div>`;
   }
 }
-function startGame(e){e.preventDefault();state='playing';taps=0;timeLeft=10;render();timer=setInterval(()=>{timeLeft-=0.1;if(timeLeft<=0){clearInterval(timer);state='done';render();}else{document.querySelector('.timer').textContent=timeLeft.toFixed(1)+'초';}},100);}
+function startGame(e){e.preventDefault();clearInterval(timer);state='playing';taps=0;timeLeft=10;render();timer=setInterval(()=>{timeLeft-=0.1;if(timeLeft<=0){clearInterval(timer);state='done';render();}else{document.querySelector('.timer').textContent=timeLeft.toFixed(1)+'초';}},100);}
 function tap(e){e.preventDefault();if(state!=='playing')return;taps++;const s=document.querySelector('.score');if(s)s.textContent=taps;const c=document.querySelector('.circle');if(c)c.style.background=`hsl(${taps*8%360},70%,55%)`;}
-function reset(e){e.preventDefault();state='ready';render();}
+function reset(e){e.preventDefault();clearInterval(timer);state='ready';render();}
 render();
 </script></body></html>

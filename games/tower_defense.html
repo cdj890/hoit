@@ -167,9 +167,11 @@ const TDEFS=[
 
 // ============ STATE ============
 let curMap,mapData,gold,lives,wave,enemies,towers,projs,particles,pops;
-let selTower=-1,selPlaced=null,waveActive,spawnT,spawnC,state;
+let selTower=-1,selPlaced=null,waveActive,spawnT,spawnC,state='menu';
 let mx=-1,my=-1,frame=0,score=0,gameSpeed=1;
-let highScores=JSON.parse(localStorage.getItem('td_hs')||'[0,0,0,0,0]');
+let highScores;
+try{highScores=JSON.parse(localStorage.getItem('td_hs')||'[0,0,0,0,0]');}catch(e){highScores=[0,0,0,0,0];}
+if(!Array.isArray(highScores)||highScores.length<MAPS.length){highScores=[0,0,0,0,0];}
 
 // ============ MENU ============
 function buildMenu(){
@@ -385,7 +387,7 @@ function update(){
   pops=pops.filter(p=>p.life>0);
 }
 
-function hitEn(p,en){if(en.dead)return;let dmg=p.dmg;if(en.cursed>0)dmg*=2;if(p.spec==='void')dmg=en.hp*0.08*(1+p.level*0.02);en.hp-=dmg;applySpec(p,en);
+function hitEn(p,en){if(en.dead)return;let dmg=p.dmg;if(en.cursed>0)dmg*=2;if(p.spec==='void')dmg=en.maxHp*0.08*(1+p.level*0.02);en.hp-=dmg;applySpec(p,en);
   for(let i=0;i<3;i++)particles.push({x:en.x,y:en.y,vx:(Math.random()-0.5)*2.5,vy:(Math.random()-0.5)*2.5,color:p.color,life:10,maxLife:10,size:2});if(en.hp<=0)killEn(en);}
 function doSplash(p,cx,cy){enemies.forEach(en=>{if(en.dead)return;const d=Math.sqrt((en.x-cx)**2+(en.y-cy)**2);if(d<p.splash*T){let dmg=p.dmg*(1-d/(p.splash*T)*0.5);if(en.cursed>0)dmg*=2;en.hp-=dmg;applySpec(p,en);if(en.hp<=0)killEn(en);}});
   for(let i=0;i<8;i++){const a=Math.random()*6.28;particles.push({x:cx,y:cy,vx:Math.cos(a)*3,vy:Math.sin(a)*3,color:p.color,life:15,maxLife:15,size:3});}}
@@ -397,8 +399,8 @@ function killEn(en){if(en.dead)return;en.dead=true;gold+=en.goldVal;score+=en.bo
 
 function gameOver(){
   state='gameover';
-  if(wave>highScores[curMap]){highScores[curMap]=wave;localStorage.setItem('td_hs',JSON.stringify(highScores));}
-  _hub('tower_defense',wave);
+  if(wave>=highScores[curMap]){highScores[curMap]=wave;localStorage.setItem('td_hs',JSON.stringify(highScores));}
+  _hub('tower_defense',score);
   updateUI();
 }
 

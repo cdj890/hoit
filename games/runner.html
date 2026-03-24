@@ -37,12 +37,13 @@ canvas{max-width:100%!important;height:auto!important;display:block;margin:0 aut
 <script>
 const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
 const W=600,H=300,GROUND=H-50,GRAVITY=0.7,JUMP=-13;
-let px,py,vy,jumping,score,speed,obstacles,particles,running,frame;
+let px,py,vy,jumping,score,speed,obstacles,particles,running,frame,animID;
 
 function startGame(){
  document.getElementById('overlay').style.display='none';
  px=80;py=GROUND;vy=0;jumping=false;score=0;speed=5;
  obstacles=[];particles=[];running=true;frame=0;
+ if(animID)cancelAnimationFrame(animID);
  loop();
 }
 
@@ -164,12 +165,12 @@ function gameOverFn(){
 
 function loop(){
  if(!running){draw();return;}
- update();draw();requestAnimationFrame(loop);
+ update();draw();animID=requestAnimationFrame(loop);
 }
 
 document.addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();jump();}});
 cv.addEventListener('click',jump);
-cv.addEventListener('touchstart',e=>{e.preventDefault();jump();});
+cv.addEventListener('touchstart',e=>{e.preventDefault();jump();},{passive:false});
 draw();
 </script>
 </body>

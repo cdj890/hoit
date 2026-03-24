@@ -42,10 +42,11 @@ function init() {
 }
 
 document.addEventListener('keydown', e => {
+  if (['ArrowLeft','ArrowRight','ArrowDown','ArrowUp',' '].includes(e.key)) e.preventDefault();
   keys[e.key] = true;
   if (state === 'menu' && e.key === ' ') { init(); state = 'playing'; }
-  if (state === 'over' && (e.key === ' ' || e.key === 'r')) { init(); state = 'playing'; }
-  if (state === 'over' && e.key === 'm') state = 'menu';
+  if (state === 'over' && (e.key === ' ' || e.key === 'r' || e.key === 'R')) { init(); state = 'playing'; }
+  if (state === 'over' && (e.key === 'm' || e.key === 'M')) state = 'menu';
 });
 document.addEventListener('keyup', e => { keys[e.key] = false; });
 
@@ -146,7 +147,8 @@ function update() {
         }
         if (lives <= 0) {
           state = 'over';
-          if (score > highScore) { highScore = score; localStorage.setItem('bs_hs', highScore); _hub('bullet_storm',score); }
+          if (score > highScore) { highScore = score; localStorage.setItem('bs_hs', highScore); }
+          _hub('bullet_storm',score);
         }
         break;
       }
@@ -388,6 +390,20 @@ function gameLoop() {
   }
   requestAnimationFrame(gameLoop);
 }
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  if (state === 'menu') { init(); state = 'playing'; }
+  else if (state === 'over') { init(); state = 'playing'; }
+}, {passive: false});
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (state === 'playing') {
+    const rect = canvas.getBoundingClientRect();
+    player.x = (e.touches[0].clientX - rect.left) * (W / rect.width);
+    player.x = Math.max(PLAYER_W/2, Math.min(W - PLAYER_W/2, player.x));
+  }
+}, {passive: false});
+
 init();
 requestAnimationFrame(gameLoop);
 </script>

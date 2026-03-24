@@ -168,10 +168,11 @@ function releaseLane(lane) {
 }
 
 document.addEventListener('keydown', e => {
+  if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) e.preventDefault();
   if (state === 'menu') {
     if (e.code === 'ArrowUp') { selectedSong = (selectedSong - 1 + SONGS.length) % SONGS.length; }
     if (e.code === 'ArrowDown') { selectedSong = (selectedSong + 1) % SONGS.length; }
-    if (e.code === 'Space' || e.code === 'Enter') { e.preventDefault(); startGame(selectedSong); }
+    if (e.code === 'Space' || e.code === 'Enter') { startGame(selectedSong); }
     return;
   }
   if (state === 'results') {
@@ -184,6 +185,26 @@ document.addEventListener('keydown', e => {
 document.addEventListener('keyup', e => {
   const idx = KEY_CODES.indexOf(e.code);
   if (idx >= 0) releaseLane(idx);
+});
+
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  if (state === 'menu') { startGame(selectedSong); return; }
+  if (state === 'results') { state = 'menu'; return; }
+  for (const touch of e.changedTouches) {
+    const rect = canvas.getBoundingClientRect();
+    const tx = (touch.clientX - rect.left) * (W / rect.width);
+    const lane = Math.floor((tx - OFFSET_X) / LANE_W);
+    if (lane >= 0 && lane < LANES) hitLane(lane);
+  }
+}, {passive: false});
+canvas.addEventListener('touchend', e => {
+  for (const touch of e.changedTouches) {
+    const rect = canvas.getBoundingClientRect();
+    const tx = (touch.clientX - rect.left) * (W / rect.width);
+    const lane = Math.floor((tx - OFFSET_X) / LANE_W);
+    if (lane >= 0 && lane < LANES) releaseLane(lane);
+  }
 });
 
 function update() {
@@ -209,8 +230,8 @@ function update() {
     if (score > highScores[selectedSong]) {
       highScores[selectedSong] = score;
       localStorage.setItem('rhythm_hs', JSON.stringify(highScores));
-      _hub('rhythm', score);
     }
+    _hub('rhythm', score);
     state = 'results';
   }
 

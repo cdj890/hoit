@@ -19,7 +19,7 @@ function initGame(){
   for(let i=0;i<20;i++)gates.push(makeGate(H-250-i*200));
 }
 
-function makeGate(y){return{y,rotation:Math.random()*6.28,speed:0.02+score*0.002,gap:Math.random()*4|0};}
+function makeGate(y){return{y,rotation:Math.random()*6.28,speed:0.02+score*0.002,gap:Math.random()*4|0,passed:false};}
 
 function jump(){ball.vy=-8;}
 
@@ -38,13 +38,14 @@ function update(){
   gates.forEach(g=>{
     g.rotation+=g.speed;
     const dy=ball.y-g.y;
-    if(Math.abs(dy)<15&&Math.abs(ball.vy)>0){
-      // check if ball color matches gate segment
-      const bAngle=Math.atan2(W/2-W/2, ball.y-g.y); // simplified: check rotation sector
-      const sector=((g.rotation/(Math.PI*2)*4)%4+4)%4|0;
-      const ballSector=(sector+g.gap)%4;
-      if(ballSector!==ball.color){die();return;}
-      score++;ball.color=Math.random()*4|0;
+    if(Math.abs(dy)<15&&!g.passed&&Math.abs(ball.vy)>0){
+      // check if ball color matches gate segment at ball's entry angle
+      const entryAngle=ball.vy<0?-Math.PI/2:Math.PI/2;
+      let relAngle=entryAngle-g.rotation;
+      relAngle=((relAngle%(Math.PI*2))+(Math.PI*2))%(Math.PI*2);
+      const sector=(relAngle/(Math.PI/2))|0;
+      if(sector!==ball.color){die();return;}
+      g.passed=true;score++;ball.color=Math.random()*4|0;
       // add new gate above
       const topGate=gates.reduce((m,g2)=>g2.y<m?g2.y:m,Infinity);
       gates.push(makeGate(topGate-200));
@@ -56,7 +57,7 @@ function update(){
 
 function die(){
   state='done';
-  if(score>hs){hs=score;localStorage.setItem('cswitch_hs',hs);_hub('color_switch',score);}
+  if(score>hs){hs=score;localStorage.setItem('cswitch_hs',hs);}_hub('color_switch',score);
 }
 
 function draw(){

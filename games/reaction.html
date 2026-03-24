@@ -39,7 +39,7 @@ function render(){
     const best=Math.min(...results);
     const avg=Math.round(results.reduce((a,b)=>a+b,0)/results.length);
     const sc=Math.max(0,1000-best);
-    if(best<hs||!hs){hs=best;localStorage.setItem('react_hs',hs);_hub('reaction',sc);}
+    if(best<hs||!hs){hs=best;localStorage.setItem('react_hs',hs);}_hub('reaction',sc);
     s.classList.add('result-bg');
     s.innerHTML=`<h1>결과</h1><div class="time">${best}ms</div><p>최고 반응속도</p><p style="margin-top:8px">평균: ${avg}ms</p>
       <div style="display:flex;gap:10px;margin:15px 0">${results.map(r=>`<div style="background:#252545;padding:6px 12px;border-radius:8px;font-size:14px;color:#FFD700">${r}ms</div>`).join('')}</div>

@@ -152,6 +152,7 @@ _hub('hangman',wins);
 }
 
 function startGame(){
+if(autoAdvanceTimer){clearTimeout(autoAdvanceTimer);autoAdvanceTimer=null;}
 document.getElementById('startScreen').style.display='none';
 document.getElementById('gameOverScreen').style.display='none';
 document.getElementById('gameArea').style.display='block';
@@ -232,6 +233,7 @@ showResult(false);
 }
 }
 
+let autoAdvanceTimer=null;
 function showResult(won){
 document.getElementById('gameArea').style.display='none';
 const screen=document.getElementById('gameOverScreen');
@@ -241,8 +243,10 @@ document.getElementById('resultTitle').textContent=won?'정답!':'아쉬워요..
 document.getElementById('resultWord').textContent=`단어: ${currentWord}`;
 document.getElementById('resultScore').textContent=`현재 승리: ${wins}회`;
 document.getElementById('resultHighScore').textContent=`최고 기록: ${highScore}회`;
+if(autoAdvanceTimer)clearTimeout(autoAdvanceTimer);
 if(won){
-setTimeout(()=>{
+autoAdvanceTimer=setTimeout(()=>{
+autoAdvanceTimer=null;
 screen.style.display='none';
 document.getElementById('gameArea').style.display='block';
 nextRound();

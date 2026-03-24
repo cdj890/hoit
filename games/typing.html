@@ -188,8 +188,8 @@ document.getElementById('typingInput').addEventListener('keydown',e=>{
 if(e.key==='Enter')checkInput();
 });
 // Keep focus on input
-document.addEventListener('click',()=>{
-if(gameRunning&&inputEl)inputEl.focus();
+document.addEventListener('click',e=>{
+if(gameRunning&&inputEl){e.preventDefault();inputEl.focus();}
 });
 
 loadHS();

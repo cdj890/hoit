@@ -151,6 +151,10 @@ function render(){
   }
   d.addEventListener('click',()=>cellClick(r,c));
   d.addEventListener('contextmenu',e=>cellRightClick(e,r,c));
+  let longT;
+  d.addEventListener('touchstart',e=>{e.preventDefault();longT=setTimeout(()=>{if(gameOver||revealed[r][c]){longT=null;return;}flagged[r][c]=!flagged[r][c];let fc=0;for(let i=0;i<R;i++)for(let j=0;j<C;j++)if(flagged[i][j])fc++;document.getElementById('mcount').textContent=MINES-fc;render();longT=null;},500);},{passive:false});
+  d.addEventListener('touchend',()=>{if(longT){clearTimeout(longT);longT=null;}});
+  d.addEventListener('touchmove',()=>{if(longT){clearTimeout(longT);longT=null;}});
   b.appendChild(d);
  }
 }
