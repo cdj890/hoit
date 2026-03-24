@@ -118,8 +118,8 @@ function setNick(n){const h=getHub();h.nick=n;localStorage.setItem(HUB_KEY,JSON.
 function getScores(){return getHub().scores||{};}
 function getLB(){return JSON.parse(localStorage.getItem(LB_KEY)||'{}');}
 
-const SCORE_UNITS={tetris:'점',snake:'점',flappy:'점',tower_defense:'웨이브',rhythm:'점',bullet_storm:'점',gomoku:'승',digging:'m',puzzle2048:'점',minesweeper:'승',pong:'승',runner:'m',memory:'점',shooting:'점',sliding:'점',hangman:'승',breakout:'점',colormatch:'점',typing:'점',cardgame:'승'};
-const GAME_NAMES={tetris:'블록쌓기',snake:'뱀키우기',flappy:'병아리',tower_defense:'성지키기',rhythm:'리듬스타',bullet_storm:'불렛스톰',gomoku:'오목',digging:'땅굴탐험',puzzle2048:'2048',minesweeper:'지뢰찾기',pong:'핑퐁',runner:'달려라',memory:'기억력',shooting:'사격장',sliding:'퍼즐',hangman:'단어맞추기',breakout:'벽돌깨기',colormatch:'색맞추기',typing:'타자게임',cardgame:'카드배틀'};
+const SCORE_UNITS={tetris:'점',snake:'점',flappy:'점',tower_defense:'웨이브',rhythm:'점',bullet_storm:'점',gomoku:'승',digging:'m',puzzle2048:'점',minesweeper:'승',pong:'승',runner:'m',memory:'점',shooting:'점',sliding:'점',hangman:'승',breakout:'점',colormatch:'점',typing:'점',cardgame:'승',tap_speed:'탭',whack:'점',catch:'점',stack:'층',bubble:'점',swipe_match:'점',reaction:'ms',dodge_ball:'초',number_tap:'점',color_switch:'점'};
+const GAME_NAMES={tetris:'블록쌓기',snake:'뱀키우기',flappy:'병아리',tower_defense:'성지키기',rhythm:'리듬스타',bullet_storm:'불렛스톰',gomoku:'오목',digging:'땅굴탐험',puzzle2048:'2048',minesweeper:'지뢰찾기',pong:'핑퐁',runner:'달려라',memory:'기억력',shooting:'사격장',sliding:'퍼즐',hangman:'단어맞추기',breakout:'벽돌깨기',colormatch:'색맞추기',typing:'타자게임',cardgame:'카드배틀',tap_speed:'탭스피드',whack:'두더지잡기',catch:'과일받기',stack:'블록쌓기',bubble:'버블팝',swipe_match:'스와이프',reaction:'반응속도',dodge_ball:'공피하기',number_tap:'숫자터치',color_switch:'컬러스위치'};
 
 let currentTab='game', lbFilter='all';
 
@@ -145,6 +145,17 @@ const GAMES=[
   {file:'games/colormatch.html',title:'색 맞추기',desc:'스트룹 반응 테스트',emoji:'🌈',id:'colormatch',bg:'linear-gradient(135deg,#00BCD4,#4DD0E1)',mobile:'ok'},
   {file:'games/typing.html',title:'타자 게임',desc:'떨어지는 단어 타자',emoji:'⌨️',id:'typing',bg:'linear-gradient(135deg,#455A64,#78909C)',mobile:'pc'},
   {file:'games/cardgame.html',title:'카드 배틀',desc:'카드 뒤집기 대전',emoji:'🃏',id:'cardgame',bg:'linear-gradient(135deg,#5C6BC0,#7986CB)',mobile:'ok'},
+  // 모바일 전용 게임
+  {file:'games/tap_speed.html',title:'탭 스피드',desc:'10초 안에 최대한 빠르게 탭!',emoji:'👆',id:'tap_speed',bg:'linear-gradient(135deg,#FF5252,#FF8A80)',mobile:'ok'},
+  {file:'games/whack.html',title:'두더지 잡기',desc:'올라오는 두더지를 잡아라',emoji:'🔨',id:'whack',bg:'linear-gradient(135deg,#8D6E63,#D7CCC8)',mobile:'ok'},
+  {file:'games/catch.html',title:'과일 받기',desc:'떨어지는 과일을 바구니로',emoji:'🧺',id:'catch',bg:'linear-gradient(135deg,#66BB6A,#C8E6C9)',mobile:'ok'},
+  {file:'games/stack.html',title:'블록 쌓기',desc:'블록을 정확히 쌓아올려라',emoji:'📦',id:'stack',bg:'linear-gradient(135deg,#42A5F5,#90CAF9)',mobile:'ok'},
+  {file:'games/bubble.html',title:'버블 터뜨리기',desc:'올라오는 버블을 터뜨려라',emoji:'🫧',id:'bubble',bg:'linear-gradient(135deg,#AB47BC,#E1BEE7)',mobile:'ok'},
+  {file:'games/swipe_match.html',title:'스와이프 퍼즐',desc:'같은 색 3개를 맞춰라',emoji:'💎',id:'swipe_match',bg:'linear-gradient(135deg,#26C6DA,#80DEEA)',mobile:'ok'},
+  {file:'games/reaction.html',title:'반응속도 테스트',desc:'초록불에 최대한 빠르게 탭!',emoji:'⚡',id:'reaction',bg:'linear-gradient(135deg,#FFC107,#FFEB3B)',mobile:'ok'},
+  {file:'games/dodge_ball.html',title:'공 피하기',desc:'떨어지는 공을 피해라',emoji:'🏐',id:'dodge_ball',bg:'linear-gradient(135deg,#5C6BC0,#9FA8DA)',mobile:'ok'},
+  {file:'games/number_tap.html',title:'숫자 순서 터치',desc:'1부터 25까지 빠르게 터치',emoji:'🔢',id:'number_tap',bg:'linear-gradient(135deg,#FF7043,#FFAB91)',mobile:'ok'},
+  {file:'games/color_switch.html',title:'컬러 스위치',desc:'같은 색 게이트를 통과해라',emoji:'🌈',id:'color_switch',bg:'linear-gradient(135deg,#EC407A,#F48FB1)',mobile:'ok'},
 ];
 
 const TESTS=[
