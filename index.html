@@ -86,14 +86,18 @@ footer{text-align:center;padding:20px;color:#444;font-size:12px}
 
 <header>
   <h1>놀이터</h1>
-  <p class="sub">게임 · 심리테스트 · 운세</p>
+  <p class="sub">게임 · 심리테스트 · 운세 · 먹방 · IT · 퀴즈 · 도구</p>
   <div class="nick-bar" id="nick-bar"></div>
 </header>
 
 <div class="tabs" id="tabs">
   <div class="tab" onclick="switchTab('game')">🎮 게임 <span class="badge" id="game-count"></span></div>
-  <div class="tab" onclick="switchTab('test')">🧠 심리테스트 <span class="badge" id="test-count"></span></div>
+  <div class="tab" onclick="switchTab('test')">🧠 테스트 <span class="badge" id="test-count"></span></div>
   <div class="tab" onclick="switchTab('destiny')">🔮 운세 <span class="badge" id="dest-count"></span></div>
+  <div class="tab" onclick="switchTab('youtube')">📺 먹방 <span class="badge" id="yt-count"></span></div>
+  <div class="tab" onclick="switchTab('itknow')">💻 IT <span class="badge" id="it-count"></span></div>
+  <div class="tab" onclick="switchTab('quiz')">📚 퀴즈 <span class="badge" id="qz-count"></span></div>
+  <div class="tab" onclick="switchTab('tools')">🛠️ 도구 <span class="badge" id="tl-count"></span></div>
 </div>
 
 <div class="grid" id="grid"></div>
@@ -204,6 +208,98 @@ const DESTINY=[
   {file:'destiny/color_fortune.html',title:'오늘의 색 운세',desc:'오늘의 행운 색은?',emoji:'🎨',bg:'linear-gradient(135deg,#C62828,#EF5350)'},
 ];
 
+const YOUTUBE=[
+  {file:'youtube/chicken.html',title:'치킨 먹방',desc:'바삭한 치킨 먹방 모음',emoji:'🍗',bg:'linear-gradient(135deg,#FF8F00,#FFB74D)'},
+  {file:'youtube/tteokbokki.html',title:'떡볶이 먹방',desc:'매콤달콤 떡볶이',emoji:'🌶️',bg:'linear-gradient(135deg,#E53935,#EF5350)'},
+  {file:'youtube/samgyeopsal.html',title:'고기 먹방',desc:'삼겹살/소고기 먹방',emoji:'🥩',bg:'linear-gradient(135deg,#6D4C41,#8D6E63)'},
+  {file:'youtube/jjajang.html',title:'면 먹방',desc:'짜장면/라면/국수',emoji:'🍜',bg:'linear-gradient(135deg,#F57F17,#FDD835)'},
+  {file:'youtube/kimbap.html',title:'분식 먹방',desc:'김밥/순대/튀김',emoji:'🍱',bg:'linear-gradient(135deg,#558B2F,#8BC34A)'},
+  {file:'youtube/cake.html',title:'케이크/빵',desc:'케이크 빵 먹방',emoji:'🎂',bg:'linear-gradient(135deg,#AD1457,#EC407A)'},
+  {file:'youtube/macaron.html',title:'마카롱/디저트',desc:'디저트 먹방 모음',emoji:'🧁',bg:'linear-gradient(135deg,#CE93D8,#F48FB1)'},
+  {file:'youtube/icecream.html',title:'아이스크림',desc:'아이스크림/빙수',emoji:'🍦',bg:'linear-gradient(135deg,#4FC3F7,#81D4FA)'},
+  {file:'youtube/waffle.html',title:'와플/팬케이크',desc:'와플 크레이프 먹방',emoji:'🧇',bg:'linear-gradient(135deg,#FFB74D,#FFE0B2)'},
+  {file:'youtube/cafe.html',title:'카페/브런치',desc:'카페 음료 브런치',emoji:'☕',bg:'linear-gradient(135deg,#5D4037,#8D6E63)'},
+  {file:'youtube/asmr_crispy.html',title:'바삭 ASMR',desc:'바삭바삭 소리 먹방',emoji:'🔊',bg:'linear-gradient(135deg,#FF7043,#FFAB91)'},
+  {file:'youtube/asmr_chewy.html',title:'쫀득 ASMR',desc:'쫀득쫀득 소리 먹방',emoji:'🔊',bg:'linear-gradient(135deg,#AB47BC,#CE93D8)'},
+  {file:'youtube/asmr_soup.html',title:'국물 ASMR',desc:'국물 슬러핑 소리',emoji:'🔊',bg:'linear-gradient(135deg,#FF5722,#FF8A65)'},
+  {file:'youtube/asmr_noodle.html',title:'면 ASMR',desc:'면 후루룩 소리',emoji:'🔊',bg:'linear-gradient(135deg,#FFC107,#FFE082)'},
+  {file:'youtube/asmr_fruit.html',title:'과일 ASMR',desc:'아삭아삭 과일 소리',emoji:'🔊',bg:'linear-gradient(135deg,#66BB6A,#A5D6A7)'},
+  {file:'youtube/onepan.html',title:'원팬 요리',desc:'팬 하나로 완성!',emoji:'🍳',bg:'linear-gradient(135deg,#FFB300,#FFD54F)'},
+  {file:'youtube/alone.html',title:'자취 요리',desc:'자취생 필수 레시피',emoji:'🏠',bg:'linear-gradient(135deg,#78909C,#B0BEC5)'},
+  {file:'youtube/snack.html',title:'간식 만들기',desc:'쉽고 맛있는 간식',emoji:'🍿',bg:'linear-gradient(135deg,#FF7043,#FFCCBC)'},
+  {file:'youtube/nightfood.html',title:'야식 레시피',desc:'밤에 먹으면 최고',emoji:'🌙',bg:'linear-gradient(135deg,#1A237E,#3949AB)'},
+  {file:'youtube/brunch.html',title:'브런치/건강식',desc:'건강한 한 끼',emoji:'🥑',bg:'linear-gradient(135deg,#2E7D32,#66BB6A)'},
+];
+
+const ITKNOW=[
+  {file:'itknow/bubble_sort.html',title:'버블 정렬',desc:'버블 정렬 시각화',emoji:'🫧',bg:'linear-gradient(135deg,#42A5F5,#90CAF9)'},
+  {file:'itknow/selection_sort.html',title:'선택 정렬',desc:'선택 정렬 시각화',emoji:'👆',bg:'linear-gradient(135deg,#66BB6A,#A5D6A7)'},
+  {file:'itknow/insertion_sort.html',title:'삽입 정렬',desc:'삽입 정렬 시각화',emoji:'📥',bg:'linear-gradient(135deg,#FFA726,#FFCC80)'},
+  {file:'itknow/quick_sort.html',title:'퀵 정렬',desc:'퀵 정렬 시각화',emoji:'⚡',bg:'linear-gradient(135deg,#EF5350,#EF9A9A)'},
+  {file:'itknow/merge_sort.html',title:'병합 정렬',desc:'병합 정렬 시각화',emoji:'🔀',bg:'linear-gradient(135deg,#AB47BC,#CE93D8)'},
+  {file:'itknow/stack_viz.html',title:'스택',desc:'스택 자료구조 시각화',emoji:'📚',bg:'linear-gradient(135deg,#5C6BC0,#9FA8DA)'},
+  {file:'itknow/queue_viz.html',title:'큐',desc:'큐 자료구조 시각화',emoji:'🚶',bg:'linear-gradient(135deg,#26A69A,#80CBC4)'},
+  {file:'itknow/linkedlist_viz.html',title:'링크드 리스트',desc:'연결 리스트 시각화',emoji:'🔗',bg:'linear-gradient(135deg,#78909C,#B0BEC5)'},
+  {file:'itknow/tree_viz.html',title:'이진 트리',desc:'이진 트리 시각화',emoji:'🌳',bg:'linear-gradient(135deg,#2E7D32,#66BB6A)'},
+  {file:'itknow/hash_viz.html',title:'해시 테이블',desc:'해시 테이블 시각화',emoji:'#️⃣',bg:'linear-gradient(135deg,#F57F17,#FDD835)'},
+  {file:'itknow/http_explain.html',title:'HTTP 원리',desc:'HTTP 동작 원리',emoji:'🌐',bg:'linear-gradient(135deg,#1565C0,#42A5F5)'},
+  {file:'itknow/dns_explain.html',title:'DNS 원리',desc:'DNS 동작 원리',emoji:'🔍',bg:'linear-gradient(135deg,#00695C,#26A69A)'},
+  {file:'itknow/crypto_explain.html',title:'암호화 기초',desc:'암호화란 무엇인가',emoji:'🔐',bg:'linear-gradient(135deg,#4527A0,#7C4DFF)'},
+  {file:'itknow/api_explain.html',title:'API란?',desc:'REST API 설명',emoji:'🔌',bg:'linear-gradient(135deg,#E65100,#FF9800)'},
+  {file:'itknow/git_explain.html',title:'Git 기초',desc:'Git 사용법',emoji:'📝',bg:'linear-gradient(135deg,#424242,#757575)'},
+  {file:'itknow/js_quiz.html',title:'JS 퀴즈',desc:'JavaScript 퀴즈',emoji:'💛',bg:'linear-gradient(135deg,#F9A825,#FDD835)'},
+  {file:'itknow/python_quiz.html',title:'Python 퀴즈',desc:'Python 퀴즈',emoji:'🐍',bg:'linear-gradient(135deg,#1565C0,#FFD54F)'},
+  {file:'itknow/sql_quiz.html',title:'SQL 퀴즈',desc:'SQL 쿼리 퀴즈',emoji:'🗄️',bg:'linear-gradient(135deg,#00838F,#4DD0E1)'},
+  {file:'itknow/algo_quiz.html',title:'알고리즘 퀴즈',desc:'Big-O / 정렬 퀴즈',emoji:'🧮',bg:'linear-gradient(135deg,#6A1B9A,#AB47BC)'},
+  {file:'itknow/debug_quiz.html',title:'디버깅 퀴즈',desc:'버그를 찾아라!',emoji:'🐛',bg:'linear-gradient(135deg,#BF360C,#FF7043)'},
+];
+
+const QUIZ=[
+  {file:'quiz/joseon.html',title:'조선시대',desc:'조선시대 역사 퀴즈',emoji:'🏯',bg:'linear-gradient(135deg,#5D4037,#8D6E63)'},
+  {file:'quiz/modern.html',title:'근현대사',desc:'근현대 역사 퀴즈',emoji:'🇰🇷',bg:'linear-gradient(135deg,#1565C0,#42A5F5)'},
+  {file:'quiz/person.html',title:'역사 인물',desc:'이 사람은 누구?',emoji:'👤',bg:'linear-gradient(135deg,#4E342E,#8D6E63)'},
+  {file:'quiz/heritage.html',title:'문화재',desc:'한국 문화재 퀴즈',emoji:'🏛️',bg:'linear-gradient(135deg,#BF360C,#FF7043)'},
+  {file:'quiz/timeline.html',title:'연표',desc:'역사 연대 맞추기',emoji:'📅',bg:'linear-gradient(135deg,#37474F,#78909C)'},
+  {file:'quiz/space.html',title:'우주',desc:'우주/천문학 퀴즈',emoji:'🚀',bg:'linear-gradient(135deg,#0D47A1,#1565C0)'},
+  {file:'quiz/body.html',title:'인체',desc:'인체 상식 퀴즈',emoji:'🫀',bg:'linear-gradient(135deg,#C62828,#EF5350)'},
+  {file:'quiz/animal.html',title:'동물',desc:'동물 상식 퀴즈',emoji:'🦁',bg:'linear-gradient(135deg,#E65100,#FF9800)'},
+  {file:'quiz/chemistry.html',title:'화학',desc:'화학 원소 퀴즈',emoji:'⚗️',bg:'linear-gradient(135deg,#1B5E20,#4CAF50)'},
+  {file:'quiz/physics.html',title:'물리',desc:'물리 법칙 퀴즈',emoji:'⚡',bg:'linear-gradient(135deg,#4527A0,#7C4DFF)'},
+  {file:'quiz/flags.html',title:'국기 맞추기',desc:'이 국기는 어느 나라?',emoji:'🏁',bg:'linear-gradient(135deg,#00695C,#26A69A)'},
+  {file:'quiz/capitals.html',title:'수도 맞추기',desc:'나라의 수도는?',emoji:'🏙️',bg:'linear-gradient(135deg,#283593,#5C6BC0)'},
+  {file:'quiz/worldfood.html',title:'세계 음식',desc:'이 음식의 나라는?',emoji:'🍕',bg:'linear-gradient(135deg,#D84315,#FF7043)'},
+  {file:'quiz/landmark.html',title:'랜드마크',desc:'유명 건축물 퀴즈',emoji:'🗼',bg:'linear-gradient(135deg,#F57F17,#FDD835)'},
+  {file:'quiz/language.html',title:'세계 언어',desc:'이 인사말의 언어는?',emoji:'🗣️',bg:'linear-gradient(135deg,#6A1B9A,#AB47BC)'},
+  {file:'quiz/meme.html',title:'밈 퀴즈',desc:'이 밈의 뜻은?',emoji:'😂',bg:'linear-gradient(135deg,#FF6F00,#FFB300)'},
+  {file:'quiz/slang.html',title:'신조어',desc:'최신 신조어 퀴즈',emoji:'💬',bg:'linear-gradient(135deg,#00BFA5,#64FFDA)'},
+  {file:'quiz/celeb.html',title:'연예인',desc:'K-POP 드라마 퀴즈',emoji:'⭐',bg:'linear-gradient(135deg,#AD1457,#EC407A)'},
+  {file:'quiz/movie.html',title:'영화',desc:'영화 명대사 퀴즈',emoji:'🎬',bg:'linear-gradient(135deg,#1A237E,#3949AB)'},
+  {file:'quiz/music.html',title:'음악',desc:'음악 상식 퀴즈',emoji:'🎵',bg:'linear-gradient(135deg,#E91E63,#F48FB1)'},
+];
+
+const TOOLS=[
+  {file:'tools/bmi.html',title:'BMI 계산기',desc:'체질량지수 계산',emoji:'⚖️',bg:'linear-gradient(135deg,#26A69A,#80CBC4)'},
+  {file:'tools/age.html',title:'나이 계산기',desc:'만나이/한국나이 계산',emoji:'🎂',bg:'linear-gradient(135deg,#7B1FA2,#CE93D8)'},
+  {file:'tools/dday.html',title:'D-Day 계산기',desc:'남은 날짜 카운트',emoji:'📅',bg:'linear-gradient(135deg,#C62828,#EF5350)'},
+  {file:'tools/tip.html',title:'더치페이 계산기',desc:'팁/나눠내기 계산',emoji:'💰',bg:'linear-gradient(135deg,#2E7D32,#66BB6A)'},
+  {file:'tools/exchange.html',title:'환율 계산기',desc:'주요 통화 환율 변환',emoji:'💱',bg:'linear-gradient(135deg,#1565C0,#42A5F5)'},
+  {file:'tools/nickname.html',title:'닉네임 생성기',desc:'랜덤 닉네임 생성',emoji:'🎲',bg:'linear-gradient(135deg,#FF6F00,#FFB300)'},
+  {file:'tools/password.html',title:'비밀번호 생성기',desc:'안전한 비밀번호 생성',emoji:'🔑',bg:'linear-gradient(135deg,#37474F,#78909C)'},
+  {file:'tools/qrcode.html',title:'QR코드 생성기',desc:'텍스트를 QR코드로',emoji:'📱',bg:'linear-gradient(135deg,#212121,#616161)'},
+  {file:'tools/palette.html',title:'색상 팔레트',desc:'랜덤 색상 팔레트',emoji:'🎨',bg:'linear-gradient(135deg,#AD1457,#EC407A)'},
+  {file:'tools/lorem.html',title:'한글 Lorem',desc:'한글 더미 텍스트 생성',emoji:'📝',bg:'linear-gradient(135deg,#5D4037,#8D6E63)'},
+  {file:'tools/unit.html',title:'단위 변환기',desc:'길이/무게/온도 변환',emoji:'📐',bg:'linear-gradient(135deg,#00838F,#4DD0E1)'},
+  {file:'tools/color_convert.html',title:'색상 변환기',desc:'HEX↔RGB↔HSL',emoji:'🌈',bg:'linear-gradient(135deg,#E91E63,#F48FB1)'},
+  {file:'tools/base.html',title:'진법 변환기',desc:'2/8/10/16진법',emoji:'🔢',bg:'linear-gradient(135deg,#4527A0,#7C4DFF)'},
+  {file:'tools/encoding.html',title:'인코딩 도구',desc:'Base64/URL 인코딩',emoji:'🔤',bg:'linear-gradient(135deg,#1B5E20,#4CAF50)'},
+  {file:'tools/timezone.html',title:'시간대 변환',desc:'세계 시간 비교',emoji:'🕐',bg:'linear-gradient(135deg,#0D47A1,#42A5F5)'},
+  {file:'tools/timer.html',title:'타이머',desc:'카운트다운 타이머',emoji:'⏱️',bg:'linear-gradient(135deg,#BF360C,#FF7043)'},
+  {file:'tools/stopwatch.html',title:'스톱워치',desc:'랩 기능 스톱워치',emoji:'⏲️',bg:'linear-gradient(135deg,#827717,#C0CA33)'},
+  {file:'tools/memo.html',title:'메모장',desc:'자동 저장 메모장',emoji:'📋',bg:'linear-gradient(135deg,#FFB300,#FFD54F)'},
+  {file:'tools/dice_tool.html',title:'주사위',desc:'주사위 굴리기 도구',emoji:'🎲',bg:'linear-gradient(135deg,#6A1B9A,#AB47BC)'},
+  {file:'tools/coin_tool.html',title:'동전 던지기',desc:'앞면? 뒷면?',emoji:'🪙',bg:'linear-gradient(135deg,#F9A825,#FDD835)'},
+];
+
 // Nick
 function renderNick(){
   const bar=document.getElementById('nick-bar');
@@ -222,9 +318,10 @@ function changeNick(){const n=prompt('닉네임 변경:',getNick());if(n?.trim()
 function switchTab(tab){
   currentTab=tab;
   document.querySelectorAll('.tab').forEach(t=>t.className='tab');
-  const idx={game:0,test:1,destiny:2}[tab];
-  const cls=['active-game','active-test','active-destiny'][idx];
-  document.querySelectorAll('.tab')[idx].classList.add(cls);
+  const tabs={game:0,test:1,destiny:2,youtube:3,itknow:4,quiz:5,tools:6};
+  const cls=['active-game','active-test','active-destiny','active-game','active-test','active-destiny','active-game'];
+  const idx=tabs[tab]||0;
+  document.querySelectorAll('.tab')[idx]?.classList.add(cls[idx]);
   document.getElementById('lb-section').style.display=tab==='game'?'block':'none';
   renderGrid();
   if(tab==='game')renderLB();
@@ -236,7 +333,8 @@ const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
 function renderGrid(){
   const grid=document.getElementById('grid');
   grid.innerHTML='';
-  const items=currentTab==='game'?GAMES:currentTab==='test'?TESTS:DESTINY;
+  const TAB_MAP={game:GAMES,test:TESTS,destiny:DESTINY,youtube:YOUTUBE,itknow:ITKNOW,quiz:QUIZ,tools:TOOLS};
+  const items=TAB_MAP[currentTab]||GAMES;
   const scores=getScores();
 
   // Sort: mobile-ok first on mobile
@@ -339,6 +437,10 @@ renderNick();
 document.getElementById('game-count').textContent=GAMES.length;
 document.getElementById('test-count').textContent=TESTS.length;
 document.getElementById('dest-count').textContent=DESTINY.length;
+document.getElementById('yt-count').textContent=YOUTUBE.length;
+document.getElementById('it-count').textContent=ITKNOW.length;
+document.getElementById('qz-count').textContent=QUIZ.length;
+document.getElementById('tl-count').textContent=TOOLS.length;
 switchTab('game');
 </script>
 </body>
