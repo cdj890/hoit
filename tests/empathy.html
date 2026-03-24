@@ -51,8 +51,8 @@ const questions=[
 {q:"다른 사람의 성공 소식을 들으면?",a:[["별 감흥 없다",1],["축하한다고 말한다",2],["진심으로 기쁘고 같이 축하한다",4]]}
 ];
 let cur=0,total=0;
-function startQuiz(){document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();}
-function showQ(){const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=()=>pick(a[1]);o.appendChild(b);});}
+function startQuiz(){_shuf(questions);document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();}
+function showQ(){if(!window._qs){_shuf(questions);window._qs=1;}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=()=>pick(a[1]);o.appendChild(b);});}
 function pick(v){total+=v;cur++;if(cur<questions.length)showQ();else showResult();}
 function showResult(){const score=Math.min(100,Math.round(total/40*100));
 document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');

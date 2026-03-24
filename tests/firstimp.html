@@ -55,8 +55,8 @@ myst:{e:"🌙",n:"신비로운 첫인상",d:"깊이 있고 알 수 없는 매력
 fun:{e:"🎪",n:"유쾌한 첫인상",d:"밝은 에너지로 주변을 환하게 만드는 당신! 첫 만남에서도 금방 웃음꽃을 피울 수 있어요.",t:"<strong>첫인상 키워드:</strong> 밝은, 재밌는, 에너지틱<br><strong>매력 포인트:</strong> 자연스러운 유머감각<br><strong>어울리는 컬러:</strong> 옐로, 오렌지"},
 intel:{e:"📖",n:"지적인 첫인상",d:"차분하고 정돈된 느낌으로 신뢰감을 줍니다. 말 한마디에 깊이가 느껴지는 지적인 매력이 있어요.",t:"<strong>첫인상 키워드:</strong> 똑똑한, 차분한, 신뢰감<br><strong>매력 포인트:</strong> 깊이 있는 대화 능력<br><strong>어울리는 컬러:</strong> 그레이, 카키"}};
 let cur=0,scores={};
-function startQuiz(){document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();}
-function showQ(){const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=()=>pick(a[1]);o.appendChild(b);});}
+function startQuiz(){_shuf(questions);document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();}
+function showQ(){if(!window._qs){_shuf(questions);window._qs=1;}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=()=>pick(a[1]);o.appendChild(b);});}
 function pick(t){scores[t]=(scores[t]||0)+1;cur++;if(cur<questions.length)showQ();else showResult();}
 function showResult(){const top=Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];const r=types[top];document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');document.getElementById('rEmoji').textContent=r.e;document.getElementById('rType').textContent=r.n;document.getElementById('rDesc').textContent=r.d;document.getElementById('rTraits').innerHTML=r.t;}
 </script></body></html>

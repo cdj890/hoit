@@ -54,8 +54,8 @@ const questions=[
 {q:"길에서 아는 사람을 보면?",a:[["못 본 척 한다",1],["눈 마주치면 인사",2],["먼저 인사한다",3],["달려가서 반갑게!",4]]}
 ];
 let cur=0,total=0;
-function startQuiz(){document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();}
-function showQ(){const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=()=>pick(a[1]);o.appendChild(b);});}
+function startQuiz(){_shuf(questions);document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();}
+function showQ(){if(!window._qs){_shuf(questions);window._qs=1;}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=()=>pick(a[1]);o.appendChild(b);});}
 function pick(v){total+=v;cur++;if(cur<questions.length)showQ();else showResult();}
 function showResult(){const pct=Math.round((total-8)/24*100);
 document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');

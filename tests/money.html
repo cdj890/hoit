@@ -56,8 +56,8 @@ const types=[
 {min:26,max:32,e:"🛍️",n:"플렉스왕",d:"인생은 즐기는 거! 원하는 것에 과감히 투자하는 YOLO 타입입니다. 현재의 행복을 중시해요.",a:"<strong>💡 재테크 조언:</strong><br>• 월급의 최소 20%는 저축하는 습관을 만들어보세요<br>• 위시리스트를 만들고 우선순위를 정해보세요<br>• 구독 서비스 정리만으로도 큰 절약이 돼요"}
 ];
 let cur=0,total=0;
-function startQuiz(){document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();}
-function showQ(){const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=()=>pick(a[1]);o.appendChild(b);});}
+function startQuiz(){_shuf(questions);document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();}
+function showQ(){if(!window._qs){_shuf(questions);window._qs=1;}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=()=>pick(a[1]);o.appendChild(b);});}
 function pick(v){total+=v;cur++;if(cur<questions.length)showQ();else showResult();}
 function showResult(){const r=types.find(t=>total>=t.min&&total<=t.max)||types[2];document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');document.getElementById('rEmoji').textContent=r.e;document.getElementById('rType').textContent=r.n;document.getElementById('rDesc').textContent=r.d;document.getElementById('rAdvice').innerHTML=r.a;}
 </script></body></html>

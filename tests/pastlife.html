@@ -53,8 +53,8 @@ scholar:{e:"📚",n:"학자",d:"전생에 당신은 위대한 학자였습니다
 explorer:{e:"🧭",n:"탐험가",d:"전생에 당신은 대담한 탐험가였습니다! 미지의 세계를 개척했죠. 지금도 새로운 경험과 자유를 갈망하는 영혼이에요."},
 merchant:{e:"💰",n:"무역상",d:"전생에 당신은 부유한 무역상이었습니다! 실크로드를 누비며 부를 쌓았죠. 지금도 뛰어난 사업 감각과 사교성이 돋보여요."}};
 let cur=0,scores={};
-function startQuiz(){document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();}
-function showQ(){const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=()=>pick(a[1]);o.appendChild(b);});}
+function startQuiz(){_shuf(questions);document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();}
+function showQ(){if(!window._qs){_shuf(questions);window._qs=1;}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=()=>pick(a[1]);o.appendChild(b);});}
 function pick(t){scores[t]=(scores[t]||0)+1;cur++;if(cur<questions.length)showQ();else showResult();}
 function showResult(){const top=Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];const r=types[top];document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');document.getElementById('rEmoji').textContent=r.e;document.getElementById('rType').textContent='당신의 전생은 '+r.n+'!';document.getElementById('rDesc').textContent=r.d;}
 </script></body></html>
