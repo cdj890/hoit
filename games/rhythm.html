@@ -100,7 +100,9 @@ let judgePops = []; // {text, color, life, x}
 let particles = [];
 let bgPulse = 0;
 let frame = 0;
-let highScores = JSON.parse(localStorage.getItem('rhythm_hs') || '[0,0,0]');
+let highScores;
+try{highScores=JSON.parse(localStorage.getItem('rhythm_hs')||'[0,0,0]');}catch(e){highScores=[0,0,0];}
+if(!Array.isArray(highScores)||highScores.length<3)highScores=[0,0,0];
 
 function startGame(songIdx) {
   selectedSong = songIdx;
