@@ -9,7 +9,7 @@
 body{background:#0f0f1e;display:flex;justify-content:center;align-items:center;min-height:100vh;font-family:'Segoe UI',sans-serif;color:#fff;user-select:none}
 #wrap{position:relative;display:none}
 canvas{border-radius:12px 12px 0 0;display:block;box-shadow:0 0 40px rgba(100,150,255,0.15)}
-#bottom{background:rgba(15,15,30,0.97);border-radius:0 0 12px 12px;padding:8px}
+#bottom{max-width:100%;overflow-x:auto;background:rgba(15,15,30,0.97);border-radius:0 0 12px 12px;padding:8px}
 #towers{display:flex;gap:4px;justify-content:center;flex-wrap:wrap;margin-bottom:6px}
 .tb{background:#1a1a2e;border:2px solid #333;border-radius:8px;padding:4px 6px;cursor:pointer;font-size:10px;text-align:center;min-width:62px;transition:all .15s;color:#ccc}
 .tb:hover{border-color:#77f;transform:scale(1.05)}
@@ -39,6 +39,7 @@ canvas{border-radius:12px 12px 0 0;display:block;box-shadow:0 0 40px rgba(100,15
 .map-card h3{font-size:16px;margin-bottom:3px}
 .map-card p{color:#888;font-size:12px}
 .map-card .hs{color:#FFD700;font-size:13px;margin-top:4px}
+canvas{max-width:100%!important;height:auto!important;display:block;margin:0 auto}body{overflow-x:hidden}
 </style>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 </head>
