@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>무인도 생존</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:#0f0f1e;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:'Segoe UI',sans-serif;color:#fff;overflow:hidden;touch-action:none}
+canvas{display:block;border-radius:12px}
+.overlay{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(15,15,30,0.95);z-index:100}
+.overlay.hidden{display:none}
+h1{font-size:32px;margin-bottom:10px;text-shadow:0 0 20px #22c55e}
+.sub{color:#aaa;margin-bottom:25px;font-size:14px;text-align:center;padding:0 20px}
+.btn{background:rgba(255,255,255,0.12);border:2px solid rgba(255,255,255,0.25);color:#fff;padding:14px 30px;border-radius:14px;font-size:18px;font-weight:bold;cursor:pointer;touch-action:manipulation;min-width:44px;min-height:44px;margin:5px}
+.btn:active{background:rgba(255,255,255,0.25)}
+#hud{position:fixed;top:50px;left:0;width:100%;padding:0 10px;pointer-events:none;z-index:50;font-size:11px}
+.bar-row{display:flex;align-items:center;margin:2px 0;gap:5px}
+.bar-label{width:35px}
+.bar-outer{flex:1;height:10px;background:rgba(0,0,0,0.5);border-radius:5px;border:1px solid rgba(255,255,255,0.2)}
+.bar-inner{height:100%;border-radius:5px;transition:width 0.3s}
+#craftPanel{position:fixed;bottom:10px;right:10px;z-index:60;display:none;flex-direction:column;gap:5px}
+.craft-btn{background:rgba(0,0,0,0.7);border:1px solid rgba(255,255,255,0.3);color:#fff;padding:8px 12px;border-radius:8px;font-size:12px;cursor:pointer;touch-action:manipulation;min-height:36px;text-align:left}
+.craft-btn:active{background:rgba(255,255,255,0.2)}
+.craft-btn:disabled{opacity:0.4}
+#invDisplay{position:fixed;top:110px;left:10px;z-index:50;font-size:12px;pointer-events:none}
+#dayDisplay{position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:50;font-size:14px;font-weight:bold;pointer-events:none}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="overlay" id="startScreen">
+<h1>🏝️ 무인도 생존</h1>
+<p class="sub">자원을 모으고, 도구를 만들고,<br>최대한 오래 살아남아라!</p>
+<button class="btn" onclick="startGame()">게임 시작</button>
+</div>
+<div class="overlay hidden" id="gameOver">
+<h1 id="goTitle">💀 사망</h1>
+<p class="sub" id="goStats"></p>
+<button class="btn" onclick="location.reload()">다시 하기</button>
+</div>
+<div id="hud" style="display:none">
+<div class="bar-row"><span class="bar-label">❤️ HP</span><div class="bar-outer"><div class="bar-inner" id="hpBar" style="width:100%;background:#ef4444"></div></div></div>
+<div class="bar-row"><span class="bar-label">🍖 배</span><div class="bar-outer"><div class="bar-inner" id="hungerBar" style="width:100%;background:#f59e0b"></div></div></div>
+</div>
+<div id="dayDisplay" style="display:none"></div>
+<div id="invDisplay" style="display:none"></div>
+<div id="craftPanel"></div>
+
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
+<script>
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+const W=Math.min(window.innerWidth,500);
+const H=Math.min(window.innerHeight-20,750);
+canvas.width=W;canvas.height=H;
+
+const MAP=1200;
+let state='menu',frame=0;
+let player={x:MAP/2,y:MAP/2,hp:100,hunger:100,speed:2.5};
+let inv={wood:0,food:0,stone:0};
+let crafted={axe:false,shelter:false,fire:false};
+let resources=[],animals=[],particles=[];
+let day=1,dayTimer=0,isNight=false;
+let camX=0,camY=0;
+let joyActive=false,joyX=0,joyY=0,joyStartX=0,joyStartY=0;
+
+const DAY_LENGTH=600; // frames per half-day
+const RECIPES=[
+  {name:'🪓 도끼',id:'axe',cost:{wood:3,stone:2},desc:'나무 2배 획득'},
+  {name:'🏠 은신처',id:'shelter',cost:{wood:5},desc:'밤에 HP감소 절반'},
+  {name:'🔥 모닥불',id:'fire',cost:{wood:2,stone:1},desc:'밤에 동물 접근 못함'}
+];
+
+function spawnResources(){
+  resources=[];
+  for(let i=0;i<40;i++){
+    resources.push({x:Math.random()*MAP,y:Math.random()*MAP,type:'wood',emoji:'🪵',amount:1});
+  }
+  for(let i=0;i<25;i++){
+    resources.push({x:Math.random()*MAP,y:Math.random()*MAP,type:'food',emoji:'🍖',amount:1});
+  }
+  for(let i=0;i<20;i++){
+    resources.push({x:Math.random()*MAP,y:Math.random()*MAP,type:'stone',emoji:'🪨',amount:1});
+  }
+}
+
+function spawnAnimals(){
+  for(let i=0;i<3+day;i++){
+    const angle=Math.random()*Math.PI*2;
+    const dist=200+Math.random()*300;
+    animals.push({
+      x:player.x+Math.cos(angle)*dist,
+      y:player.y+Math.sin(angle)*dist,
+      hp:20+day*5,speed:1.2+day*0.1,damage:8+day*2,
+      r:12,hitCd:0,active:false
+    });
+  }
+}
+
+function startGame(){
+  document.getElementById('startScreen').classList.add('hidden');
+  document.getElementById('hud').style.display='block';
+  document.getElementById('dayDisplay').style.display='block';
+  document.getElementById('invDisplay').style.display='block';
+  document.getElementById('craftPanel').style.display='flex';
+  state='playing';
+  player={x:MAP/2,y:MAP/2,hp:100,hunger:100,speed:2.5};
+  inv={wood:0,food:0,stone:0};
+  crafted={axe:false,shelter:false,fire:false};
+  day=1;dayTimer=0;isNight=false;frame=0;
+  resources=[];animals=[];particles=[];
+  spawnResources();
+  updateCraft();
+  requestAnimationFrame(gameLoop);
+}
+
+function endGame(){
+  state='over';
+  _hub('survival',day);
+  document.getElementById('goTitle').textContent='💀 '+(player.hp<=0?'체력 소진':'아사');
+  document.getElementById('goStats').textContent=`생존 일수: ${day}일`;
+  document.getElementById('gameOver').classList.remove('hidden');
+}
+
+function updateCraft(){
+  const panel=document.getElementById('craftPanel');
+  panel.innerHTML='';
+  RECIPES.forEach(r=>{
+    if(crafted[r.id])return;
+    const btn=document.createElement('button');
+    btn.className='craft-btn';
+    const costStr=Object.entries(r.cost).map(([k,v])=>{
+      const icons={wood:'🪵',food:'🍖',stone:'🪨'};
+      return (icons[k]||k)+v;
+    }).join(' ');
+    btn.textContent=r.name+' ('+costStr+') - '+r.desc;
+    let canCraft=true;
+    for(const[k,v]of Object.entries(r.cost)){if((inv[k]||0)<v)canCraft=false;}
+    btn.disabled=!canCraft;
+    btn.onclick=()=>{
+      for(const[k,v]of Object.entries(r.cost))inv[k]-=v;
+      crafted[r.id]=true;
+      particles.push({x:player.x,y:player.y-20,t:0,text:r.name+' 제작!',color:'#4f4'});
+      updateCraft();
+    };
+    panel.appendChild(btn);
+  });
+  // eat button
+  if(inv.food>0){
+    const eatBtn=document.createElement('button');
+    eatBtn.className='craft-btn';
+    eatBtn.textContent='🍖 음식 먹기 (배고픔 +30)';
+    eatBtn.onclick=()=>{inv.food--;player.hunger=Math.min(100,player.hunger+30);updateCraft();};
+    panel.appendChild(eatBtn);
+  }
+}
+
+// joystick
+canvas.addEventListener('pointerdown',e=>{
+  const r=canvas.getBoundingClientRect();
+  joyStartX=e.clientX-r.left;joyStartY=e.clientY-r.top;
+  joyActive=true;
+});
+canvas.addEventListener('pointermove',e=>{
+  if(!joyActive)return;
+  const r=canvas.getBoundingClientRect();
+  const cx=e.clientX-r.left,cy=e.clientY-r.top;
+  const dx=cx-joyStartX,dy=cy-joyStartY;
+  const dist=Math.hypot(dx,dy);
+  if(dist>0){const d=Math.min(dist,50);joyX=(dx/dist)*(d/50);joyY=(dy/dist)*(d/50);}
+});
+canvas.addEventListener('pointerup',()=>{joyActive=false;joyX=0;joyY=0;});
+canvas.addEventListener('pointercancel',()=>{joyActive=false;joyX=0;joyY=0;});
+
+function update(){
+  if(state!=='playing')return;
+  frame++;
+  // move
+  player.x=Math.max(10,Math.min(MAP-10,player.x+joyX*player.speed));
+  player.y=Math.max(10,Math.min(MAP-10,player.y+joyY*player.speed));
+  camX=player.x-W/2;camY=player.y-H/2;
+
+  // day/night cycle
+  dayTimer++;
+  if(dayTimer>=DAY_LENGTH){
+    dayTimer=0;
+    if(isNight){
+      isNight=false;day++;
+      particles.push({x:player.x,y:player.y-30,t:0,text:'☀️ '+day+'일차 아침!',color:'#fbbf24'});
+      // respawn resources
+      for(let i=0;i<8;i++){
+        resources.push({x:Math.random()*MAP,y:Math.random()*MAP,type:['wood','food','stone'][Math.floor(Math.random()*3)],emoji:['🪵','🍖','🪨'][Math.floor(Math.random()*3)],amount:1});
+      }
+    }else{
+      isNight=true;
+      particles.push({x:player.x,y:player.y-30,t:0,text:'🌙 밤이 왔다!',color:'#818cf8'});
+      animals=[];
+      spawnAnimals();
+    }
+  }
+
+  // hunger/hp decay
+  if(frame%90===0){
+    player.hunger=Math.max(0,player.hunger-1);
+    if(isNight){
+      const dmg=crafted.shelter?1:2;
+      player.hp=Math.max(0,player.hp-dmg);
+    }
+    if(player.hunger<=0)player.hp=Math.max(0,player.hp-2);
+    if(player.hp<=0)endGame();
+  }
+
+  // collect resources
+  resources=resources.filter(r=>{
+    if(Math.hypot(r.x-player.x,r.y-player.y)<22){
+      const amt=r.type==='wood'&&crafted.axe?2:r.amount;
+      inv[r.type]=(inv[r.type]||0)+amt;
+      particles.push({x:r.x,y:r.y,t:0,text:r.emoji+(amt>1?'x'+amt:''),color:'#fff'});
+      updateCraft();
+      return false;
+    }
+    return true;
+  });
+
+  // animals (night only)
+  if(isNight){
+    animals.forEach(a=>{
+      if(crafted.fire&&Math.hypot(a.x-player.x,a.y-player.y)<120){
+        // flee from fire
+        const dx=a.x-player.x,dy=a.y-player.y;
+        const dist=Math.hypot(dx,dy)||1;
+        a.x+=dx/dist*a.speed;a.y+=dy/dist*a.speed;
+      }else{
+        const dx=player.x-a.x,dy=player.y-a.y;
+        const dist=Math.hypot(dx,dy)||1;
+        if(dist<300){
+          a.x+=dx/dist*a.speed;a.y+=dy/dist*a.speed;
+        }
+        if(a.hitCd>0)a.hitCd--;
+        if(dist<18&&a.hitCd<=0){
+          player.hp=Math.max(0,player.hp-a.damage);
+          a.hitCd=40;
+          particles.push({x:player.x,y:player.y,t:0,text:'-'+a.damage,color:'#f44'});
+          if(player.hp<=0)endGame();
+        }
+      }
+    });
+  }
+
+  particles=particles.filter(p=>{p.t++;return p.t<50;});
+
+  // update UI
+  document.getElementById('hpBar').style.width=(player.hp)+'%';
+  document.getElementById('hungerBar').style.width=(player.hunger)+'%';
+  document.getElementById('dayDisplay').textContent=(isNight?'🌙':'☀️')+' '+day+'일차';
+  document.getElementById('invDisplay').innerHTML='🪵'+inv.wood+' 🍖'+inv.food+' 🪨'+inv.stone+
+    (crafted.axe?' | 🪓':'')+(crafted.shelter?' | 🏠':'')+(crafted.fire?' | 🔥':'');
+}
+
+function draw(){
+  const nightAlpha=isNight?0.4*(1-Math.abs(dayTimer-DAY_LENGTH/2)/(DAY_LENGTH/2)):0;
+  // background
+  ctx.fillStyle=isNight?'#0a1a0a':'#1a3a1a';ctx.fillRect(0,0,W,H);
+
+  const sx=x=>x-camX,sy=y=>y-camY;
+
+  // ground texture
+  ctx.fillStyle=isNight?'#0d1f0d':'#1f4a1f';
+  for(let x=0;x<MAP;x+=30){
+    for(let y=0;y<MAP;y+=30){
+      const dx=sx(x),dy=sy(y);
+      if(dx>-30&&dx<W+30&&dy>-30&&dy<H+30){
+        ctx.fillRect(dx,dy,28,28);
+      }
+    }
+  }
+
+  // resources
+  ctx.font='20px serif';
+  resources.forEach(r=>{
+    const rx=sx(r.x),ry=sy(r.y);
+    if(rx>-20&&rx<W+20&&ry>-20&&ry<H+20){
+      ctx.fillText(r.emoji,rx-10,ry+7);
+    }
+  });
+
+  // animals
+  if(isNight){
+    animals.forEach(a=>{
+      const ax=sx(a.x),ay=sy(a.y);
+      if(ax>-20&&ax<W+20&&ay>-20&&ay<H+20){
+        ctx.fillStyle='#7c3aed';
+        ctx.beginPath();ctx.arc(ax,ay,a.r,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#f00';
+        ctx.beginPath();ctx.arc(ax-3,ay-3,2,0,Math.PI*2);ctx.fill();
+        ctx.beginPath();ctx.arc(ax+3,ay-3,2,0,Math.PI*2);ctx.fill();
+      }
+    });
+  }
+
+  // fire glow
+  if(crafted.fire&&isNight){
+    const grad=ctx.createRadialGradient(sx(player.x),sy(player.y),10,sx(player.x),sy(player.y),100);
+    grad.addColorStop(0,'rgba(255,150,50,0.2)');grad.addColorStop(1,'rgba(255,150,50,0)');
+    ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
+  }
+
+  // player
+  const px=sx(player.x),py=sy(player.y);
+  ctx.fillStyle='#60a5fa';
+  ctx.beginPath();ctx.arc(px,py,14,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#3b82f6';ctx.lineWidth=2;ctx.stroke();
+  ctx.fillStyle='#fff';
+  ctx.beginPath();ctx.arc(px-4,py-3,3,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(px+4,py-3,3,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#000';
+  ctx.beginPath();ctx.arc(px-4,py-3,1.5,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(px+4,py-3,1.5,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(px,py+3,3,0,Math.PI);ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke();
+
+  // night overlay
+  if(isNight){
+    ctx.fillStyle=`rgba(0,0,30,${0.3+nightAlpha*0.2})`;ctx.fillRect(0,0,W,H);
+    // vision circle
+    const vg=ctx.createRadialGradient(px,py,30,px,py,crafted.fire?150:80);
+    vg.addColorStop(0,'rgba(0,0,30,0)');vg.addColorStop(1,'rgba(0,0,30,0.5)');
+    ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);
+  }
+
+  // particles
+  particles.forEach(p=>{
+    const a=1-p.t/50;ctx.globalAlpha=a;ctx.fillStyle=p.color;ctx.font='bold 13px sans-serif';
+    ctx.fillText(p.text,sx(p.x)-20,sy(p.y)-p.t*0.6);ctx.globalAlpha=1;
+  });
+
+  // joystick
+  if(joyActive){
+    ctx.strokeStyle='rgba(255,255,255,0.2)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(joyStartX,joyStartY,40,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle='rgba(255,255,255,0.3)';
+    ctx.beginPath();ctx.arc(joyStartX+joyX*40,joyStartY+joyY*40,14,0,Math.PI*2);ctx.fill();
+  }
+}
+
+function gameLoop(){
+  update();draw();
+  if(state==='playing')requestAnimationFrame(gameLoop);
+}
+</script>
+</body>
+</html>

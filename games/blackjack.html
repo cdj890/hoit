@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>블랙잭 21</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#0f0f1e;display:flex;flex-direction:column;align-items:center;font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:#fff;min-height:100vh;touch-action:manipulation;user-select:none;}
+#game{width:100%;max-width:500px;padding:10px;display:none;flex-direction:column;align-items:center;gap:8px;margin-top:50px;}
+#overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,15,30,0.95);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;}
+#overlay h1{font-size:32px;color:#ffd700;margin-bottom:6px;}
+#overlay p{color:#aaa;font-size:14px;margin-bottom:18px;text-align:center;padding:0 20px;}
+.btn{background:linear-gradient(135deg,#ffd700,#f0a000);border:none;color:#1a1a2e;padding:14px 40px;border-radius:12px;font-size:18px;font-weight:bold;cursor:pointer;font-family:inherit;min-height:44px;touch-action:manipulation;}
+.btn:active{transform:scale(0.95);}
+#info{display:flex;justify-content:space-between;width:100%;padding:0 4px;font-size:14px;}
+#info span{color:#ffd700;font-weight:bold;}
+.cards{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;min-height:100px;padding:8px;}
+.card{width:60px;height:85px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:18px;font-weight:bold;box-shadow:0 2px 8px rgba(0,0,0,0.5);transition:transform 0.3s;position:relative;overflow:hidden;}
+.card.face-down{background:#2a3a6a;border:2px solid #4a6aaa;}
+.card.face-down::after{content:'🂠';font-size:36px;}
+.card.red{background:#fff;color:#e74c3c;border:2px solid #ddd;}
+.card.black{background:#fff;color:#2c3e50;border:2px solid #ddd;}
+.card .suit{font-size:24px;margin-top:2px;}
+.card .rank{font-size:16px;position:absolute;top:4px;left:6px;}
+.card.new{animation:dealIn 0.3s ease-out;}
+@keyframes dealIn{from{transform:translateY(-60px) rotateY(90deg);opacity:0;}to{transform:translateY(0) rotateY(0);opacity:1;}}
+.label{font-size:13px;color:#888;text-align:center;}
+.total{font-size:20px;font-weight:bold;color:#ffd700;}
+#actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:6px;}
+.abtn{background:linear-gradient(135deg,#3a5a8a,#2a4070);border:2px solid #5a8aba;color:#fff;padding:12px 20px;border-radius:10px;font-size:15px;font-weight:bold;cursor:pointer;font-family:inherit;min-width:70px;min-height:44px;touch-action:manipulation;}
+.abtn:active{transform:scale(0.95);}
+.abtn:disabled{opacity:0.4;transform:none;}
+#betArea{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px 0;}
+.betBtn{background:linear-gradient(135deg,#ffd700,#e0a000);color:#1a1a2e;border:none;padding:12px 18px;border-radius:50%;font-size:14px;font-weight:bold;cursor:pointer;min-width:52px;min-height:52px;font-family:inherit;touch-action:manipulation;}
+.betBtn:active{transform:scale(0.95);}
+#message{font-size:22px;font-weight:bold;min-height:32px;text-align:center;margin:4px 0;}
+#resultOverlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:50;flex-direction:column;align-items:center;justify-content:center;}
+#resultOverlay .inner{background:#1a1a3e;padding:30px;border-radius:16px;text-align:center;}
+#resultOverlay h2{font-size:26px;margin-bottom:10px;}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
+
+<div id="overlay">
+  <h1>🃏 블랙잭 21</h1>
+  <p>딜러를 이겨 칩을 모으세요!<br>21에 가까울수록 유리합니다!</p>
+  <button class="btn" onclick="startGame()">게임 시작</button>
+</div>
+
+<div id="game">
+  <div id="info">
+    <div>칩: <span id="chips">1000</span></div>
+    <div>최고: <span id="maxChips">1000</span></div>
+    <div>베팅: <span id="curBet">0</span></div>
+  </div>
+
+  <div class="label">딜러</div>
+  <div class="cards" id="dealerCards"></div>
+  <div class="total" id="dealerTotal"></div>
+
+  <div id="message"></div>
+
+  <div class="label">플레이어</div>
+  <div class="cards" id="playerCards"></div>
+  <div class="total" id="playerTotal"></div>
+
+  <div id="betArea">
+    <button class="betBtn" onclick="placeBet(100)">100</button>
+    <button class="betBtn" onclick="placeBet(200)">200</button>
+    <button class="betBtn" onclick="placeBet(500)">500</button>
+  </div>
+
+  <div id="actions" style="display:none;">
+    <button class="abtn" id="hitBtn" onclick="hit()">히트</button>
+    <button class="abtn" id="standBtn" onclick="stand()">스탠드</button>
+    <button class="abtn" id="doubleBtn" onclick="doubleDown()">더블</button>
+  </div>
+</div>
+
+<script>
+const suits=['♠','♥','♦','♣'];
+const ranks=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+let deck,playerHand,dealerHand,chips,maxChipsEver,bet,gamePhase;
+
+function makeDeck(){
+  let d=[];
+  for(let i=0;i<6;i++) // 6 deck shoe
+    for(let s of suits)
+      for(let r of ranks) d.push({rank:r,suit:s});
+  for(let i=d.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[d[i],d[j]]=[d[j],d[i]];}
+  return d;
+}
+
+function cardValue(hand){
+  let total=0,aces=0;
+  for(let c of hand){
+    if(c.rank==='A'){aces++;total+=11;}
+    else if(['K','Q','J'].includes(c.rank)) total+=10;
+    else total+=parseInt(c.rank);
+  }
+  while(total>21&&aces>0){total-=10;aces--;}
+  return total;
+}
+
+function isRed(suit){return suit==='♥'||suit==='♦';}
+
+function renderCard(card,faceDown){
+  if(faceDown) return '<div class="card face-down new"></div>';
+  let cls=isRed(card.suit)?'red':'black';
+  return `<div class="card ${cls} new"><span class="rank">${card.rank}</span><span class="suit">${card.suit}</span></div>`;
+}
+
+function renderHands(showDealer){
+  let dhtml='';
+  for(let i=0;i<dealerHand.length;i++){
+    dhtml+=renderCard(dealerHand[i],!showDealer&&i===1);
+  }
+  document.getElementById('dealerCards').innerHTML=dhtml;
+  document.getElementById('dealerTotal').textContent=showDealer?cardValue(dealerHand):'?';
+
+  let phtml='';
+  for(let c of playerHand) phtml+=renderCard(c,false);
+  document.getElementById('playerCards').innerHTML=phtml;
+  document.getElementById('playerTotal').textContent=cardValue(playerHand);
+}
+
+function updateInfo(){
+  document.getElementById('chips').textContent=chips;
+  document.getElementById('maxChips').textContent=maxChipsEver;
+  document.getElementById('curBet').textContent=bet;
+}
+
+function startGame(){
+  document.getElementById('overlay').style.display='none';
+  document.getElementById('game').style.display='flex';
+  chips=1000;maxChipsEver=1000;
+  deck=makeDeck();
+  newRound();
+}
+
+function newRound(){
+  if(chips<=0){
+    gameOver();return;
+  }
+  bet=0;
+  playerHand=[];dealerHand=[];
+  gamePhase='bet';
+  document.getElementById('betArea').style.display='flex';
+  document.getElementById('actions').style.display='none';
+  document.getElementById('message').textContent='베팅하세요!';
+  document.getElementById('message').style.color='#ffd700';
+  renderHands(false);
+  updateInfo();
+}
+
+function placeBet(amount){
+  if(gamePhase!=='bet') return;
+  if(amount>chips) amount=chips;
+  if(amount<=0) return;
+  bet=amount;
+  updateInfo();
+  deal();
+}
+
+function deal(){
+  if(deck.length<20) deck=makeDeck();
+  gamePhase='play';
+  document.getElementById('betArea').style.display='none';
+  document.getElementById('actions').style.display='flex';
+  document.getElementById('message').textContent='';
+
+  playerHand.push(deck.pop());
+  dealerHand.push(deck.pop());
+  playerHand.push(deck.pop());
+  dealerHand.push(deck.pop());
+
+  renderHands(false);
+
+  // Check natural blackjack
+  if(cardValue(playerHand)===21){
+    if(cardValue(dealerHand)===21){
+      endRound('push');
+    } else {
+      endRound('blackjack');
+    }
+    return;
+  }
+
+  document.getElementById('doubleBtn').disabled=chips<bet;
+}
+
+function hit(){
+  if(gamePhase!=='play') return;
+  playerHand.push(deck.pop());
+  renderHands(false);
+  document.getElementById('doubleBtn').disabled=true;
+  if(cardValue(playerHand)>21){
+    endRound('bust');
+  } else if(cardValue(playerHand)===21){
+    stand();
+  }
+}
+
+function stand(){
+  if(gamePhase!=='play') return;
+  gamePhase='dealer';
+  document.getElementById('actions').style.display='none';
+  dealerPlay();
+}
+
+function doubleDown(){
+  if(gamePhase!=='play'||chips<bet) return;
+  chips-=bet;
+  bet*=2;
+  updateInfo();
+  playerHand.push(deck.pop());
+  renderHands(false);
+  if(cardValue(playerHand)>21){
+    endRound('bust');
+  } else {
+    gamePhase='dealer';
+    document.getElementById('actions').style.display='none';
+    dealerPlay();
+  }
+}
+
+function dealerPlay(){
+  renderHands(true);
+  function step(){
+    let dv=cardValue(dealerHand);
+    // Soft 17 check
+    let soft17=false;
+    if(dv===17){
+      let aces=dealerHand.filter(c=>c.rank==='A').length;
+      let raw=0;for(let c of dealerHand){if(c.rank==='A')raw+=11;else if(['K','Q','J'].includes(c.rank))raw+=10;else raw+=parseInt(c.rank);}
+      if(raw!==17&&aces>0) soft17=true;
+    }
+    if(dv<17||soft17){
+      dealerHand.push(deck.pop());
+      renderHands(true);
+      setTimeout(step,400);
+    } else {
+      resolve();
+    }
+  }
+  setTimeout(step,500);
+}
+
+function resolve(){
+  let pv=cardValue(playerHand),dv=cardValue(dealerHand);
+  if(dv>21) endRound('dealer_bust');
+  else if(pv>dv) endRound('win');
+  else if(pv<dv) endRound('lose');
+  else endRound('push');
+}
+
+function endRound(result){
+  gamePhase='end';
+  document.getElementById('actions').style.display='none';
+  renderHands(true);
+  let msg='',color='#fff';
+
+  switch(result){
+    case 'blackjack':
+      chips+=Math.floor(bet*1.5);
+      msg='🎉 블랙잭! +'+Math.floor(bet*1.5);color='#ffd700';break;
+    case 'win':
+      chips+=bet;
+      msg='승리! +'+bet;color='#4aff7a';break;
+    case 'dealer_bust':
+      chips+=bet;
+      msg='딜러 버스트! +'+bet;color='#4aff7a';break;
+    case 'bust':
+      chips-=bet;
+      msg='버스트! -'+bet;color='#ff4a5a';break;
+    case 'lose':
+      chips-=bet;
+      msg='패배... -'+bet;color='#ff4a5a';break;
+    case 'push':
+      msg='무승부!';color='#aaa';break;
+  }
+
+  if(chips>maxChipsEver) maxChipsEver=chips;
+  _hub('blackjack',maxChipsEver);
+
+  document.getElementById('message').textContent=msg;
+  document.getElementById('message').style.color=color;
+  updateInfo();
+
+  setTimeout(()=>{newRound();},1800);
+}
+
+function gameOver(){
+  document.getElementById('overlay').innerHTML=`<h2 style="color:#ff4a5a;">게임 오버</h2><p style="color:#ccc;">최고 칩: ${maxChipsEver}</p><button class="btn" onclick="location.reload()">다시 시작</button>`;
+  document.getElementById('overlay').style.display='flex';
+  document.getElementById('game').style.display='none';
+}
+</script>
+</body>
+</html>

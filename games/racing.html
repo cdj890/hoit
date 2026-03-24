@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>레이싱</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:#0f0f1e;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:'Segoe UI',sans-serif;color:#fff;overflow:hidden;touch-action:none}
+canvas{display:block;border-radius:12px}
+.overlay{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(15,15,30,0.95);z-index:100}
+.overlay.hidden{display:none}
+h1{font-size:34px;margin-bottom:10px;text-shadow:0 0 20px #f59e0b}
+.sub{color:#aaa;margin-bottom:25px;font-size:14px;text-align:center;padding:0 20px}
+.btn{background:rgba(255,255,255,0.12);border:2px solid rgba(255,255,255,0.25);color:#fff;padding:14px 30px;border-radius:14px;font-size:18px;font-weight:bold;cursor:pointer;touch-action:manipulation;min-width:44px;min-height:44px;margin:5px}
+.btn:active{background:rgba(255,255,255,0.25)}
+#hud{position:fixed;top:50px;left:0;width:100%;padding:0 15px;display:flex;justify-content:space-between;pointer-events:none;z-index:50;font-size:14px;font-weight:bold}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="overlay" id="startScreen">
+<h1>🏎️ 레이싱</h1>
+<p class="sub">좌우로 터치/드래그하여 조종!<br>다른 차를 피하고 코인을 모아라!</p>
+<button class="btn" onclick="startGame()">게임 시작</button>
+</div>
+<div class="overlay hidden" id="gameOver">
+<h1 id="goTitle">💥 충돌!</h1>
+<p class="sub" id="goStats"></p>
+<button class="btn" onclick="location.reload()">다시 하기</button>
+</div>
+<div id="hud" style="display:none">
+<span id="distDisp">0m</span>
+<span id="coinDisp">🪙 0</span>
+<span id="speedDisp">60km/h</span>
+</div>
+
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
+<script>
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+const W=Math.min(window.innerWidth,500);
+const H=Math.min(window.innerHeight-20,800);
+canvas.width=W;canvas.height=H;
+
+const roadL=W*0.15,roadR=W*0.85,roadW=roadR-roadL;
+const laneW=roadW/4;
+const carW=36,carH=56;
+let state='menu',dist=0,coins=0,speed=3,maxSpeed=12;
+let playerX=W/2,playerTargetX=W/2;
+let npcCars=[],coinItems=[],particles=[];
+let laneOffset=0,frame=0;
+let touchStartX=0,touchCurX=0,touching=false;
+
+const carColors=['#ef4444','#3b82f6','#22c55e','#f59e0b','#8b5cf6','#ec4899'];
+
+function startGame(){
+  document.getElementById('startScreen').classList.add('hidden');
+  document.getElementById('hud').style.display='flex';
+  state='playing';
+  dist=0;coins=0;speed=3;frame=0;
+  playerX=W/2;playerTargetX=W/2;
+  npcCars=[];coinItems=[];particles=[];
+  requestAnimationFrame(gameLoop);
+}
+
+function endGame(){
+  state='over';
+  const score=Math.floor(dist)+coins*10;
+  _hub('racing',score);
+  document.getElementById('goStats').textContent=`거리: ${Math.floor(dist)}m | 코인: ${coins}개 | 점수: ${score}`;
+  document.getElementById('gameOver').classList.remove('hidden');
+}
+
+canvas.addEventListener('pointerdown',e=>{
+  const r=canvas.getBoundingClientRect();
+  touchStartX=e.clientX-r.left;touchCurX=touchStartX;touching=true;
+});
+canvas.addEventListener('pointermove',e=>{
+  if(!touching)return;
+  const r=canvas.getBoundingClientRect();
+  touchCurX=e.clientX-r.left;
+  const dx=touchCurX-touchStartX;
+  playerTargetX=Math.max(roadL+carW/2+5,Math.min(roadR-carW/2-5,W/2+dx*1.5));
+});
+canvas.addEventListener('pointerup',()=>{touching=false;});
+canvas.addEventListener('pointercancel',()=>{touching=false;});
+
+function spawnNPC(){
+  const lane=Math.floor(Math.random()*4);
+  const x=roadL+laneW*lane+laneW/2;
+  npcCars.push({x:x,y:-carH-20,color:carColors[Math.floor(Math.random()*carColors.length)],speed:speed*0.4+Math.random()*speed*0.3});
+}
+
+function spawnCoin(){
+  const lane=Math.floor(Math.random()*4);
+  const x=roadL+laneW*lane+laneW/2;
+  coinItems.push({x:x,y:-20,r:10});
+}
+
+function drawCar(x,y,w,h,color,isPlayer){
+  // body
+  ctx.fillStyle=color;
+  const r=8;
+  ctx.beginPath();
+  ctx.moveTo(x-w/2+r,y-h/2);
+  ctx.lineTo(x+w/2-r,y-h/2);
+  ctx.quadraticCurveTo(x+w/2,y-h/2,x+w/2,y-h/2+r);
+  ctx.lineTo(x+w/2,y+h/2-r);
+  ctx.quadraticCurveTo(x+w/2,y+h/2,x+w/2-r,y+h/2);
+  ctx.lineTo(x-w/2+r,y+h/2);
+  ctx.quadraticCurveTo(x-w/2,y+h/2,x-w/2,y+h/2-r);
+  ctx.lineTo(x-w/2,y-h/2+r);
+  ctx.quadraticCurveTo(x-w/2,y-h/2,x-w/2+r,y-h/2);
+  ctx.fill();
+  // windshield
+  ctx.fillStyle='rgba(150,220,255,0.6)';
+  const wy=isPlayer?y-h/4:y+h/6;
+  ctx.fillRect(x-w/3,wy,w*2/3,h/5);
+  // eyes if player
+  if(isPlayer){
+    ctx.fillStyle='#fff';
+    ctx.beginPath();ctx.arc(x-7,y-h/4-2,5,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(x+7,y-h/4-2,5,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#000';
+    ctx.beginPath();ctx.arc(x-7,y-h/4-3,2.5,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(x+7,y-h/4-3,2.5,0,Math.PI*2);ctx.fill();
+  }
+  // wheels
+  ctx.fillStyle='#333';
+  ctx.fillRect(x-w/2-3,y-h/3,5,12);
+  ctx.fillRect(x+w/2-2,y-h/3,5,12);
+  ctx.fillRect(x-w/2-3,y+h/6,5,12);
+  ctx.fillRect(x+w/2-2,y+h/6,5,12);
+}
+
+function update(){
+  if(state!=='playing')return;
+  frame++;dist+=speed*0.05;
+  speed=Math.min(maxSpeed,3+dist*0.005);
+  laneOffset=(laneOffset+speed)%40;
+
+  // smooth player movement
+  playerX+=(playerTargetX-playerX)*0.15;
+
+  // spawn
+  if(frame%Math.max(15,50-Math.floor(speed*2))===0)spawnNPC();
+  if(frame%80===0)spawnCoin();
+
+  // update npcs
+  npcCars.forEach(c=>c.y+=speed-c.speed+2);
+  npcCars=npcCars.filter(c=>c.y<H+80);
+
+  // update coins
+  coinItems.forEach(c=>c.y+=speed);
+  coinItems=coinItems.filter(c=>{
+    if(c.y>H+30)return false;
+    if(Math.abs(c.x-playerX)<20&&Math.abs(c.y-(H-80))<25){
+      coins++;particles.push({x:c.x,y:c.y,t:0,text:'+10',color:'#fbbf24'});return false;
+    }
+    return true;
+  });
+
+  // collision
+  const py=H-80;
+  for(const c of npcCars){
+    if(Math.abs(c.x-playerX)<carW-4&&Math.abs(c.y-py)<carH-4){
+      // crash
+      for(let i=0;i<15;i++){
+        particles.push({x:playerX+(Math.random()-0.5)*40,y:py+(Math.random()-0.5)*40,t:0,text:'💥',color:'#f00'});
+      }
+      endGame();return;
+    }
+  }
+
+  particles=particles.filter(p=>{p.t++;return p.t<40;});
+
+  document.getElementById('distDisp').textContent=Math.floor(dist)+'m';
+  document.getElementById('coinDisp').textContent='🪙 '+coins;
+  document.getElementById('speedDisp').textContent=Math.floor(speed*20)+'km/h';
+}
+
+function draw(){
+  // sky
+  ctx.fillStyle='#0f0f1e';ctx.fillRect(0,0,W,H);
+  // grass
+  ctx.fillStyle='#1a3a1a';ctx.fillRect(0,0,roadL,H);ctx.fillRect(roadR,0,W-roadR,H);
+  // road
+  ctx.fillStyle='#333';ctx.fillRect(roadL,0,roadW,H);
+  // lane markings
+  ctx.strokeStyle='rgba(255,255,255,0.4)';ctx.lineWidth=2;ctx.setLineDash([20,20]);
+  for(let i=1;i<4;i++){
+    const lx=roadL+laneW*i;
+    ctx.beginPath();
+    for(let y=-40+laneOffset%40;y<H;y+=40){
+      ctx.moveTo(lx,y);ctx.lineTo(lx,y+20);
+    }
+    ctx.stroke();
+  }
+  ctx.setLineDash([]);
+  // road edges
+  ctx.strokeStyle='#fff';ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(roadL,0);ctx.lineTo(roadL,H);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(roadR,0);ctx.lineTo(roadR,H);ctx.stroke();
+
+  // coins
+  coinItems.forEach(c=>{
+    ctx.fillStyle='#fbbf24';
+    ctx.beginPath();ctx.arc(c.x,c.y,c.r,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#f59e0b';ctx.font='bold 12px sans-serif';
+    ctx.fillText('$',c.x-4,c.y+4);
+  });
+
+  // npc cars
+  npcCars.forEach(c=>drawCar(c.x,c.y,carW,carH,c.color,false));
+
+  // player car
+  drawCar(playerX,H-80,carW,carH,'#60a5fa',true);
+
+  // particles
+  particles.forEach(p=>{
+    const a=1-p.t/40;
+    ctx.globalAlpha=a;ctx.fillStyle=p.color;ctx.font='bold 14px sans-serif';
+    ctx.fillText(p.text,p.x-10,p.y-p.t*0.5);ctx.globalAlpha=1;
+  });
+
+  // touch indicator
+  if(touching){
+    ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(touchStartX,H-60,30,0,Math.PI*2);ctx.stroke();
+  }
+}
+
+function gameLoop(){
+  update();draw();
+  if(state==='playing')requestAnimationFrame(gameLoop);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>텍사스 홀덤</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#0f0f1e;display:flex;flex-direction:column;align-items:center;font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:#fff;min-height:100vh;touch-action:manipulation;user-select:none;}
+#game{width:100%;max-width:500px;padding:10px;display:none;flex-direction:column;align-items:center;gap:6px;margin-top:50px;}
+#overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,15,30,0.95);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;}
+#overlay h1{font-size:30px;color:#e74c3c;margin-bottom:6px;}
+#overlay p{color:#aaa;font-size:14px;margin-bottom:18px;text-align:center;padding:0 20px;}
+.btn{background:linear-gradient(135deg,#e74c3c,#c0392b);border:none;color:#fff;padding:14px 40px;border-radius:12px;font-size:18px;font-weight:bold;cursor:pointer;font-family:inherit;min-height:44px;touch-action:manipulation;}
+.btn:active{transform:scale(0.95);}
+#topBar{display:flex;justify-content:space-between;width:100%;font-size:13px;padding:0 4px;}
+#topBar span{color:#ffd700;font-weight:bold;}
+.cards{display:flex;gap:5px;justify-content:center;min-height:80px;flex-wrap:wrap;}
+.card{width:52px;height:74px;border-radius:7px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:bold;box-shadow:0 2px 8px rgba(0,0,0,0.5);position:relative;font-size:16px;transition:transform 0.3s;}
+.card.facedown{background:#2a3a6a;border:2px solid #4a6aaa;}
+.card.facedown::after{content:'🂠';font-size:30px;}
+.card.red{background:#fff;color:#e74c3c;border:2px solid #ddd;}
+.card.black{background:#fff;color:#2c3e50;border:2px solid #ddd;}
+.card .r{position:absolute;top:3px;left:5px;font-size:13px;}
+.card .s{font-size:22px;}
+.section{text-align:center;width:100%;}
+.label{font-size:12px;color:#888;margin-bottom:2px;}
+.hand-rank{font-size:15px;color:#ffd700;font-weight:bold;min-height:20px;}
+#pot{font-size:16px;color:#ffd700;font-weight:bold;background:rgba(255,215,0,0.1);padding:6px 16px;border-radius:20px;margin:4px 0;}
+#actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:4px;}
+.abtn{background:linear-gradient(135deg,#3a5a3a,#2a4a2a);border:2px solid #5a8a5a;color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;font-family:inherit;min-height:44px;min-width:60px;touch-action:manipulation;}
+.abtn.fold{border-color:#8a5a5a;background:linear-gradient(135deg,#5a3a3a,#4a2a2a);}
+.abtn:active{transform:scale(0.95);}
+.abtn:disabled{opacity:0.3;}
+#msg{font-size:18px;font-weight:bold;min-height:26px;text-align:center;margin:4px 0;}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
+
+<div id="overlay">
+  <h1>🃏 텍사스 홀덤</h1>
+  <p>AI와 1:1 텍사스 홀덤 대결!<br>칩을 최대한 많이 모으세요!</p>
+  <button class="btn" onclick="startGame()">게임 시작</button>
+</div>
+
+<div id="game">
+  <div id="topBar">
+    <div>내 칩: <span id="myChips">1000</span></div>
+    <div>최고: <span id="maxC">1000</span></div>
+    <div>AI: <span id="aiChips">1000</span></div>
+  </div>
+
+  <div class="section">
+    <div class="label">AI 카드</div>
+    <div class="cards" id="aiCards"></div>
+  </div>
+
+  <div class="section">
+    <div class="label">커뮤니티 카드</div>
+    <div class="cards" id="community"></div>
+  </div>
+
+  <div id="pot">팟: 0</div>
+  <div id="msg"></div>
+
+  <div class="section">
+    <div class="label">내 카드</div>
+    <div class="cards" id="myCards"></div>
+    <div class="hand-rank" id="myRank"></div>
+  </div>
+
+  <div id="actions"></div>
+</div>
+
+<script>
+const SUITS=['♠','♥','♦','♣'];
+const RANKS=['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+const RANK_VAL={2:2,3:3,4:4,5:5,6:6,7:7,8:8,9:9,10:10,J:11,Q:12,K:13,A:14};
+const HAND_NAMES=['하이카드','원페어','투페어','쓰리카드','스트레이트','플러시','풀하우스','포카드','스트레이트 플러시','로얄 플러시'];
+
+let deck,myHand,aiHand,communityCards,pot,myChips,aiChips,maxChipsEver;
+let phase,currentBet,myBet,aiBet,blind;
+
+function makeDeck(){
+  let d=[];
+  for(let s of SUITS) for(let r of RANKS) d.push({rank:r,suit:s,val:RANK_VAL[r]});
+  for(let i=d.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[d[i],d[j]]=[d[j],d[i]];}
+  return d;
+}
+
+function isRed(s){return s==='♥'||s==='♦';}
+
+function renderCard(c,facedown){
+  if(facedown) return '<div class="card facedown"></div>';
+  let cls=isRed(c.suit)?'red':'black';
+  return `<div class="card ${cls}"><span class="r">${c.rank}</span><span class="s">${c.suit}</span></div>`;
+}
+
+function evaluateHand(cards){
+  if(cards.length<5) return{rank:0,val:[0],name:'하이카드'};
+  // Get all 5-card combos
+  let best={rank:-1,val:[],name:''};
+  let combos=getCombos(cards,5);
+  for(let combo of combos){
+    let ev=eval5(combo);
+    if(comparHands(ev,best)>0) best=ev;
+  }
+  return best;
+}
+
+function getCombos(arr,k){
+  if(k===0) return[[]];
+  if(arr.length<k) return[];
+  let res=[];
+  let first=arr[0],rest=arr.slice(1);
+  for(let c of getCombos(rest,k-1)) res.push([first,...c]);
+  for(let c of getCombos(rest,k)) res.push(c);
+  return res;
+}
+
+function eval5(cards){
+  let vals=cards.map(c=>c.val).sort((a,b)=>b-a);
+  let suits=cards.map(c=>c.suit);
+  let isFlush=suits.every(s=>s===suits[0]);
+  let isStraight=false;
+  let uniqueVals=[...new Set(vals)].sort((a,b)=>b-a);
+
+  // Check straight
+  if(uniqueVals.length===5){
+    if(uniqueVals[0]-uniqueVals[4]===4) isStraight=true;
+    if(uniqueVals.join(',')=='14,5,4,3,2'){isStraight=true;uniqueVals=[5,4,3,2,1];vals=[5,4,3,2,1];}
+  }
+
+  // Count
+  let counts={};
+  for(let v of vals) counts[v]=(counts[v]||0)+1;
+  let groups=Object.entries(counts).sort((a,b)=>b[1]-a[1]||b[0]-a[0]);
+
+  if(isFlush&&isStraight&&uniqueVals[0]===14&&uniqueVals[1]===13) return{rank:9,val:vals,name:'로얄 플러시'};
+  if(isFlush&&isStraight) return{rank:8,val:vals,name:'스트레이트 플러시'};
+  if(groups[0][1]===4) return{rank:7,val:[+groups[0][0],+groups[1][0]],name:'포카드'};
+  if(groups[0][1]===3&&groups[1][1]===2) return{rank:6,val:[+groups[0][0],+groups[1][0]],name:'풀하우스'};
+  if(isFlush) return{rank:5,val:vals,name:'플러시'};
+  if(isStraight) return{rank:4,val:vals,name:'스트레이트'};
+  if(groups[0][1]===3) return{rank:3,val:[+groups[0][0],...vals.filter(v=>v!==+groups[0][0])],name:'쓰리카드'};
+  if(groups[0][1]===2&&groups[1][1]===2){
+    let p1=+groups[0][0],p2=+groups[1][0];
+    let kicker=vals.find(v=>v!==p1&&v!==p2);
+    return{rank:2,val:[Math.max(p1,p2),Math.min(p1,p2),kicker],name:'투페어'};
+  }
+  if(groups[0][1]===2) return{rank:1,val:[+groups[0][0],...vals.filter(v=>v!==+groups[0][0])],name:'원페어'};
+  return{rank:0,val:vals,name:'하이카드'};
+}
+
+function comparHands(a,b){
+  if(a.rank!==b.rank) return a.rank-b.rank;
+  for(let i=0;i<Math.min(a.val.length,b.val.length);i++){
+    if(a.val[i]!==b.val[i]) return a.val[i]-b.val[i];
+  }
+  return 0;
+}
+
+function updateUI(showAI){
+  document.getElementById('myChips').textContent=myChips;
+  document.getElementById('aiChips').textContent=aiChips;
+  document.getElementById('maxC').textContent=maxChipsEver;
+  document.getElementById('pot').textContent='팟: '+pot;
+
+  let aiHTML='';
+  for(let c of aiHand) aiHTML+=renderCard(c,!showAI);
+  document.getElementById('aiCards').innerHTML=aiHTML;
+
+  let commHTML='';
+  for(let c of communityCards) commHTML+=renderCard(c,false);
+  document.getElementById('community').innerHTML=commHTML;
+
+  let myHTML='';
+  for(let c of myHand) myHTML+=renderCard(c,false);
+  document.getElementById('myCards').innerHTML=myHTML;
+
+  // Evaluate my hand
+  if(myHand.length===2){
+    let allCards=[...myHand,...communityCards];
+    if(allCards.length>=5){
+      let ev=evaluateHand(allCards);
+      document.getElementById('myRank').textContent=ev.name;
+    } else {
+      document.getElementById('myRank').textContent='';
+    }
+  }
+}
+
+function startGame(){
+  document.getElementById('overlay').style.display='none';
+  document.getElementById('game').style.display='flex';
+  myChips=1000;aiChips=1000;maxChipsEver=1000;blind=20;
+  newHand();
+}
+
+function newHand(){
+  if(myChips<=0){gameEnd('패배');return;}
+  if(aiChips<=0){gameEnd('승리! AI를 파산시켰습니다!');return;}
+  deck=makeDeck();
+  myHand=[deck.pop(),deck.pop()];
+  aiHand=[deck.pop(),deck.pop()];
+  communityCards=[];
+  pot=0;currentBet=0;myBet=0;aiBet=0;
+  phase='preflop';
+
+  // Blinds
+  let sb=Math.min(blind/2,myChips,aiChips);
+  let bb=Math.min(blind,myChips,aiChips);
+  myChips-=sb;aiBet=0;myBet=sb;
+  aiChips-=bb;aiBet=bb;
+  pot=sb+bb;
+  currentBet=bb;
+
+  document.getElementById('msg').textContent='';
+  updateUI(false);
+  showActions();
+}
+
+function showActions(){
+  let acts=document.getElementById('actions');
+  let callAmt=currentBet-myBet;
+  let canRaise=myChips>callAmt;
+  let raiseAmt=Math.min(currentBet*2||blind,myChips);
+
+  let html=`<button class="abtn fold" onclick="doFold()">폴드</button>`;
+  if(callAmt<=0){
+    html+=`<button class="abtn" onclick="doCheck()">체크</button>`;
+  } else {
+    html+=`<button class="abtn" onclick="doCall()">콜 (${Math.min(callAmt,myChips)})</button>`;
+  }
+  if(canRaise){
+    html+=`<button class="abtn" onclick="doRaise(${raiseAmt})">레이즈 (${raiseAmt})</button>`;
+  }
+  acts.innerHTML=html;
+}
+
+function doFold(){
+  document.getElementById('actions').innerHTML='';
+  aiChips+=pot;pot=0;
+  document.getElementById('msg').textContent='폴드! AI 승리';
+  document.getElementById('msg').style.color='#ff4a5a';
+  updateUI(false);
+  if(myChips>maxChipsEver) maxChipsEver=myChips;
+  _hub('poker',maxChipsEver);
+  setTimeout(newHand,1500);
+}
+
+function doCheck(){
+  document.getElementById('actions').innerHTML='';
+  aiTurn(true);
+}
+
+function doCall(){
+  let callAmt=Math.min(currentBet-myBet,myChips);
+  myChips-=callAmt;
+  pot+=callAmt;
+  myBet+=callAmt;
+  document.getElementById('actions').innerHTML='';
+  updateUI(false);
+  advancePhase();
+}
+
+function doRaise(amt){
+  let callFirst=currentBet-myBet;
+  let totalPay=Math.min(callFirst+amt,myChips);
+  myChips-=totalPay;
+  pot+=totalPay;
+  myBet+=totalPay;
+  currentBet=myBet;
+  document.getElementById('actions').innerHTML='';
+  updateUI(false);
+  aiTurn(false);
+}
+
+function aiTurn(playerChecked){
+  // Simple AI: evaluate hand strength
+  let allCards=[...aiHand,...communityCards];
+  let strength=0;
+  if(allCards.length>=5){
+    let ev=evaluateHand(allCards);
+    strength=ev.rank;
+  } else {
+    // Preflop: high cards = good
+    strength=(aiHand[0].val+aiHand[1].val)/28; // 0-1
+    if(aiHand[0].val===aiHand[1].val) strength+=2;
+    if(aiHand[0].val>=12||aiHand[1].val>=12) strength+=0.5;
+  }
+
+  let callAmt=currentBet-aiBet;
+  let rng=Math.random();
+
+  if(strength>=4||(strength>=2&&rng<0.6)){
+    // Raise
+    let raiseAmt=Math.min(blind*2,aiChips-callAmt);
+    if(raiseAmt>0&&aiChips>callAmt+raiseAmt){
+      let total=callAmt+raiseAmt;
+      aiChips-=total;pot+=total;aiBet+=total;currentBet=aiBet;
+      document.getElementById('msg').textContent='AI: 레이즈!';
+      document.getElementById('msg').style.color='#ffa500';
+      updateUI(false);
+      setTimeout(showActions,800);
+      return;
+    }
+  }
+
+  if(callAmt>0){
+    if(strength>=1||rng<0.5||(callAmt<=blind)){
+      // Call
+      let pay=Math.min(callAmt,aiChips);
+      aiChips-=pay;pot+=pay;aiBet+=pay;
+      document.getElementById('msg').textContent='AI: 콜';
+      document.getElementById('msg').style.color='#4af';
+    } else {
+      // Fold
+      myChips+=pot;pot=0;
+      document.getElementById('msg').textContent='AI 폴드! 승리!';
+      document.getElementById('msg').style.color='#4aff7a';
+      if(myChips>maxChipsEver) maxChipsEver=myChips;
+      _hub('poker',maxChipsEver);
+      updateUI(false);
+      setTimeout(newHand,1500);
+      return;
+    }
+  } else {
+    document.getElementById('msg').textContent='AI: 체크';
+    document.getElementById('msg').style.color='#aaa';
+  }
+
+  updateUI(false);
+  setTimeout(()=>advancePhase(),600);
+}
+
+function advancePhase(){
+  myBet=0;aiBet=0;currentBet=0;
+  if(phase==='preflop'){
+    phase='flop';
+    deck.pop(); // burn
+    communityCards.push(deck.pop(),deck.pop(),deck.pop());
+  } else if(phase==='flop'){
+    phase='turn';
+    deck.pop();
+    communityCards.push(deck.pop());
+  } else if(phase==='turn'){
+    phase='river';
+    deck.pop();
+    communityCards.push(deck.pop());
+  } else {
+    showdown();
+    return;
+  }
+  updateUI(false);
+  document.getElementById('msg').textContent='';
+  setTimeout(showActions,400);
+}
+
+function showdown(){
+  updateUI(true);
+  let myEval=evaluateHand([...myHand,...communityCards]);
+  let aiEval=evaluateHand([...aiHand,...communityCards]);
+  let result=comparHands(myEval,aiEval);
+
+  let msg='';
+  document.getElementById('myRank').textContent=myEval.name;
+
+  setTimeout(()=>{
+    if(result>0){
+      myChips+=pot;
+      msg='승리! '+myEval.name+'!';
+      document.getElementById('msg').style.color='#4aff7a';
+    } else if(result<0){
+      aiChips+=pot;
+      msg='패배... AI: '+aiEval.name;
+      document.getElementById('msg').style.color='#ff4a5a';
+    } else {
+      myChips+=Math.floor(pot/2);
+      aiChips+=Math.ceil(pot/2);
+      msg='무승부!';
+      document.getElementById('msg').style.color='#aaa';
+    }
+    pot=0;
+    if(myChips>maxChipsEver) maxChipsEver=myChips;
+    _hub('poker',maxChipsEver);
+    document.getElementById('msg').textContent=msg;
+    updateUI(true);
+    setTimeout(newHand,2200);
+  },800);
+}
+
+function gameEnd(text){
+  _hub('poker',maxChipsEver);
+  document.getElementById('overlay').innerHTML=`<h2 style="color:#e74c3c;">${text}</h2><p style="color:#ccc;">최고 칩: ${maxChipsEver}</p><button class="btn" onclick="location.reload()">다시 시작</button>`;
+  document.getElementById('overlay').style.display='flex';
+}
+</script>
+</body>
+</html>

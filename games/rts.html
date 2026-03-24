@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>미니 전략</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#0f0f1e;display:flex;flex-direction:column;align-items:center;font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:#fff;overflow:hidden;touch-action:none;user-select:none;}
+canvas{display:block;border-radius:0 0 8px 8px;}
+#controls{width:100%;max-width:500px;display:none;padding:8px;gap:6px;display:none;flex-wrap:wrap;justify-content:center;}
+.ubtn{background:linear-gradient(135deg,#3a5a8a,#2a3a5a);border:2px solid #5a8aba;color:#fff;padding:8px 10px;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;flex:1;min-width:80px;max-width:120px;text-align:center;touch-action:manipulation;min-height:44px;}
+.ubtn:active{transform:scale(0.95);background:#4a6a9a;}
+.ubtn .cost{font-size:11px;color:#ffd700;}
+#overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,15,30,0.93);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;}
+#overlay h1{font-size:30px;color:#5af;margin-bottom:8px;}
+#overlay p{color:#aaa;font-size:14px;margin-bottom:16px;text-align:center;padding:0 20px;}
+#overlay h2{font-size:26px;color:#5af;margin-bottom:10px;}
+.btn{background:linear-gradient(135deg,#4a8af5,#3060c0);border:none;color:#fff;padding:14px 40px;border-radius:12px;font-size:18px;font-weight:bold;cursor:pointer;font-family:inherit;min-height:44px;touch-action:manipulation;}
+.btn:active{transform:scale(0.95);}
+#hud{width:100%;max-width:500px;display:none;padding:6px 10px;background:#1a1a2e;font-size:13px;display:none;justify-content:space-between;border-radius:8px 8px 0 0;}
+#hud span{color:#ffd700;}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
+
+<div id="hud">
+  <div>라운드: <span id="roundNum">1</span></div>
+  <div>💰 <span id="gold">0</span></div>
+</div>
+<canvas id="c"></canvas>
+<div id="controls">
+  <button class="ubtn" onclick="spawnUnit('sword')">⚔️ 검사<br><span class="cost">50골드</span></button>
+  <button class="ubtn" onclick="spawnUnit('archer')">🏹 궁수<br><span class="cost">80골드</span></button>
+  <button class="ubtn" onclick="spawnUnit('knight')">🛡️ 기사<br><span class="cost">150골드</span></button>
+</div>
+
+<div id="overlay">
+  <h1>⚔️ 미니 전략</h1>
+  <p>유닛을 생산하여 적 기지를 파괴하세요!<br>라운드가 올라갈수록 적이 강해집니다!</p>
+  <button class="btn" onclick="startGame()">전투 시작</button>
+</div>
+
+<script>
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+const CW=Math.min(window.innerWidth,500);
+const CH=Math.min(window.innerHeight-120,350);
+canvas.width=CW;canvas.height=CH;
+
+const UNIT_TYPES={
+  sword:{name:'검사',hp:60,atk:12,speed:1.2,range:20,cost:50,size:10,color:'#4a9aff',atkSpeed:30},
+  archer:{name:'궁수',hp:35,atk:15,speed:0.9,range:80,cost:80,size:9,color:'#4aff7a',atkSpeed:40},
+  knight:{name:'기사',hp:150,atk:25,speed:0.7,range:22,cost:150,size:14,color:'#ffd740',atkSpeed:35}
+};
+
+let units,projectiles,playerBase,enemyBase,gold,goldRate,round,roundsWon,gameRunning,aiTimer;
+
+function startGame(){
+  document.getElementById('overlay').style.display='none';
+  document.getElementById('hud').style.display='flex';
+  document.getElementById('controls').style.display='flex';
+  roundsWon=0;
+  round=1;
+  startRound();
+}
+
+function startRound(){
+  units=[];projectiles=[];
+  playerBase={x:40,y:CH/2,hp:500,maxHp:500,team:'player'};
+  enemyBase={x:CW-40,y:CH/2,hp:400+round*100,maxHp:400+round*100,team:'enemy'};
+  gold=200;
+  goldRate=2+round*0.5;
+  aiTimer=0;
+  gameRunning=true;
+  document.getElementById('roundNum').textContent=round;
+  loop();
+}
+
+function spawnUnit(type){
+  let t=UNIT_TYPES[type];
+  if(gold<t.cost) return;
+  gold-=t.cost;
+  let yOff=(Math.random()-0.5)*100;
+  units.push({x:playerBase.x+30,y:CH/2+yOff,hp:t.hp,maxHp:t.hp,atk:t.atk,speed:t.speed,range:t.range,size:t.size,color:t.color,team:'player',atkCd:0,atkSpeed:t.atkSpeed,type});
+}
+
+function spawnEnemy(type){
+  let t=UNIT_TYPES[type];
+  let diff=1+round*0.15;
+  let yOff=(Math.random()-0.5)*100;
+  units.push({x:enemyBase.x-30,y:CH/2+yOff,hp:t.hp*diff,maxHp:t.hp*diff,atk:t.atk*diff,speed:t.speed,range:t.range,size:t.size,color:'#ff4a5a',team:'enemy',atkCd:0,atkSpeed:t.atkSpeed,type});
+}
+
+function aiSpawn(){
+  aiTimer++;
+  let interval=Math.max(40,120-round*10);
+  if(aiTimer%interval===0){
+    let r=Math.random();
+    if(r<0.5) spawnEnemy('sword');
+    else if(r<0.8) spawnEnemy('archer');
+    else spawnEnemy('knight');
+  }
+}
+
+function findTarget(unit){
+  let closest=null,closestD=Infinity;
+  // Check enemy units
+  for(let u of units){
+    if(u.team===unit.team||u.hp<=0) continue;
+    let d=Math.abs(u.x-unit.x)+Math.abs(u.y-unit.y)*0.5;
+    if(d<closestD){closestD=d;closest=u;}
+  }
+  // Check base
+  let base=unit.team==='player'?enemyBase:playerBase;
+  let bd=Math.abs(base.x-unit.x)+Math.abs(base.y-unit.y)*0.5;
+  if(bd<closestD){closest=base;closestD=bd;}
+  return{target:closest,dist:closestD};
+}
+
+function update(){
+  if(!gameRunning) return;
+  gold+=goldRate/60;
+  document.getElementById('gold').textContent=Math.floor(gold);
+  aiSpawn();
+
+  for(let u of units){
+    if(u.hp<=0) continue;
+    let{target,dist}=findTarget(u);
+    if(!target) continue;
+    u.atkCd--;
+
+    if(dist<=u.range+u.size){
+      // Attack
+      if(u.atkCd<=0){
+        u.atkCd=u.atkSpeed;
+        if(u.type==='archer'){
+          projectiles.push({x:u.x,y:u.y,tx:target.x,ty:target.y||target.y,speed:4,atk:u.atk,team:u.team,life:60});
+        } else {
+          target.hp-=u.atk;
+        }
+      }
+    } else {
+      // Move toward target
+      let dx=target.x-u.x;
+      let dy=(target.y||target.y)-u.y;
+      let d=Math.sqrt(dx*dx+dy*dy)||1;
+      u.x+=dx/d*u.speed*(u.team==='player'?1:1);
+      u.y+=dy/d*u.speed*0.3;
+    }
+
+    // Separate from allies
+    for(let o of units){
+      if(o===u||o.team!==u.team||o.hp<=0) continue;
+      let dx=u.x-o.x,dy=u.y-o.y;
+      let d=Math.sqrt(dx*dx+dy*dy)||1;
+      if(d<u.size+o.size){
+        u.x+=dx/d*0.5;
+        u.y+=dy/d*0.5;
+      }
+    }
+    u.y=Math.max(20,Math.min(CH-20,u.y));
+  }
+
+  // Projectiles
+  for(let i=projectiles.length-1;i>=0;i--){
+    let p=projectiles[i];
+    let dx=p.tx-p.x,dy=p.ty-p.y;
+    let d=Math.sqrt(dx*dx+dy*dy)||1;
+    if(d<5){
+      // Hit
+      for(let u of units){
+        if(u.team!==p.team&&u.hp>0&&Math.abs(u.x-p.x)<15&&Math.abs(u.y-p.y)<15){
+          u.hp-=p.atk;break;
+        }
+      }
+      // Check bases
+      let base=p.team==='player'?enemyBase:playerBase;
+      if(Math.abs(base.x-p.x)<30&&Math.abs(base.y-p.y)<30) base.hp-=p.atk;
+      projectiles.splice(i,1);continue;
+    }
+    p.x+=dx/d*p.speed;
+    p.y+=dy/d*p.speed;
+    p.life--;
+    if(p.life<=0) projectiles.splice(i,1);
+  }
+
+  // Remove dead
+  units=units.filter(u=>u.hp>0);
+
+  // Win/lose check
+  if(enemyBase.hp<=0){
+    gameRunning=false;
+    roundsWon++;
+    round++;
+    _hub('rts',roundsWon);
+    setTimeout(()=>{
+      if(confirm('🎉 라운드 '+roundsWon+' 승리! 다음 라운드 진행?')){
+        startRound();
+      } else {
+        showEnd();
+      }
+    },300);
+  }
+  if(playerBase.hp<=0){
+    gameRunning=false;
+    _hub('rts',roundsWon);
+    showEnd();
+  }
+}
+
+function showEnd(){
+  document.getElementById('overlay').innerHTML=`<h2>전투 종료</h2><p style="color:#ccc;font-size:18px;">승리 라운드: ${roundsWon}</p><button class="btn" onclick="location.reload()">다시 시작</button>`;
+  document.getElementById('overlay').style.display='flex';
+  document.getElementById('controls').style.display='none';
+}
+
+function drawHPBar(x,y,w,hp,maxHp,color){
+  ctx.fillStyle='#333';
+  ctx.fillRect(x-w/2,y,w,4);
+  ctx.fillStyle=color;
+  ctx.fillRect(x-w/2,y,w*(Math.max(0,hp)/maxHp),4);
+}
+
+function draw(){
+  // Background - grass
+  ctx.fillStyle='#1a2a1a';
+  ctx.fillRect(0,0,CW,CH);
+
+  // Grid lines
+  ctx.strokeStyle='rgba(255,255,255,0.03)';
+  for(let x=0;x<CW;x+=30){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,CH);ctx.stroke();}
+  for(let y=0;y<CH;y+=30){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(CW,y);ctx.stroke();}
+
+  // Bases
+  // Player base
+  ctx.fillStyle='#2a4a8a';
+  ctx.fillRect(playerBase.x-25,playerBase.y-30,50,60);
+  ctx.fillStyle='#4a7adf';
+  ctx.fillRect(playerBase.x-20,playerBase.y-25,40,50);
+  ctx.fillStyle='#fff';
+  ctx.font='16px sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText('🏰',playerBase.x,playerBase.y+6);
+  drawHPBar(playerBase.x,playerBase.y-35,50,playerBase.hp,playerBase.maxHp,'#4af');
+
+  // Enemy base
+  ctx.fillStyle='#8a2a2a';
+  ctx.fillRect(enemyBase.x-25,enemyBase.y-30,50,60);
+  ctx.fillStyle='#df4a4a';
+  ctx.fillRect(enemyBase.x-20,enemyBase.y-25,40,50);
+  ctx.fillText('🏴',enemyBase.x,enemyBase.y+6);
+  drawHPBar(enemyBase.x,enemyBase.y-35,50,enemyBase.hp,enemyBase.maxHp,'#f44');
+
+  // Units
+  for(let u of units){
+    ctx.fillStyle=u.color;
+    ctx.beginPath();
+    ctx.arc(u.x,u.y,u.size,0,Math.PI*2);
+    ctx.fill();
+    ctx.strokeStyle='rgba(0,0,0,0.3)';
+    ctx.lineWidth=1;
+    ctx.stroke();
+
+    // Emoji on unit
+    ctx.font=(u.size)+'px sans-serif';
+    ctx.textAlign='center';
+    let emoji=u.type==='sword'?'⚔️':u.type==='archer'?'🏹':'🛡️';
+    ctx.fillText(emoji,u.x,u.y+u.size*0.3);
+
+    drawHPBar(u.x,u.y-u.size-5,u.size*2,u.hp,u.maxHp,u.team==='player'?'#4af':'#f44');
+  }
+
+  // Projectiles
+  for(let p of projectiles){
+    ctx.fillStyle=p.team==='player'?'#4aff7a':'#ff7a4a';
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,3,0,Math.PI*2);
+    ctx.fill();
+  }
+}
+
+function loop(){
+  if(!gameRunning) return;
+  update();
+  draw();
+  requestAnimationFrame(loop);
+}
+
+window.spawnUnit=spawnUnit;
+</script>
+</body>
+</html>

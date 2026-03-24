@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>솔리테어</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#0f0f1e;display:flex;flex-direction:column;align-items:center;font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:#fff;min-height:100vh;touch-action:none;user-select:none;overflow-x:hidden;}
+canvas{display:block;}
+#overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,15,30,0.95);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;}
+#overlay h1{font-size:30px;color:#4aff7a;margin-bottom:8px;}
+#overlay p{color:#aaa;font-size:14px;margin-bottom:18px;text-align:center;padding:0 20px;}
+.btn{background:linear-gradient(135deg,#4aff7a,#2a9a4a);border:none;color:#fff;padding:14px 40px;border-radius:12px;font-size:18px;font-weight:bold;cursor:pointer;font-family:inherit;min-height:44px;touch-action:manipulation;}
+.btn:active{transform:scale(0.95);}
+#hud{position:fixed;top:50px;right:8px;z-index:50;text-align:right;font-size:13px;color:#aaa;display:none;}
+#hud .v{font-size:16px;color:#4aff7a;font-weight:bold;}
+#undoBtn{position:fixed;bottom:12px;right:12px;z-index:50;background:rgba(0,0,0,0.7);color:#fff;border:2px solid #555;padding:10px 16px;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;display:none;min-height:44px;min-width:44px;touch-action:manipulation;font-family:inherit;}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
+
+<div id="hud">
+  <div>시간: <span class="v" id="timer">0:00</span></div>
+  <div>이동: <span class="v" id="moves">0</span></div>
+  <div>점수: <span class="v" id="score">0</span></div>
+</div>
+<button id="undoBtn" onclick="undo()">↩ 되돌리기</button>
+<canvas id="c"></canvas>
+
+<div id="overlay">
+  <h1>🃏 솔리테어</h1>
+  <p>카드를 정리하여 에이스부터 킹까지<br>모든 카드를 기초 더미에 쌓으세요!</p>
+  <button class="btn" onclick="startGame()">게임 시작</button>
+</div>
+
+<script>
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+const W=Math.min(window.innerWidth,500);
+const H=window.innerHeight;
+canvas.width=W;canvas.height=H;
+
+const SUITS=['♠','♥','♦','♣'];
+const RANKS=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+const CW=Math.floor((W-16)/7-4); // card width
+const CH=Math.floor(CW*1.4);
+const MARGIN=Math.floor((W-(CW*7+24))/2);
+const GAP=CW+4;
+const TOP_Y=55;
+const TAB_Y=TOP_Y+CH+15;
+const STACK_OFFSET=Math.min(22,Math.floor((H-TAB_Y-CH-40)/12));
+
+let stock,waste,foundations,tableau,moveCount,startTime,score,gameActive;
+let dragging=null,dragCards=[],dragOffX=0,dragOffY=0,dragFromCol=-1,dragFromType='';
+let history=[];
+
+function makeDeck(){
+  let d=[];
+  for(let s of SUITS) for(let i=0;i<RANKS.length;i++) d.push({rank:RANKS[i],suit:s,val:i+1,faceUp:false,red:s==='♥'||s==='♦'});
+  for(let i=d.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[d[i],d[j]]=[d[j],d[i]];}
+  return d;
+}
+
+function startGame(){
+  document.getElementById('overlay').style.display='none';
+  document.getElementById('hud').style.display='block';
+  document.getElementById('undoBtn').style.display='block';
+
+  let deck=makeDeck();
+  tableau=[];
+  for(let i=0;i<7;i++){
+    tableau[i]=[];
+    for(let j=0;j<=i;j++){
+      let c=deck.pop();
+      if(j===i) c.faceUp=true;
+      tableau[i].push(c);
+    }
+  }
+  foundations=[[],[],[],[]];
+  waste=[];
+  stock=deck;
+  moveCount=0;score=0;startTime=Date.now();
+  gameActive=true;history=[];
+  render();
+  requestAnimationFrame(tick);
+}
+
+function tick(){
+  if(!gameActive) return;
+  let elapsed=Math.floor((Date.now()-startTime)/1000);
+  let m=Math.floor(elapsed/60),s=elapsed%60;
+  document.getElementById('timer').textContent=m+':'+(s<10?'0':'')+s;
+  // Score: base from foundations, minus time penalty
+  let fScore=0;
+  for(let f of foundations) fScore+=f.length*10;
+  score=Math.max(0,fScore-Math.floor(elapsed/10));
+  document.getElementById('score').textContent=score;
+  document.getElementById('moves').textContent=moveCount;
+  requestAnimationFrame(tick);
+}
+
+function cardX(col){return MARGIN+col*GAP;}
+
+function drawCard(x,y,card,highlight){
+  ctx.save();
+  if(!card.faceUp){
+    ctx.fillStyle='#2a3a6a';
+    ctx.strokeStyle='#4a6aaa';
+    ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.roundRect(x,y,CW,CH,5);ctx.fill();ctx.stroke();
+    // Pattern
+    ctx.fillStyle='#3a4a7a';
+    for(let i=4;i<CW-4;i+=6)for(let j=4;j<CH-4;j+=6){
+      if((i+j)%12===0) ctx.fillRect(x+i,y+j,3,3);
+    }
+    ctx.restore();
+    return;
+  }
+  ctx.fillStyle=highlight?'#3a4a3a':'#f8f8f0';
+  ctx.strokeStyle=highlight?'#4aff7a':'#bbb';
+  ctx.lineWidth=highlight?2:1;
+  ctx.beginPath();ctx.roundRect(x,y,CW,CH,5);ctx.fill();ctx.stroke();
+
+  ctx.fillStyle=card.red?'#e74c3c':'#2c3e50';
+  ctx.font='bold '+Math.floor(CW*0.28)+'px sans-serif';
+  ctx.textAlign='left';
+  ctx.fillText(card.rank,x+4,y+Math.floor(CW*0.32));
+  ctx.font=Math.floor(CW*0.35)+'px sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText(card.suit,x+CW/2,y+CH*0.6);
+  ctx.font=Math.floor(CW*0.18)+'px sans-serif';
+  ctx.fillText(card.suit,x+4+Math.floor(CW*0.1),y+Math.floor(CW*0.45));
+  ctx.restore();
+}
+
+function drawEmptySlot(x,y,label){
+  ctx.strokeStyle='#3a5a3a';
+  ctx.lineWidth=1.5;
+  ctx.setLineDash([4,4]);
+  ctx.beginPath();ctx.roundRect(x,y,CW,CH,5);ctx.stroke();
+  ctx.setLineDash([]);
+  if(label){
+    ctx.fillStyle='#3a5a3a';
+    ctx.font='12px sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText(label,x+CW/2,y+CH/2+4);
+  }
+}
+
+function render(){
+  ctx.fillStyle='#0f0f1e';
+  ctx.fillRect(0,0,W,H);
+
+  // Stock
+  let sx=cardX(0);
+  if(stock.length>0){
+    drawCard(sx,TOP_Y,{faceUp:false});
+    ctx.fillStyle='#fff';ctx.font='11px sans-serif';ctx.textAlign='center';
+    ctx.fillText(stock.length,sx+CW/2,TOP_Y+CH+13);
+  } else {
+    drawEmptySlot(sx,TOP_Y,'♻️');
+  }
+
+  // Waste
+  let wx=cardX(1);
+  if(waste.length>0){
+    drawCard(wx,TOP_Y,waste[waste.length-1]);
+  } else {
+    drawEmptySlot(wx,TOP_Y);
+  }
+
+  // Foundations
+  for(let i=0;i<4;i++){
+    let fx=cardX(3+i);
+    if(foundations[i].length>0){
+      drawCard(fx,TOP_Y,foundations[i][foundations[i].length-1]);
+    } else {
+      drawEmptySlot(fx,TOP_Y,SUITS[i]);
+    }
+  }
+
+  // Tableau
+  for(let col=0;col<7;col++){
+    let tx=cardX(col);
+    if(tableau[col].length===0){
+      drawEmptySlot(tx,TAB_Y);
+      continue;
+    }
+    for(let row=0;row<tableau[col].length;row++){
+      let cy=TAB_Y+row*STACK_OFFSET;
+      let card=tableau[col][row];
+      // Skip cards being dragged
+      if(dragging&&dragFromType==='tableau'&&dragFromCol===col){
+        let dragStart=tableau[col].length-dragCards.length;
+        if(row>=dragStart) continue;
+      }
+      drawCard(tx,cy,card);
+    }
+  }
+
+  // Dragging cards
+  if(dragging){
+    for(let i=0;i<dragCards.length;i++){
+      drawCard(dragging.x+dragOffX,dragging.y+dragOffY+i*STACK_OFFSET,dragCards[i],true);
+    }
+  }
+}
+
+function saveState(){
+  history.push({
+    stock:stock.map(c=>({...c})),
+    waste:waste.map(c=>({...c})),
+    foundations:foundations.map(f=>f.map(c=>({...c}))),
+    tableau:tableau.map(t=>t.map(c=>({...c}))),
+    moveCount,score
+  });
+  if(history.length>50) history.shift();
+}
+
+function undo(){
+  if(history.length===0) return;
+  let st=history.pop();
+  stock=st.stock;waste=st.waste;foundations=st.foundations;tableau=st.tableau;
+  moveCount=st.moveCount;score=st.score;
+  render();
+}
+
+function canPlaceOnTableau(card,col){
+  if(tableau[col].length===0) return card.val===13; // Only K on empty
+  let top=tableau[col][tableau[col].length-1];
+  return top.faceUp && top.val===card.val+1 && top.red!==card.red;
+}
+
+function canPlaceOnFoundation(card,fi){
+  if(foundations[fi].length===0) return card.val===1 && card.suit===SUITS[fi];
+  let top=foundations[fi][foundations[fi].length-1];
+  return card.suit===top.suit && card.val===top.val+1;
+}
+
+function autoFlip(){
+  for(let col=0;col<7;col++){
+    if(tableau[col].length>0&&!tableau[col][tableau[col].length-1].faceUp){
+      tableau[col][tableau[col].length-1].faceUp=true;
+    }
+  }
+}
+
+function checkWin(){
+  for(let f of foundations) if(f.length<13) return false;
+  return true;
+}
+
+function getCardAt(px,py){
+  // Check waste
+  let wx=cardX(1);
+  if(waste.length>0&&px>=wx&&px<=wx+CW&&py>=TOP_Y&&py<=TOP_Y+CH){
+    return{type:'waste',card:waste[waste.length-1],col:-1,row:-1};
+  }
+  // Check foundations
+  for(let i=0;i<4;i++){
+    let fx=cardX(3+i);
+    if(foundations[i].length>0&&px>=fx&&px<=fx+CW&&py>=TOP_Y&&py<=TOP_Y+CH){
+      return{type:'foundation',card:foundations[i][foundations[i].length-1],col:i,row:-1};
+    }
+  }
+  // Check tableau (from bottom up)
+  for(let col=0;col<7;col++){
+    let tx=cardX(col);
+    if(px<tx||px>tx+CW) continue;
+    for(let row=tableau[col].length-1;row>=0;row--){
+      let cy=TAB_Y+row*STACK_OFFSET;
+      let cardBottom=row===tableau[col].length-1?cy+CH:cy+STACK_OFFSET;
+      if(py>=cy&&py<=cardBottom&&tableau[col][row].faceUp){
+        return{type:'tableau',card:tableau[col][row],col,row};
+      }
+    }
+  }
+  // Check stock
+  let sx=cardX(0);
+  if(px>=sx&&px<=sx+CW&&py>=TOP_Y&&py<=TOP_Y+CH){
+    return{type:'stock',card:null,col:-1,row:-1};
+  }
+  // Check empty tableau
+  for(let col=0;col<7;col++){
+    let tx=cardX(col);
+    if(tableau[col].length===0&&px>=tx&&px<=tx+CW&&py>=TAB_Y&&py<=TAB_Y+CH){
+      return{type:'empty_tableau',card:null,col,row:-1};
+    }
+  }
+  // Check empty foundation
+  for(let i=0;i<4;i++){
+    let fx=cardX(3+i);
+    if(foundations[i].length===0&&px>=fx&&px<=fx+CW&&py>=TOP_Y&&py<=TOP_Y+CH){
+      return{type:'empty_foundation',card:null,col:i,row:-1};
+    }
+  }
+  return null;
+}
+
+function getDropTarget(px,py){
+  // Foundations
+  for(let i=0;i<4;i++){
+    let fx=cardX(3+i);
+    if(px>=fx-10&&px<=fx+CW+10&&py>=TOP_Y-10&&py<=TOP_Y+CH+10){
+      return{type:'foundation',col:i};
+    }
+  }
+  // Tableau
+  for(let col=0;col<7;col++){
+    let tx=cardX(col);
+    if(px>=tx-5&&px<=tx+CW+5){
+      let maxY=TAB_Y+(tableau[col].length)*STACK_OFFSET+CH;
+      if(py>=TAB_Y-10&&py<=maxY+10){
+        return{type:'tableau',col};
+      }
+    }
+  }
+  return null;
+}
+
+let pointerStartX=0,pointerStartY=0,hasMoved=false;
+
+function onDown(px,py){
+  if(!gameActive) return;
+  pointerStartX=px;pointerStartY=py;hasMoved=false;
+  let hit=getCardAt(px,py);
+  if(!hit) return;
+
+  if(hit.type==='stock'){
+    // Draw from stock
+    saveState();
+    if(stock.length>0){
+      let c=stock.pop();
+      c.faceUp=true;
+      waste.push(c);
+    } else {
+      // Recycle waste
+      while(waste.length>0){
+        let c=waste.pop();
+        c.faceUp=false;
+        stock.push(c);
+      }
+    }
+    moveCount++;
+    render();
+    return;
+  }
+
+  if(hit.type==='waste'&&hit.card){
+    dragCards=[waste[waste.length-1]];
+    dragFromType='waste';dragFromCol=-1;
+    dragging={x:px-CW/2,y:py-CH/2};
+    dragOffX=0;dragOffY=0;
+  } else if(hit.type==='tableau'&&hit.card){
+    let cards=tableau[hit.col].slice(hit.row);
+    dragCards=cards;
+    dragFromType='tableau';dragFromCol=hit.col;
+    dragging={x:cardX(hit.col),y:TAB_Y+hit.row*STACK_OFFSET};
+    dragOffX=px-dragging.x;dragOffY=py-dragging.y;
+    dragging.x=px-dragOffX;dragging.y=py-dragOffY;
+    dragOffX=0;dragOffY=0;
+  } else if(hit.type==='foundation'&&hit.card){
+    dragCards=[foundations[hit.col][foundations[hit.col].length-1]];
+    dragFromType='foundation';dragFromCol=hit.col;
+    dragging={x:px-CW/2,y:py-CH/2};
+    dragOffX=0;dragOffY=0;
+  }
+}
+
+function onMove(px,py){
+  if(!dragging) return;
+  if(Math.abs(px-pointerStartX)>5||Math.abs(py-pointerStartY)>5) hasMoved=true;
+  dragging.x=px-CW/2;
+  dragging.y=py-CH/2;
+  render();
+}
+
+function onUp(px,py){
+  if(!dragging){return;}
+  if(!hasMoved){
+    // Tap: try auto-move to foundation
+    if(dragCards.length===1){
+      saveState();
+      let card=dragCards[0];
+      for(let i=0;i<4;i++){
+        if(canPlaceOnFoundation(card,i)){
+          if(dragFromType==='waste') waste.pop();
+          else if(dragFromType==='tableau') tableau[dragFromCol].pop();
+          else if(dragFromType==='foundation') foundations[dragFromCol].pop();
+          foundations[i].push(card);
+          moveCount++;
+          autoFlip();
+          dragging=null;dragCards=[];
+          render();
+          if(checkWin()) winGame();
+          return;
+        }
+      }
+      // No auto move found, drop back
+      dragging=null;dragCards=[];
+      render();
+      history.pop(); // undo the saveState
+      return;
+    }
+    dragging=null;dragCards=[];render();return;
+  }
+
+  let target=getDropTarget(px,py);
+  let placed=false;
+
+  if(target&&dragCards.length>0){
+    saveState();
+    if(target.type==='foundation'&&dragCards.length===1){
+      if(canPlaceOnFoundation(dragCards[0],target.col)){
+        if(dragFromType==='waste') waste.pop();
+        else if(dragFromType==='tableau') tableau[dragFromCol].splice(-1);
+        else if(dragFromType==='foundation') foundations[dragFromCol].pop();
+        foundations[target.col].push(dragCards[0]);
+        placed=true;
+      }
+    } else if(target.type==='tableau'){
+      if(canPlaceOnTableau(dragCards[0],target.col)){
+        if(dragFromType==='waste') waste.pop();
+        else if(dragFromType==='tableau') tableau[dragFromCol].splice(-dragCards.length);
+        else if(dragFromType==='foundation') foundations[dragFromCol].pop();
+        for(let c of dragCards) tableau[target.col].push(c);
+        placed=true;
+      }
+    }
+    if(!placed) history.pop();
+  }
+
+  if(placed){
+    moveCount++;
+    autoFlip();
+    if(checkWin()) winGame();
+  }
+
+  dragging=null;dragCards=[];
+  render();
+}
+
+function winGame(){
+  gameActive=false;
+  let elapsed=Math.floor((Date.now()-startTime)/1000);
+  let finalScore=Math.max(100,1000-elapsed*2-moveCount*5+520);
+  score=finalScore;
+  _hub('solitaire',finalScore);
+  setTimeout(()=>{
+    document.getElementById('overlay').innerHTML=`<h2 style="color:#4aff7a;">🎉 축하합니다!</h2><p style="color:#ccc;font-size:16px;">점수: ${finalScore}<br>시간: ${Math.floor(elapsed/60)}분 ${elapsed%60}초<br>이동: ${moveCount}회</p><button class="btn" onclick="startGame()">다시 하기</button>`;
+    document.getElementById('overlay').style.display='flex';
+  },500);
+}
+
+// Input handlers
+function getPos(e){
+  let rect=canvas.getBoundingClientRect();
+  let t=e.touches?e.touches[0]:e;
+  return{x:t.clientX-rect.left,y:t.clientY-rect.top};
+}
+
+canvas.addEventListener('mousedown',e=>{let p=getPos(e);onDown(p.x,p.y);});
+canvas.addEventListener('mousemove',e=>{let p=getPos(e);onMove(p.x,p.y);});
+canvas.addEventListener('mouseup',e=>{let p=getPos(e);onUp(p.x,p.y);});
+canvas.addEventListener('touchstart',e=>{e.preventDefault();let p=getPos(e);onDown(p.x,p.y);},{passive:false});
+canvas.addEventListener('touchmove',e=>{e.preventDefault();let p=getPos(e);onMove(p.x,p.y);},{passive:false});
+canvas.addEventListener('touchend',e=>{e.preventDefault();let p={x:pointerStartX,y:pointerStartY};if(dragging)p={x:dragging.x+CW/2,y:dragging.y+CH/2};onUp(p.x,p.y);},{passive:false});
+
+window.addEventListener('resize',()=>{
+  canvas.width=Math.min(window.innerWidth,500);
+  canvas.height=window.innerHeight;
+  if(gameActive) render();
+});
+</script>
+</body>
+</html>
