@@ -66,6 +66,8 @@ let resources=[],animals=[],particles=[];
 let day=1,dayTimer=0,isNight=false;
 let camX=0,camY=0;
 let joyActive=false,joyX=0,joyY=0,joyStartX=0,joyStartY=0;
+let heartbeatTimer=0;
+let craftFlash=0;
 
 const DAY_LENGTH=600; // frames per half-day
 const RECIPES=[
@@ -121,7 +123,8 @@ function endGame(){
   state='over';
   _hub('survival',day);
   document.getElementById('goTitle').textContent='💀 '+(player.hp<=0?'체력 소진':'아사');
-  document.getElementById('goStats').textContent=`생존 일수: ${day}일`;
+  const craftCount=Object.values(crafted).filter(v=>v).length;
+  document.getElementById('goStats').textContent=`생존 일수: ${day}일 | 제작: ${craftCount}/3 | 나무: ${inv.wood} 돌: ${inv.stone}`;
   document.getElementById('gameOver').classList.remove('hidden');
 }
 
@@ -143,7 +146,10 @@ function updateCraft(){
     btn.onclick=()=>{
       for(const[k,v]of Object.entries(r.cost))inv[k]-=v;
       crafted[r.id]=true;
+      craftFlash=30;
       particles.push({x:player.x,y:player.y-20,t:0,text:r.name+' 제작!',color:'#4f4'});
+      // craft celebration particles
+      for(let ii=0;ii<8;ii++){particles.push({x:player.x+(Math.random()-0.5)*30,y:player.y-10+(Math.random()-0.5)*20,t:0,text:'✨',color:'#fbbf24'});}
       updateCraft();
     };
     panel.appendChild(btn);
@@ -218,7 +224,7 @@ function update(){
     if(Math.hypot(r.x-player.x,r.y-player.y)<22){
       const amt=r.type==='wood'&&crafted.axe?2:r.amount;
       inv[r.type]=(inv[r.type]||0)+amt;
-      particles.push({x:r.x,y:r.y,t:0,text:r.emoji+(amt>1?'x'+amt:''),color:'#fff'});
+      particles.push({x:r.x,y:r.y-5,t:0,text:'+'+amt+' '+r.emoji,color:'#4ade80'});
       updateCraft();
       return false;
     }
@@ -321,13 +327,49 @@ function draw(){
   ctx.beginPath();ctx.arc(px+4,py-3,1.5,0,Math.PI*2);ctx.fill();
   ctx.beginPath();ctx.arc(px,py+3,3,0,Math.PI);ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke();
 
-  // night overlay
+  // craft flash
+  if(craftFlash>0){
+    ctx.fillStyle=`rgba(74,222,128,${craftFlash/30*0.15})`;
+    ctx.fillRect(0,0,W,H);
+    craftFlash--;
+  }
+
+  // night overlay with gradient transition
   if(isNight){
-    ctx.fillStyle=`rgba(0,0,30,${0.3+nightAlpha*0.2})`;ctx.fillRect(0,0,W,H);
+    const transitionProgress=Math.min(dayTimer/60,1); // smooth transition over 1 second
+    ctx.fillStyle=`rgba(0,0,30,${(0.3+nightAlpha*0.2)*transitionProgress})`;ctx.fillRect(0,0,W,H);
     // vision circle
     const vg=ctx.createRadialGradient(px,py,30,px,py,crafted.fire?150:80);
     vg.addColorStop(0,'rgba(0,0,30,0)');vg.addColorStop(1,'rgba(0,0,30,0.5)');
     ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);
+  }
+
+  // heartbeat effect at low HP
+  if(player.hp<=25&&player.hp>0){
+    heartbeatTimer+=0.08;
+    const beat=Math.sin(heartbeatTimer*4)*0.5+0.5;
+    const intensity=beat*(1-player.hp/25)*0.2;
+    ctx.fillStyle=`rgba(255,0,0,${intensity})`;
+    ctx.fillRect(0,0,W,H);
+    // vignette
+    const vg=ctx.createRadialGradient(W/2,H/2,W*0.3,W/2,H/2,W*0.7);
+    vg.addColorStop(0,'rgba(255,0,0,0)');
+    vg.addColorStop(1,`rgba(100,0,0,${intensity*1.5})`);
+    ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);
+  }
+
+  // animal approach warning
+  if(isNight){
+    animals.forEach(a=>{
+      const dist=Math.hypot(a.x-player.x,a.y-player.y);
+      if(dist<180&&dist>50){
+        const ax=sx(a.x),ay=sy(a.y);
+        ctx.fillStyle=`rgba(255,0,0,${(1-dist/180)*0.4})`;
+        ctx.font='bold 10px sans-serif';ctx.textAlign='center';
+        ctx.fillText('!',ax,ay-a.r-5);
+        ctx.textAlign='left';
+      }
+    });
   }
 
   // particles

@@ -20,6 +20,14 @@ body{background:#0f0f1e;display:flex;flex-direction:column;align-items:center;fo
 .card{width:52px;height:74px;border-radius:7px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:bold;box-shadow:0 2px 8px rgba(0,0,0,0.5);position:relative;font-size:16px;transition:transform 0.3s;}
 .card.facedown{background:#2a3a6a;border:2px solid #4a6aaa;}
 .card.facedown::after{content:'🂠';font-size:30px;}
+.card.deal-anim{animation:dealSlide 0.3s ease-out;}
+@keyframes dealSlide{from{transform:translateY(-30px) scale(0.8);opacity:0;}to{transform:translateY(0) scale(1);opacity:1;}}
+.hand-rank.highlight{animation:rankPulse 0.6s ease 2;color:#ffd700;}
+@keyframes rankPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.15);}}
+#msg.ai-think::after{content:'...';animation:dots 1s steps(3,end) infinite;}
+@keyframes dots{0%{content:'.';}33%{content:'..';}66%{content:'...';}}
+#pot.pot-grow{animation:potBump 0.3s ease;}
+@keyframes potBump{0%{transform:scale(1);}50%{transform:scale(1.15);}100%{transform:scale(1);}}
 .card.red{background:#fff;color:#e74c3c;border:2px solid #ddd;}
 .card.black{background:#fff;color:#2c3e50;border:2px solid #ddd;}
 .card .r{position:absolute;top:3px;left:5px;font-size:13px;}
@@ -94,9 +102,9 @@ function makeDeck(){
 function isRed(s){return s==='♥'||s==='♦';}
 
 function renderCard(c,facedown){
-  if(facedown) return '<div class="card facedown"></div>';
+  if(facedown) return '<div class="card facedown deal-anim"></div>';
   let cls=isRed(c.suit)?'red':'black';
-  return `<div class="card ${cls}"><span class="r">${c.rank}</span><span class="s">${c.suit}</span></div>`;
+  return `<div class="card ${cls} deal-anim"><span class="r">${c.rank}</span><span class="s">${c.suit}</span></div>`;
 }
 
 function evaluateHand(cards){
@@ -280,6 +288,15 @@ function doRaise(amt){
 }
 
 function aiTurn(playerChecked){
+  // Show thinking indicator
+  const msgEl=document.getElementById('msg');
+  msgEl.textContent='AI 생각 중';
+  msgEl.style.color='#aaa';
+  msgEl.classList.add('ai-think');
+  document.getElementById('actions').innerHTML='';
+  setTimeout(()=>{msgEl.classList.remove('ai-think');aiTurnLogic(playerChecked);},800+Math.random()*700);
+}
+function aiTurnLogic(playerChecked){
   // Simple AI: evaluate hand strength
   let allCards=[...aiHand,...communityCards];
   let strength=0;
@@ -368,6 +385,16 @@ function showdown(){
 
   let msg='';
   document.getElementById('myRank').textContent=myEval.name;
+
+  // Highlight hand rank
+  const rankEl=document.getElementById('myRank');
+  rankEl.textContent=myEval.name;
+  rankEl.classList.add('highlight');
+  setTimeout(()=>{rankEl.classList.remove('highlight');},2000);
+
+  // Bump pot display
+  document.getElementById('pot').classList.add('pot-grow');
+  setTimeout(()=>{document.getElementById('pot').classList.remove('pot-grow');},300);
 
   setTimeout(()=>{
     if(result>0){
