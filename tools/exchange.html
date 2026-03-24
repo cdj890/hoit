@@ -76,10 +76,10 @@ let rateDate = '';
 // Frankfurter API (무료/무제한/실시간)
 async function fetchRates() {
   try {
-    const res = await fetch('https://api.frankfurter.dev/v1/latest?base=USD');
+    const res = await fetch('https://api.frankfurter.app/latest?base=USD');
+    if (!res.ok) throw new Error('API error');
     const data = await res.json();
-    rates = data.rates;
-    rates.USD = 1; // base
+    rates = Object.assign({USD: 1}, data.rates);
     rateDate = data.date;
     document.getElementById('status').innerHTML = '<span class="dot live"></span> 실시간 환율 · ' + rateDate;
     showRatesGrid();
