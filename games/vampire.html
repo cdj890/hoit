@@ -68,7 +68,7 @@ const ITEM_TYPES=[
   {emoji:'❤️',name:'체력 회복',color:'#f44',apply:()=>{player.hp=Math.min(player.maxHp,player.hp+30);}},
   {emoji:'💛',name:'최대체력+10',color:'#ff0',apply:()=>{player.maxHp+=10;player.hp+=10;}},
   {emoji:'⚡',name:'일시 가속',color:'#4cf',apply:()=>{player.speed+=1;setTimeout(()=>player.speed=Math.max(2.5,player.speed-1),8000);}},
-  {emoji:'💣',name:'화면 폭탄',color:'#f80',apply:()=>{enemies.forEach(e=>{e.hp-=50;if(e.hp<=0){kills++;gems.push({x:e.x,y:e.y,val:e.xpVal});}});enemies=enemies.filter(e=>e.hp>0);screenFlash=10;}},
+  {emoji:'💣',name:'화면 폭탄',color:'#f80',apply:()=>{enemies.forEach(e=>{e.hp-=50;if(e.hp<=0&&!e.dead){e.dead=true;kills++;gems.push({x:e.x,y:e.y,val:e.xpVal});}});enemies=enemies.filter(e=>!e.dead);screenFlash=10;}},
   {emoji:'🧲',name:'경험치 흡수',color:'#a5f',apply:()=>{gems.forEach(g=>{xp+=g.val;});gems=[];checkLevelUp();}},
   {emoji:'🛡️',name:'3초 무적',color:'#8af',apply:()=>{playerInvincible=180;}},
 ];
@@ -301,15 +301,16 @@ function update(){
       if(player.hp<=0)gameOver();
     }
     // Poison DOT
-    if(e.poisonT>0){e.poisonT--;if(e.poisonT%15===0){e.hp-=3;if(e.hp<=0){kills++;gems.push({x:e.x,y:e.y,val:e.xpVal});enemies.splice(enemies.indexOf(e),1);}}}
+    if(e.poisonT>0){e.poisonT--;if(e.poisonT%15===0){e.hp-=3;if(e.hp<=0&&!e.dead){e.dead=true;kills++;gems.push({x:e.x,y:e.y,val:e.xpVal});}}}
 
   });
 
   // Weapon system - process all weapons
   player.atkCooldown--;
   function hitEnemy(e,dmg,color){
+    if(e.dead)return;
     e.hp-=dmg;damageNums.push({x:e.x+(Math.random()-0.5)*10,y:e.y-10,t:0,val:Math.round(dmg),color:color||'#ff0',crit:false});
-    if(e.hp<=0){kills++;gems.push({x:e.x,y:e.y,val:e.xpVal});enemies.splice(enemies.indexOf(e),1);}
+    if(e.hp<=0&&!e.dead){e.dead=true;kills++;gems.push({x:e.x,y:e.y,val:e.xpVal});}
   }
   function findNearest(range){
     let best=null,bd=Infinity;
@@ -406,9 +407,12 @@ function update(){
       const e=enemies[idx];
       e.hp-=player.damage*1.5;
       weaponProjectiles.push({x:e.x,y:e.y-40,tx:e.x,ty:e.y,t:0,max:10,type:'lightning'});
-      if(e.hp<=0){kills++;gems.push({x:e.x,y:e.y,val:e.xpVal});enemies.splice(enemies.indexOf(e),1);}
+      if(e.hp<=0&&!e.dead){e.dead=true;kills++;gems.push({x:e.x,y:e.y,val:e.xpVal});}
     }
   }
+
+  // Remove dead enemies (deferred from hitEnemy to avoid forEach splice crash)
+  enemies=enemies.filter(e=>!e.dead);
 
   // collect gems
   gems=gems.filter(g=>{
