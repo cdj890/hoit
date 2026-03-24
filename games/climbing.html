@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>절벽 올라가기</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#0f0f1e;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;overflow:hidden;font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:#fff;touch-action:none;user-select:none;}
+canvas{display:block;border-radius:8px;}
+#ui{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;}
+#startScreen,#gameOver{background:rgba(15,15,30,0.92);position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:auto;z-index:100;}
+#startScreen h1{font-size:32px;margin-bottom:8px;color:#ff6b4a;}
+#startScreen p{font-size:14px;color:#aaa;margin-bottom:20px;text-align:center;padding:0 20px;}
+#gameOver h2{font-size:28px;color:#ff6b4a;margin-bottom:10px;}
+#gameOver p{font-size:16px;color:#ccc;margin-bottom:15px;}
+.btn{background:linear-gradient(135deg,#ff6b4a,#e7443a);border:none;color:#fff;padding:14px 40px;border-radius:12px;font-size:18px;font-weight:bold;cursor:pointer;font-family:inherit;min-width:44px;min-height:44px;touch-action:manipulation;}
+.btn:active{transform:scale(0.95);}
+#hud{position:absolute;top:50px;right:10px;z-index:50;text-align:right;font-size:14px;color:#fff;pointer-events:none;}
+#hud .val{font-size:22px;font-weight:bold;color:#ff6b4a;}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
+
+<canvas id="c"></canvas>
+<div id="hud" style="display:none;">
+  <div>높이</div>
+  <div class="val" id="heightVal">0m</div>
+  <div style="margin-top:6px;">최고</div>
+  <div class="val" id="bestVal">0m</div>
+</div>
+
+<div id="startScreen">
+  <h1>🧗 절벽 올라가기</h1>
+  <p>터치/클릭으로 발판을 잡고 올라가세요!<br>떨어져도 포기하지 마세요!</p>
+  <button class="btn" onclick="startGame()">시작하기</button>
+</div>
+
+<div id="gameOver" style="display:none;">
+  <h2>결과</h2>
+  <p id="finalScore">0m</p>
+  <p id="bestScore" style="font-size:13px;color:#888;"></p>
+  <button class="btn" onclick="startGame()">다시 도전</button>
+</div>
+
+<script>
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+const W=Math.min(window.innerWidth,500);
+const H=window.innerHeight;
+canvas.width=W;canvas.height=H;
+
+let player,ledges,camera,bestHeight,maxHeight,gameRunning,grabTarget,swinging;
+let pointerDown=false,pointerX=0,pointerY=0;
+let particles=[];
+
+const GRAVITY=0.4;
+const GRAB_RANGE=70;
+const SWING_SPEED=0.04;
+const LAUNCH_POWER=10;
+
+function genLedges(){
+  ledges=[];
+  // Ground
+  ledges.push({x:W/2,y:0,w:W,h:20,type:'ground'});
+  // Generate ledges going up
+  let y=80;
+  for(let i=0;i<300;i++){
+    let x=40+Math.random()*(W-80);
+    let w=40+Math.random()*60;
+    // Alternate sides somewhat
+    if(i%3===0) x=30+Math.random()*(W/2-40);
+    else if(i%3===1) x=W/2+Math.random()*(W/2-40);
+    ledges.push({x,y,w,h:12,type:'ledge'});
+    y+=55+Math.random()*40;
+  }
+}
+
+function initPlayer(){
+  player={x:W/2,y:30,vx:0,vy:0,r:16,grabbed:false,angle:0,ropeLen:0,anchorX:0,anchorY:0};
+}
+
+function startGame(){
+  document.getElementById('startScreen').style.display='none';
+  document.getElementById('gameOver').style.display='none';
+  document.getElementById('hud').style.display='block';
+  genLedges();
+  initPlayer();
+  camera=0;
+  bestHeight=0;
+  maxHeight=0;
+  grabTarget=null;
+  swinging=false;
+  gameRunning=true;
+  particles=[];
+  loop();
+}
+
+function worldToScreen(wx,wy){
+  return{x:wx,y:H-wy+camera};
+}
+
+function screenToWorld(sx,sy){
+  return{x:sx,y:H-sy+camera};
+}
+
+function findNearestLedge(wx,wy){
+  let best=null,bestD=Infinity;
+  for(let l of ledges){
+    if(l.type==='ground') continue;
+    let dx=wx-(l.x);
+    let dy=wy-(l.y);
+    let d=Math.sqrt(dx*dx+dy*dy);
+    if(d<GRAB_RANGE && d<bestD && l.y>wy-10){
+      best=l;bestD=d;
+    }
+  }
+  return best;
+}
+
+function addParticles(x,y,color,count){
+  for(let i=0;i<count;i++){
+    particles.push({x,y,vx:(Math.random()-0.5)*4,vy:Math.random()*3+1,life:30+Math.random()*20,color,r:2+Math.random()*2});
+  }
+}
+
+function update(){
+  if(!gameRunning) return;
+
+  if(swinging && grabTarget){
+    // Swing around anchor point
+    player.angle+=SWING_SPEED*(pointerX<W/2?-1:1);
+    let tx=grabTarget.x+Math.cos(player.angle)*player.ropeLen;
+    let ty=grabTarget.y+Math.sin(player.angle)*player.ropeLen;
+    player.x=tx;
+    player.y=ty;
+
+    if(!pointerDown){
+      // Release! Launch
+      let launchAngle=player.angle+Math.PI/2*(pointerX<W/2?-1:1);
+      player.vx=Math.cos(launchAngle)*LAUNCH_POWER*0.7;
+      player.vy=Math.abs(Math.sin(launchAngle)*LAUNCH_POWER)+3;
+      swinging=false;
+      grabTarget=null;
+      addParticles(player.x,player.y,'#ff6b4a',5);
+    }
+  } else {
+    // Physics
+    player.vy-=GRAVITY;
+    player.x+=player.vx;
+    player.y+=player.vy;
+    player.vx*=0.99;
+
+    // Wall bounds
+    if(player.x<player.r){player.x=player.r;player.vx=Math.abs(player.vx)*0.5;}
+    if(player.x>W-player.r){player.x=W-player.r;player.vx=-Math.abs(player.vx)*0.5;}
+
+    // Ledge collision
+    for(let l of ledges){
+      let lLeft=l.x-l.w/2;
+      let lRight=l.x+l.w/2;
+      let lTop=l.y+l.h/2;
+      let lBot=l.y-l.h/2;
+
+      if(player.x+player.r>lLeft && player.x-player.r<lRight){
+        if(player.y-player.r<lTop && player.y-player.r>lBot-10 && player.vy<0){
+          player.y=lTop+player.r;
+          player.vy=0;
+          player.vx*=0.8;
+          if(Math.abs(player.vx)<0.1) player.vx=0;
+        }
+      }
+    }
+
+    // Ground
+    if(player.y<player.r){
+      player.y=player.r;
+      player.vy=0;
+      player.vx*=0.8;
+    }
+
+    // Try grab on pointer down
+    if(pointerDown && !swinging){
+      let wp=screenToWorld(pointerX,pointerY);
+      let ledge=findNearestLedge(wp.x,wp.y);
+      if(!ledge){
+        // Also search near player
+        ledge=findNearestLedge(player.x,player.y+GRAB_RANGE*0.7);
+      }
+      if(ledge){
+        grabTarget=ledge;
+        swinging=true;
+        let dx=player.x-ledge.x;
+        let dy=player.y-ledge.y;
+        player.ropeLen=Math.sqrt(dx*dx+dy*dy);
+        if(player.ropeLen<20) player.ropeLen=20;
+        if(player.ropeLen>60) player.ropeLen=60;
+        player.angle=Math.atan2(dy,dx);
+        addParticles(ledge.x,ledge.y,'#4af',3);
+      }
+    }
+  }
+
+  // Height tracking
+  let height=Math.floor(player.y/10);
+  if(height>maxHeight) maxHeight=height;
+  if(height>bestHeight) bestHeight=height;
+
+  // Camera follows player
+  let targetCam=player.y-H*0.4;
+  if(targetCam<0) targetCam=0;
+  camera+=(targetCam-camera)*0.1;
+
+  // Particles
+  for(let i=particles.length-1;i>=0;i--){
+    let p=particles[i];
+    p.x+=p.vx;p.y+=p.vy;p.vy-=0.1;p.life--;
+    if(p.life<=0) particles.splice(i,1);
+  }
+
+  document.getElementById('heightVal').textContent=Math.floor(player.y/10)+'m';
+  document.getElementById('bestVal').textContent=maxHeight+'m';
+}
+
+function draw(){
+  ctx.fillStyle='#0f0f1e';
+  ctx.fillRect(0,0,W,H);
+
+  // Stars background
+  for(let i=0;i<50;i++){
+    let sy=(i*137.5)%H;
+    let sx=(i*97.3)%W;
+    let starY=sy+camera*0.1*(i%3+1)*0.3;
+    starY=((starY%H)+H)%H;
+    ctx.fillStyle=`rgba(255,255,255,${0.3+((i*31)%5)*0.1})`;
+    ctx.fillRect(sx,starY,2,2);
+  }
+
+  // Cliff walls
+  let gradient=ctx.createLinearGradient(0,0,W,0);
+  gradient.addColorStop(0,'#2a1a3a');
+  gradient.addColorStop(0.05,'#1a1028');
+  gradient.addColorStop(0.95,'#1a1028');
+  gradient.addColorStop(1,'#2a1a3a');
+  ctx.fillStyle=gradient;
+  ctx.fillRect(0,0,12,H);
+  ctx.fillRect(W-12,0,12,H);
+
+  // Ledges
+  for(let l of ledges){
+    let s=worldToScreen(l.x,l.y);
+    if(s.y<-20||s.y>H+20) continue;
+    if(l.type==='ground'){
+      ctx.fillStyle='#3a2a4a';
+      ctx.fillRect(0,s.y-l.h/2,W,l.h+200);
+    } else {
+      let grd=ctx.createLinearGradient(s.x-l.w/2,s.y-l.h/2,s.x-l.w/2,s.y+l.h/2);
+      grd.addColorStop(0,'#8b6aa8');
+      grd.addColorStop(1,'#5a3a7a');
+      ctx.fillStyle=grd;
+      ctx.beginPath();
+      ctx.roundRect(s.x-l.w/2,s.y-l.h/2,l.w,l.h,4);
+      ctx.fill();
+      // Highlight
+      ctx.fillStyle='rgba(255,255,255,0.15)';
+      ctx.fillRect(s.x-l.w/2+2,s.y-l.h/2,l.w-4,3);
+
+      if(grabTarget===l){
+        ctx.strokeStyle='#ff6b4a';
+        ctx.lineWidth=2;
+        ctx.beginPath();
+        ctx.roundRect(s.x-l.w/2-2,s.y-l.h/2-2,l.w+4,l.h+4,6);
+        ctx.stroke();
+      }
+    }
+  }
+
+  // Rope
+  if(swinging&&grabTarget){
+    let ps=worldToScreen(player.x,player.y);
+    let as2=worldToScreen(grabTarget.x,grabTarget.y);
+    ctx.strokeStyle='rgba(255,180,100,0.7)';
+    ctx.lineWidth=2;
+    ctx.beginPath();
+    ctx.moveTo(ps.x,ps.y);
+    ctx.lineTo(as2.x,as2.y);
+    ctx.stroke();
+  }
+
+  // Player
+  let ps=worldToScreen(player.x,player.y);
+  // Body
+  ctx.fillStyle='#ff6b4a';
+  ctx.beginPath();
+  ctx.arc(ps.x,ps.y,player.r,0,Math.PI*2);
+  ctx.fill();
+  // Face
+  ctx.fillStyle='#fff';
+  ctx.beginPath();
+  ctx.arc(ps.x-5,ps.y-3,3,0,Math.PI*2);
+  ctx.arc(ps.x+5,ps.y-3,3,0,Math.PI*2);
+  ctx.fill();
+  // Mouth
+  ctx.fillStyle='#c0392b';
+  ctx.beginPath();
+  if(swinging){
+    ctx.arc(ps.x,ps.y+5,4,0,Math.PI);
+  } else if(player.vy<-3){
+    ctx.ellipse(ps.x,ps.y+5,4,5,0,0,Math.PI*2);
+  } else {
+    ctx.arc(ps.x,ps.y+4,3,0.1*Math.PI,0.9*Math.PI);
+  }
+  ctx.fill();
+
+  // Glow
+  ctx.shadowColor='#ff6b4a';
+  ctx.shadowBlur=15;
+  ctx.beginPath();
+  ctx.arc(ps.x,ps.y,player.r-2,0,Math.PI*2);
+  ctx.fillStyle='rgba(255,107,74,0.15)';
+  ctx.fill();
+  ctx.shadowBlur=0;
+
+  // Particles
+  for(let p of particles){
+    let pp=worldToScreen(p.x,p.y);
+    ctx.globalAlpha=p.life/50;
+    ctx.fillStyle=p.color;
+    ctx.beginPath();
+    ctx.arc(pp.x,pp.y,p.r,0,Math.PI*2);
+    ctx.fill();
+  }
+  ctx.globalAlpha=1;
+
+  // Height markers
+  for(let h=100;h<20000;h+=100){
+    let s=worldToScreen(W/2,h*10);
+    if(s.y>0&&s.y<H){
+      ctx.fillStyle='rgba(255,255,255,0.2)';
+      ctx.font='11px sans-serif';
+      ctx.fillText(h+'m',W-45,s.y+4);
+      ctx.strokeStyle='rgba(255,255,255,0.05)';
+      ctx.beginPath();
+      ctx.moveTo(20,s.y);ctx.lineTo(W-50,s.y);
+      ctx.stroke();
+    }
+  }
+}
+
+function loop(){
+  if(!gameRunning) return;
+  update();
+  draw();
+  requestAnimationFrame(loop);
+}
+
+// Input
+function getPos(e){
+  let rect=canvas.getBoundingClientRect();
+  let t=e.touches?e.touches[0]:e;
+  return{x:t.clientX-rect.left,y:t.clientY-rect.top};
+}
+
+canvas.addEventListener('mousedown',e=>{pointerDown=true;let p=getPos(e);pointerX=p.x;pointerY=p.y;});
+canvas.addEventListener('mousemove',e=>{let p=getPos(e);pointerX=p.x;pointerY=p.y;});
+canvas.addEventListener('mouseup',()=>{pointerDown=false;});
+canvas.addEventListener('touchstart',e=>{e.preventDefault();pointerDown=true;let p=getPos(e);pointerX=p.x;pointerY=p.y;},{passive:false});
+canvas.addEventListener('touchmove',e=>{e.preventDefault();let p=getPos(e);pointerX=p.x;pointerY=p.y;},{passive:false});
+canvas.addEventListener('touchend',e=>{e.preventDefault();pointerDown=false;},{passive:false});
+
+// End game button (timeout based)
+let inactiveTimer;
+function resetInactive(){
+  clearTimeout(inactiveTimer);
+  inactiveTimer=setTimeout(()=>{
+    if(gameRunning && player.y<30 && Math.abs(player.vx)<0.5 && Math.abs(player.vy)<0.5){
+      endGame();
+    }
+  },8000);
+}
+
+function endGame(){
+  gameRunning=false;
+  _hub('climbing',maxHeight);
+  document.getElementById('finalScore').textContent='도달 높이: '+maxHeight+'m';
+  document.getElementById('bestScore').textContent='';
+  document.getElementById('gameOver').style.display='flex';
+  document.getElementById('hud').style.display='none';
+}
+
+window.addEventListener('resize',()=>{
+  let nw=Math.min(window.innerWidth,500);
+  canvas.width=nw;
+  canvas.height=window.innerHeight;
+});
+</script>
+</body>
+</html>

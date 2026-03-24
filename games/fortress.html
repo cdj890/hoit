@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>포트리스</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:#0f0f1e;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:'Segoe UI',sans-serif;color:#fff;overflow:hidden;touch-action:none}
+canvas{display:block;border-radius:12px;margin-top:10px}
+#ui{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
+.btn{pointer-events:auto;background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.3);color:#fff;padding:10px 20px;border-radius:12px;font-size:16px;font-weight:bold;cursor:pointer;touch-action:manipulation;min-width:44px;min-height:44px}
+.btn:active{background:rgba(255,255,255,0.3)}
+#startScreen,#gameOverScreen{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(15,15,30,0.95);z-index:100;pointer-events:auto}
+#gameOverScreen{display:none}
+h1{font-size:36px;margin-bottom:10px;text-shadow:0 0 20px #ff6b6b}
+.subtitle{color:#aaa;margin-bottom:30px;font-size:14px}
+.mode-btn{margin:8px;padding:14px 30px;font-size:18px}
+#hud{position:absolute;top:50px;left:0;width:100%;display:flex;justify-content:space-between;padding:0 10px;pointer-events:none;font-size:13px}
+.hp-bar-outer{width:120px;height:14px;background:rgba(0,0,0,0.5);border-radius:7px;border:1px solid rgba(255,255,255,0.3)}
+.hp-bar-inner{height:100%;border-radius:7px;transition:width 0.3s}
+#controls{position:absolute;bottom:10px;left:0;width:100%;display:flex;justify-content:center;gap:10px;pointer-events:auto;flex-wrap:wrap;padding:0 10px;display:none}
+#windDisplay{position:absolute;top:70px;left:50%;transform:translateX(-50%);font-size:13px;color:#aef;pointer-events:none}
+#turnDisplay{position:absolute;top:90px;left:50%;transform:translateX(-50%);font-size:14px;font-weight:bold;pointer-events:none}
+#powerBar{width:150px;height:20px;background:rgba(0,0,0,0.5);border-radius:10px;border:1px solid #fff;overflow:hidden;display:inline-block;vertical-align:middle}
+#powerFill{height:100%;width:0%;background:linear-gradient(90deg,#4f4,#ff0,#f44);border-radius:10px;transition:none}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="ui">
+<div id="startScreen">
+<h1>🏰 포트리스</h1>
+<p class="subtitle">대포를 쏴서 상대를 무찔러라!</p>
+<button class="btn mode-btn" onclick="startGame('ai')">🤖 1인용 (vs AI)</button>
+<button class="btn mode-btn" onclick="startGame('2p')">👥 2인용 (같은 기기)</button>
+</div>
+<div id="gameOverScreen">
+<h1 id="winnerText"></h1>
+<p id="winStats" class="subtitle"></p>
+<button class="btn mode-btn" onclick="location.reload()">다시 하기</button>
+</div>
+<div id="hud" style="display:none">
+<div style="text-align:center">
+<div style="color:#6bf">🔵 플레이어 1</div>
+<div class="hp-bar-outer"><div class="hp-bar-inner" id="hp1" style="width:100%;background:#6bf"></div></div>
+</div>
+<div style="text-align:center">
+<div style="color:#f66">🔴 플레이어 2</div>
+<div class="hp-bar-outer"><div class="hp-bar-inner" id="hp2" style="width:100%;background:#f66"></div></div>
+</div>
+</div>
+<div id="windDisplay"></div>
+<div id="turnDisplay"></div>
+<div id="controls">
+<button class="btn" id="angleLeftBtn">◀ 각도</button>
+<button class="btn" id="angleRightBtn">각도 ▶</button>
+<span style="color:#fff;display:flex;align-items:center;font-size:13px;pointer-events:none" id="angleShow">45°</span>
+<button class="btn" id="fireBtn">🔥 발사</button>
+<div id="powerBar"><div id="powerFill"></div></div>
+</div>
+</div>
+
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
+<script>
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+const W=Math.min(window.innerWidth,500);
+const H=Math.round(W*1.2);
+canvas.width=W;canvas.height=H;
+
+let mode='ai',gameState='menu',turn=0,wind=0,wins=0;
+let terrain=[];
+let players=[
+  {x:0,y:0,hp:100,maxHp:100,angle:45,color:'#6bf',name:'P1'},
+  {x:0,y:0,hp:100,maxHp:100,angle:135,color:'#f66',name:'P2'}
+];
+let projectile=null,explosions=[];
+let powerCharging=false,power=0,powerDir=1;
+let animFrame;
+
+function generateTerrain(){
+  terrain=new Uint8Array(W*H);
+  let heights=[];
+  let h=H*0.55;
+  for(let x=0;x<W;x++){
+    h+=Math.sin(x*0.02)*2+Math.sin(x*0.05)*1+(Math.random()-0.5)*2;
+    h=Math.max(H*0.4,Math.min(H*0.75,h));
+    heights.push(Math.floor(h));
+  }
+  for(let x=0;x<W;x++){
+    for(let y=heights[x];y<H;y++){
+      terrain[y*W+x]=1;
+    }
+  }
+  players[0].x=Math.floor(W*0.15);
+  players[1].x=Math.floor(W*0.85);
+  for(let i=0;i<2;i++){
+    let fy=0;
+    for(let y=0;y<H;y++){if(terrain[y*W+players[i].x]){fy=y;break;}}
+    players[i].y=fy;
+  }
+}
+
+function drawTerrain(){
+  const img=ctx.createImageData(W,H);
+  for(let y=0;y<H;y++){
+    for(let x=0;x<W;x++){
+      const i=(y*W+x)*4;
+      if(terrain[y*W+x]){
+        const depth=(y-H*0.4)/(H*0.6);
+        img.data[i]=30+Math.floor(depth*40);
+        img.data[i+1]=120+Math.floor(depth*60);
+        img.data[i+2]=40+Math.floor(depth*30);
+        img.data[i+3]=255;
+      }
+    }
+  }
+  ctx.putImageData(img,0,0);
+}
+
+function drawSky(){
+  const grad=ctx.createLinearGradient(0,0,0,H*0.5);
+  grad.addColorStop(0,'#0a0a2e');
+  grad.addColorStop(1,'#1a1a4e');
+  ctx.fillStyle=grad;
+  ctx.fillRect(0,0,W,H);
+  for(let i=0;i<30;i++){
+    ctx.fillStyle=`rgba(255,255,255,${Math.random()*0.5+0.2})`;
+    ctx.beginPath();
+    ctx.arc(Math.random()*W,Math.random()*H*0.4,1,0,Math.PI*2);
+    ctx.fill();
+  }
+}
+
+function drawCannon(p,idx){
+  const x=p.x,y=p.y;
+  const angle=p.angle*Math.PI/180;
+  const dir=idx===0?1:-1;
+  // body
+  ctx.fillStyle=p.color;
+  ctx.beginPath();
+  ctx.arc(x,y-12,14,0,Math.PI*2);
+  ctx.fill();
+  ctx.strokeStyle='rgba(0,0,0,0.3)';ctx.lineWidth=2;ctx.stroke();
+  // face
+  ctx.fillStyle='#fff';
+  ctx.beginPath();ctx.arc(x-4*dir,y-15,3,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(x+4*dir,y-15,3,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#000';
+  ctx.beginPath();ctx.arc(x-4*dir,y-15,1.5,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(x+4*dir,y-15,1.5,0,Math.PI*2);ctx.fill();
+  // mouth
+  ctx.beginPath();ctx.arc(x,y-9,3,0,Math.PI);ctx.strokeStyle='#000';ctx.lineWidth=1.5;ctx.stroke();
+  // barrel
+  const bLen=22;
+  const bx=x+Math.cos(angle)*bLen*(idx===0?1:-1);
+  const by=y-12-Math.sin(angle)*bLen;
+  ctx.strokeStyle='#555';ctx.lineWidth=6;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(x,y-12);ctx.lineTo(bx,by);ctx.stroke();
+  ctx.strokeStyle='#888';ctx.lineWidth=4;
+  ctx.beginPath();ctx.moveTo(x,y-12);ctx.lineTo(bx,by);ctx.stroke();
+  // highlight for current turn
+  if(turn===idx&&gameState==='playing'&&!projectile){
+    ctx.strokeStyle='#ff0';ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(x,y-12,18,0,Math.PI*2);ctx.stroke();
+  }
+}
+
+function drawExplosions(){
+  explosions=explosions.filter(e=>{
+    e.t++;
+    const alpha=1-e.t/e.max;
+    if(alpha<=0)return false;
+    ctx.fillStyle=`rgba(255,${150-e.t*5},0,${alpha})`;
+    ctx.beginPath();ctx.arc(e.x,e.y,e.r*(e.t/e.max),0,Math.PI*2);ctx.fill();
+    return true;
+  });
+}
+
+function drawProjectile(){
+  if(!projectile)return;
+  ctx.fillStyle='#ff0';
+  ctx.beginPath();ctx.arc(projectile.x,projectile.y,4,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#f80';
+  ctx.beginPath();ctx.arc(projectile.x,projectile.y,2,0,Math.PI*2);ctx.fill();
+  // trail
+  if(projectile.trail){
+    for(let i=0;i<projectile.trail.length;i++){
+      const a=i/projectile.trail.length*0.5;
+      ctx.fillStyle=`rgba(255,200,0,${a})`;
+      ctx.beginPath();ctx.arc(projectile.trail[i].x,projectile.trail[i].y,2,0,Math.PI*2);ctx.fill();
+    }
+  }
+}
+
+function destroyTerrain(cx,cy,radius){
+  for(let y=Math.max(0,Math.floor(cy-radius));y<Math.min(H,Math.ceil(cy+radius));y++){
+    for(let x=Math.max(0,Math.floor(cx-radius));x<Math.min(W,Math.ceil(cx+radius));x++){
+      if(Math.hypot(x-cx,y-cy)<=radius){
+        terrain[y*W+x]=0;
+      }
+    }
+  }
+}
+
+function fire(pIdx,angle,pow){
+  const p=players[pIdx];
+  const dir=pIdx===0?1:-1;
+  const rad=angle*Math.PI/180;
+  const speed=pow*0.15+3;
+  projectile={
+    x:p.x+Math.cos(rad)*25*dir,
+    y:p.y-12-Math.sin(rad)*25,
+    vx:Math.cos(rad)*speed*dir,
+    vy:-Math.sin(rad)*speed,
+    trail:[]
+  };
+}
+
+function updateProjectile(){
+  if(!projectile)return;
+  projectile.trail.push({x:projectile.x,y:projectile.y});
+  if(projectile.trail.length>20)projectile.trail.shift();
+  projectile.vx+=wind*0.001;
+  projectile.vy+=0.15;
+  projectile.x+=projectile.vx;
+  projectile.y+=projectile.vy;
+  // out of bounds
+  if(projectile.x<-20||projectile.x>W+20||projectile.y>H+20){
+    projectile=null;nextTurn();return;
+  }
+  // hit terrain or player
+  const px=Math.floor(projectile.x),py=Math.floor(projectile.y);
+  if(px>=0&&px<W&&py>=0&&py<H&&terrain[py*W+px]){
+    explode(projectile.x,projectile.y);return;
+  }
+  // hit player
+  for(let i=0;i<2;i++){
+    if(Math.hypot(projectile.x-players[i].x,projectile.y-(players[i].y-12))<16){
+      explode(projectile.x,projectile.y);return;
+    }
+  }
+}
+
+function explode(ex,ey){
+  const radius=25;
+  destroyTerrain(ex,ey,radius);
+  explosions.push({x:ex,y:ey,r:radius,t:0,max:20});
+  // damage
+  for(let i=0;i<2;i++){
+    const dist=Math.hypot(ex-players[i].x,ey-(players[i].y-12));
+    if(dist<radius+15){
+      const dmg=Math.max(5,Math.floor(35*(1-dist/(radius+15))));
+      players[i].hp=Math.max(0,players[i].hp-dmg);
+      document.getElementById('hp'+(i+1)).style.width=((players[i].hp/players[i].maxHp)*100)+'%';
+    }
+  }
+  projectile=null;
+  // check win
+  setTimeout(()=>{
+    for(let i=0;i<2;i++){
+      if(players[i].hp<=0){
+        const winner=i===0?1:0;
+        endGame(winner);return;
+      }
+    }
+    // update positions (gravity)
+    for(let i=0;i<2;i++){
+      let fy=0;
+      for(let y=Math.max(0,players[i].y-30);y<H;y++){
+        if(terrain[y*W+Math.floor(players[i].x)]){fy=y;break;}
+        if(y===H-1)fy=H-5;
+      }
+      players[i].y=fy;
+    }
+    nextTurn();
+  },300);
+}
+
+function nextTurn(){
+  turn=1-turn;
+  wind=Math.floor(Math.random()*11)-5;
+  updateUI();
+  if(mode==='ai'&&turn===1){
+    setTimeout(doAI,800);
+  }
+}
+
+function doAI(){
+  if(gameState!=='playing')return;
+  const p=players[1];
+  const target=players[0];
+  let bestAngle=45,bestPow=50;
+  // simple aim
+  const dx=p.x-target.x;
+  const dy=target.y-p.y;
+  let ang=Math.atan2(dy+40,dx)*180/Math.PI;
+  ang=Math.max(10,Math.min(80,ang+(Math.random()-0.5)*15));
+  bestAngle=ang;
+  bestPow=40+Math.random()*30;
+  p.angle=bestAngle;
+  fire(1,bestAngle,bestPow);
+}
+
+function updateUI(){
+  document.getElementById('windDisplay').textContent='바람: '+(wind>0?'→':'←')+' '+Math.abs(wind);
+  document.getElementById('turnDisplay').textContent=(turn===0?'🔵 플레이어 1':'🔴 플레이어 2')+' 차례';
+  document.getElementById('angleShow').textContent=Math.floor(players[turn].angle)+'°';
+}
+
+function endGame(winner){
+  gameState='over';
+  if(winner===0){wins++;_hub('fortress',wins);}
+  document.getElementById('winnerText').textContent=(winner===0?'🔵 플레이어 1':'🔴 플레이어 2')+' 승리!';
+  document.getElementById('winStats').textContent='총 승리 횟수: '+wins;
+  document.getElementById('gameOverScreen').style.display='flex';
+  document.getElementById('controls').style.display='none';
+}
+
+function startGame(m){
+  mode=m;gameState='playing';turn=0;wind=Math.floor(Math.random()*11)-5;
+  players[0].hp=100;players[1].hp=100;
+  players[0].angle=45;players[1].angle=135;
+  document.getElementById('hp1').style.width='100%';
+  document.getElementById('hp2').style.width='100%';
+  document.getElementById('startScreen').style.display='none';
+  document.getElementById('hud').style.display='flex';
+  document.getElementById('controls').style.display='flex';
+  generateTerrain();
+  updateUI();
+}
+
+// Controls
+const angleL=document.getElementById('angleLeftBtn');
+const angleR=document.getElementById('angleRightBtn');
+const fireBtn=document.getElementById('fireBtn');
+const powerFill=document.getElementById('powerFill');
+
+let holdInterval;
+angleL.addEventListener('pointerdown',()=>{holdInterval=setInterval(()=>{
+  if(turn===1&&mode==='ai')return;
+  players[turn].angle=Math.min(170,players[turn].angle+2);
+  document.getElementById('angleShow').textContent=Math.floor(players[turn].angle)+'°';
+},50);});
+angleL.addEventListener('pointerup',()=>clearInterval(holdInterval));
+angleL.addEventListener('pointerleave',()=>clearInterval(holdInterval));
+angleR.addEventListener('pointerdown',()=>{holdInterval=setInterval(()=>{
+  if(turn===1&&mode==='ai')return;
+  players[turn].angle=Math.max(10,players[turn].angle-2);
+  document.getElementById('angleShow').textContent=Math.floor(players[turn].angle)+'°';
+},50);});
+angleR.addEventListener('pointerup',()=>clearInterval(holdInterval));
+angleR.addEventListener('pointerleave',()=>clearInterval(holdInterval));
+
+fireBtn.addEventListener('pointerdown',(e)=>{
+  e.preventDefault();
+  if(projectile||gameState!=='playing')return;
+  if(turn===1&&mode==='ai')return;
+  powerCharging=true;power=0;powerDir=1;
+});
+fireBtn.addEventListener('pointerup',()=>{
+  if(!powerCharging)return;
+  powerCharging=false;
+  fire(turn,players[turn].angle,power);
+  powerFill.style.width='0%';
+});
+
+function gameLoop(){
+  drawSky();
+  drawTerrain();
+  drawCannon(players[0],0);
+  drawCannon(players[1],1);
+  drawProjectile();
+  drawExplosions();
+  if(powerCharging){
+    power+=powerDir*2;
+    if(power>=100)powerDir=-1;
+    if(power<=0)powerDir=1;
+    powerFill.style.width=power+'%';
+  }
+  if(projectile)updateProjectile();
+  animFrame=requestAnimationFrame(gameLoop);
+}
+gameLoop();
+</script>
+</body>
+</html>
