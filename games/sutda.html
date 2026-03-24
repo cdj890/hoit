@@ -11,29 +11,65 @@ body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;
 #startScreen{position:fixed;inset:0;background:#0f0f1e;z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
 #startScreen h1{font-size:42px;margin-bottom:16px;color:#ffd700}
 .rules{max-width:420px;text-align:left;font-size:13px;line-height:1.7;margin-bottom:24px;color:#aaa;background:rgba(255,255,255,0.05);padding:16px;border-radius:12px}
-.btn-primary{background:linear-gradient(135deg,#ffd700,#ff8c00);color:#000;border:none;padding:14px 44px;border-radius:12px;font-size:18px;font-weight:bold;cursor:pointer}
-.btn-action{background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);padding:12px 20px;border-radius:10px;font-size:15px;cursor:pointer;min-width:60px;min-height:44px}
-.btn-action:active{background:rgba(255,255,255,0.3)}
+.btn-primary{background:linear-gradient(135deg,#ffd700,#ff8c00);color:#000;border:none;padding:14px 44px;border-radius:12px;font-size:18px;font-weight:bold;cursor:pointer;min-height:44px}
+.btn-action{background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);padding:12px 20px;border-radius:10px;font-size:15px;cursor:pointer;min-width:60px;min-height:44px;transition:all 0.15s}
+.btn-action:active{background:rgba(255,255,255,0.3);transform:scale(0.95)}
+.btn-action.raise{background:rgba(255,215,0,0.2);border-color:rgba(255,215,0,0.4)}
+.btn-action.die{background:rgba(255,0,0,0.2);border-color:rgba(255,0,0,0.3)}
 #game{display:none;padding:16px;max-width:500px;margin:0 auto;padding-top:60px}
-.info-bar{display:flex;justify-content:space-between;margin-bottom:16px;font-size:14px}
+.info-bar{display:flex;justify-content:space-between;margin-bottom:16px;font-size:14px;flex-wrap:wrap;gap:6px}
 .info-bar>div{background:rgba(255,255,255,0.08);padding:8px 14px;border-radius:8px}
 .area{margin-bottom:20px;text-align:center}
-.area h3{margin-bottom:10px;font-size:16px;color:#aaa}
-.cards{display:flex;justify-content:center;gap:12px}
-.card{width:72px;height:100px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:bold;border:2px solid rgba(255,255,255,0.2);position:relative;transition:transform 0.2s}
-.card .month{font-size:28px}
-.card .type{font-size:12px;margin-top:4px}
+.area h3{margin-bottom:10px;font-size:16px;color:#aaa;display:flex;align-items:center;justify-content:center;gap:6px}
+.cards{display:flex;justify-content:center;gap:12px;perspective:600px}
+.card{width:80px;height:110px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:bold;border:3px solid rgba(255,255,255,0.2);position:relative;transition:transform 0.6s;transform-style:preserve-3d;box-shadow:0 4px 12px rgba(0,0,0,0.4)}
+.card .month{font-size:32px;font-weight:800}
+.card .type{font-size:13px;margin-top:4px}
 .card.hidden-card{background:#2a2a4a !important;border-color:#444}
 .card.hidden-card .month,.card.hidden-card .type{visibility:hidden}
-.card.hidden-card::after{content:'🎴';font-size:32px;position:absolute}
+.card.hidden-card::after{content:'🎴';font-size:36px;position:absolute}
+/* Card flip animation */
+.card.flipping{animation:cardFlip 0.6s ease-in-out}
+@keyframes cardFlip{0%{transform:rotateY(0deg)}50%{transform:rotateY(90deg)}100%{transform:rotateY(0deg)}}
 .hand-name{font-size:22px;font-weight:bold;color:#ffd700;margin:12px 0;min-height:30px}
 .actions{display:flex;justify-content:center;gap:10px;margin:16px 0;flex-wrap:wrap}
+.raise-select{display:flex;gap:6px;margin-top:8px;justify-content:center}
+.raise-btn{padding:8px 16px;border-radius:8px;border:1px solid rgba(255,215,0,0.3);background:rgba(255,215,0,0.1);color:#ffd700;font-size:13px;cursor:pointer;min-height:36px}
+.raise-btn:active,.raise-btn.active{background:rgba(255,215,0,0.3);border-color:#ffd700}
 .result{text-align:center;padding:20px;background:rgba(255,255,255,0.05);border-radius:12px;margin-top:16px}
 .result h2{font-size:24px;margin-bottom:8px}
 .result .detail{color:#aaa;font-size:14px;margin-bottom:16px}
 .chip-change{font-size:20px;font-weight:bold;margin-bottom:12px}
 .chip-change.win{color:#4ecdc4}
 .chip-change.lose{color:#ff6b6b}
+/* Chip animation */
+@keyframes chipFly{0%{transform:translateY(0) scale(1);opacity:1}100%{transform:translateY(-60px) scale(0.5);opacity:0}}
+.chip-anim{position:fixed;z-index:5000;font-size:24px;pointer-events:none;animation:chipFly 0.8s ease-out forwards}
+/* 족보 panel */
+.jokbo-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:3000;display:none;overflow-y:auto;padding:20px}
+.jokbo-overlay.show{display:block}
+.jokbo-content{max-width:420px;margin:0 auto;padding-bottom:40px}
+.jokbo-content h2{color:#ffd700;text-align:center;margin-bottom:16px;font-size:22px}
+.jokbo-section{margin-bottom:16px;background:rgba(255,255,255,0.05);border-radius:10px;padding:12px}
+.jokbo-section h3{color:#ffd700;font-size:14px;margin-bottom:8px}
+.jokbo-row{display:flex;justify-content:space-between;padding:5px 0;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.05)}
+.jokbo-row .jname{color:#fff;font-weight:bold}.jokbo-row .jdesc{color:#888}.jokbo-row .jrank{color:#ffd700;font-size:11px}
+.jokbo-close{position:fixed;top:16px;right:16px;z-index:3001;background:#ffd700;color:#000;border:none;width:40px;height:40px;border-radius:50%;font-size:20px;cursor:pointer;font-weight:bold}
+.btn-jokbo{position:fixed;top:8px;right:60px;z-index:9998;background:rgba(255,215,0,0.2);color:#ffd700;border:1px solid rgba(255,215,0,0.4);padding:8px 14px;border-radius:8px;font-size:12px;cursor:pointer;min-height:36px}
+/* Turn indicator */
+.turn-indicator{display:inline-block;width:8px;height:8px;border-radius:50%;background:#ffd700;animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+/* Hand history */
+.history-panel{margin-top:16px;background:rgba(255,255,255,0.03);border-radius:10px;padding:10px;max-height:200px;overflow-y:auto}
+.history-panel h4{font-size:12px;color:#888;margin-bottom:6px}
+.history-table{width:100%;font-size:11px;border-collapse:collapse}
+.history-table th,.history-table td{padding:3px 6px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.06)}
+.history-table th{color:#666;font-weight:normal}
+.history-table .hw{color:#4ecdc4}.history-table .hl{color:#ff6b6b}
+/* Win streak */
+.streak-badge{background:linear-gradient(135deg,#ff6b6b,#ee5a24);padding:3px 10px;border-radius:10px;font-size:11px;color:#fff;display:inline-block;margin-left:8px}
+/* Pot display */
+.pot-display{font-size:28px;color:#ffd700;text-align:center;margin:10px 0;font-weight:bold;text-shadow:0 0 10px rgba(255,215,0,0.3)}
 </style>
 </head>
 <body>
@@ -49,7 +85,8 @@ body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;
 ⭐ 알리(1-2), 독사(1-4), 구삥(1-9)<br>
 ⭐ 장삥(1-10), 장사(4-10), 세륙(4-6)<br>
 🔢 끗 (합의 일의 자리: 9끗 최고, 0끗=망통)<br><br>
-콜/레이즈/다이로 베팅!
+콜/레이즈(x1/x2/x3)/다이로 베팅!<br>
+⚠ AI는 가끔 블러핑합니다!
 </div>
 <button class="btn-primary" onclick="startGame()">게임 시작</button>
 </div>
@@ -58,37 +95,83 @@ body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;
 <div class="info-bar">
 <div>💰 <span id="chips">1000</span></div>
 <div>라운드 <span id="round">1</span></div>
-<div>판돈 <span id="pot">0</span></div>
+<div>연승 <span id="streakCount">0</span></div>
 </div>
 
+<div class="pot-display">판돈: <span id="pot">0</span></div>
+
 <div class="area">
-<h3>딜러</h3>
+<h3><span id="dealerTurnDot"></span> 딜러</h3>
 <div class="cards" id="dealerCards"></div>
 <div class="hand-name" id="dealerHand"></div>
 </div>
 
 <div class="area">
-<h3>내 패</h3>
+<h3><span id="playerTurnDot"></span> 내 패</h3>
 <div class="cards" id="playerCards"></div>
 <div class="hand-name" id="playerHand"></div>
 </div>
 
 <div class="actions" id="actions"></div>
 <div class="result" id="result" style="display:none"></div>
+
+<div class="history-panel">
+<h4>최근 전적</h4>
+<table class="history-table" id="historyTable">
+<tr><th>#</th><th>결과</th><th>내 패</th><th>딜러 패</th><th>칩</th></tr>
+</table>
+</div>
 </div>
 
+<!-- 족보 panel -->
+<div class="jokbo-overlay" id="jokboPanel">
+<button class="jokbo-close" onclick="toggleJokbo()">X</button>
+<div class="jokbo-content">
+<h2>🎴 섯다 족보</h2>
+<div class="jokbo-section">
+<h3>👑 광땡 (최상위)</h3>
+<div class="jokbo-row"><span class="jname">38광땡</span><span class="jdesc">3광 + 8광</span><span class="jrank">1위</span></div>
+<div class="jokbo-row"><span class="jname">18광땡</span><span class="jdesc">1광 + 8광</span><span class="jrank">2위</span></div>
+<div class="jokbo-row"><span class="jname">13광땡</span><span class="jdesc">1광 + 3광</span><span class="jrank">3위</span></div>
+</div>
+<div class="jokbo-section">
+<h3>🔟 땡 (같은 숫자)</h3>
+<div class="jokbo-row"><span class="jname">장땡 (10땡)</span><span class="jdesc">10 + 10</span><span class="jrank">4위</span></div>
+<div class="jokbo-row"><span class="jname">9땡</span><span class="jdesc">9 + 9</span><span class="jrank">5위</span></div>
+<div class="jokbo-row"><span class="jname">8땡 ~ 1땡</span><span class="jdesc">같은 수 2장</span><span class="jrank">6~13위</span></div>
+</div>
+<div class="jokbo-section">
+<h3>⭐ 특수패</h3>
+<div class="jokbo-row"><span class="jname">알리</span><span class="jdesc">1 + 2</span><span class="jrank">14위</span></div>
+<div class="jokbo-row"><span class="jname">독사</span><span class="jdesc">1 + 4</span><span class="jrank">15위</span></div>
+<div class="jokbo-row"><span class="jname">구삥</span><span class="jdesc">1 + 9</span><span class="jrank">16위</span></div>
+<div class="jokbo-row"><span class="jname">장삥</span><span class="jdesc">1 + 10</span><span class="jrank">17위</span></div>
+<div class="jokbo-row"><span class="jname">장사</span><span class="jdesc">4 + 10</span><span class="jrank">18위</span></div>
+<div class="jokbo-row"><span class="jname">세륙</span><span class="jdesc">4 + 6</span><span class="jrank">19위</span></div>
+</div>
+<div class="jokbo-section">
+<h3>🔢 끗 (합의 일의 자리)</h3>
+<div class="jokbo-row"><span class="jname">9끗</span><span class="jdesc">합의 일의 자리 = 9</span><span class="jrank">최고</span></div>
+<div class="jokbo-row"><span class="jname">8끗 ~ 1끗</span><span class="jdesc">합의 일의 자리</span><span class="jrank">순서대로</span></div>
+<div class="jokbo-row"><span class="jname">0끗 (망통)</span><span class="jdesc">합의 일의 자리 = 0</span><span class="jrank">최하</span></div>
+</div>
+</div>
+</div>
+
+<button class="btn-jokbo" id="jokboBtn" style="display:none" onclick="toggleJokbo()">족보</button>
 <a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
 <script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
 <script>
 const MONTH_COLORS=['#e74c3c','#e67e22','#f1c40f','#2ecc71','#1abc9c','#3498db','#9b59b6','#e84393','#fd79a8','#d63031'];
 const MONTH_NAMES=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월'];
-// Cards: {month:1-10, type:'광'|'끗'}
-// 광 months: 1,3,8 are traditional gwang. For this game, each month has 광 and 끗 variant.
-const GWANG_MONTHS=[1,3,8]; // months that have "광" significance for 광땡
+const GWANG_MONTHS=[1,3,8];
 
 let chips=1000,roundNum=1,pot=0,bet=0,maxChips=1000;
 let playerHand=[],dealerHand=[],deck=[];
-let phase=''; // 'bet','reveal','result'
+let phase='';
+let handHistory=[];
+let winStreak=0;
+let raiseMult=1;
 
 function makeDeck(){
 let d=[];
@@ -103,9 +186,9 @@ function shuffleDeck(d){for(let i=d.length-1;i>0;i--){const j=Math.floor(Math.ra
 
 function cardBg(card){return MONTH_COLORS[card.month-1];}
 
-function renderCard(card,hidden=false){
+function renderCard(card,hidden=false,flipAnim=false){
 let div=document.createElement('div');
-div.className='card'+(hidden?' hidden-card':'');
+div.className='card'+(hidden?' hidden-card':'')+(flipAnim?' flipping':'');
 div.style.background=hidden?'':cardBg(card);
 let m=document.createElement('div');m.className='month';m.textContent=card.month;
 let t=document.createElement('div');t.className='type';
@@ -122,15 +205,12 @@ let t1=c[0].type,t2=c[1].type;
 let isGwang1=t1==='광'&&GWANG_MONTHS.includes(m1);
 let isGwang2=t2==='광'&&GWANG_MONTHS.includes(m2);
 
-// 광땡 checks
 if(m1===3&&m2===8&&isGwang1&&isGwang2)return{rank:100,name:'38광땡'};
 if(m1===1&&m2===8&&isGwang1&&isGwang2)return{rank:99,name:'18광땡'};
 if(m1===1&&m2===3&&isGwang1&&isGwang2)return{rank:98,name:'13광땡'};
 
-// 땡 (pair)
 if(m1===m2)return{rank:70+m1,name:m1+'땡'+(m1===10?' (장땡)':'')};
 
-// Special hands
 if(m1===1&&m2===2)return{rank:65,name:'알리'};
 if(m1===1&&m2===4)return{rank:64,name:'독사'};
 if(m1===1&&m2===9)return{rank:63,name:'구삥'};
@@ -138,15 +218,33 @@ if(m1===1&&m2===10)return{rank:62,name:'장삥'};
 if(m1===4&&m2===10)return{rank:61,name:'장사'};
 if(m1===4&&m2===6)return{rank:60,name:'세륙'};
 
-// 끗
 let ggut=(m1+m2)%10;
 return{rank:ggut,name:ggut+'끗'+(ggut===0?' (망통)':'')};
+}
+
+function toggleJokbo(){
+document.getElementById('jokboPanel').classList.toggle('show');
+}
+
+function showChipAnim(win){
+for(let i=0;i<5;i++){
+setTimeout(()=>{
+let el=document.createElement('div');
+el.className='chip-anim';
+el.textContent=win?'💰':'💸';
+el.style.left=(30+Math.random()*40)+'%';
+el.style.top=(40+Math.random()*20)+'%';
+document.body.appendChild(el);
+setTimeout(()=>el.remove(),900);
+},i*100);
+}
 }
 
 function startGame(){
 document.getElementById('startScreen').style.display='none';
 document.getElementById('game').style.display='block';
-chips=1000;roundNum=1;maxChips=1000;
+document.getElementById('jokboBtn').style.display='block';
+chips=1000;roundNum=1;maxChips=1000;handHistory=[];winStreak=0;
 newRound();
 }
 
@@ -159,20 +257,26 @@ playerHand=[deck.pop(),deck.pop()];
 dealerHand=[deck.pop(),deck.pop()];
 bet=Math.min(50,chips);
 chips-=bet;
-pot=bet*2; // dealer matches
+pot=bet*2;
 phase='bet';
+raiseMult=1;
 document.getElementById('result').style.display='none';
 updateUI(true);
 showActions();
 }
 
-function updateUI(hideDealer=true){
+function updateUI(hideDealer=true,flipAnim=false){
 document.getElementById('chips').textContent=chips;
 document.getElementById('round').textContent=roundNum;
 document.getElementById('pot').textContent=pot;
+document.getElementById('streakCount').textContent=winStreak>0?winStreak:'0';
+
+// Turn indicators
+document.getElementById('playerTurnDot').innerHTML=phase==='bet'?'<span class="turn-indicator"></span>':'';
+document.getElementById('dealerTurnDot').innerHTML='';
 
 let dc=document.getElementById('dealerCards');dc.innerHTML='';
-dealerHand.forEach(c=>dc.appendChild(renderCard(c,hideDealer)));
+dealerHand.forEach(c=>dc.appendChild(renderCard(c,hideDealer,flipAnim&&!hideDealer)));
 
 let pc=document.getElementById('playerCards');pc.innerHTML='';
 playerHand.forEach(c=>pc.appendChild(renderCard(c)));
@@ -180,6 +284,20 @@ playerHand.forEach(c=>pc.appendChild(renderCard(c)));
 let ph=getHandRank([...playerHand]);
 document.getElementById('playerHand').textContent=ph.name;
 document.getElementById('dealerHand').textContent=hideDealer?'???':getHandRank([...dealerHand]).name;
+
+renderHistory();
+}
+
+function renderHistory(){
+let tbl=document.getElementById('historyTable');
+tbl.innerHTML='<tr><th>#</th><th>결과</th><th>내 패</th><th>딜러 패</th><th>칩</th></tr>';
+let recent=handHistory.slice(-10);
+recent.forEach(h=>{
+let tr=document.createElement('tr');
+let cls=h.won===true?'hw':h.won===false?'hl':'';
+tr.innerHTML='<td>'+h.round+'</td><td class="'+cls+'">'+(h.won===true?'승':h.won===false?'패':'무')+'</td><td>'+h.pName+'</td><td>'+h.dName+'</td><td class="'+cls+'">'+(h.chipChange>=0?'+':'')+h.chipChange+'</td>';
+tbl.appendChild(tr);
+});
 }
 
 function showActions(){
@@ -187,13 +305,28 @@ let acts=document.getElementById('actions');acts.innerHTML='';
 if(phase==='bet'){
 let callBtn=document.createElement('button');callBtn.className='btn-action';callBtn.textContent='콜';
 callBtn.onclick=()=>doBet('call');
-let raiseBtn=document.createElement('button');raiseBtn.className='btn-action';raiseBtn.textContent='레이즈';
-raiseBtn.style.background='rgba(255,215,0,0.2)';
+
+// Raise with amount selection
+let raiseWrap=document.createElement('div');raiseWrap.style.display='flex';raiseWrap.style.flexDirection='column';raiseWrap.style.alignItems='center';raiseWrap.style.gap='4px';
+let raiseBtn=document.createElement('button');raiseBtn.className='btn-action raise';raiseBtn.textContent='레이즈';
 raiseBtn.onclick=()=>doBet('raise');
-let dieBtn=document.createElement('button');dieBtn.className='btn-action';dieBtn.textContent='다이';
-dieBtn.style.background='rgba(255,0,0,0.2)';
+let raiseRow=document.createElement('div');raiseRow.className='raise-select';
+[1,2,3].forEach(mult=>{
+let rb=document.createElement('button');
+rb.className='raise-btn'+(raiseMult===mult?' active':'');
+rb.textContent='x'+mult;
+rb.onclick=()=>{raiseMult=mult;document.querySelectorAll('.raise-btn').forEach(b=>b.classList.remove('active'));rb.classList.add('active');};
+raiseRow.appendChild(rb);
+});
+raiseWrap.appendChild(raiseBtn);
+raiseWrap.appendChild(raiseRow);
+
+let dieBtn=document.createElement('button');dieBtn.className='btn-action die';dieBtn.textContent='다이';
 dieBtn.onclick=()=>doBet('die');
-acts.appendChild(callBtn);acts.appendChild(raiseBtn);acts.appendChild(dieBtn);
+acts.appendChild(callBtn);acts.appendChild(raiseWrap);acts.appendChild(dieBtn);
+
+// AI bluffing pre-action (AI may raise first)
+aiPreBet();
 } else if(phase==='result'){
 let nextBtn=document.createElement('button');nextBtn.className='btn-primary';nextBtn.textContent='다음 라운드';
 nextBtn.onclick=()=>{roundNum++;newRound();};
@@ -201,33 +334,82 @@ acts.appendChild(nextBtn);
 }
 }
 
+function aiPreBet(){
+let dRank=getHandRank([...dealerHand]);
+let isStrong=dRank.rank>=60;
+let isWeak=dRank.rank<5;
+
+// Bluffing AI: sometimes raises with weak hand, sometimes passive with strong
+let bluffChance=Math.random();
+if(isWeak&&bluffChance<0.25){
+// Bluff raise!
+let aiExtra=Math.min(50,pot);
+pot+=aiExtra;
+updateUI(true);
+document.getElementById('msg')||0;
+let msgEl=document.createElement('div');
+msgEl.style.cssText='text-align:center;color:#ff6b6b;font-size:13px;margin-bottom:8px';
+msgEl.textContent='딜러가 레이즈했습니다! (판돈: '+pot+')';
+document.getElementById('actions').prepend(msgEl);
+} else if(isStrong&&bluffChance<0.15){
+// Strong hand but plays passive (no raise) - trap
+// Do nothing special
+}
+}
+
 function doBet(action){
 if(action==='die'){
-// Lose bet
-updateUI(false);
-showResult(false,'다이! 베팅금 잃음',-bet);
+updateUI(false,true);
+let chipChange=-bet;
+handHistory.push({round:roundNum,won:false,pName:getHandRank([...playerHand]).name,dName:getHandRank([...dealerHand]).name,chipChange});
+winStreak=0;
+showResult(false,'다이! 베팅금 잃음',chipChange);
 return;
 }
 if(action==='raise'){
-let extra=Math.min(50,chips);
+let extra=Math.min(50*raiseMult,chips);
 chips-=extra;pot+=extra*2;bet+=extra;
 }
+
+// AI response to player's action
+let dRank=getHandRank([...dealerHand]);
+if(action==='raise'&&dRank.rank<3&&Math.random()<0.4){
+// AI folds weak hand against raise
+phase='reveal';
+updateUI(false,true);
+chips+=pot;
+let chipChange=pot-bet;
+handHistory.push({round:roundNum,won:true,pName:getHandRank([...playerHand]).name,dName:'다이',chipChange});
+winStreak++;
+showChipAnim(true);
+showResult(true,'딜러가 다이! '+getHandRank([...playerHand]).name,chipChange);
+return;
+}
+
 // Reveal and compare
 phase='reveal';
-updateUI(false);
+updateUI(false,true);
 let pRank=getHandRank([...playerHand]);
-let dRank=getHandRank([...dealerHand]);
 let won=pRank.rank>dRank.rank;
 let tie=pRank.rank===dRank.rank;
 if(won){
 let winnings=pot;
 chips+=winnings;
-showResult(true,pRank.name+' vs '+dRank.name,winnings-bet);
+let chipChange=winnings-bet;
+handHistory.push({round:roundNum,won:true,pName:pRank.name,dName:dRank.name,chipChange});
+winStreak++;
+showChipAnim(true);
+showResult(true,pRank.name+' vs '+dRank.name,chipChange);
 } else if(tie){
 chips+=bet;
+handHistory.push({round:roundNum,won:null,pName:pRank.name,dName:dRank.name,chipChange:0});
 showResult(null,pRank.name+' vs '+dRank.name+' (무승부)',0);
 } else {
-showResult(false,pRank.name+' vs '+dRank.name,-bet);
+let chipChange=-bet;
+handHistory.push({round:roundNum,won:false,pName:pRank.name,dName:dRank.name,chipChange});
+winStreak=0;
+showChipAnim(false);
+showResult(false,pRank.name+' vs '+dRank.name,chipChange);
 }
 }
 
@@ -244,6 +426,11 @@ let d=document.createElement('div');d.className='detail';d.textContent=detail;
 let cc=document.createElement('div');cc.className='chip-change '+(chipChange>=0?'win':'lose');
 cc.textContent=(chipChange>=0?'+':'')+chipChange+' 칩';
 res.appendChild(h);res.appendChild(d);res.appendChild(cc);
+if(winStreak>1){
+let sb=document.createElement('span');sb.className='streak-badge';sb.textContent=winStreak+'연승!';
+res.appendChild(sb);
+}
+renderHistory();
 showActions();
 }
 
@@ -251,8 +438,12 @@ function gameOver(){
 let acts=document.getElementById('actions');acts.innerHTML='';
 let res=document.getElementById('result');res.style.display='block';
 res.innerHTML='<h2>게임 오버</h2><div class="detail">최고 칩: '+maxChips+'</div>';
+if(winStreak>1){
+let sb=document.createElement('span');sb.className='streak-badge';sb.textContent='최고 '+winStreak+'연승';
+res.appendChild(sb);
+}
 let btn=document.createElement('button');btn.className='btn-primary';btn.textContent='다시 시작';
-btn.onclick=()=>{chips=1000;roundNum=1;maxChips=1000;newRound();};
+btn.onclick=()=>{chips=1000;roundNum=1;maxChips=1000;handHistory=[];winStreak=0;newRound();};
 res.appendChild(btn);
 }
 </script>
