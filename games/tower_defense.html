@@ -286,6 +286,19 @@ function hexRgb(h){return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),p
 // ============ INPUT ============
 C.addEventListener('mousemove',e=>{const r=C.getBoundingClientRect();mx=Math.floor((e.clientX-r.left)*(C.width/r.width)/T);my=Math.floor((e.clientY-r.top)*(C.height/r.height)/T);});
 C.addEventListener('mouseleave',()=>{mx=-1;my=-1;});
+C.addEventListener('touchstart',e=>{e.preventDefault();const r=C.getBoundingClientRect();const t=e.touches[0];mx=Math.floor((t.clientX-r.left)*(C.width/r.width)/T);my=Math.floor((t.clientY-r.top)*(C.height/r.height)/T);},{passive:false});
+C.addEventListener('touchend',e=>{
+  if(state==='gameover'){backToMenu();return;}
+  if(state!=='playing'||mx<0||my<0||mx>=COLS||my>=ROWS)return;
+  const clicked=towers.find(t=>t.gx===mx&&t.gy===my);
+  if(clicked){selPlaced=selPlaced===clicked?null:clicked;selTower=-1;updateUI();return;}
+  if(selTower<0)return;
+  if(mapData.grid[my][mx]!==0)return;
+  const d=TDEFS[selTower];if(gold<d.cost)return;gold-=d.cost;
+  towers.push({gx:mx,gy:my,x:mx*T+T/2,y:my*T+T/2,type:selTower,cooldown:0,angle:0,level:1,
+    dmg:d.dmg,range:d.range,rate:d.rate,splash:d.splash,color:d.color,proj:d.proj,psz:d.psz,spd:d.spd,spec:d.spec,attackAnim:0});
+  updateUI();
+});
 C.addEventListener('click',e=>{
   if(state==='gameover'){backToMenu();return;}
   if(state!=='playing'||mx<0||my<0||mx>=COLS||my>=ROWS)return;
