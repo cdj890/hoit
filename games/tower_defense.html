@@ -40,6 +40,14 @@ canvas{border-radius:12px 12px 0 0;display:block;box-shadow:0 0 40px rgba(100,15
 .map-card p{color:#888;font-size:12px}
 .map-card .hs{color:#FFD700;font-size:13px;margin-top:4px}
 canvas{max-width:100%!important;height:auto!important;display:block;margin:0 auto}body{overflow-x:hidden}
+#spells{display:flex;gap:5px;justify-content:center;margin-top:4px}
+.spell-btn{border:none;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:12px;font-weight:bold;color:#fff;transition:all .15s;position:relative;overflow:hidden;min-width:70px}
+.spell-btn:hover{transform:scale(1.05)}
+.spell-btn.on-cd{opacity:0.5;cursor:default}
+.spell-btn .cd-overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;font-size:14px}
+#upgrade-branch{display:none;gap:5px;justify-content:center;margin-top:3px}
+.branch-btn{border:2px solid #555;border-radius:8px;padding:5px 10px;cursor:pointer;font-size:11px;font-weight:bold;color:#fff;background:#1a1a2e;transition:all .15s;text-align:center}
+.branch-btn:hover{border-color:#FFD700;transform:scale(1.05)}
 </style>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 </head>
@@ -66,6 +74,12 @@ canvas{max-width:100%!important;height:auto!important;display:block;margin:0 aut
   <button id="upgrade-btn" onclick="upgradeTower()">업그레이드</button>
   <button id="merge-btn" onclick="mergeTower()">합체</button>
   <button id="sell-btn" onclick="sellTower()">팔기</button>
+</div>
+<div id="upgrade-branch"></div>
+<div id="spells">
+  <button class="spell-btn" id="spell-meteor" style="background:#c0392b" onclick="castSpell(0)">☄️메테오</button>
+  <button class="spell-btn" id="spell-blizzard" style="background:#2980b9" onclick="castSpell(1)">❄️블리자드</button>
+  <button class="spell-btn" id="spell-gold" style="background:#d4ac0d" onclick="castSpell(2)">💰황금비</button>
 </div>
 </div>
 <div id="info"></div>
@@ -165,10 +179,63 @@ const TDEFS=[
   {id:7,name:'공허',emoji:'🌀',cost:120,range:2.5,dmg:0,rate:55,color:'#37474F',proj:[50,50,80],psz:6,splash:0,spd:4,spec:'void',desc:'HP%'},
 ];
 
+// ============ ENEMY TYPES ============
+const ETYPES=[
+  {id:0,name:'슬라임',emoji:'🟢',hpMul:1,spdMul:1,gold:1,flying:false,slowImmune:false,regen:0,rangedCounter:false,color:'#66BB6A'},
+  {id:1,name:'빠른슬라임',emoji:'🔴',hpMul:0.5,spdMul:2,gold:0.8,flying:false,slowImmune:false,regen:0,rangedCounter:false,color:'#FF5252'},
+  {id:2,name:'탱크슬라임',emoji:'🟣',hpMul:3,spdMul:0.6,gold:1.5,flying:false,slowImmune:false,regen:0,rangedCounter:false,color:'#AB47BC'},
+  {id:3,name:'박쥐',emoji:'🦇',hpMul:0.7,spdMul:1.5,gold:1,flying:true,slowImmune:false,regen:0,rangedCounter:false,color:'#795548'},
+  {id:4,name:'스켈레톤',emoji:'💀',hpMul:1.2,spdMul:1,gold:1.2,flying:false,slowImmune:false,regen:0,rangedCounter:false,color:'#ECEFF1'},
+  {id:5,name:'트롤',emoji:'🧌',hpMul:2.5,spdMul:0.7,gold:2,flying:false,slowImmune:false,regen:0.005,rangedCounter:false,color:'#4CAF50'},
+  {id:6,name:'유령',emoji:'👻',hpMul:0.8,spdMul:1.1,gold:1.3,flying:false,slowImmune:true,regen:0,rangedCounter:false,color:'#B0BEC5'},
+  {id:7,name:'드래곤',emoji:'🐉',hpMul:5,spdMul:0.8,gold:5,flying:true,slowImmune:true,regen:0,rangedCounter:false,color:'#FF7043'},
+  {id:8,name:'골렘',emoji:'💎',hpMul:6,spdMul:0.35,gold:3,flying:false,slowImmune:false,regen:0,rangedCounter:false,color:'#78909C'},
+  {id:9,name:'마법사',emoji:'🧙',hpMul:1.5,spdMul:0.9,gold:1.8,flying:false,slowImmune:false,regen:0,rangedCounter:true,color:'#7E57C2'}
+];
+// Wave enemy themes (cycle through)
+const WAVE_THEMES=[
+  [0],[1],[2],[0,4],[3],[0,1,2],[5],[6],[4,9],[3,7],
+  [8],[0,1,5],[2,6],[9,3],[7,8],[0,1,2,3,4],[5,6,9],[8,7],[1,3,6],[0,1,2,3,4,5,6,7,8,9]
+];
+
+// ============ TOWER ABILITIES ============
+const TABILITIES=[
+  {name:'화살비',desc:'3초간 연사',cooldown:600,duration:180},
+  {name:'텔레포트',desc:'적을 뒤로 보냄',cooldown:720,duration:0},
+  {name:'핵폭발',desc:'거대 범위 폭발',cooldown:900,duration:0},
+  {name:'독구름',desc:'범위 DOT 지속',cooldown:600,duration:300},
+  {name:'빙결',desc:'적 3초 정지',cooldown:720,duration:180},
+  {name:'화염벽',desc:'경로에 불 장판',cooldown:600,duration:300},
+  {name:'공포',desc:'적 후퇴',cooldown:720,duration:0},
+  {name:'블랙홀',desc:'적 흡입+% 피해',cooldown:900,duration:300}
+];
+
+// ============ TOWER BRANCH UPGRADES ============
+const TBRANCHES=[
+  {a:{name:'속사형',emoji:'🏹⚡',bonus:{rateMul:0.5,dmgMul:0.8}},b:{name:'관통형',emoji:'🏹🔱',bonus:{pierce:true,dmgMul:1.3}}},
+  {a:{name:'분열형',emoji:'🔮💫',bonus:{splashMul:1.8,dmgMul:0.9}},b:{name:'집중형',emoji:'🔮🎯',bonus:{dmgMul:2,rangeMul:1.3}}},
+  {a:{name:'연발형',emoji:'💣💣',bonus:{rateMul:0.6,splashMul:0.7}},b:{name:'핵포형',emoji:'💣💥',bonus:{splashMul:2,dmgMul:1.5,rateMul:1.5}}},
+  {a:{name:'맹독형',emoji:'🧪☠️',bonus:{poisonMul:2.5}},b:{name:'확산형',emoji:'🧪💨',bonus:{splashAdd:1.2,poisonMul:1.2}}},
+  {a:{name:'극한형',emoji:'🧊❄️',bonus:{slowMul:2,rangeMul:1.2}},b:{name:'빙폭형',emoji:'🧊💥',bonus:{splashMul:1.8,dmgMul:1.5}}},
+  {a:{name:'지옥형',emoji:'🔥👹',bonus:{burnMul:2.5,dmgMul:0.8}},b:{name:'폭발형',emoji:'🔥💣',bonus:{splashMul:1.5,dmgMul:1.8}}},
+  {a:{name:'저주형',emoji:'💀🌑',bonus:{curseMul:2,rangeMul:1.3}},b:{name:'사신형',emoji:'💀⚔️',bonus:{dmgMul:3,rateMul:0.7}}},
+  {a:{name:'심연형',emoji:'🌀🕳️',bonus:{voidMul:1.5,splashAdd:1}},b:{name:'차원형',emoji:'🌀✨',bonus:{rangeMul:1.5,rateMul:0.6,voidMul:1.2}}}
+];
+
+// ============ SPELLS ============
+const SPELLS=[
+  {name:'메테오',emoji:'☄️',cooldown:3600,targeting:true},
+  {name:'블리자드',emoji:'❄️',cooldown:5400,targeting:false},
+  {name:'황금비',emoji:'💰',cooldown:7200,targeting:false}
+];
+
 // ============ STATE ============
 let curMap,mapData,gold,lives,wave,enemies,towers,projs,particles,pops;
 let selTower=-1,selPlaced=null,waveActive,spawnT,spawnC,state='menu';
 let mx=-1,my=-1,frame=0,score=0,gameSpeed=1;
+let spellCDs=[0,0,0],spellTargeting=-1;
+let fireWalls=[],poisonClouds=[],blackHoles=[],freezeZones=[];
+let bossHPBar=null;
 let highScores;
 try{highScores=JSON.parse(localStorage.getItem('td_hs')||'[0,0,0,0,0]');}catch(e){highScores=[0,0,0,0,0];}
 if(!Array.isArray(highScores)||highScores.length<MAPS.length){highScores=[0,0,0,0,0];}
@@ -226,6 +293,8 @@ function initGame(){
   enemies=[];towers=[];projs=[];particles=[];pops=[];
   waveActive=false;spawnT=0;spawnC=0;
   selTower=-1;selPlaced=null;state='playing';score=0;frame=0;gameSpeed=1;
+  spellCDs=[0,0,0];spellTargeting=-1;
+  fireWalls=[];poisonClouds=[];blackHoles=[];freezeZones=[];bossHPBar=null;
   buildTowerUI();updateUI();
 }
 
@@ -280,9 +349,11 @@ function updateUI(){
     const mp=findMerge(t);mb.style.display=mp?'inline-block':'none';if(mp)mb.textContent=`합체→Lv${t.level+1}[M]`;
   } else {ub.style.display=sb.style.display=mb.style.display='none';}
   const info=document.getElementById('info');
-  if(selPlaced){const t=selPlaced;info.textContent=`${TDEFS[t.type].emoji}${TDEFS[t.type].name} Lv${t.level} | 공격:${t.dmg|0} 사거리:${t.range.toFixed(1)} | U:업그레이드 S:팔기 M:합체`;info.style.color='#FFD700';}
+  if(selPlaced){const t=selPlaced;const brStr=t.branchName?` [${t.branchName}]`:'';const abStr=t.abilityCd>0?` 능력:${Math.ceil(t.abilityCd/60)}초`:' 클릭→능력';
+    info.textContent=`${TDEFS[t.type].emoji}${TDEFS[t.type].name}${brStr} Lv${t.level} | 공격:${t.dmg|0} 사거리:${t.range.toFixed(1)} |${abStr} U:업그레이드 S:팔기 M:합체`;info.style.color='#FFD700';
+    if(t.level===2&&!t.branch)showBranchChoice(t);else document.getElementById('upgrade-branch').style.display='none';}
   else if(selTower>=0){info.textContent=`${TDEFS[selTower].emoji}${TDEFS[selTower].name} 배치중 | 풀밭 클릭 | ESC 취소`;info.style.color='#7DF';}
-  else{info.textContent=`💰${gold} ❤️${lives} 웨이브${wave} 점수:${score} | 1~8:타워 Space:웨이브 Q:메뉴`;info.style.color='#888';}
+  else{document.getElementById('upgrade-branch').style.display='none';info.textContent=`💰${gold} ❤️${lives} 웨이브${wave} 점수:${score} | 1~8:타워 A:능력 Space:웨이브 Q:메뉴`;info.style.color='#888';}
 }
 
 function getUCost(t){return Math.floor(TDEFS[t.type].cost*(0.6+t.level*0.4));}
@@ -290,7 +361,9 @@ function getSellG(t){return Math.floor(TDEFS[t.type].cost*0.5*t.level);}
 function findMerge(t){return towers.find(o=>o!==t&&o.type===t.type&&o.level===t.level&&o.level<3&&Math.abs(o.gx-t.gx)<=1&&Math.abs(o.gy-t.gy)<=1);}
 
 function upgradeTower(){if(!selPlaced||selPlaced.level>=3)return;const c=getUCost(selPlaced);if(gold<c)return;gold-=c;selPlaced.level++;applyLv(selPlaced);
-  pops.push({x:selPlaced.x,y:selPlaced.y-20,text:`Lv${selPlaced.level}!`,life:40,maxLife:40,color:'#7DF'});updateUI();}
+  pops.push({x:selPlaced.x,y:selPlaced.y-20,text:`Lv${selPlaced.level}!`,life:40,maxLife:40,color:'#7DF'});
+  if(selPlaced.level===2&&!selPlaced.branch)showBranchChoice(selPlaced);
+  updateUI();}
 function sellTower(){if(!selPlaced)return;const g=getSellG(selPlaced);gold+=g;
   pops.push({x:selPlaced.x,y:selPlaced.y-20,text:`+${g}G`,life:35,maxLife:35,color:'#FFD700'});
   towers=towers.filter(t=>t!==selPlaced);selPlaced=null;updateUI();}
@@ -314,19 +387,29 @@ C.addEventListener('touchend',e=>{
   if(mapData.grid[my][mx]!==0)return;
   const d=TDEFS[selTower];if(gold<d.cost)return;gold-=d.cost;
   towers.push({gx:mx,gy:my,x:mx*T+T/2,y:my*T+T/2,type:selTower,cooldown:0,angle:0,level:1,
-    dmg:d.dmg,range:d.range,rate:d.rate,splash:d.splash,color:d.color,proj:d.proj,psz:d.psz,spd:d.spd,spec:d.spec,attackAnim:0});
+    dmg:d.dmg,range:d.range,rate:d.rate,splash:d.splash,color:d.color,proj:d.proj,psz:d.psz,spd:d.spd,spec:d.spec,attackAnim:0,
+    abilityCd:0,abilityActive:0,branch:null,pierce:false});
   updateUI();
 });
 C.addEventListener('click',e=>{
   if(state==='gameover'){backToMenu();return;}
-  if(state!=='playing'||mx<0||my<0||mx>=COLS||my>=ROWS)return;
+  if(state!=='playing')return;
+  // Spell targeting (meteor)
+  if(spellTargeting===0){
+    const r=C.getBoundingClientRect();
+    const cx=(e.clientX-r.left)*(C.width/r.width);
+    const cy=(e.clientY-r.top)*(C.height/r.height);
+    doMeteor(cx,cy);spellTargeting=-1;return;
+  }
+  if(mx<0||my<0||mx>=COLS||my>=ROWS)return;
   const clicked=towers.find(t=>t.gx===mx&&t.gy===my);
   if(clicked){selPlaced=selPlaced===clicked?null:clicked;selTower=-1;updateUI();return;}
   if(selTower<0)return;
   if(mapData.grid[my][mx]!==0)return;
   const d=TDEFS[selTower];if(gold<d.cost)return;gold-=d.cost;
   towers.push({gx:mx,gy:my,x:mx*T+T/2,y:my*T+T/2,type:selTower,cooldown:0,angle:0,level:1,
-    dmg:d.dmg,range:d.range,rate:d.rate,splash:d.splash,color:d.color,proj:d.proj,psz:d.psz,spd:d.spd,spec:d.spec,attackAnim:0});
+    dmg:d.dmg,range:d.range,rate:d.rate,splash:d.splash,color:d.color,proj:d.proj,psz:d.psz,spd:d.spd,spec:d.spec,attackAnim:0,
+    abilityCd:0,abilityActive:0,branch:null,pierce:false});
   updateUI();
 });
 document.addEventListener('keydown',e=>{
@@ -337,6 +420,7 @@ document.addEventListener('keydown',e=>{
   if(e.key==='u'||e.key==='U')upgradeTower();
   if(e.key==='s'||e.key==='S')sellTower();
   if(e.key==='m'||e.key==='M')mergeTower();
+  if(e.key==='a'||e.key==='A'){if(selPlaced)activateAbility(selPlaced);}
 });
 
 // ============ GAME LOGIC ============
@@ -359,56 +443,124 @@ function update(){
   if(waveActive){
     spawnT--;
     if(spawnT<=0&&spawnC<enCount()){
-      const hp=enHP(),cols=['#FF6B6B','#66BB6A','#42A5F5','#FFA726','#AB47BC','#EC407A','#FF8A65','#4DD0E1'];
-      const boss=wave%5===0&&spawnC===enCount()-1;
+      const hp=enHP();
+      const isBossWave=wave%5===0;
+      const boss=isBossWave&&spawnC===enCount()-1;
       const paths=getPaths();
       const path=paths[spawnC%paths.length];
-      enemies.push({
-        path,pathIdx:0,speed:boss?enSpeed()*0.6:enSpeed(),
-        hp:boss?hp*3.5:hp,maxHp:boss?hp*3.5:hp,
+      // Pick enemy type from wave theme
+      const themeIdx=(wave-1)%WAVE_THEMES.length;
+      const theme=WAVE_THEMES[themeIdx];
+      let etype;
+      if(boss){etype=ETYPES[7];} // Dragon boss
+      else{etype=ETYPES[theme[spawnC%theme.length]];}
+      const eHP=hp*etype.hpMul*(boss?5:1);
+      const eSpd=enSpeed()*etype.spdMul*(boss?0.6:1);
+      const en={
+        path,pathIdx:0,speed:eSpd,
+        hp:eHP,maxHp:eHP,
         x:path[0].x*T+T/2,y:path[0].y*T+T/2,
-        color:cols[wave%cols.length],bounce:Math.random()*6.28,
-        goldVal:boss?enGold()*4:enGold(),size:boss?18:11,boss,dead:false,
-        slow:0,poison:0,poisonDmg:0,burn:0,burnDmg:0,cursed:0,baseSpeed:boss?enSpeed()*0.6:enSpeed()
-      });
+        color:etype.color,bounce:Math.random()*6.28,
+        goldVal:Math.floor(enGold()*etype.gold*(boss?5:1)),
+        size:boss?22:11,boss,dead:false,
+        slow:0,poison:0,poisonDmg:0,burn:0,burnDmg:0,cursed:0,
+        baseSpeed:eSpd,frozen:0,
+        etype:etype.id,flying:etype.flying,slowImmune:etype.slowImmune||boss,
+        regen:etype.regen,rangedCounter:etype.rangedCounter,
+        etypeName:etype.name,etypeEmoji:etype.emoji,
+        ghostAlpha:etype.id===6?0.55:1
+      };
+      enemies.push(en);
+      if(boss)bossHPBar=en;
       spawnC++;spawnT=boss?45:20;
     }
     if(spawnC>=enCount()&&enemies.length===0){
-      waveActive=false;
+      waveActive=false;bossHPBar=null;
       const bonus=20+wave*5;gold+=bonus;score+=wave*100;
       pops.push({x:C.width/2,y:C.height/2,text:`웨이브 ${wave} 클리어! +${bonus}G`,life:70,maxLife:70,color:'#FFD700',big:1});
       updateUI();
     }
   }
   // Enemies
-  enemies.forEach(en=>{
-    if(en.dead)return;
-    if(en.poison>0){en.hp-=en.poisonDmg;en.poison--;if(en.hp<=0){killEn(en);return;}}
-    if(en.burn>0){en.hp-=en.burnDmg;en.burn--;if(frame%6===0)particles.push({x:en.x+(Math.random()-0.5)*8,y:en.y-en.size,vx:Math.random()-0.5,vy:-1-Math.random(),color:[255,120,30],life:10,maxLife:10,size:2});if(en.hp<=0){killEn(en);return;}}
+  for(let ei=0;ei<enemies.length;ei++){
+    const en=enemies[ei];
+    if(en.dead)continue;
+    if(en.regen>0&&en.hp<en.maxHp){en.hp=Math.min(en.maxHp,en.hp+en.maxHp*en.regen);}
+    if(en.poison>0){en.hp-=en.poisonDmg;en.poison--;if(en.hp<=0){killEn(en);continue;}}
+    if(en.burn>0){en.hp-=en.burnDmg;en.burn--;if(frame%6===0)particles.push({x:en.x+(Math.random()-0.5)*8,y:en.y-en.size,vx:Math.random()-0.5,vy:-1-Math.random(),color:[255,120,30],life:10,maxLife:10,size:2});if(en.hp<=0){killEn(en);continue;}}
+    if(en.frozen>0){en.frozen--;en.bounce+=0.05;continue;}
     if(en.slow>0)en.slow--;if(en.cursed>0)en.cursed--;
-    const spd=en.baseSpeed*(en.slow>0?0.5:1);
-    if(en.pathIdx>=en.path.length-1){en.dead=true;lives--;pops.push({x:en.x,y:en.y-15,text:'-1❤️',life:35,maxLife:35,color:'#F66'});if(lives<=0){gameOver();return;}return;}
+    const slowFactor=en.slowImmune?1:(en.slow>0?0.5:1);
+    const spd=en.baseSpeed*slowFactor;
+    if(en.pathIdx>=en.path.length-1){en.dead=true;lives--;pops.push({x:en.x,y:en.y-15,text:'-1❤️',life:35,maxLife:35,color:'#F66'});if(lives<=0){gameOver();}continue;}
     const tg=en.path[en.pathIdx+1],tx=tg.x*T+T/2,ty=tg.y*T+T/2,dx=tx-en.x,dy=ty-en.y,d=Math.sqrt(dx*dx+dy*dy);
     if(d<spd*2){en.pathIdx++;if(en.pathIdx<en.path.length){en.x=en.path[en.pathIdx].x*T+T/2;en.y=en.path[en.pathIdx].y*T+T/2;}}
     else{en.x+=(dx/d)*spd;en.y+=(dy/d)*spd;}
     en.bounce+=0.15;
-  });
+    // Mage ranged counter - attack nearest tower
+    if(en.rangedCounter&&frame%90===0){
+      let nearT=null,nearD=9999;
+      towers.forEach(tw=>{const d=Math.sqrt((tw.x-en.x)**2+(tw.y-en.y)**2);if(d<nearD){nearD=d;nearT=tw;}});
+      if(nearT&&nearD<T*4){
+        projs.push({x:en.x,y:en.y,target:{x:nearT.x,y:nearT.y,dead:false,hp:1,maxHp:1},speed:4,dmg:0,splash:0,color:[150,50,200],size:3,spec:'none',hit:false,level:1,isCounter:true,counterTarget:nearT});
+      }
+    }
+  }
   enemies=enemies.filter(e=>!e.dead);
+  // Tower abilities & zone effects
+  towers.forEach(t=>{if(t.abilityCd>0)t.abilityCd--;if(t.abilityActive>0)t.abilityActive--;});
+  // Update fire walls
+  fireWalls=fireWalls.filter(fw=>{fw.life--;enemies.forEach(en=>{if(en.dead)return;const d=Math.sqrt((en.x-fw.x)**2+(en.y-fw.y)**2);if(d<T*1.2){en.hp-=fw.dmg;en.burn=30;en.burnDmg=fw.dmg*0.5;if(en.hp<=0)killEn(en);}});if(frame%4===0)particles.push({x:fw.x+(Math.random()-0.5)*T,y:fw.y+(Math.random()-0.5)*T*0.5,vx:Math.random()-0.5,vy:-1.5-Math.random(),color:[255,120+Math.random()*80,30],life:12,maxLife:12,size:3});return fw.life>0;});
+  // Update poison clouds
+  poisonClouds=poisonClouds.filter(pc=>{pc.life--;enemies.forEach(en=>{if(en.dead)return;const d=Math.sqrt((en.x-pc.x)**2+(en.y-pc.y)**2);if(d<T*1.5){en.poison=60;en.poisonDmg=pc.dmg;}});if(frame%6===0)particles.push({x:pc.x+(Math.random()-0.5)*T*1.5,y:pc.y+(Math.random()-0.5)*T,vx:(Math.random()-0.5)*0.5,vy:-0.5,color:[0,200,100],life:15,maxLife:15,size:4});return pc.life>0;});
+  // Update black holes
+  blackHoles=blackHoles.filter(bh=>{bh.life--;enemies.forEach(en=>{if(en.dead)return;const dx=bh.x-en.x,dy=bh.y-en.y,d=Math.sqrt(dx*dx+dy*dy);if(d<T*2.5&&d>5){en.x+=dx/d*2;en.y+=dy/d*2;if(d<T){en.hp-=en.maxHp*0.02;if(en.hp<=0)killEn(en);}}});if(frame%3===0)particles.push({x:bh.x+(Math.random()-0.5)*T*2,y:bh.y+(Math.random()-0.5)*T*2,vx:(bh.x-(bh.x+(Math.random()-0.5)*T*2))*0.1,vy:(bh.y-(bh.y+(Math.random()-0.5)*T*2))*0.1,color:[80,50,150],life:10,maxLife:10,size:2});return bh.life>0;});
+  // Update freeze zones
+  freezeZones=freezeZones.filter(fz=>{fz.life--;enemies.forEach(en=>{if(en.dead||en.slowImmune)return;const d=Math.sqrt((en.x-fz.x)**2+(en.y-fz.y)**2);if(d<T*2){en.frozen=6;}});return fz.life>0;});
+  // Spell cooldowns
+  for(let i=0;i<3;i++){if(spellCDs[i]>0)spellCDs[i]--;}
+  updateSpellUI();
   // Towers
   towers.forEach(t=>{
     t.cooldown--;if(t.attackAnim>0)t.attackAnim--;if(t.cooldown>0)return;
+    // Ability: rapid fire for bow
+    const effectiveRate=(t.abilityActive>0&&t.type===0)?Math.floor(t.rate*0.3):t.rate;
+    if(t.cooldown>-effectiveRate+t.rate)return;
+    // Flying: only magic(1), bow(0), ice(4) can hit flying
+    const canHitFlying=[0,1,4,7].includes(t.type);
     let best=null,bestP=-1,bestD=9999;
-    enemies.forEach(en=>{if(en.dead)return;const d=Math.sqrt((en.x-t.x)**2+(en.y-t.y)**2);
+    enemies.forEach(en=>{if(en.dead)return;if(en.flying&&!canHitFlying)return;const d=Math.sqrt((en.x-t.x)**2+(en.y-t.y)**2);
       if(d<t.range*T&&(en.pathIdx>bestP||(en.pathIdx===bestP&&d<bestD))){best=en;bestP=en.pathIdx;bestD=d;}});
-    if(best){t.cooldown=t.rate;t.attackAnim=8;t.angle=Math.atan2(best.y-t.y,best.x-t.x);
-      projs.push({x:t.x,y:t.y,target:best,speed:t.spd,dmg:t.dmg,splash:t.splash,color:t.proj,size:t.psz,spec:t.spec,hit:false,level:t.level});}
+    if(best){t.cooldown=effectiveRate;t.attackAnim=8;t.angle=Math.atan2(best.y-t.y,best.x-t.x);
+      projs.push({x:t.x,y:t.y,target:best,speed:t.spd,dmg:t.dmg,splash:t.splash,color:t.proj,size:t.psz,spec:t.spec,hit:false,level:t.level,pierce:t.pierce||false,
+        poisonMul:t.poisonMul||1,slowMul:t.slowMul||1,burnMul:t.burnMul||1,curseMul:t.curseMul||1,voidMul:t.voidMul||1});}
   });
   // Projectiles
   projs.forEach(p=>{
     if(p.hit)return;
-    if(!p.target||p.target.dead){if(p.splash>0)doSplash(p,p.x,p.y);p.hit=true;return;}
+    // Counter attack projectile from mage enemies
+    if(p.isCounter){
+      const ct=p.counterTarget;
+      const dx=ct.x-p.x,dy=ct.y-p.y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<p.speed+5){p.hit=true;/* visual only - mage counter does minor disruption */ct.cooldown+=15;particles.push({x:ct.x,y:ct.y,vx:0,vy:-1,color:[150,50,200],life:15,maxLife:15,size:4});}
+      else{p.x+=(dx/d)*p.speed;p.y+=(dy/d)*p.speed;}
+      return;
+    }
+    if(!p.target||p.target.dead){
+      if(p.pierce){/* pierce continues */}
+      else{if(p.splash>0)doSplash(p,p.x,p.y);p.hit=true;return;}
+    }
+    if(p.pierce&&(!p.target||p.target.dead)){
+      // Find new target for piercing
+      let newT=null,nd=9999;
+      enemies.forEach(en=>{if(en.dead||en===p.lastHit)return;const d=Math.sqrt((en.x-p.x)**2+(en.y-p.y)**2);if(d<nd&&d<T*4){nd=d;newT=en;}});
+      if(newT){p.target=newT;}else{p.hit=true;return;}
+    }
     const dx=p.target.x-p.x,dy=p.target.y-p.y,d=Math.sqrt(dx*dx+dy*dy);
-    if(d<p.speed+5){p.hit=true;if(p.splash>0)doSplash(p,p.target.x,p.target.y);else hitEn(p,p.target);}
+    if(d<p.speed+5){
+      if(p.pierce){hitEn(p,p.target);p.lastHit=p.target;p.pierceCount=(p.pierceCount||0)+1;if(p.pierceCount>=3)p.hit=true;else p.target=null;}
+      else{p.hit=true;if(p.splash>0)doSplash(p,p.target.x,p.target.y);else hitEn(p,p.target);}
+    }
     else{p.x+=(dx/d)*p.speed;p.y+=(dy/d)*p.speed;}
   });
   projs=projs.filter(p=>!p.hit);
@@ -418,12 +570,17 @@ function update(){
   pops=pops.filter(p=>p.life>0);
 }
 
-function hitEn(p,en){if(en.dead)return;let dmg=p.dmg;if(en.cursed>0)dmg*=2;if(p.spec==='void')dmg=en.maxHp*0.08*(1+p.level*0.02);en.hp-=dmg;applySpec(p,en);
+function hitEn(p,en){if(en.dead)return;let dmg=p.dmg;if(en.cursed>0)dmg*=2;if(p.spec==='void')dmg=en.maxHp*0.08*(1+p.level*0.02)*(p.voidMul||1);en.hp-=dmg;applySpec(p,en);
   for(let i=0;i<3;i++)particles.push({x:en.x,y:en.y,vx:(Math.random()-0.5)*2.5,vy:(Math.random()-0.5)*2.5,color:p.color,life:10,maxLife:10,size:2});if(en.hp<=0)killEn(en);}
 function doSplash(p,cx,cy){enemies.forEach(en=>{if(en.dead)return;const d=Math.sqrt((en.x-cx)**2+(en.y-cy)**2);if(d<p.splash*T){let dmg=p.dmg*(1-d/(p.splash*T)*0.5);if(en.cursed>0)dmg*=2;en.hp-=dmg;applySpec(p,en);if(en.hp<=0)killEn(en);}});
   for(let i=0;i<8;i++){const a=Math.random()*6.28;particles.push({x:cx,y:cy,vx:Math.cos(a)*3,vy:Math.sin(a)*3,color:p.color,life:15,maxLife:15,size:3});}}
-function applySpec(p,en){if(p.spec==='poison'){en.poison=90;en.poisonDmg=p.dmg*0.15*(1+p.level*0.1);}if(p.spec==='slow')en.slow=120+p.level*30;if(p.spec==='burn'){en.burn=60;en.burnDmg=p.dmg*0.2*(1+p.level*0.1);}if(p.spec==='curse')en.cursed=150+p.level*30;}
-function killEn(en){if(en.dead)return;en.dead=true;gold+=en.goldVal;score+=en.boss?50:10;
+function applySpec(p,en){
+  if(p.spec==='poison'){en.poison=90;en.poisonDmg=p.dmg*0.15*(1+p.level*0.1)*(p.poisonMul||1);}
+  if(p.spec==='slow'&&!en.slowImmune){en.slow=(120+p.level*30)*(p.slowMul||1);}
+  if(p.spec==='burn'){en.burn=60;en.burnDmg=p.dmg*0.2*(1+p.level*0.1)*(p.burnMul||1);}
+  if(p.spec==='curse'){en.cursed=(150+p.level*30)*(p.curseMul||1);}
+}
+function killEn(en){if(en.dead)return;en.dead=true;if(en.boss)bossHPBar=null;gold+=en.goldVal;score+=en.boss?50:10;
   pops.push({x:en.x,y:en.y-15,text:`+${en.goldVal}G`,life:35,maxLife:35,color:'#FFD700'});
   // poof cloud effect
   const count=en.boss?18:10;
@@ -433,6 +590,110 @@ function killEn(en){if(en.dead)return;en.dead=true;gold+=en.goldVal;score+=en.bo
   for(let i=0;i<5;i++){const a=Math.random()*6.28;
     particles.push({x:en.x,y:en.y,vx:Math.cos(a)*1.5,vy:Math.sin(a)*1.5-1,color:[255,255,255],life:12+Math.random()*8,maxLife:20,size:4+Math.random()*3});}
   updateUI();}
+
+// ============ SPELLS ============
+function castSpell(idx){
+  if(state!=='playing'||spellCDs[idx]>0)return;
+  if(idx===0){spellTargeting=0;pops.push({x:C.width/2,y:C.height/2-30,text:'☄️ 메테오 위치를 클릭!',life:60,maxLife:60,color:'#FF6B6B',big:1});return;}
+  if(idx===1){doBlizzard();spellCDs[1]=SPELLS[1].cooldown;return;}
+  if(idx===2){gold+=200;spellCDs[2]=SPELLS[2].cooldown;pops.push({x:C.width/2,y:C.height/2,text:'💰 +200G!',life:50,maxLife:50,color:'#FFD700',big:1});updateUI();return;}
+}
+function doMeteor(cx,cy){
+  spellCDs[0]=SPELLS[0].cooldown;
+  const dmg=100+wave*30;
+  enemies.forEach(en=>{if(en.dead)return;const d=Math.sqrt((en.x-cx)**2+(en.y-cy)**2);if(d<T*3){en.hp-=dmg*(1-d/(T*3)*0.5);if(en.hp<=0)killEn(en);}});
+  for(let i=0;i<25;i++){const a=Math.random()*6.28,s=2+Math.random()*5;particles.push({x:cx,y:cy,vx:Math.cos(a)*s,vy:Math.sin(a)*s,color:[255,Math.floor(80+Math.random()*100),30],life:25,maxLife:25,size:4+Math.random()*4});}
+  pops.push({x:cx,y:cy-20,text:'☄️METEOR!',life:50,maxLife:50,color:'#FF4444',big:1});
+}
+function doBlizzard(){
+  enemies.forEach(en=>{if(en.dead||en.slowImmune)return;en.slow=300;en.frozen=60;});
+  for(let i=0;i<30;i++){particles.push({x:Math.random()*C.width,y:Math.random()*C.height,vx:(Math.random()-0.5)*2,vy:1+Math.random(),color:[180,220,255],life:30,maxLife:30,size:3});}
+  pops.push({x:C.width/2,y:C.height/2,text:'❄️ BLIZZARD!',life:60,maxLife:60,color:'#4FC3F7',big:1});
+}
+function updateSpellUI(){
+  for(let i=0;i<3;i++){
+    const btn=document.getElementById(['spell-meteor','spell-blizzard','spell-gold'][i]);
+    if(!btn)continue;
+    if(spellCDs[i]>0){btn.classList.add('on-cd');btn.innerHTML=SPELLS[i].emoji+SPELLS[i].name+`<span style="display:block;font-size:10px">${Math.ceil(spellCDs[i]/60)}초</span>`;}
+    else{btn.classList.remove('on-cd');btn.innerHTML=SPELLS[i].emoji+SPELLS[i].name;}
+  }
+}
+
+// ============ TOWER ABILITIES ============
+function activateAbility(t){
+  if(!t||t.abilityCd>0)return;
+  const ab=TABILITIES[t.type];
+  t.abilityCd=ab.cooldown;
+  if(ab.duration>0)t.abilityActive=ab.duration;
+  const cx=t.x,cy=t.y;
+  if(t.type===0){/* Bow: rapid fire - handled in tower attack loop */
+    pops.push({x:cx,y:cy-25,text:'🏹화살비!',life:40,maxLife:40,color:'#8BC34A'});}
+  if(t.type===1){/* Magic: teleport enemies back */
+    enemies.forEach(en=>{if(en.dead)return;const d=Math.sqrt((en.x-cx)**2+(en.y-cy)**2);if(d<t.range*T){en.pathIdx=Math.max(0,en.pathIdx-5);en.x=en.path[en.pathIdx].x*T+T/2;en.y=en.path[en.pathIdx].y*T+T/2;}});
+    pops.push({x:cx,y:cy-25,text:'🔮텔레포트!',life:40,maxLife:40,color:'#E040FB'});}
+  if(t.type===2){/* Cannon: nuke */
+    const dmg=t.dmg*5;enemies.forEach(en=>{if(en.dead)return;const d=Math.sqrt((en.x-cx)**2+(en.y-cy)**2);if(d<T*4){en.hp-=dmg*(1-d/(T*4)*0.3);if(en.hp<=0)killEn(en);}});
+    for(let i=0;i<20;i++){const a=Math.random()*6.28;particles.push({x:cx,y:cy,vx:Math.cos(a)*6,vy:Math.sin(a)*6,color:[255,100,50],life:20,maxLife:20,size:5});}
+    pops.push({x:cx,y:cy-25,text:'💣핵폭발!',life:50,maxLife:50,color:'#FF5722'});}
+  if(t.type===3){/* Poison: cloud */
+    poisonClouds.push({x:cx,y:cy,dmg:t.dmg*0.3,life:ab.duration});
+    pops.push({x:cx,y:cy-25,text:'🧪독구름!',life:40,maxLife:40,color:'#69F0AE'});}
+  if(t.type===4){/* Ice: freeze */
+    freezeZones.push({x:cx,y:cy,life:ab.duration});
+    pops.push({x:cx,y:cy-25,text:'🧊빙결!',life:40,maxLife:40,color:'#4FC3F7'});}
+  if(t.type===5){/* Fire: fire wall on path */
+    const nearPath=mapData.path.reduce((best,p)=>{const d=Math.sqrt((p.x*T+T/2-cx)**2+(p.y*T+T/2-cy)**2);return d<best.d?{p,d}:best;},{d:9999,p:null});
+    if(nearPath.p)fireWalls.push({x:nearPath.p.x*T+T/2,y:nearPath.p.y*T+T/2,dmg:t.dmg*0.4,life:ab.duration});
+    pops.push({x:cx,y:cy-25,text:'🔥화염벽!',life:40,maxLife:40,color:'#FF7043'});}
+  if(t.type===6){/* Curse: fear - enemies retreat */
+    enemies.forEach(en=>{if(en.dead)return;const d=Math.sqrt((en.x-cx)**2+(en.y-cy)**2);if(d<t.range*T){en.pathIdx=Math.max(0,en.pathIdx-3);en.x=en.path[en.pathIdx].x*T+T/2;en.y=en.path[en.pathIdx].y*T+T/2;}});
+    pops.push({x:cx,y:cy-25,text:'💀공포!',life:40,maxLife:40,color:'#7E57C2'});}
+  if(t.type===7){/* Void: black hole */
+    blackHoles.push({x:cx,y:cy,life:ab.duration});
+    pops.push({x:cx,y:cy-25,text:'🌀블랙홀!',life:40,maxLife:40,color:'#37474F'});}
+  updateUI();
+}
+
+// ============ TOWER BRANCH UPGRADES ============
+function showBranchChoice(t){
+  const bd=document.getElementById('upgrade-branch');
+  if(!t||t.level!==2||t.branch){bd.style.display='none';return;}
+  const br=TBRANCHES[t.type];
+  bd.style.display='flex';
+  bd.innerHTML=`<span style="color:#aaa;font-size:11px">특화 선택:</span>
+    <div class="branch-btn" onclick="chooseBranch('a')">${br.a.emoji} ${br.a.name}</div>
+    <div class="branch-btn" onclick="chooseBranch('b')">${br.b.emoji} ${br.b.name}</div>`;
+}
+function chooseBranch(choice){
+  if(!selPlaced||selPlaced.level<2||selPlaced.branch)return;
+  const br=TBRANCHES[selPlaced.type];
+  const chosen=choice==='a'?br.a:br.b;
+  selPlaced.branch=choice;
+  selPlaced.branchName=chosen.name;
+  const bonus=chosen.bonus;
+  if(bonus.dmgMul)selPlaced.dmg*=bonus.dmgMul;
+  if(bonus.rateMul)selPlaced.rate=Math.max(5,Math.floor(selPlaced.rate*bonus.rateMul));
+  if(bonus.rangeMul)selPlaced.range*=bonus.rangeMul;
+  if(bonus.splashMul)selPlaced.splash*=bonus.splashMul;
+  if(bonus.splashAdd)selPlaced.splash+=bonus.splashAdd;
+  if(bonus.pierce)selPlaced.pierce=true;
+  if(bonus.poisonMul)selPlaced.poisonMul=bonus.poisonMul;
+  if(bonus.slowMul)selPlaced.slowMul=bonus.slowMul;
+  if(bonus.burnMul)selPlaced.burnMul=bonus.burnMul;
+  if(bonus.curseMul)selPlaced.curseMul=bonus.curseMul;
+  if(bonus.voidMul)selPlaced.voidMul=bonus.voidMul;
+  // Visual color shift
+  if(choice==='a')selPlaced.color=shiftColor(selPlaced.color,-30);
+  else selPlaced.color=shiftColor(selPlaced.color,30);
+  document.getElementById('upgrade-branch').style.display='none';
+  pops.push({x:selPlaced.x,y:selPlaced.y-30,text:`${chosen.emoji}${chosen.name}!`,life:50,maxLife:50,color:'#FFD700'});
+  updateUI();
+}
+function shiftColor(hex,deg){
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  const nr=Math.min(255,Math.max(0,r+deg)),ng=Math.min(255,Math.max(0,g+deg*0.5)),nb=Math.min(255,Math.max(0,b-deg*0.3));
+  return '#'+[nr,ng,nb].map(v=>Math.floor(v).toString(16).padStart(2,'0')).join('');
+}
 
 function gameOver(){
   state='gameover';
@@ -478,6 +739,12 @@ function drawTowers(){
     // Stars
     if(t.attackAnim>0){X.restore();}
     for(let i=0;i<lv;i++){X.fillStyle='#FFD700';X.font='7px sans-serif';X.fillText('★',x-lv*4+i*8,y-sz-4);}
+    // Branch indicator
+    if(t.branch){X.fillStyle=t.branch==='a'?'#4FC3F7':'#FF7043';X.font='7px sans-serif';X.textAlign='center';X.fillText(t.branchName||'',x,y+sz+12);X.textAlign='left';}
+    // Ability cooldown ring
+    if(t.abilityCd>0){const pct=t.abilityCd/TABILITIES[t.type].cooldown;X.strokeStyle='rgba(255,255,255,0.3)';X.lineWidth=2;X.beginPath();X.arc(x,y,sz+6,0,6.28);X.stroke();X.strokeStyle='#FFD700';X.lineWidth=2;X.beginPath();X.arc(x,y,sz+6,-Math.PI/2,-Math.PI/2+(1-pct)*6.28);X.stroke();}
+    // Active ability glow
+    if(t.abilityActive>0){X.strokeStyle='rgba(255,215,0,'+((frame%20<10)?0.6:0.2)+')';X.lineWidth=3;X.beginPath();X.arc(x,y,sz+8,0,6.28);X.stroke();}
     // Selection
     if(selPlaced===t){X.strokeStyle='#FFD700';X.lineWidth=1.5;X.setLineDash([3,3]);X.beginPath();X.arc(x,y,t.range*T,0,6.28);X.stroke();X.setLineDash([]);X.strokeStyle='#FFD700';X.lineWidth=2;X.beginPath();X.arc(x,y,sz+5,0,6.28);X.stroke();}
   });
@@ -486,8 +753,15 @@ function drawTowers(){
 function drawEnemies(){
   enemies.forEach(en=>{
     if(en.dead)return;
-    const b=Math.sin(en.bounce)*2,x=en.x,y=en.y+b,r=en.size;
-    X.fillStyle='rgba(0,0,0,0.12)';X.beginPath();X.ellipse(en.x,en.y+r+2,r-2,3,0,0,6.28);X.fill();
+    const flyOff=en.flying?-4+Math.sin(frame*0.1)*3:0;
+    const b=Math.sin(en.bounce)*2,x=en.x,y=en.y+b+flyOff,r=en.size;
+    // Ghost transparency
+    if(en.ghostAlpha<1)X.globalAlpha=en.ghostAlpha+Math.sin(frame*0.05)*0.15;
+    // Frozen effect
+    if(en.frozen>0){X.fillStyle='rgba(100,200,255,0.3)';X.beginPath();X.arc(x,y,r+4,0,6.28);X.fill();}
+    // Shadow (not for flying)
+    if(!en.flying){X.fillStyle='rgba(0,0,0,0.12)';X.beginPath();X.ellipse(en.x,en.y+r+2,r-2,3,0,0,6.28);X.fill();}
+    else{X.fillStyle='rgba(0,0,0,0.06)';X.beginPath();X.ellipse(en.x,en.y+r+8,r-3,2,0,0,6.28);X.fill();}
     if(en.slow>0){X.fillStyle='rgba(100,200,255,0.12)';X.beginPath();X.arc(x,y,r+3,0,6.28);X.fill();}
     if(en.cursed>0){X.strokeStyle='rgba(150,50,200,0.35)';X.lineWidth=1.5;X.beginPath();X.arc(x,y,r+3,0,6.28);X.stroke();}
     X.fillStyle=en.color;X.beginPath();X.arc(x,y,r,0,6.28);X.fill();
@@ -496,9 +770,14 @@ function drawEnemies(){
     const er=r*0.24;X.fillStyle='#fff';
     X.beginPath();X.arc(x-r*0.28,y-r*0.08,er,0,6.28);X.fill();X.beginPath();X.arc(x+r*0.28,y-r*0.08,er,0,6.28);X.fill();
     X.fillStyle='#222';X.beginPath();X.arc(x-r*0.2,y+r*0.02,er*0.5,0,6.28);X.fill();X.beginPath();X.arc(x+r*0.36,y+r*0.02,er*0.5,0,6.28);X.fill();
-    if(en.boss){X.fillStyle='#FFD700';X.beginPath();X.moveTo(x-6,y-r);X.lineTo(x-4,y-r-6);X.lineTo(x,y-r-2);X.lineTo(x,y-r-8);X.lineTo(x,y-r-2);X.lineTo(x+4,y-r-6);X.lineTo(x+6,y-r);X.fill();}
-    const hp=en.hp/en.maxHp,bw=r*1.8;X.fillStyle='#2228';X.fillRect(x-bw/2,y-r-6,bw,3);
-    X.fillStyle=hp>0.5?'#4CAF50':hp>0.25?'#FFC107':'#F44';X.fillRect(x-bw/2,y-r-6,bw*hp,3);
+    // Boss crown (2x size)
+    if(en.boss){X.fillStyle='#FFD700';X.beginPath();X.moveTo(x-8,y-r);X.lineTo(x-6,y-r-9);X.lineTo(x-2,y-r-3);X.lineTo(x,y-r-11);X.lineTo(x+2,y-r-3);X.lineTo(x+6,y-r-9);X.lineTo(x+8,y-r);X.fill();}
+    // Enemy type emoji
+    if(en.etypeEmoji){X.font=`${en.boss?'14':'9'}px sans-serif`;X.textAlign='center';X.fillText(en.etypeEmoji,x,y+r+10);X.textAlign='left';}
+    // HP bar (not for boss, shown at top)
+    if(!en.boss){const hp=en.hp/en.maxHp,bw=r*1.8;X.fillStyle='#2228';X.fillRect(x-bw/2,y-r-6,bw,3);
+      X.fillStyle=hp>0.5?'#4CAF50':hp>0.25?'#FFC107':'#F44';X.fillRect(x-bw/2,y-r-6,bw*hp,3);}
+    X.globalAlpha=1;
   });
 }
 
@@ -533,6 +812,22 @@ function drawHUD(){
   // Map name
   X.fillStyle='#555';X.font='10px sans-serif';X.fillText(mapData.name,C.width/2+110,18);
   if(waveActive){X.fillStyle='#666';X.font='10px sans-serif';X.textAlign='center';X.fillText(`남은:${enemies.length+(enCount()-spawnC)}`,C.width/2,10);X.textAlign='left';}
+  // Wave enemy type indicator
+  if(waveActive||wave>0){
+    const themeIdx=((waveActive?wave:wave)-1)%WAVE_THEMES.length;
+    if(themeIdx>=0){const theme=WAVE_THEMES[themeIdx];const names=theme.map(i=>ETYPES[i].emoji).join('');
+      X.fillStyle='#aaa';X.font='10px sans-serif';X.fillText(names,6,C.height-4);}}
+  // Boss HP bar at top
+  if(bossHPBar&&!bossHPBar.dead){
+    const en=bossHPBar;const bw=C.width*0.6,bh=10,bx=(C.width-bw)/2,by=30;
+    X.fillStyle='rgba(0,0,0,0.7)';X.fillRect(bx-2,by-2,bw+4,bh+4);
+    const hp=Math.max(0,en.hp/en.maxHp);
+    X.fillStyle='#c0392b';X.fillRect(bx,by,bw,bh);
+    X.fillStyle='#e74c3c';X.fillRect(bx,by,bw*hp,bh);
+    X.fillStyle='#fff';X.font='bold 10px sans-serif';X.textAlign='center';
+    X.fillText(`👑 BOSS: ${en.etypeName} - ${Math.ceil(en.hp)}/${Math.ceil(en.maxHp)}`,C.width/2,by+9);
+    X.textAlign='left';
+  }
 }
 
 function drawGameOver(){
@@ -556,6 +851,24 @@ function drawGameOver(){
   X.globalAlpha=1;X.textAlign='left';
 }
 
+function drawZones(){
+  // Fire walls
+  fireWalls.forEach(fw=>{X.fillStyle=`rgba(255,100,20,${0.15+Math.sin(frame*0.2)*0.05})`;X.beginPath();X.arc(fw.x,fw.y,T*1.2,0,6.28);X.fill();X.fillStyle='rgba(255,200,50,0.1)';X.beginPath();X.arc(fw.x,fw.y,T*0.8,0,6.28);X.fill();});
+  // Poison clouds
+  poisonClouds.forEach(pc=>{X.fillStyle=`rgba(0,200,100,${0.1+Math.sin(frame*0.15)*0.04})`;X.beginPath();X.arc(pc.x,pc.y,T*1.5,0,6.28);X.fill();});
+  // Black holes
+  blackHoles.forEach(bh=>{
+    const pulse=Math.sin(frame*0.15)*0.05;
+    X.fillStyle=`rgba(30,0,60,${0.3+pulse})`;X.beginPath();X.arc(bh.x,bh.y,T*2.5,0,6.28);X.fill();
+    X.fillStyle=`rgba(80,50,150,${0.4+pulse})`;X.beginPath();X.arc(bh.x,bh.y,T,0,6.28);X.fill();
+    X.fillStyle='rgba(0,0,0,0.8)';X.beginPath();X.arc(bh.x,bh.y,T*0.4,0,6.28);X.fill();
+  });
+  // Freeze zones
+  freezeZones.forEach(fz=>{X.fillStyle=`rgba(100,200,255,${0.12+Math.sin(frame*0.2)*0.04})`;X.beginPath();X.arc(fz.x,fz.y,T*2,0,6.28);X.fill();X.strokeStyle='rgba(100,200,255,0.3)';X.lineWidth=2;X.beginPath();X.arc(fz.x,fz.y,T*2,0,6.28);X.stroke();});
+  // Spell targeting indicator
+  if(spellTargeting===0&&mx>=0&&my>=0){const cx=mx*T+T/2,cy=my*T+T/2;X.strokeStyle='rgba(255,60,60,0.5)';X.lineWidth=2;X.setLineDash([5,5]);X.beginPath();X.arc(cx,cy,T*3,0,6.28);X.stroke();X.setLineDash([]);X.fillStyle='rgba(255,60,60,0.1)';X.beginPath();X.arc(cx,cy,T*3,0,6.28);X.fill();}
+}
+
 // ============ MAIN LOOP ============
 buildMenu();
 
@@ -564,7 +877,7 @@ buildMenu();
     // Run multiple updates for speed
     const steps=state==='playing'?gameSpeed:0;
     for(let i=0;i<steps;i++)update();
-    drawMap();drawTowers();drawEnemies();drawProjs();drawFx();
+    drawMap();drawZones();drawTowers();drawEnemies();drawProjs();drawFx();
     if(selTower>=0)drawHover();drawHUD();
     if(state==='gameover')drawGameOver();
   }
