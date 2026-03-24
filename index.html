@@ -212,8 +212,8 @@ function isInPeriod(dateStr, period){
   return true;
 }
 
-const SCORE_UNITS={tetris:'점',snake:'점',flappy:'점',tower_defense:'웨이브',rhythm:'점',bullet_storm:'점',gomoku:'승',digging:'m',puzzle2048:'점',minesweeper:'승',pong:'승',runner:'m',memory:'점',shooting:'점',sliding:'점',hangman:'승',breakout:'점',colormatch:'점',typing:'점',cardgame:'승',tap_speed:'탭',whack:'점',catch:'점',stack:'층',bubble:'점',swipe_match:'점',reaction:'ms',dodge_ball:'초',number_tap:'점',color_switch:'점',fortress:'승',vampire:'킬',racing:'m',survival:'일',hackslash:'층',climbing:'m',rts:'라운드',blackjack:'칩',poker:'칩',solitaire:'점',chess:'승',janggi:'승',yutnori:'승',baduk:'승',othello:'승',mahjong:'점',sutda:'칩',matgo:'점',gostop:'점',burumable:'승',uno:'점',sudoku:'점',yacht:'점',dart:'승'};
-const GAME_NAMES={tetris:'블록쌓기',snake:'뱀키우기',flappy:'병아리',tower_defense:'성지키기',rhythm:'리듬스타',bullet_storm:'불렛스톰',gomoku:'오목',digging:'땅굴탐험',puzzle2048:'2048',minesweeper:'지뢰찾기',pong:'핑퐁',runner:'달려라',memory:'기억력',shooting:'사격장',sliding:'퍼즐',hangman:'단어맞추기',breakout:'벽돌깨기',colormatch:'색맞추기',typing:'타자게임',cardgame:'카드배틀',tap_speed:'탭스피드',whack:'두더지잡기',catch:'과일받기',stack:'블록쌓기',bubble:'버블팝',swipe_match:'스와이프',reaction:'반응속도',dodge_ball:'공피하기',number_tap:'숫자터치',color_switch:'컬러스위치',fortress:'대포대전',vampire:'몬스터웨이브',racing:'레이싱',survival:'생존',hackslash:'던전용사',climbing:'절벽올라가기',rts:'미니전략',blackjack:'블랙잭',poker:'포커',solitaire:'솔리테어',chess:'체스',janggi:'장기',yutnori:'윷놀이',baduk:'바둑',othello:'오셀로',mahjong:'마작',sutda:'섯다',matgo:'맞고',gostop:'고스톱',burumable:'부루마블',uno:'우노',sudoku:'스도쿠',yacht:'야추',dart:'다트'};
+const SCORE_UNITS={tetris:'점',snake:'점',flappy:'점',tower_defense:'웨이브',rhythm:'점',bullet_storm:'점',gomoku:'승',digging:'m',puzzle2048:'점',minesweeper:'승',pong:'승',runner:'m',memory:'점',shooting:'점',sliding:'점',hangman:'승',breakout:'점',colormatch:'점',typing:'점',cardgame:'승',tap_speed:'탭',whack:'점',catch:'점',stack:'층',bubble:'점',swipe_match:'점',reaction:'ms',dodge_ball:'초',number_tap:'점',color_switch:'점',fortress:'승',vampire:'킬',racing:'m',survival:'일',hackslash:'층',climbing:'m',rts:'라운드',blackjack:'칩',poker:'칩',solitaire:'점',chess:'승',janggi:'승',yutnori:'승',baduk:'승',othello:'승',mahjong:'점',sutda:'칩',matgo:'점',gostop:'점',burumable:'승',uno:'점',sudoku:'점',yacht:'점',dart:'승',jenga:'점',onecard:'승',mafia:'승',rummikub:'승',bang:'승'};
+const GAME_NAMES={tetris:'블록쌓기',snake:'뱀키우기',flappy:'병아리',tower_defense:'성지키기',rhythm:'리듬스타',bullet_storm:'불렛스톰',gomoku:'오목',digging:'땅굴탐험',puzzle2048:'2048',minesweeper:'지뢰찾기',pong:'핑퐁',runner:'달려라',memory:'기억력',shooting:'사격장',sliding:'퍼즐',hangman:'단어맞추기',breakout:'벽돌깨기',colormatch:'색맞추기',typing:'타자게임',cardgame:'카드배틀',tap_speed:'탭스피드',whack:'두더지잡기',catch:'과일받기',stack:'블록쌓기',bubble:'버블팝',swipe_match:'스와이프',reaction:'반응속도',dodge_ball:'공피하기',number_tap:'숫자터치',color_switch:'컬러스위치',fortress:'대포대전',vampire:'몬스터웨이브',racing:'레이싱',survival:'생존',hackslash:'던전용사',climbing:'절벽올라가기',rts:'미니전략',blackjack:'블랙잭',poker:'포커',solitaire:'솔리테어',chess:'체스',janggi:'장기',yutnori:'윷놀이',baduk:'바둑',othello:'오셀로',mahjong:'마작',sutda:'섯다',matgo:'맞고',gostop:'고스톱',burumable:'부루마블',uno:'우노',sudoku:'스도쿠',yacht:'야추',dart:'다트',jenga:'젠가',onecard:'원카드',mafia:'마피아',rummikub:'루미큐브',bang:'뱅'};
 
 let currentTab='game', lbFilter='all';
 
@@ -277,6 +277,11 @@ const GAMES=[
   {file:'games/sudoku.html',title:'스도쿠',desc:'9x9 숫자 퍼즐',emoji:'🔢',id:'sudoku',cat:'puzzle',bg:'linear-gradient(135deg,#1565C0,#42A5F5)',mobile:'ok'},
   {file:'games/yacht.html',title:'야추',desc:'주사위 5개 조합 점수',emoji:'🎲',id:'yacht',cat:'board',bg:'linear-gradient(135deg,#6A1B9A,#AB47BC)',mobile:'ok'},
   {file:'games/dart.html',title:'다트',desc:'과녁을 맞춰라! 301',emoji:'🎯',id:'dart',cat:'action',bg:'linear-gradient(135deg,#BF360C,#FF7043)',mobile:'ok'},
+  {file:'games/jenga.html',title:'젠가',desc:'블록을 빼서 위에 쌓아라',emoji:'🧩',id:'jenga',cat:'board',bg:'linear-gradient(135deg,#F57F17,#FDD835)',mobile:'ok'},
+  {file:'games/onecard.html',title:'원카드',desc:'한국식 카드게임',emoji:'🃏',id:'onecard',cat:'card',bg:'linear-gradient(135deg,#00695C,#26A69A)',mobile:'ok'},
+  {file:'games/mafia.html',title:'마피아',desc:'마피아를 찾아내라!',emoji:'🐺',id:'mafia',cat:'board',bg:'linear-gradient(135deg,#37474F,#607D8B)',mobile:'ok'},
+  {file:'games/rummikub.html',title:'루미큐브',desc:'숫자 타일 조합 게임',emoji:'🎯',id:'rummikub',cat:'board',bg:'linear-gradient(135deg,#AD1457,#EC407A)',mobile:'ok'},
+  {file:'games/bang.html',title:'뱅',desc:'서부 총격전 카드게임',emoji:'💥',id:'bang',cat:'card',bg:'linear-gradient(135deg,#4E342E,#795548)',mobile:'ok'},
 ];
 
 const TESTS=[
