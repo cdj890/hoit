@@ -26,8 +26,8 @@ h1{font-size:32px;margin-bottom:10px;text-shadow:0 0 20px #a855f7}
 <canvas id="c"></canvas>
 <div class="overlay" id="startScreen">
 <h1>🧛 몬스터 웨이브</h1>
-<p class="sub">5분간 살아남아라!</p>
-<button class="btn" onclick="startGame()">게임 시작</button>
+<p class="sub">시작 무기를 선택하세요!</p>
+<div id="weaponSelect" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;max-width:380px;width:90%;max-height:60vh;overflow-y:auto;padding:10px"></div>
 </div>
 <div class="overlay hidden" id="gameOver">
 <h1 id="goTitle">게임 오버</h1>
@@ -58,6 +58,30 @@ const H=Math.min(window.innerHeight-20,750);
 canvas.width=W;canvas.height=H;
 
 let state='menu',kills=0,level=1,xp=0,xpNeeded=5,timeLeft=300,paused=false;
+const ALL_WEAPONS={
+  knife:{name:'🗡️ 단검',desc:'기본 근접 공격',dmg:10,spd:30,range:50,type:'melee'},
+  longsword:{name:'⚔️ 장검',desc:'넓은 범위 근접',dmg:15,spd:40,range:70,type:'melee'},
+  dagger:{name:'🔪 쌍단검',desc:'빠른 2연속 공격',dmg:7,spd:15,range:40,type:'melee'},
+  axe:{name:'🪓 도끼',desc:'느리지만 강력',dmg:25,spd:55,range:45,type:'melee'},
+  spear:{name:'🔱 창',desc:'긴 사거리 관통',dmg:12,spd:35,range:90,type:'melee'},
+  orb:{name:'🔮 마법구',desc:'주변 회전하며 공격',dmg:8,spd:0,range:60,type:'orbit'},
+  fireball:{name:'🔥 화염구',desc:'폭발 범위 공격',dmg:18,spd:50,range:120,type:'projectile'},
+  icebolt:{name:'🧊 얼음화살',desc:'적을 감속시킴',dmg:10,spd:35,range:100,type:'projectile'},
+  arrow:{name:'🏹 활',desc:'빠른 장거리 공격',dmg:9,spd:20,range:150,type:'projectile'},
+  lightning:{name:'⚡ 번개',desc:'랜덤 적에게 낙뢰',dmg:20,spd:45,range:999,type:'lightning'},
+  poison:{name:'🧪 독병',desc:'지속 데미지',dmg:5,spd:40,range:80,type:'projectile'},
+  boomerang:{name:'🪃 부메랑',desc:'왕복하며 다중 타격',dmg:8,spd:45,range:100,type:'boomerang'},
+  shield:{name:'🛡️ 방패',desc:'접촉 적 밀침+데미지',dmg:6,spd:0,range:30,type:'shield'},
+  bomb:{name:'💣 폭탄',desc:'대폭발 범위 공격',dmg:30,spd:80,range:100,type:'projectile'},
+  whip:{name:'📿 채찍',desc:'전방 휘두르기',dmg:11,spd:25,range:80,type:'melee'},
+  shuriken:{name:'💠 수리검',desc:'3방향 발사',dmg:6,spd:30,range:110,type:'projectile'},
+  laser:{name:'🔴 레이저',desc:'관통 직선 빔',dmg:15,spd:60,range:200,type:'projectile'},
+  tornado:{name:'🌪️ 회오리',desc:'주변 흡입+피해',dmg:4,spd:0,range:80,type:'aura'},
+  holy:{name:'✨ 성수',desc:'전방위 빛 폭발',dmg:12,spd:70,range:120,type:'nova'},
+  garlic:{name:'🧄 마늘',desc:'접근 적 자동 피해',dmg:3,spd:0,range:50,type:'aura'},
+};
+
+let startWeapon='knife';
 let player={x:0,y:0,hp:100,maxHp:100,speed:2.5,damage:10,atkRange:50,atkCooldown:0,atkSpeed:30,weapons:['knife']};
 let enemies=[],gems=[],particles=[],weaponProjectiles=[];
 let camX=0,camY=0;
@@ -67,23 +91,47 @@ let animFrame,timerInterval;
 let levelFlash=0;
 let damageNums=[];
 
-const UPGRADES=[
-  {name:'⚔️ 공격력 +5',apply:()=>{player.damage+=5}},
-  {name:'🏃 이동속도 +0.5',apply:()=>{player.speed+=0.5}},
-  {name:'📏 공격범위 +15',apply:()=>{player.atkRange+=15}},
-  {name:'⚡ 공격속도 +20%',apply:()=>{player.atkSpeed=Math.max(8,Math.floor(player.atkSpeed*0.8))}},
-  {name:'❤️ 최대체력 +30',apply:()=>{player.maxHp+=30;player.hp+=30}},
-  {name:'🔮 마법구 추가',apply:()=>{if(!player.weapons.includes('orb'))player.weapons.push('orb');else player.damage+=3},once:true},
-  {name:'⚡ 번개 추가',apply:()=>{if(!player.weapons.includes('lightning'))player.weapons.push('lightning');else player.damage+=3},once:true},
-];
+function buildUpgrades(){
+  const base=[
+    {name:'⚔️ 공격력 +5',apply:()=>{player.damage+=5}},
+    {name:'🏃 이동속도 +0.5',apply:()=>{player.speed+=0.5}},
+    {name:'📏 공격범위 +15',apply:()=>{player.atkRange+=15}},
+    {name:'⚡ 공격속도 +20%',apply:()=>{player.atkSpeed=Math.max(8,Math.floor(player.atkSpeed*0.8))}},
+    {name:'❤️ 최대체력 +30',apply:()=>{player.maxHp+=30;player.hp+=30}},
+    {name:'🧲 경험치 범위 +20',apply:()=>{player.atkRange+=10}},
+  ];
+  // Add weapon unlocks for weapons player doesn't have
+  Object.entries(ALL_WEAPONS).forEach(([id,w])=>{
+    if(!player.weapons.includes(id)){
+      base.push({name:`${w.name} 추가`,apply:()=>{player.weapons.push(id);}});
+    }
+  });
+  return base;
+}
+let UPGRADES=[];
+
+// Build weapon select UI
+(function(){
+  const div=document.getElementById('weaponSelect');
+  Object.entries(ALL_WEAPONS).forEach(([id,w])=>{
+    const btn=document.createElement('button');
+    btn.className='btn';
+    btn.style.cssText='padding:10px 8px;font-size:13px;text-align:center;min-height:60px';
+    btn.innerHTML=`<div style="font-size:20px">${w.name.split(' ')[0]}</div><div style="font-size:11px;color:#aaa;margin-top:2px">${w.desc}</div>`;
+    btn.onclick=()=>{startWeapon=id;startGame();};
+    div.appendChild(btn);
+  });
+})();
 
 function startGame(){
   document.getElementById('startScreen').classList.add('hidden');
+  const sw=ALL_WEAPONS[startWeapon];
   state='playing';
   player.x=0;player.y=0;
   enemies=[];gems=[];particles=[];weaponProjectiles=[];
   kills=0;level=1;xp=0;xpNeeded=5;timeLeft=300;
-  player.hp=100;player.maxHp=100;player.speed=2.5;player.damage=10;player.atkRange=50;player.atkSpeed=30;player.atkCooldown=0;player.weapons=['knife'];
+  player.hp=100;player.maxHp=100;player.speed=2.5;player.damage=sw?sw.dmg:10;player.atkRange=sw?sw.range:50;player.atkSpeed=sw?sw.spd||30:30;player.atkCooldown=0;player.weapons=[startWeapon];
+  UPGRADES=buildUpgrades();
   timerInterval=setInterval(()=>{
     if(state==='playing'&&!paused){
       timeLeft--;
@@ -144,6 +192,7 @@ function showLevelUp(){
   el.style.display='flex';
   const ch=document.getElementById('choices');
   ch.innerHTML='';
+  UPGRADES=buildUpgrades();
   const pool=[...UPGRADES];
   const picks=[];
   for(let i=0;i<3&&pool.length;i++){
@@ -222,35 +271,95 @@ function update(){
     }
   });
 
-  // knife attack
+  // Weapon system - process all weapons
   player.atkCooldown--;
-  if(player.atkCooldown<=0&&enemies.length>0){
-    let nearest=null,nd=Infinity;
-    enemies.forEach(e=>{const d=Math.hypot(e.x-player.x,e.y-player.y);if(d<nd){nd=d;nearest=e;}});
-    if(nearest&&nd<player.atkRange+nearest.r){
-      player.atkCooldown=player.atkSpeed;
-      nearest.hp-=player.damage;
-      damageNums.push({x:nearest.x+(Math.random()-0.5)*10,y:nearest.y-10,t:0,val:player.damage,color:'#ff0',crit:false});
+  function hitEnemy(e,dmg,color){
+    e.hp-=dmg;damageNums.push({x:e.x+(Math.random()-0.5)*10,y:e.y-10,t:0,val:Math.round(dmg),color:color||'#ff0',crit:false});
+    if(e.hp<=0){kills++;gems.push({x:e.x,y:e.y,val:e.xpVal});enemies.splice(enemies.indexOf(e),1);}
+  }
+  function findNearest(range){
+    let best=null,bd=Infinity;
+    enemies.forEach(e=>{const d=Math.hypot(e.x-player.x,e.y-player.y);if(d<bd&&d<range){bd=d;best=e;}});
+    return{e:best,d:bd};
+  }
+
+  // Melee weapons (knife, longsword, dagger, axe, spear, whip)
+  const melees=player.weapons.filter(w=>ALL_WEAPONS[w]&&ALL_WEAPONS[w].type==='melee');
+  if(player.atkCooldown<=0&&melees.length>0&&enemies.length>0){
+    const bestMelee=melees.reduce((a,b)=>ALL_WEAPONS[a].range>ALL_WEAPONS[b].range?a:b);
+    const w=ALL_WEAPONS[bestMelee];
+    const{e:nearest,d:nd}=findNearest(w.range+20);
+    if(nearest){
+      player.atkCooldown=w.spd||player.atkSpeed;
+      hitEnemy(nearest,w.dmg+player.damage*0.3,'#ff0');
       weaponProjectiles.push({x:player.x,y:player.y,tx:nearest.x,ty:nearest.y,t:0,max:8,type:'slash'});
-      if(nearest.hp<=0){
-        kills++;
-        gems.push({x:nearest.x,y:nearest.y,val:nearest.xpVal});
-        enemies.splice(enemies.indexOf(nearest),1);
-      }
+      // Dagger double hit
+      if(bestMelee==='dagger'){const{e:n2}=findNearest(w.range+20);if(n2)hitEnemy(n2,w.dmg*0.7,'#ffa');}
+      // Spear pierce
+      if(bestMelee==='spear')enemies.filter(e=>Math.hypot(e.x-nearest.x,e.y-nearest.y)<30&&e!==nearest).slice(0,2).forEach(e=>hitEnemy(e,w.dmg*0.5,'#aff'));
     }
   }
 
-  // orb weapon
+  // Projectile weapons (fireball, icebolt, arrow, poison, shuriken, laser, bomb)
+  const projs=player.weapons.filter(w=>ALL_WEAPONS[w]&&ALL_WEAPONS[w].type==='projectile');
+  projs.forEach(wid=>{
+    const w=ALL_WEAPONS[wid];
+    if(!w._cd)w._cd=0;w._cd--;
+    if(w._cd<=0&&enemies.length>0){
+      const{e:t}=findNearest(w.range);
+      if(t){w._cd=w.spd;
+        const dx=t.x-player.x,dy=t.y-player.y,d=Math.hypot(dx,dy)||1;
+        weaponProjectiles.push({x:player.x,y:player.y,vx:dx/d*5,vy:dy/d*5,dmg:w.dmg+player.damage*0.2,t:0,max:40,type:wid,wid});
+        // Shuriken: 3-way
+        if(wid==='shuriken'){for(let a=-0.4;a<=0.4;a+=0.4){
+          const cos=Math.cos(a),sin=Math.sin(a);
+          weaponProjectiles.push({x:player.x,y:player.y,vx:(dx/d*cos-dy/d*sin)*5,vy:(dx/d*sin+dy/d*cos)*5,dmg:w.dmg*0.7,t:0,max:30,type:wid,wid});
+        }}
+      }
+    }
+  });
+
+  // Orbit weapons (orb)
   if(player.weapons.includes('orb')){
     orbAngle+=0.05;
-    const orbDist=60;
-    const ox=player.x+Math.cos(orbAngle)*orbDist;
-    const oy=player.y+Math.sin(orbAngle)*orbDist;
+    const ox=player.x+Math.cos(orbAngle)*60,oy=player.y+Math.sin(orbAngle)*60;
+    enemies.forEach(e=>{if(Math.hypot(e.x-ox,e.y-oy)<e.r+12)hitEnemy(e,ALL_WEAPONS.orb.dmg*0.5,'#a5f');});
+  }
+  // Boomerang
+  if(player.weapons.includes('boomerang')){
+    if(!ALL_WEAPONS.boomerang._cd)ALL_WEAPONS.boomerang._cd=0;ALL_WEAPONS.boomerang._cd--;
+    if(ALL_WEAPONS.boomerang._cd<=0&&enemies.length>0){ALL_WEAPONS.boomerang._cd=45;
+      const{e:t}=findNearest(100);if(t)weaponProjectiles.push({x:player.x,y:player.y,tx:t.x,ty:t.y,t:0,max:30,type:'boomerang',dmg:ALL_WEAPONS.boomerang.dmg,phase:'out'});
+    }
+  }
+
+  // Aura weapons (tornado, garlic)
+  ['tornado','garlic'].forEach(wid=>{
+    if(player.weapons.includes(wid)){
+      const w=ALL_WEAPONS[wid];
+      enemies.forEach(e=>{
+        if(Math.hypot(e.x-player.x,e.y-player.y)<w.range+e.r){
+          if(Math.random()<0.1)hitEnemy(e,w.dmg,'#0f0');
+          if(wid==='tornado'){e.x+=(Math.random()-0.5)*3;e.y+=(Math.random()-0.5)*3;}
+        }
+      });
+    }
+  });
+
+  // Nova weapon (holy)
+  if(player.weapons.includes('holy')){
+    if(!ALL_WEAPONS.holy._cd)ALL_WEAPONS.holy._cd=0;ALL_WEAPONS.holy._cd--;
+    if(ALL_WEAPONS.holy._cd<=0){ALL_WEAPONS.holy._cd=70;
+      enemies.forEach(e=>{if(Math.hypot(e.x-player.x,e.y-player.y)<120)hitEnemy(e,ALL_WEAPONS.holy.dmg,'#fff');});
+      weaponProjectiles.push({x:player.x,y:player.y,t:0,max:15,type:'nova'});
+    }
+  }
+
+  // Shield
+  if(player.weapons.includes('shield')){
     enemies.forEach(e=>{
-      if(Math.hypot(e.x-ox,e.y-oy)<e.r+10){
-        e.hp-=player.damage*0.3;
-        if(e.hp<=0){kills++;gems.push({x:e.x,y:e.y,val:e.xpVal});enemies.splice(enemies.indexOf(e),1);}
-      }
+      const d=Math.hypot(e.x-player.x,e.y-player.y);
+      if(d<35){hitEnemy(e,ALL_WEAPONS.shield.dmg,'#8af');const a=Math.atan2(e.y-player.y,e.x-player.x);e.x+=Math.cos(a)*15;e.y+=Math.sin(a)*15;}
     });
   }
 
@@ -274,7 +383,32 @@ function update(){
   });
 
   // update projectiles
-  weaponProjectiles=weaponProjectiles.filter(p=>{p.t++;return p.t<p.max;});
+  weaponProjectiles=weaponProjectiles.filter(p=>{
+    p.t++;
+    // Move projectiles with velocity
+    if(p.vx!==undefined){p.x+=p.vx;p.y+=p.vy;
+      // Hit detection for projectile-type weapons
+      for(let i=enemies.length-1;i>=0;i--){
+        const e=enemies[i];if(Math.hypot(e.x-p.x,e.y-p.y)<e.r+8){
+          hitEnemy(e,p.dmg||player.damage,'#fa0');
+          // Fireball/bomb: AOE
+          if(p.wid==='fireball'||p.wid==='bomb'){enemies.forEach(e2=>{if(e2!==e&&Math.hypot(e2.x-p.x,e2.y-p.y)<50)hitEnemy(e2,(p.dmg||10)*0.5,'#f80');});}
+          // Ice: slow
+          if(p.wid==='icebolt')e.speed*=0.5;
+          // Poison: DOT
+          if(p.wid==='poison')e.poisonT=90;
+          if(p.wid!=='laser')return false; // laser pierces
+        }
+      }
+    }
+    // Boomerang return
+    if(p.type==='boomerang'){
+      if(p.phase==='out'){const dx=p.tx-p.x,dy=p.ty-p.y;const d=Math.hypot(dx,dy)||1;p.x+=dx/d*6;p.y+=dy/d*6;if(d<20)p.phase='back';}
+      else{const dx=player.x-p.x,dy=player.y-p.y;const d=Math.hypot(dx,dy)||1;p.x+=dx/d*6;p.y+=dy/d*6;if(d<20)return false;}
+      enemies.forEach(e=>{if(Math.hypot(e.x-p.x,e.y-p.y)<e.r+10)hitEnemy(e,p.dmg,'#0ff');});
+    }
+    return p.t<p.max;
+  });
   particles=particles.filter(p=>{p.t++;return p.t<30;});
   updateHUD();
 }
