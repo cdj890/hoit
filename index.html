@@ -203,13 +203,13 @@ function isInPeriod(dateStr, period){
 }
 
 const SCORE_UNITS={tetris:'점',snake:'점',flappy:'점',tower_defense:'웨이브',rhythm:'점',bullet_storm:'점',gomoku:'승',digging:'m',puzzle2048:'점',minesweeper:'승',pong:'승',runner:'m',memory:'점',shooting:'점',sliding:'점',hangman:'승',breakout:'점',colormatch:'점',typing:'점',cardgame:'승',tap_speed:'탭',whack:'점',catch:'점',stack:'층',bubble:'점',swipe_match:'점',reaction:'ms',dodge_ball:'초',number_tap:'점',color_switch:'점',fortress:'승',vampire:'킬',racing:'m',survival:'일',hackslash:'층',climbing:'m',rts:'라운드',blackjack:'칩',poker:'칩',solitaire:'점'};
-const GAME_NAMES={tetris:'블록쌓기',snake:'뱀키우기',flappy:'병아리',tower_defense:'성지키기',rhythm:'리듬스타',bullet_storm:'불렛스톰',gomoku:'오목',digging:'땅굴탐험',puzzle2048:'2048',minesweeper:'지뢰찾기',pong:'핑퐁',runner:'달려라',memory:'기억력',shooting:'사격장',sliding:'퍼즐',hangman:'단어맞추기',breakout:'벽돌깨기',colormatch:'색맞추기',typing:'타자게임',cardgame:'카드배틀',tap_speed:'탭스피드',whack:'두더지잡기',catch:'과일받기',stack:'블록쌓기',bubble:'버블팝',swipe_match:'스와이프',reaction:'반응속도',dodge_ball:'공피하기',number_tap:'숫자터치',color_switch:'컬러스위치',fortress:'포트리스',vampire:'뱀서',racing:'레이싱',survival:'생존',hackslash:'던전용사',climbing:'절벽올라가기',rts:'미니전략',blackjack:'블랙잭',poker:'포커',solitaire:'솔리테어'};
+const GAME_NAMES={tetris:'블록쌓기',snake:'뱀키우기',flappy:'병아리',tower_defense:'성지키기',rhythm:'리듬스타',bullet_storm:'불렛스톰',gomoku:'오목',digging:'땅굴탐험',puzzle2048:'2048',minesweeper:'지뢰찾기',pong:'핑퐁',runner:'달려라',memory:'기억력',shooting:'사격장',sliding:'퍼즐',hangman:'단어맞추기',breakout:'벽돌깨기',colormatch:'색맞추기',typing:'타자게임',cardgame:'카드배틀',tap_speed:'탭스피드',whack:'두더지잡기',catch:'과일받기',stack:'블록쌓기',bubble:'버블팝',swipe_match:'스와이프',reaction:'반응속도',dodge_ball:'공피하기',number_tap:'숫자터치',color_switch:'컬러스위치',fortress:'대포대전',vampire:'몬스터웨이브',racing:'레이싱',survival:'생존',hackslash:'던전용사',climbing:'절벽올라가기',rts:'미니전략',blackjack:'블랙잭',poker:'포커',solitaire:'솔리테어'};
 
 let currentTab='game', lbFilter='all';
 
 // Items
 const GAMES=[
-  {file:'games/tetris.html',title:'블록 쌓기',desc:'클래식 테트리스',emoji:'🧱',id:'tetris',bg:'linear-gradient(135deg,#FF9AA2,#FFDAC1)',mobile:'pc'},
+  {file:'games/tetris.html',title:'블록 쌓기',desc:'블록을 쌓고 줄을 완성',emoji:'🧱',id:'tetris',bg:'linear-gradient(135deg,#FF9AA2,#FFDAC1)',mobile:'pc'},
   {file:'games/snake.html',title:'뱀 키우기',desc:'귀여운 뱀 먹이 먹기',emoji:'🐍',id:'snake',bg:'linear-gradient(135deg,#7EC8A0,#B5EAD7)',mobile:'pc'},
   {file:'games/flappy.html',title:'날아라 병아리',desc:'장애물 피하기',emoji:'🐥',id:'flappy',bg:'linear-gradient(135deg,#87CEEB,#FFD700)',mobile:'ok'},
   {file:'games/tower_defense.html',title:'성 지키기',desc:'무한 타워 디펜스',emoji:'🏰',id:'tower_defense',bg:'linear-gradient(135deg,#66BB6A,#4CAF50)',mobile:'pc'},
@@ -241,8 +241,8 @@ const GAMES=[
   {file:'games/number_tap.html',title:'숫자 순서 터치',desc:'1부터 25까지 빠르게 터치',emoji:'🔢',id:'number_tap',bg:'linear-gradient(135deg,#FF7043,#FFAB91)',mobile:'ok'},
   {file:'games/color_switch.html',title:'컬러 스위치',desc:'같은 색 게이트를 통과해라',emoji:'🌈',id:'color_switch',bg:'linear-gradient(135deg,#EC407A,#F48FB1)',mobile:'ok'},
   // 신규 대형 게임
-  {file:'games/fortress.html',title:'포트리스',desc:'대포로 상대를 맞춰라!',emoji:'💣',id:'fortress',bg:'linear-gradient(135deg,#4E342E,#8D6E63)',mobile:'ok'},
-  {file:'games/vampire.html',title:'뱀파이어 서바이버',desc:'몰려오는 적을 처치하라!',emoji:'🧛',id:'vampire',bg:'linear-gradient(135deg,#4A148C,#7B1FA2)',mobile:'ok'},
+  {file:'games/fortress.html',title:'대포 대전',desc:'대포로 상대를 맞춰라!',emoji:'💣',id:'fortress',bg:'linear-gradient(135deg,#4E342E,#8D6E63)',mobile:'ok'},
+  {file:'games/vampire.html',title:'몬스터 웨이브',desc:'몰려오는 적을 처치하라!',emoji:'🧛',id:'vampire',bg:'linear-gradient(135deg,#4A148C,#7B1FA2)',mobile:'ok'},
   {file:'games/racing.html',title:'레이싱',desc:'끝없는 도로를 달려라',emoji:'🏎️',id:'racing',bg:'linear-gradient(135deg,#E53935,#EF5350)',mobile:'ok'},
   {file:'games/survival.html',title:'무인도 생존',desc:'자원을 모아 생존하라',emoji:'🏝️',id:'survival',bg:'linear-gradient(135deg,#2E7D32,#66BB6A)',mobile:'ok'},
   {file:'games/hackslash.html',title:'던전 용사',desc:'던전을 탐험하고 적을 쓰러뜨려라',emoji:'⚔️',id:'hackslash',bg:'linear-gradient(135deg,#BF360C,#FF7043)',mobile:'ok'},
