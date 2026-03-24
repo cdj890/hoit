@@ -15,6 +15,27 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 .result-desc{color:#bbb;line-height:1.7;margin-bottom:10px;font-size:.95em}
 .traits{background:#2a2a3e;border-radius:10px;padding:14px;margin:12px 0;text-align:left;font-size:.9em;line-height:1.8;color:#ddd}
 .hidden{display:none}
+@keyframes slideIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1)}}
+.q-slide{animation:slideIn .35s ease}
+.btn.selected{background:#e67e22!important;color:#fff!important;animation:pulse .3s ease}
+.btn.selected::after{content:' \2713';font-weight:bold}
+.result-card{background:linear-gradient(135deg,#1a1a2e,#2a2a3e);border:2px solid transparent;border-image:linear-gradient(135deg,#e74c3c,#e67e22) 1;border-radius:16px;padding:24px;margin-bottom:16px;box-shadow:0 8px 32px rgba(231,76,60,.15)}
+.quadrant{width:240px;height:240px;margin:16px auto;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:3px;position:relative}
+.quadrant .q{border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.8em;font-weight:bold;opacity:.4;transition:opacity .5s}
+.quadrant .q.active{opacity:1}
+.quadrant .q-D{background:#e74c3c}.quadrant .q-I{background:#f1c40f;color:#333}.quadrant .q-S{background:#2ecc71}.quadrant .q-C{background:#3498db}
+.quadrant .dot{position:absolute;width:14px;height:14px;background:#fff;border-radius:50%;border:2px solid #1a1a2e;transition:all 1s ease;z-index:2;box-shadow:0 0 10px rgba(255,255,255,.5)}
+.work-card{background:#2a2a3e;border-radius:10px;padding:14px;margin:10px 0;text-align:left;font-size:.88em;line-height:1.7;color:#ddd}
+.work-card .card-title{font-weight:bold;color:#e67e22;margin-bottom:4px}
+.famous-box{background:#2a2a3e;border-radius:10px;padding:14px;margin:10px 0;text-align:left;font-size:.88em;line-height:1.7;color:#ddd}
+.share-box{display:flex;gap:8px;margin-top:14px;justify-content:center}
+.share-btn{padding:10px 18px;border:none;border-radius:10px;font-size:.85em;cursor:pointer;font-weight:bold;transition:opacity .2s}
+.share-btn:hover{opacity:.8}
+.share-copy{background:#e67e22;color:#fff}
+.share-other{background:#2a2a3e;color:#e0e0e0}
+.prev-result{background:#2a2a3e;border-radius:10px;padding:12px;margin-bottom:16px;font-size:.85em;color:#aaa}
+.time-est{color:#888;font-size:.85em;margin-top:8px}
 </style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 </head><body>
 <a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
@@ -23,6 +44,8 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 <div style="font-size:3em;margin-bottom:10px">🎯</div>
 <h1>DISC 성격 유형 테스트</h1>
 <p class="sub">직장에서의 당신의 행동 유형은?</p>
+<p class="time-est">예상 소요시간: 약 2분</p>
+<div id="prevResult"></div>
 <button class="btn start-btn" onclick="startQuiz()">테스트 시작하기</button>
 </div>
 <div id="quiz" class="hidden">
@@ -31,10 +54,28 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 <div id="opts"></div>
 </div>
 <div id="result" class="hidden">
+<div class="result-card">
 <div class="emoji" id="rEmoji"></div>
 <div class="result-type" id="rType"></div>
+<div class="quadrant">
+<div class="q q-D" id="qD">D<br>주도형</div>
+<div class="q q-I" id="qI">I<br>사교형</div>
+<div class="q q-S" id="qS">S<br>안정형</div>
+<div class="q q-C" id="qC">C<br>신중형</div>
+<div class="dot" id="qDot"></div>
+</div>
 <div class="result-desc" id="rDesc"></div>
 <div class="traits" id="rTraits"></div>
+<div class="work-card" id="rWorkStyle"></div>
+<div class="work-card" id="rTeamRole"></div>
+<div class="work-card" id="rConflict"></div>
+<div class="famous-box" id="rFamous"></div>
+</div>
+<div class="share-box">
+<button class="share-btn share-copy" onclick="copyResult()">결과 복사</button>
+<button class="share-btn share-other" onclick="location.href='career.html'">직업 적성</button>
+<button class="share-btn share-other" onclick="location.href='eq.html'">EQ 테스트</button>
+</div>
 <button class="btn start-btn" onclick="location.reload()">다시 하기</button>
 </div>
 </div>
@@ -49,13 +90,24 @@ const questions=[
 {q:"점심 메뉴 정할 때?",a:[["내가 정한다","D"],["다같이 투표하자!","I"],["남들이 정하는 거 따라간다","S"],["리뷰 확인 후 결정","C"]]},
 {q:"이메일 작성 스타일은?",a:[["짧고 핵심만","D"],["친근하고 이모티콘도 사용","I"],["정중하고 부드럽게","S"],["상세하고 정확하게","C"]]}
 ];
-const types={D:{e:"🦁",n:"D - 주도형 (Dominance)",d:"목표 지향적이고 결단력이 있는 리더! 빠른 판단과 추진력으로 결과를 만들어냅니다.",t:"<strong>💪 강점:</strong> 결단력, 추진력, 리더십, 도전정신<br><strong>🏢 업무 스타일:</strong> 빠른 의사결정, 결과중심, 효율 추구<br><strong>⚠️ 주의점:</strong> 타인의 감정을 고려하면 더 좋은 리더가 될 수 있어요"},
-I:{e:"🌟",n:"I - 사교형 (Influence)",d:"밝은 에너지로 사람들을 이끄는 인플루언서! 소통과 설득력이 뛰어납니다.",t:"<strong>💪 강점:</strong> 소통능력, 열정, 창의성, 낙관적<br><strong>🏢 업무 스타일:</strong> 협업 선호, 아이디어 제안, 분위기 메이커<br><strong>⚠️ 주의점:</strong> 디테일과 마감 관리에 신경 쓰면 완벽해져요"},
-S:{e:"🕊️",n:"S - 안정형 (Steadiness)",d:"믿음직하고 따뜻한 팀의 기둥! 안정적이고 인내심이 강합니다.",t:"<strong>💪 강점:</strong> 인내심, 경청, 협조성, 신뢰감<br><strong>🏢 업무 스타일:</strong> 꾸준한 실행, 팀워크 중시, 안정적<br><strong>⚠️ 주의점:</strong> 자기 의견을 더 표현하면 성장이 빨라져요"},
-C:{e:"🔍",n:"C - 신중형 (Conscientiousness)",d:"정확하고 분석적인 완벽주의자! 품질과 정확성을 최우선으로 합니다.",t:"<strong>💪 강점:</strong> 분석력, 정확성, 체계성, 전문성<br><strong>🏢 업무 스타일:</strong> 데이터 기반, 완벽 추구, 체계적 관리<br><strong>⚠️ 주의점:</strong> 완벽하지 않아도 된다는 여유를 가져보세요"}};
+const types={D:{e:"🦁",n:"D - 주도형 (Dominance)",d:"목표 지향적이고 결단력이 있는 리더! 빠른 판단과 추진력으로 결과를 만들어냅니다.",t:"<strong>💪 강점:</strong> 결단력, 추진력, 리더십, 도전정신<br><strong>🏢 업무 스타일:</strong> 빠른 의사결정, 결과중심, 효율 추구<br><strong>⚠️ 주의점:</strong> 타인의 감정을 고려하면 더 좋은 리더가 될 수 있어요",work:"🏋️ 업무 스타일: 도전적인 목표를 세우고 빠르게 실행합니다. 불필요한 회의를 싫어하며, 결과로 말하는 타입입니다.",team:"팀 역할: 프로젝트 리더, 위기 상황의 의사결정자. 팀에 방향성과 추진력을 제공합니다.",conflict:"갈등 해결법: 직접적으로 문제를 짚되, 상대의 의견을 먼저 들어보세요. '왜'보다 '어떻게 해결할까'에 집중하면 효과적입니다.",famous:"유명인 예시: 스티브 잡스, 일론 머스크, 마거릿 대처, 나폴레옹"},
+I:{e:"🌟",n:"I - 사교형 (Influence)",d:"밝은 에너지로 사람들을 이끄는 인플루언서! 소통과 설득력이 뛰어납니다.",t:"<strong>💪 강점:</strong> 소통능력, 열정, 창의성, 낙관적<br><strong>🏢 업무 스타일:</strong> 협업 선호, 아이디어 제안, 분위기 메이커<br><strong>⚠️ 주의점:</strong> 디테일과 마감 관리에 신경 쓰면 완벽해져요",work:"🎤 업무 스타일: 브레인스토밍과 협업을 즐기며, 밝은 분위기로 팀 사기를 높입니다. 새로운 아이디어가 넘치는 타입입니다.",team:"팀 역할: 팀 분위기 메이커, 대외 커뮤니케이션 담당. 창의적 아이디어와 에너지를 팀에 불어넣습니다.",conflict:"갈등 해결법: 유머로 분위기를 풀되, 감정에 휩쓸리지 마세요. 구체적인 사실에 기반해서 이야기하면 설득력이 배가됩니다.",famous:"유명인 예시: 오프라 윈프리, 윌 스미스, 유재석, 로빈 윌리엄스"},
+S:{e:"🕊️",n:"S - 안정형 (Steadiness)",d:"믿음직하고 따뜻한 팀의 기둥! 안정적이고 인내심이 강합니다.",t:"<strong>💪 강점:</strong> 인내심, 경청, 협조성, 신뢰감<br><strong>🏢 업무 스타일:</strong> 꾸준한 실행, 팀워크 중시, 안정적<br><strong>⚠️ 주의점:</strong> 자기 의견을 더 표현하면 성장이 빨라져요",work:"🤲 업무 스타일: 꾸준하고 성실하게 업무를 수행합니다. 급격한 변화보다 안정적인 환경에서 최고의 성과를 냅니다.",team:"팀 역할: 팀의 중재자, 꾸준한 실행자. 갈등을 조율하고 팀원들의 이야기를 경청합니다.",conflict:"갈등 해결법: 의견이 있으면 참지 말고 부드럽게 표현하세요. '저는 이렇게 생각하는데요'로 시작하면 부담 없이 말할 수 있어요.",famous:"유명인 예시: 간디, 넬슨 만델라, 이순신, 마더 테레사"},
+C:{e:"🔍",n:"C - 신중형 (Conscientiousness)",d:"정확하고 분석적인 완벽주의자! 품질과 정확성을 최우선으로 합니다.",t:"<strong>💪 강점:</strong> 분석력, 정확성, 체계성, 전문성<br><strong>🏢 업무 스타일:</strong> 데이터 기반, 완벽 추구, 체계적 관리<br><strong>⚠️ 주의점:</strong> 완벽하지 않아도 된다는 여유를 가져보세요",work:"📐 업무 스타일: 철저한 분석과 계획 후에 실행합니다. 데이터와 근거를 중시하며, 높은 품질 기준을 유지합니다.",team:"팀 역할: 품질 관리자, 데이터 분석 담당. 팀의 결정에 객관적 근거를 제공합니다.",conflict:"갈등 해결법: 감정보다 사실에 집중하되, 상대의 감정도 인정해주세요. '당신 말도 일리가 있지만, 데이터를 보면...'이 효과적입니다.",famous:"유명인 예시: 빌 게이츠, 아인슈타인, 셜록 홈즈, 마리 퀴리"}};
 let cur=0,scores={};
 function startQuiz(){_shuf(questions);document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();}
-function showQ(){if(!window._qs){_shuf(questions);window._qs=1;}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=()=>pick(a[1]);o.appendChild(b);});}
+function showQ(){if(!window._qs){_shuf(questions);window._qs=1;}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';const qEl=document.getElementById('qText');qEl.textContent=(cur+1)+'. '+q.q;qEl.classList.remove('q-slide');void qEl.offsetWidth;qEl.classList.add('q-slide');const o=document.getElementById('opts');o.innerHTML='';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=function(){if(window._picking)return;window._picking=true;b.classList.add('selected');setTimeout(()=>{window._picking=false;pick(a[1]);},400);};o.appendChild(b);});}
 function pick(t){scores[t]=(scores[t]||0)+1;cur++;if(cur<questions.length)showQ();else showResult();}
-function showResult(){const top=Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];const r=types[top];document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');document.getElementById('rEmoji').textContent=r.e;document.getElementById('rType').textContent=r.n;document.getElementById('rDesc').textContent=r.d;document.getElementById('rTraits').innerHTML=r.t;}
+function showResult(){const top=Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];const r=types[top];document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');document.getElementById('rEmoji').textContent=r.e;document.getElementById('rType').textContent=r.n;document.getElementById('rDesc').textContent=r.d;document.getElementById('rTraits').innerHTML=r.t;
+document.getElementById('q'+top).classList.add('active');
+const total=(scores.D||0)+(scores.I||0)+(scores.S||0)+(scores.C||0)||1;const dPct=(scores.D||0)/total,iPct=(scores.I||0)/total,sPct=(scores.S||0)/total,cPct=(scores.C||0)/total;
+const dot=document.getElementById('qDot');const xPct=50+(iPct-sPct)*100+(dPct-cPct)*30;const yPct=50+(sPct-dPct)*100+(cPct-iPct)*30;
+setTimeout(()=>{dot.style.left=Math.max(5,Math.min(92,xPct))+'%';dot.style.top=Math.max(5,Math.min(92,yPct))+'%';},200);
+document.getElementById('rWorkStyle').innerHTML='<div class="card-title">업무 스타일</div>'+r.work;
+document.getElementById('rTeamRole').innerHTML='<div class="card-title">팀 역할 추천</div>'+r.team;
+document.getElementById('rConflict').innerHTML='<div class="card-title">갈등 해결 팁</div>'+r.conflict;
+document.getElementById('rFamous').innerHTML='<strong>같은 유형 유명인:</strong><br>'+r.famous;
+localStorage.setItem('disc_result',JSON.stringify({type:r.n,emoji:r.e,date:new Date().toLocaleDateString('ko-KR')}));}
+function copyResult(){const t=document.getElementById('rType').textContent+'\n'+document.getElementById('rDesc').textContent;navigator.clipboard.writeText('[DISC 성격 테스트 결과]\n'+t).then(()=>{const b=document.querySelector('.share-copy');b.textContent='복사 완료!';setTimeout(()=>b.textContent='결과 복사',1500);});}
+(function(){const p=localStorage.getItem('disc_result');if(p){try{const d=JSON.parse(p);document.getElementById('prevResult').innerHTML='<div class="prev-result">이전 결과: '+d.emoji+' '+d.type+' ('+d.date+')</div>';}catch(e){}}})();
 </script></body></html>

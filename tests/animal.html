@@ -16,6 +16,43 @@ h1{font-size:1.6em;margin-bottom:8px}
 .result-type{font-size:1.4em;font-weight:bold;color:#a29bfe;margin-bottom:12px}
 .result-desc{color:#bbb;line-height:1.7;margin-bottom:20px;font-size:.95em}
 .hidden{display:none}
+.btn.selected{border-color:#a29bfe;background:#3a3a6e;position:relative}
+.btn.selected::after{content:'✓';position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#a29bfe;font-weight:bold}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(162,155,254,0.5)}70%{box-shadow:0 0 0 12px rgba(162,155,254,0)}100%{box-shadow:0 0 0 0 rgba(162,155,254,0)}}
+.btn.selected{animation:pulse .5s ease-out}
+@keyframes fadeOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(-30px)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+#quiz.fade-out .question,#quiz.fade-out #opts{animation:fadeOut .25s ease-in forwards}
+#quiz.slide-in .question,#quiz.slide-in #opts{animation:slideIn .3s ease-out forwards}
+.result-card{background:#1a1a2e;border-radius:20px;padding:30px;position:relative;box-shadow:0 8px 32px rgba(108,92,231,0.2);border:2px solid transparent;background-clip:padding-box}
+.result-card::before{content:'';position:absolute;inset:-2px;border-radius:22px;background:linear-gradient(135deg,#6c5ce7,#a29bfe,#fd79a8,#6c5ce7);z-index:-1}
+.big-emoji{font-size:80px;text-align:center;margin:15px 0}
+.stat-bar{margin:6px 0;display:flex;align-items:center;gap:8px;font-size:12px}
+.stat-bar .sl{width:50px;text-align:right;color:#aaa}
+.stat-bar .sb{flex:1;height:8px;background:#252545;border-radius:4px;overflow:hidden}
+.stat-bar .sf{height:100%;border-radius:4px;transition:width 1s}
+.compat-box{background:#252545;border-radius:10px;padding:13px;margin:12px 0}
+.compat-box h3{font-size:14px;margin-bottom:8px}
+.compat-tags{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.compat-tags span{padding:5px 12px;border-radius:8px;font-size:12px}
+.compat-tags .good{background:rgba(76,175,80,0.15);border:1px solid #4CAF50;color:#4CAF50}
+.compat-tags .warn{background:rgba(255,107,107,0.15);border:1px solid #FF6B6B;color:#FF6B6B}
+.collection{background:#252545;border-radius:10px;padding:13px;margin:12px 0;text-align:center}
+.collection h3{font-size:14px;color:#a29bfe;margin-bottom:10px}
+.collection .animals{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.collection .animals span{font-size:24px;padding:4px;border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center}
+.collection .animals span.found{background:#2a2a4a}
+.collection .animals span.locked{background:#1a1a2e;filter:grayscale(1);opacity:0.3}
+.share-row{display:flex;gap:8px;justify-content:center;margin-top:15px;flex-wrap:wrap}
+.share-btn2{background:#2a2a4a;border:1px solid #555;color:#ccc;padding:10px 20px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:bold;transition:all .2s}
+.share-btn2:hover{border-color:#a29bfe;color:#fff}
+.recommend-section{margin-top:25px;padding-top:20px;border-top:1px solid #2a2a4a}
+.recommend-section h3{color:#888;font-size:14px;margin-bottom:12px;text-align:center}
+.recommend-links{display:flex;flex-direction:column;gap:8px}
+.recommend-links a{background:#252545;border:1px solid #333;border-radius:10px;padding:12px;color:#ccc;text-decoration:none;font-size:13px;text-align:center;transition:all .2s}
+.recommend-links a:hover{border-color:#a29bfe;color:#fff}
+.prev-result{background:#252545;border-radius:8px;padding:8px 14px;font-size:12px;color:#888;margin-bottom:15px;display:inline-block}
+.time-est{color:#666;font-size:13px;margin-bottom:15px}
 </style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 </head><body>
 <a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
@@ -24,6 +61,8 @@ h1{font-size:1.6em;margin-bottom:8px}
 <div style="font-size:3em;margin-bottom:10px">🐾</div>
 <h1>나의 동물 성격 테스트</h1>
 <p class="sub">나와 닮은 동물은 무엇일까요?</p>
+<p class="time-est">예상 소요시간: 2분</p>
+<div id="prevResult"></div>
 <button class="btn start-btn" onclick="startQuiz()">테스트 시작하기</button>
 </div>
 <div id="quiz" class="hidden">
@@ -49,10 +88,62 @@ const questions=[
 {q:"화가 나면?",a:[["혼자 삭힌다","cat"],["바로 표현한다","dog"],["잊으려 노력한다","rabbit"],["분석하고 정리한다","owl"]]},
 {q:"이상적인 주거 환경은?",a:[["아늑한 원룸","cat"],["사람 많은 도심","dog"],["숲 근처 단독주택","bear"],["바다 근처","dolphin"]]}
 ];
-const animals={cat:{e:"🐱",n:"고양이",d:"독립적이고 자유로운 영혼! 혼자만의 시간을 소중히 여기며, 관찰력이 뛰어납니다. 겉으론 쿨하지만 속은 따뜻해요."},dog:{e:"🐶",n:"강아지",d:"충성스럽고 사교적! 주변 사람들에게 에너지를 주는 존재입니다. 함께할 때 가장 행복해요."},bear:{e:"🐻",n:"곰",d:"여유롭고 포근한 성격! 느긋하지만 한번 마음먹으면 강한 추진력을 보여줍니다."},fox:{e:"🦊",n:"여우",d:"영리하고 적응력이 뛰어나요! 호기심이 많고 새로운 것에 두려움이 없습니다."},eagle:{e:"🦅",n:"독수리",d:"리더십과 결단력의 소유자! 높은 곳에서 전체를 보는 시야를 가졌습니다."},dolphin:{e:"🐬",n:"돌고래",d:"유쾌하고 소통 능력이 뛰어나요! 주변을 밝게 만드는 긍정 에너지의 소유자입니다."},owl:{e:"🦉",n:"부엉이",d:"지적이고 신중한 타입! 깊이 있는 사고력과 분석력으로 현명한 판단을 내립니다."},rabbit:{e:"🐰",n:"토끼",d:"순수하고 감성적이에요! 섬세한 감각으로 아름다움을 잘 포착하며 사랑스러운 매력이 넘칩니다."}};
+const animals={
+  cat:{e:"🐱",n:"고양이",d:"독립적이고 자유로운 영혼! 혼자만의 시간을 소중히 여기며, 관찰력이 뛰어납니다. 겉으론 쿨하지만 속은 따뜻해요.",stats:{활발함:40,사교성:30,독립성:95,감성:70,지능:85},good:["부엉이","여우"],warn:["강아지","돌고래"]},
+  dog:{e:"🐶",n:"강아지",d:"충성스럽고 사교적! 주변 사람들에게 에너지를 주는 존재입니다. 함께할 때 가장 행복해요.",stats:{활발함:90,사교성:95,독립성:20,감성:80,지능:65},good:["곰","돌고래"],warn:["고양이","독수리"]},
+  bear:{e:"🐻",n:"곰",d:"여유롭고 포근한 성격! 느긋하지만 한번 마음먹으면 강한 추진력을 보여줍니다.",stats:{활발함:50,사교성:55,독립성:75,감성:65,지능:60},good:["강아지","토끼"],warn:["독수리","여우"]},
+  fox:{e:"🦊",n:"여우",d:"영리하고 적응력이 뛰어나요! 호기심이 많고 새로운 것에 두려움이 없습니다.",stats:{활발함:80,사교성:65,독립성:85,감성:50,지능:95},good:["고양이","부엉이"],warn:["곰","토끼"]},
+  eagle:{e:"🦅",n:"독수리",d:"리더십과 결단력의 소유자! 높은 곳에서 전체를 보는 시야를 가졌습니다.",stats:{활발함:75,사교성:40,독립성:90,감성:35,지능:90},good:["부엉이","여우"],warn:["강아지","토끼"]},
+  dolphin:{e:"🐬",n:"돌고래",d:"유쾌하고 소통 능력이 뛰어나요! 주변을 밝게 만드는 긍정 에너지의 소유자입니다.",stats:{활발함:85,사교성:90,독립성:45,감성:80,지능:80},good:["강아지","토끼"],warn:["고양이","독수리"]},
+  owl:{e:"🦉",n:"부엉이",d:"지적이고 신중한 타입! 깊이 있는 사고력과 분석력으로 현명한 판단을 내립니다.",stats:{활발함:35,사교성:35,독립성:80,감성:55,지능:95},good:["고양이","독수리"],warn:["강아지","돌고래"]},
+  rabbit:{e:"🐰",n:"토끼",d:"순수하고 감성적이에요! 섬세한 감각으로 아름다움을 잘 포착하며 사랑스러운 매력이 넘칩니다.",stats:{활발함:60,사교성:70,독립성:40,감성:95,지능:55},good:["곰","돌고래"],warn:["독수리","여우"]}
+};
+const ALL_TESTS=[{name:'MBTI 테스트 🧠',url:'mbti.html'},{name:'혈액형 성격 분석 🩸',url:'blood.html'},{name:'연애 유형 테스트 💕',url:'love.html'},{name:'스트레스 지수 테스트 😰',url:'stress.html'}];
+function getCollection(){try{return JSON.parse(localStorage.getItem('animal_collection')||'[]');}catch(e){return[];}}
+function addToCollection(key){const c=getCollection();if(!c.includes(key)){c.push(key);localStorage.setItem('animal_collection',JSON.stringify(c));}return c;}
 let cur=0,scores={};
-function startQuiz(){_shuf(questions);document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();}
-function showQ(){if(!window._qs){_shuf(questions);window._qs=1;}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=()=>pick(a[1]);o.appendChild(b);});}
-function pick(t){scores[t]=(scores[t]||0)+1;cur++;if(cur<questions.length)showQ();else showResult();}
-function showResult(){const top=Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];const r=animals[top];document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');document.getElementById('rEmoji').textContent=r.e;document.getElementById('rType').textContent='당신은 '+r.n+' 타입!';document.getElementById('rDesc').textContent=r.d;}
+function startQuiz(){
+  _shuf(questions);document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();
+  const prev=localStorage.getItem('animal_result');
+  if(prev){const pi=document.getElementById('prevResult');if(pi)pi.innerHTML=`<div class="prev-result">이전 결과: ${prev}</div>`;}
+}
+function showQ(){if(!window._qs){_shuf(questions);window._qs=1;}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=function(){pick(a[1],this);};o.appendChild(b);});}
+function pick(t,el){
+  if(window._answering)return;
+  window._answering=true;
+  scores[t]=(scores[t]||0)+1;
+  if(el)el.classList.add('selected');
+  setTimeout(()=>{cur++;window._answering=false;if(cur<questions.length)showQ();else showResult();},400);
+}
+function showResult(){
+  const top=Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];
+  const r=animals[top];
+  localStorage.setItem('animal_result',r.n);
+  const col=addToCollection(top);
+  const allKeys=Object.keys(animals);
+  const recs=ALL_TESTS.sort(()=>Math.random()-0.5).slice(0,3);
+  document.getElementById('quiz').classList.add('hidden');
+  document.getElementById('result').classList.remove('hidden');
+  document.getElementById('result').innerHTML=`
+    <div class="result-card">
+      <div class="big-emoji">${r.e}</div>
+      <div class="result-type">당신은 ${r.n} 타입!</div>
+      <div class="result-desc">${r.d}</div>
+      <div class="compat-box"><h3 style="color:#a29bfe">📊 능력치</h3>
+        ${Object.entries(r.stats).map(([k,v])=>`<div class="stat-bar"><div class="sl">${k}</div><div class="sb"><div class="sf" style="width:${v}%;background:linear-gradient(90deg,#6c5ce7,#a29bfe)"></div></div><div style="color:#a29bfe;font-size:12px;width:30px">${v}</div></div>`).join('')}
+      </div>
+      <div class="compat-box"><h3 style="color:#4CAF50">🤝 동물 궁합</h3>
+        <div class="compat-tags">${r.good.map(g=>`<span class="good">💚 ${g}</span>`).join('')}${r.warn.map(w=>`<span class="warn">💔 ${w}</span>`).join('')}</div>
+      </div>
+      <div class="collection"><h3>🏆 동물 컬렉션 (${col.length}/${allKeys.length}종 발견!)</h3>
+        <div class="animals">${allKeys.map(k=>`<span class="${col.includes(k)?'found':'locked'}">${animals[k].e}</span>`).join('')}</div>
+      </div>
+      <div class="share-row">
+        <div class="share-btn2" onclick="navigator.clipboard.writeText('나의 동물 성격: ${r.n} ${r.e}\\n${r.d}').then(()=>this.textContent='복사 완료!')">📋 결과 복사</div>
+        <div class="share-btn2" onclick="navigator.clipboard.writeText(location.href).then(()=>this.textContent='링크 복사됨!')">🔗 링크 공유</div>
+      </div>
+      <button class="btn start-btn" onclick="location.reload()">다시 하기</button>
+      <div class="recommend-section"><h3>🎯 다른 테스트 추천</h3><div class="recommend-links">${recs.map(r=>`<a href="${r.url}">${r.name}</a>`).join('')}</div></div>
+    </div>`;
+}
 </script></body></html>

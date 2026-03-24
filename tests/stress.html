@@ -1,53 +1,130 @@
 <!DOCTYPE html>
 <html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>스트레스 지수 테스트</title>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center}.wrap{max-width:500px;width:100%;padding:20px;text-align:center}h1{font-size:28px;margin-bottom:8px}.sub{color:#888;margin-bottom:20px}.q-card{background:#1a1a2e;border-radius:16px;padding:22px;border:1px solid #2a2a4a;margin-bottom:12px}.q-text{font-size:16px;margin-bottom:16px}.opts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}.opt{background:#252545;border:2px solid #333;border-radius:10px;padding:10px 18px;cursor:pointer;font-size:13px;transition:all .2s;min-width:60px}.opt:hover{border-color:#7B68EE;transform:scale(1.05)}.progress{background:#1a1a2e;border-radius:10px;height:8px;margin-bottom:15px;overflow:hidden}.progress-fill{background:linear-gradient(90deg,#4CAF50,#FF9800,#F44336);height:100%;border-radius:10px;transition:width .3s}.result{background:#1a1a2e;border-radius:16px;padding:28px;border:1px solid #2a2a4a}.meter{width:100%;height:24px;background:#252545;border-radius:12px;margin:15px 0;overflow:hidden}.meter-fill{height:100%;border-radius:12px;transition:width 1s}.btn{background:#7B68EE;border:none;color:#fff;padding:12px 30px;border-radius:10px;font-size:15px;cursor:pointer;margin-top:18px;font-weight:bold;width:100%}a.back{position:fixed;top:8px;left:8px;z-index:99;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent}a.back:hover{background:rgba(0,0,0,0.85)}</style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center}.wrap{max-width:500px;width:100%;padding:20px;text-align:center}h1{font-size:28px;margin-bottom:8px}.sub{color:#888;margin-bottom:20px}.q-card{background:#1a1a2e;border-radius:16px;padding:22px;border:1px solid #2a2a4a;margin-bottom:12px}.q-text{font-size:16px;margin-bottom:16px}.opts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}.opt{background:#252545;border:2px solid #333;border-radius:10px;padding:10px 18px;cursor:pointer;font-size:13px;transition:all .2s;min-width:60px}.opt:hover{border-color:#7B68EE;transform:scale(1.05)}
+.opt.selected{border-color:#7B68EE;background:#3a3a6e;position:relative}
+.opt.selected::after{content:'✓';position:absolute;right:10px;top:50%;transform:translateY(-50%);color:#7B68EE;font-weight:bold;font-size:14px}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(123,104,238,0.5)}70%{box-shadow:0 0 0 10px rgba(123,104,238,0)}100%{box-shadow:0 0 0 0 rgba(123,104,238,0)}}
+.opt.selected{animation:pulse .4s ease-out}
+@keyframes fadeOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(-30px)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+.q-card.fade-out{animation:fadeOut .25s ease-in forwards}
+.q-card.slide-in{animation:slideIn .3s ease-out forwards}
+.result-card{background:#1a1a2e;border-radius:20px;padding:28px;position:relative;box-shadow:0 8px 32px rgba(123,104,238,0.15);border:2px solid transparent;background-clip:padding-box}
+.result-card::before{content:'';position:absolute;inset:-2px;border-radius:22px;background:linear-gradient(135deg,#4CAF50,#FF9800,#F44336,#7B68EE);z-index:-1}
+.big-emoji{font-size:64px;text-align:center;margin:10px 0}
+.gauge{position:relative;width:200px;height:110px;margin:15px auto;overflow:hidden}
+.gauge-bg{width:200px;height:200px;border-radius:50%;border:18px solid #252545;border-bottom-color:transparent;border-left-color:transparent;transform:rotate(225deg);position:absolute;top:0;clip-path:inset(0 0 50% 0)}
+.gauge-fill{width:200px;height:200px;border-radius:50%;border:18px solid;border-bottom-color:transparent;border-left-color:transparent;position:absolute;top:0;transition:transform 1.5s cubic-bezier(0.4,0,0.2,1);clip-path:inset(0 0 50% 0)}
+.gauge-label{position:absolute;bottom:0;left:50%;transform:translateX(-50%);font-size:32px;font-weight:bold}
+.cat-bar{margin:6px 0;display:flex;align-items:center;gap:8px;font-size:12px}
+.cat-bar .cl{width:40px;text-align:right;color:#aaa}
+.cat-bar .cb{flex:1;height:8px;background:#252545;border-radius:4px;overflow:hidden}
+.cat-bar .cf{height:100%;border-radius:4px;transition:width 1s}
+.rec-box{background:#252545;border-radius:10px;padding:15px;margin:12px 0}
+.rec-box h3{font-size:14px;margin-bottom:8px}
+.rec-box p{color:#ccc;font-size:13px;line-height:1.6;margin:4px 0}
+.crisis-link{display:block;background:#F44336;color:#fff;text-align:center;padding:12px;border-radius:10px;margin:15px 0;text-decoration:none;font-weight:bold;font-size:14px}
+.share-row{display:flex;gap:8px;justify-content:center;margin-top:15px;flex-wrap:wrap}
+.share-btn2{background:#2a2a4a;border:1px solid #555;color:#ccc;padding:10px 20px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:bold;transition:all .2s}
+.share-btn2:hover{border-color:#7B68EE;color:#fff}
+.recommend-section{margin-top:25px;padding-top:20px;border-top:1px solid #2a2a4a}
+.recommend-section h3{color:#888;font-size:14px;margin-bottom:12px;text-align:center}
+.recommend-links{display:flex;flex-direction:column;gap:8px}
+.recommend-links a{background:#252545;border:1px solid #333;border-radius:10px;padding:12px;color:#ccc;text-decoration:none;font-size:13px;text-align:center;transition:all .2s}
+.recommend-links a:hover{border-color:#7B68EE;color:#fff}
+.prev-result{background:#252545;border-radius:8px;padding:8px 14px;font-size:12px;color:#888;margin-bottom:15px;display:inline-block}
+.time-est{color:#666;font-size:13px;margin-bottom:15px}
+.progress{background:#1a1a2e;border-radius:10px;height:8px;margin-bottom:15px;overflow:hidden}.progress-fill{background:linear-gradient(90deg,#4CAF50,#FF9800,#F44336);height:100%;border-radius:10px;transition:width .3s}.result{background:#1a1a2e;border-radius:16px;padding:28px;border:1px solid #2a2a4a}.meter{width:100%;height:24px;background:#252545;border-radius:12px;margin:15px 0;overflow:hidden}.meter-fill{height:100%;border-radius:12px;transition:width 1s}.btn{background:#7B68EE;border:none;color:#fff;padding:12px 30px;border-radius:10px;font-size:15px;cursor:pointer;margin-top:18px;font-weight:bold;width:100%}a.back{position:fixed;top:8px;left:8px;z-index:99;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent}a.back:hover{background:rgba(0,0,0,0.85)}</style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 </head><body>
 <a class="back" href="../index.html">← 뒤로</a>
 <div class="wrap" id="app"></div>
 <script>function _shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
 const Q=_shuf([
-  "최근 잠을 잘 못 자고 있다","사소한 일에 짜증이 난다","집중이 잘 안 된다","머리가 자주 아프거나 몸이 뻐근하다",
-  "식욕이 줄었거나 폭식하게 된다","미래에 대한 불안감이 있다","혼자 있고 싶을 때가 많다","일이나 공부에 의욕이 없다",
-  "SNS나 핸드폰을 과도하게 본다","운동이나 취미를 할 에너지가 없다","눈물이 나거나 감정 기복이 크다","자기 전에 생각이 많아진다",
+  {t:"최근 잠을 잘 못 자고 있다",c:"신체"},{t:"사소한 일에 짜증이 난다",c:"정서"},{t:"집중이 잘 안 된다",c:"인지"},{t:"머리가 자주 아프거나 몸이 뻐근하다",c:"신체"},
+  {t:"식욕이 줄었거나 폭식하게 된다",c:"신체"},{t:"미래에 대한 불안감이 있다",c:"인지"},{t:"혼자 있고 싶을 때가 많다",c:"사회"},{t:"일이나 공부에 의욕이 없다",c:"정서"},
+  {t:"SNS나 핸드폰을 과도하게 본다",c:"사회"},{t:"운동이나 취미를 할 에너지가 없다",c:"신체"},{t:"눈물이 나거나 감정 기복이 크다",c:"정서"},{t:"자기 전에 생각이 많아진다",c:"인지"},
 ]);
 
 const OPTS=[{t:'전혀 아님',s:0},{t:'가끔',s:1},{t:'자주',s:2},{t:'항상',s:3}];
 let cur=0,total=0;
+const catScores={신체:0,정서:0,사회:0,인지:0};
+const catCounts={신체:0,정서:0,사회:0,인지:0};
+Q.forEach(q=>{catCounts[q.c]=(catCounts[q.c]||0)+1;});
+const ALL_TESTS=[{name:'MBTI 테스트 🧠',url:'mbti.html'},{name:'혈액형 성격 분석 🩸',url:'blood.html'},{name:'연애 유형 테스트 💕',url:'love.html'},{name:'동물 성격 테스트 🐾',url:'animal.html'}];
 
 function render(){
   const app=document.getElementById('app');
+  if(cur===0 && !window._started){
+    const prev=localStorage.getItem('stress_result');
+    app.innerHTML=`<h1>😰 스트레스 지수 테스트</h1><p class="sub">최근 2주간을 기준으로 답해주세요</p>
+      <p class="time-est">예상 소요시간: 2분</p>
+      ${prev?`<div class="prev-result">이전 결과: ${prev}</div>`:''}
+      <button class="btn" onclick="window._started=true;render()">시작하기</button>`;
+    return;
+  }
   if(cur<Q.length){
     const pct=(cur/Q.length*100)|0;
     app.innerHTML=`<h1>😰 스트레스 지수 테스트</h1><p class="sub">최근 2주간을 기준으로 답해주세요</p>
       <div class="progress"><div class="progress-fill" style="width:${pct}%"></div></div>
-      <div class="q-card"><div style="color:#888;font-size:13px;margin-bottom:8px">${cur+1}/${Q.length}</div>
-      <div class="q-text">${Q[cur]}</div>
-      <div class="opts">${OPTS.map(o=>`<div class="opt" onclick="pick(${o.s})">${o.t}</div>`).join('')}</div></div>`;
+      <div class="q-card slide-in"><div style="color:#888;font-size:13px;margin-bottom:8px">${cur+1}/${Q.length}</div>
+      <div class="q-text">${Q[cur].t}</div>
+      <div class="opts">${OPTS.map(o=>`<div class="opt" onclick="pick(${o.s},this)">${o.t}</div>`).join('')}</div></div>`;
   } else showResult();
 }
 
-function pick(s){total+=s;cur++;render();}
+function pick(s,el){
+  if(window._answering)return;
+  window._answering=true;
+  total+=s;
+  catScores[Q[cur].c]=(catScores[Q[cur].c]||0)+s;
+  if(el){el.classList.add('selected');}
+  const card=document.querySelector('.q-card');
+  if(card)card.classList.add('fade-out');
+  setTimeout(()=>{cur++;window._answering=false;render();},400);
+}
 
 function showResult(){
   const max=Q.length*3,pct=(total/max*100)|0;
-  let level,emoji,color,desc,tips;
-  if(pct<=25){level='낮음';emoji='😊';color='#4CAF50';desc='스트레스가 거의 없는 안정적인 상태예요! 현재 생활 패턴을 잘 유지하고 계시네요.';tips=['현재 루틴을 꾸준히 유지하세요','주변 사람들에게도 긍정 에너지를 나눠주세요','가끔 자기 자신에게 작은 선물을 해보세요'];}
-  else if(pct<=50){level='보통';emoji='😐';color='#FF9800';desc='약간의 스트레스가 있지만 관리 가능한 수준이에요. 가벼운 스트레스 해소 활동을 추천해요.';tips=['규칙적인 운동 (하루 30분 걷기만으로도 OK!)','취미 생활에 시간을 투자하세요','충분한 수면을 확보하세요 (7-8시간)'];}
-  else if(pct<=75){level='높음';emoji='😟';color='#FF5722';desc='스트레스 수준이 높아요. 적극적인 관리가 필요한 시점입니다. 혼자 감당하지 말고 주변에 도움을 요청해보세요.';tips=['매일 10분 명상이나 깊은 호흡 연습','신뢰할 수 있는 사람에게 고민 나누기','카페인과 알코올 줄이기','자연 속에서 시간 보내기'];}
-  else{level='매우 높음';emoji='😢';color='#F44336';desc='스트레스가 매우 높은 상태예요. 전문가 상담을 고려해보시는 것을 추천합니다. 당신의 마음 건강이 가장 중요해요.';tips=['전문 상담사와 상담 받아보기','무리한 일정 줄이기','충분한 휴식과 자기 돌봄','정신건강 위기상담전화: 1577-0199'];}
-
-  document.getElementById('app').innerHTML=`<div class="result">
-    <div style="font-size:50px">${emoji}</div>
-    <h2 style="margin:10px 0">스트레스 지수</h2>
-    <div style="font-size:42px;font-weight:bold;color:${color}">${pct}%</div>
-    <div style="color:${color};font-size:18px;margin:5px 0">${level}</div>
+  let level,emoji,color,desc,tips,recs=[];
+  if(pct<=25){level='낮음';emoji='😊';color='#4CAF50';desc='스트레스가 거의 없는 안정적인 상태예요! 현재 생활 패턴을 잘 유지하고 계시네요.';tips=['현재 루틴을 꾸준히 유지하세요','주변 사람들에게도 긍정 에너지를 나눠주세요','가끔 자기 자신에게 작은 선물을 해보세요'];recs=['🧘 가벼운 스트레칭으로 하루 시작하기','📚 자기계발 독서 추천','🎵 기분 좋은 플레이리스트 만들기'];}
+  else if(pct<=50){level='보통';emoji='😐';color='#FF9800';desc='약간의 스트레스가 있지만 관리 가능한 수준이에요. 가벼운 스트레스 해소 활동을 추천해요.';tips=['규칙적인 운동 (하루 30분 걷기만으로도 OK!)','취미 생활에 시간을 투자하세요','충분한 수면을 확보하세요 (7-8시간)'];recs=['🏃 하루 30분 조깅 또는 걷기','🧘 명상 앱: 마보, Calm, Headspace','😴 수면 위생 개선: 취침 1시간 전 핸드폰 끄기'];}
+  else if(pct<=75){level='높음';emoji='😟';color='#FF5722';desc='스트레스 수준이 높아요. 적극적인 관리가 필요한 시점입니다. 혼자 감당하지 말고 주변에 도움을 요청해보세요.';tips=['매일 10분 명상이나 깊은 호흡 연습','신뢰할 수 있는 사람에게 고민 나누기','카페인과 알코올 줄이기','자연 속에서 시간 보내기'];recs=['🧘 명상 앱: 마보(하루 10분부터)','🏊 수영, 요가 등 이완 운동 추천','🌿 주말 자연 산책 (숲, 공원)','📝 감정 일기 쓰기'];}
+  else{level='매우 높음';emoji='😢';color='#F44336';desc='스트레스가 매우 높은 상태예요. 전문가 상담을 고려해보시는 것을 추천합니다. 당신의 마음 건강이 가장 중요해요.';tips=['전문 상담사와 상담 받아보기','무리한 일정 줄이기','충분한 휴식과 자기 돌봄','정신건강 위기상담전화: 1577-0199'];recs=['☎️ 정신건강 위기상담전화: 1577-0199','🏥 가까운 정신건강복지센터 방문','🧘 4-7-8 호흡법 (하루 3회)','😴 수면 스케줄 고정하기','📱 SNS 사용 시간 제한 설정'];}
+  localStorage.setItem('stress_result',pct+'% ('+level+')');
+  const catColors={신체:'#FF6B6B',정서:'#FFD700',사회:'#4FC3F7',인지:'#7B68EE'};
+  const gaugeAngle=pct/100*180;
+  const testRecs=ALL_TESTS.sort(()=>Math.random()-0.5).slice(0,3);
+  document.getElementById('app').innerHTML=`<div class="result-card">
+    <div class="big-emoji">${emoji}</div>
+    <h2 style="margin:10px 0;text-align:center">스트레스 지수</h2>
+    <div class="gauge">
+      <div class="gauge-bg"></div>
+      <div class="gauge-fill" style="border-color:${color};transform:rotate(${225+gaugeAngle}deg)"></div>
+      <div class="gauge-label" style="color:${color}">${pct}%</div>
+    </div>
+    <div style="color:${color};font-size:18px;margin:5px 0;text-align:center;font-weight:bold">${level}</div>
     <div class="meter"><div class="meter-fill" style="width:${pct}%;background:${color}"></div></div>
     <p style="color:#aaa;font-size:14px;line-height:1.7;margin:15px 0;text-align:left">${desc}</p>
-    <div style="background:#252545;border-radius:10px;padding:15px;text-align:left;margin-top:12px">
-      <h3 style="color:#FFD700;font-size:14px;margin-bottom:10px">💡 추천 관리법</h3>
-      ${tips.map(t=>`<p style="color:#ccc;font-size:13px;margin:6px 0">• ${t}</p>`).join('')}
+    <div class="rec-box">
+      <h3 style="color:#FFD700">📊 영역별 분석</h3>
+      ${Object.entries(catScores).map(([k,v])=>{const catMax=catCounts[k]*3;const cp=catMax?Math.round(v/catMax*100):0;return `<div class="cat-bar"><div class="cl">${k}</div><div class="cb"><div class="cf" style="width:${cp}%;background:${catColors[k]}"></div></div><div style="color:${catColors[k]};font-size:12px;width:30px">${cp}%</div></div>`;}).join('')}
     </div>
-    <button class="btn" onclick="cur=0;total=0;render()">다시 하기</button></div>`;
+    <div class="rec-box" style="text-align:left">
+      <h3 style="color:#FFD700">💡 추천 관리법</h3>
+      ${tips.map(t=>`<p>• ${t}</p>`).join('')}
+    </div>
+    <div class="rec-box" style="text-align:left">
+      <h3 style="color:#7B68EE">🎯 맞춤 추천</h3>
+      ${recs.map(r=>`<p>• ${r}</p>`).join('')}
+    </div>
+    ${pct>75?'<a class="crisis-link" href="tel:1577-0199">📞 위기 상담 전화 (1577-0199)</a>':''}
+    <div class="share-row">
+      <div class="share-btn2" onclick="navigator.clipboard.writeText('나의 스트레스 지수: ${pct}% (${level}) ${emoji}').then(()=>this.textContent='복사 완료!')">📋 결과 복사</div>
+      <div class="share-btn2" onclick="navigator.clipboard.writeText(location.href).then(()=>this.textContent='링크 복사됨!')">🔗 링크 공유</div>
+    </div>
+    <button class="btn" onclick="cur=0;total=0;Object.keys(catScores).forEach(k=>catScores[k]=0);window._started=false;render()">다시 하기</button>
+    <div class="recommend-section"><h3>🎯 다른 테스트 추천</h3><div class="recommend-links">${testRecs.map(r=>`<a href="${r.url}">${r.name}</a>`).join('')}</div></div>
+  </div>`;
 }
 render();
 </script></body></html>

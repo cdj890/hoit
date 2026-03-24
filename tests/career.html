@@ -15,6 +15,26 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 .result-desc{color:#bbb;line-height:1.7;margin-bottom:10px;font-size:.95em}
 .careers{background:#2a2a3e;border-radius:10px;padding:14px;margin:12px 0;text-align:left;font-size:.9em;line-height:1.8;color:#ddd}
 .hidden{display:none}
+@keyframes slideIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1)}}
+.q-slide{animation:slideIn .35s ease}
+.btn.selected{background:#fd79a8!important;color:#fff!important;animation:pulse .3s ease}
+.btn.selected::after{content:' \2713';font-weight:bold}
+.result-card{background:linear-gradient(135deg,#1a1a2e,#2a2a3e);border:2px solid transparent;border-image:linear-gradient(135deg,#fd79a8,#e84393) 1;border-radius:16px;padding:24px;margin-bottom:16px;box-shadow:0 8px 32px rgba(232,67,147,.15)}
+.hexagon-wrap{width:220px;height:220px;margin:16px auto;position:relative}
+.hexagon-wrap canvas{width:100%;height:100%}
+.career-item{background:#2a2a3e;border-radius:10px;padding:12px;margin:8px 0;text-align:left;font-size:.88em;line-height:1.5}
+.career-item .career-name{font-weight:bold;color:#fd79a8;font-size:.95em}
+.career-item .career-desc{color:#aaa;margin-top:2px}
+.career-item .career-salary{color:#fdcb6e;margin-top:2px}
+.major-box{background:#2a2a3e;border-radius:10px;padding:14px;margin:12px 0;text-align:left;font-size:.88em;line-height:1.7;color:#ddd}
+.share-box{display:flex;gap:8px;margin-top:14px;justify-content:center}
+.share-btn{padding:10px 18px;border:none;border-radius:10px;font-size:.85em;cursor:pointer;font-weight:bold;transition:opacity .2s}
+.share-btn:hover{opacity:.8}
+.share-copy{background:#fd79a8;color:#fff}
+.share-other{background:#2a2a3e;color:#e0e0e0}
+.prev-result{background:#2a2a3e;border-radius:10px;padding:12px;margin-bottom:16px;font-size:.85em;color:#aaa}
+.time-est{color:#888;font-size:.85em;margin-top:8px}
 </style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 </head><body>
 <a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
@@ -23,6 +43,8 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 <div style="font-size:3em;margin-bottom:10px">💼</div>
 <h1>직업 적성 테스트</h1>
 <p class="sub">Holland 이론 기반 직업 적성을 알아보세요</p>
+<p class="time-est">예상 소요시간: 약 3분</p>
+<div id="prevResult"></div>
 <button class="btn start-btn" onclick="startQuiz()">테스트 시작하기</button>
 </div>
 <div id="quiz" class="hidden">
@@ -31,10 +53,20 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 <div id="opts"></div>
 </div>
 <div id="result" class="hidden">
+<div class="result-card">
 <div class="emoji" id="rEmoji"></div>
 <div class="result-type" id="rType"></div>
 <div class="result-desc" id="rDesc"></div>
-<div class="careers" id="rCareers"></div>
+<div class="hexagon-wrap"><canvas id="hexCanvas" width="440" height="440"></canvas></div>
+<div style="font-size:.95em;color:#aaa;margin:12px 0 8px;font-weight:bold">추천 직업 TOP 5</div>
+<div id="rCareersDetail"></div>
+<div class="major-box" id="rMajors"></div>
+</div>
+<div class="share-box">
+<button class="share-btn share-copy" onclick="copyResult()">결과 복사</button>
+<button class="share-btn share-other" onclick="location.href='disc.html'">DISC 테스트</button>
+<button class="share-btn share-other" onclick="location.href='eq.html'">EQ 테스트</button>
+</div>
 <button class="btn start-btn" onclick="location.reload()">다시 하기</button>
 </div>
 </div>
@@ -51,15 +83,25 @@ const questions=[
 {q:"용돈/월급을 가장 쓰고 싶은 곳?",a:[["장비/도구","R"],["책/강의","I"],["공연/전시","A"],["선물/기부","S"],["투자/사업","E"],["저축/보험","C"]]},
 {q:"10년 후 나의 모습?",a:[["전문 기술자","R"],["연구원/학자","I"],["아티스트","A"],["상담사/교사","S"],["CEO/사업가","E"],["관리자/공무원","C"]]}
 ];
-const types={R:{e:"🔧",n:"현실형 (Realistic)",d:"실용적이고 손재주가 뛰어나며, 구체적인 결과물을 만드는 것을 좋아합니다.",c:"엔지니어, 건축가, 요리사, 운동선수, 정비사, 농업전문가, 소방관"},
-I:{e:"🔬",n:"탐구형 (Investigative)",d:"분석적이고 호기심이 많으며, 문제의 원인을 파헤치는 것을 즐깁니다.",c:"과학자, 의사, 프로그래머, 데이터분석가, 연구원, 약사"},
-A:{e:"🎨",n:"예술형 (Artistic)",d:"창의적이고 감성적이며, 자유로운 자기표현을 추구합니다.",c:"디자이너, 작가, 음악가, 사진작가, 영화감독, 건축 디자이너"},
-S:{e:"🤝",n:"사회형 (Social)",d:"타인을 돕는 것에 보람을 느끼며, 뛰어난 소통 능력을 가졌습니다.",c:"교사, 상담사, 간호사, 사회복지사, HR전문가, 의사"},
-E:{e:"📈",n:"기업형 (Enterprising)",d:"리더십과 추진력이 있으며, 목표 달성과 성취를 중시합니다.",c:"CEO, 마케터, 영업전문가, 변호사, PD, 정치인, 창업가"},
-C:{e:"📊",n:"관습형 (Conventional)",d:"꼼꼼하고 체계적이며, 정확하고 안정적인 업무를 선호합니다.",c:"회계사, 공무원, 은행원, 비서, 세무사, 품질관리사"}};
+const types={R:{e:"🔧",n:"현실형 (Realistic)",d:"실용적이고 손재주가 뛰어나며, 구체적인 결과물을 만드는 것을 좋아합니다.",careers:[{name:"기계공학 엔지니어",desc:"기계 설계 및 제작 전문가",sal:3},{name:"건축가",desc:"건물/구조물 설계 및 감리",sal:3},{name:"셰프/요리사",desc:"요리 창작 및 레스토랑 운영",sal:2},{name:"소방관",desc:"화재 진압 및 구조 활동",sal:2},{name:"항공정비사",desc:"항공기 정비 및 안전 관리",sal:3}],majors:"기계공학, 건축공학, 조리학, 체육학, 농생명과학"},
+I:{e:"🔬",n:"탐구형 (Investigative)",d:"분석적이고 호기심이 많으며, 문제의 원인을 파헤치는 것을 즐깁니다.",careers:[{name:"데이터 과학자",desc:"빅데이터 분석 및 AI 모델 개발",sal:4},{name:"의사",desc:"질병 진단 및 치료",sal:4},{name:"소프트웨어 개발자",desc:"프로그램/앱 설계 및 개발",sal:3},{name:"연구원",desc:"과학적 연구 및 논문 작성",sal:3},{name:"약사",desc:"의약품 조제 및 상담",sal:3}],majors:"컴퓨터공학, 의학, 생명과학, 화학, 물리학"},
+A:{e:"🎨",n:"예술형 (Artistic)",d:"창의적이고 감성적이며, 자유로운 자기표현을 추구합니다.",careers:[{name:"UX/UI 디자이너",desc:"사용자 경험 설계 전문가",sal:3},{name:"영화감독",desc:"영상 콘텐츠 기획 및 제작",sal:2},{name:"작가/소설가",desc:"문학 창작 및 출판",sal:1},{name:"사진작가",desc:"상업/예술 사진 촬영",sal:2},{name:"건축 디자이너",desc:"공간 디자인 및 인테리어",sal:3}],majors:"시각디자인, 영화학, 문예창작, 건축학, 음악학"},
+S:{e:"🤝",n:"사회형 (Social)",d:"타인을 돕는 것에 보람을 느끼며, 뛰어난 소통 능력을 가졌습니다.",careers:[{name:"심리상담사",desc:"정신건강 상담 및 치료",sal:2},{name:"교사",desc:"학생 교육 및 지도",sal:2},{name:"간호사",desc:"환자 간호 및 건강 관리",sal:2},{name:"사회복지사",desc:"사회적 약자 지원 서비스",sal:2},{name:"HR 매니저",desc:"인사 관리 및 조직 개발",sal:3}],majors:"심리학, 교육학, 간호학, 사회복지학, 상담학"},
+E:{e:"📈",n:"기업형 (Enterprising)",d:"리더십과 추진력이 있으며, 목표 달성과 성취를 중시합니다.",careers:[{name:"스타트업 CEO",desc:"사업 기획 및 회사 경영",sal:4},{name:"마케팅 디렉터",desc:"브랜드 전략 및 마케팅 총괄",sal:3},{name:"변호사",desc:"법률 자문 및 소송 대리",sal:4},{name:"PD/프로듀서",desc:"방송/콘텐츠 기획 제작",sal:3},{name:"금융 트레이더",desc:"투자 분석 및 자산 운용",sal:4}],majors:"경영학, 법학, 미디어커뮤니케이션, 경제학, 행정학"},
+C:{e:"📊",n:"관습형 (Conventional)",d:"꼼꼼하고 체계적이며, 정확하고 안정적인 업무를 선호합니다.",careers:[{name:"공인회계사",desc:"회계 감사 및 재무 컨설팅",sal:4},{name:"공무원",desc:"공공 행정 서비스 및 정책 수행",sal:2},{name:"세무사",desc:"세금 관련 상담 및 신고 대행",sal:3},{name:"은행원",desc:"금융 상품 상담 및 자산 관리",sal:2},{name:"품질관리사",desc:"제품/서비스 품질 검수 관리",sal:2}],majors:"회계학, 행정학, 세무학, 금융학, 통계학"}};
 let cur=0,scores={};
 function startQuiz(){_shuf(questions);document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();}
-function showQ(){if(!window._qs){_shuf(questions);window._qs=1;}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=()=>pick(a[1]);o.appendChild(b);});}
+function showQ(){if(!window._qs){_shuf(questions);window._qs=1;}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';const qEl=document.getElementById('qText');qEl.textContent=(cur+1)+'. '+q.q;qEl.classList.remove('q-slide');void qEl.offsetWidth;qEl.classList.add('q-slide');const o=document.getElementById('opts');o.innerHTML='';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=function(){if(window._picking)return;window._picking=true;b.classList.add('selected');setTimeout(()=>{window._picking=false;pick(a[1]);},400);};o.appendChild(b);});}
 function pick(t){scores[t]=(scores[t]||0)+1;cur++;if(cur<questions.length)showQ();else showResult();}
-function showResult(){const top=Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];const r=types[top];document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');document.getElementById('rEmoji').textContent=r.e;document.getElementById('rType').textContent=r.n;document.getElementById('rDesc').textContent=r.d;document.getElementById('rCareers').innerHTML='<strong>추천 직업:</strong><br>'+r.c.split(', ').map(c=>'• '+c).join('<br>');}
+function drawHexagon(scores){const c=document.getElementById('hexCanvas');const ctx=c.getContext('2d');const w=c.width,h=c.height,cx=w/2,cy=h/2,r=160;const labels=['R','I','A','S','E','C'];const names=['현실','탐구','예술','사회','기업','관습'];const colors=['#e74c3c','#3498db','#9b59b6','#2ecc71','#f39c12','#1abc9c'];const total=Object.values(scores).reduce((a,b)=>a+b,1);ctx.clearRect(0,0,w,h);
+for(let ring=4;ring>=1;ring--){ctx.beginPath();for(let i=0;i<6;i++){const angle=Math.PI/3*i-Math.PI/2;const rx=cx+r*(ring/4)*Math.cos(angle);const ry=cy+r*(ring/4)*Math.sin(angle);i===0?ctx.moveTo(rx,ry):ctx.lineTo(rx,ry);}ctx.closePath();ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.stroke();}
+ctx.beginPath();for(let i=0;i<6;i++){const angle=Math.PI/3*i-Math.PI/2;const val=Math.min(1,(scores[labels[i]]||0)/total*2.5);const rx=cx+r*val*Math.cos(angle);const ry=cy+r*val*Math.sin(angle);i===0?ctx.moveTo(rx,ry):ctx.lineTo(rx,ry);}ctx.closePath();ctx.fillStyle='rgba(253,121,168,0.3)';ctx.fill();ctx.strokeStyle='#fd79a8';ctx.lineWidth=2;ctx.stroke();
+for(let i=0;i<6;i++){const angle=Math.PI/3*i-Math.PI/2;const lx=cx+(r+25)*Math.cos(angle);const ly=cy+(r+25)*Math.sin(angle);ctx.fillStyle=colors[i];ctx.font='bold 22px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(names[i],lx,ly);}}
+function showResult(){const top=Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];const r=types[top];document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');document.getElementById('rEmoji').textContent=r.e;document.getElementById('rType').textContent=r.n;document.getElementById('rDesc').textContent=r.d;
+drawHexagon(scores);
+const salIcons=['','💰','💰💰','💰💰💰','💰💰💰💰'];const detailEl=document.getElementById('rCareersDetail');detailEl.innerHTML='';r.careers.forEach(c=>{detailEl.innerHTML+='<div class="career-item"><div class="career-name">'+c.name+'</div><div class="career-desc">'+c.desc+'</div><div class="career-salary">연봉 수준: '+salIcons[c.sal]+'</div></div>';});
+document.getElementById('rMajors').innerHTML='<strong>추천 학과/전공:</strong><br>'+r.majors.split(', ').map(m=>'• '+m).join('<br>');
+localStorage.setItem('career_result',JSON.stringify({type:r.n,emoji:r.e,date:new Date().toLocaleDateString('ko-KR')}));}
+function copyResult(){const t=document.getElementById('rType').textContent+'\n'+document.getElementById('rDesc').textContent;navigator.clipboard.writeText('[직업 적성 테스트 결과]\n'+t).then(()=>{const b=document.querySelector('.share-copy');b.textContent='복사 완료!';setTimeout(()=>b.textContent='결과 복사',1500);});}
+(function(){const p=localStorage.getItem('career_result');if(p){try{const d=JSON.parse(p);document.getElementById('prevResult').innerHTML='<div class="prev-result">이전 결과: '+d.emoji+' '+d.type+' ('+d.date+')</div>';}catch(e){}}})();
 </script></body></html>

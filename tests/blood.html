@@ -17,6 +17,29 @@
 .compat-item{background:#252545;padding:8px 16px;border-radius:10px;font-size:14px}
 .compat-item.good{border:1px solid #4CAF50;color:#4CAF50}
 .compat-item.bad{border:1px solid #FF6B6B;color:#FF6B6B}
+.result-card{background:#1a1a2e;border-radius:20px;padding:30px;position:relative;box-shadow:0 8px 32px rgba(255,107,107,0.15);border:2px solid transparent;background-clip:padding-box}
+.result-card::before{content:'';position:absolute;inset:-2px;border-radius:22px;background:linear-gradient(135deg,#FF6B6B,#FFB347,#87CEEB,#DDA0DD);z-index:-1}
+.big-emoji{font-size:64px;margin:10px 0}
+.matrix{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;margin:10px 0;font-size:12px;text-align:center}
+.matrix .mh{color:#888;font-weight:bold;padding:6px 2px}
+.matrix .mc{background:#1a1a2e;border-radius:6px;padding:6px 2px}
+.stat-bar{margin:6px 0;display:flex;align-items:center;gap:8px;font-size:12px}
+.stat-bar .sl{width:50px;text-align:right;color:#aaa}
+.stat-bar .sb{flex:1;height:8px;background:#1a1a2e;border-radius:4px;overflow:hidden}
+.stat-bar .sf{height:100%;border-radius:4px;transition:width 1s}
+.fortune-box{background:#252545;border-radius:10px;padding:15px;margin:12px 0;text-align:center}
+.fortune-box h3{color:#FFD700;font-size:14px;margin-bottom:8px}
+.fortune-box p{color:#ccc;font-size:13px;line-height:1.6}
+.share-row{display:flex;gap:8px;justify-content:center;margin-top:15px;flex-wrap:wrap}
+.share-btn2{background:#2a2a4a;border:1px solid #555;color:#ccc;padding:10px 20px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:bold;transition:all .2s}
+.share-btn2:hover{border-color:#FF6B6B;color:#fff}
+.recommend-section{margin-top:25px;padding-top:20px;border-top:1px solid #2a2a4a}
+.recommend-section h3{color:#888;font-size:14px;margin-bottom:12px;text-align:center}
+.recommend-links{display:flex;flex-direction:column;gap:8px}
+.recommend-links a{background:#252545;border:1px solid #333;border-radius:10px;padding:12px;color:#ccc;text-decoration:none;font-size:13px;text-align:center;transition:all .2s}
+.recommend-links a:hover{border-color:#FF6B6B;color:#fff}
+.prev-result{background:#252545;border-radius:8px;padding:8px 14px;font-size:12px;color:#888;margin-bottom:15px;display:inline-block}
+.time-est{color:#666;font-size:13px;margin-bottom:15px}
 .btn{background:#FF6B6B;border:none;color:#fff;padding:12px 30px;border-radius:10px;font-size:16px;cursor:pointer;margin-top:20px;font-weight:bold;display:block;width:100%;text-align:center}
 a.back{position:fixed;top:8px;left:8px;z-index:99;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent}a.back:hover{background:rgba(0,0,0,0.85)}
 </style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
@@ -30,31 +53,42 @@ const DATA={
     love:'상대에게 헌신적이며 세심하게 배려해요. 하지만 질투심이 강할 수 있어요. 안정적인 관계를 추구합니다.',
     work:'꼼꼼하고 성실해서 어떤 일이든 완벽하게 해내요. 팀워크를 중시하며, 규칙을 잘 따릅니다.',
     weakness:'걱정이 많고, 때로는 너무 신중해서 기회를 놓칠 수 있어요. 스트레스에 취약한 편.',
-    goodWith:['O형','A형'],badWith:['B형']},
+    goodWith:['O형','A형'],badWith:['B형'],
+    stats:{꼼꼼함:90,사교성:60,리더십:55,감성:80,독립성:40}},
   B:{emoji:'🔥',color:'#FFB347',title:'자유로운 마이웨이',
     personality:'자유분방하고 창의적! 규칙에 얽매이는 것을 싫어하며, 자기만의 방식으로 살아가요. 호기심이 많고 다재다능합니다.',
     love:'솔직하고 직설적인 표현을 해요. 자유를 중시하지만 좋아하는 사람에게는 한없이 다정합니다.',
     work:'창의적인 아이디어가 넘치며 독자적으로 일할 때 능력을 발휘해요. 하지만 반복적인 일은 싫어해요.',
     weakness:'변덕이 심하고 쉽게 질려할 수 있어요. 다른 사람의 감정을 간과할 때가 있습니다.',
-    goodWith:['O형','AB형'],badWith:['A형']},
+    goodWith:['O형','AB형'],badWith:['A형'],
+    stats:{꼼꼼함:40,사교성:75,리더십:60,감성:50,독립성:95}},
   O:{emoji:'💪',color:'#87CEEB',title:'리더십의 아이콘',
     personality:'대범하고 리더십이 강해요! 목표를 정하면 강하게 밀고 나가며, 사교적이고 정이 많습니다. 어디서든 중심이 되는 타입.',
     love:'열정적이고 적극적으로 다가가요. 질투심이 있지만 그만큼 상대를 아끼는 마음이 커요.',
     work:'추진력이 강하고 결단력이 있어요. 리더 역할을 맡으면 팀을 잘 이끌어갑니다.',
     weakness:'고집이 세고 자기 의견이 확고해서 충돌이 있을 수 있어요. 승부욕이 지나칠 때도.',
-    goodWith:['A형','O형'],badWith:['AB형']},
+    goodWith:['A형','O형'],badWith:['AB형'],
+    stats:{꼼꼼함:55,사교성:85,리더십:95,감성:60,독립성:70}},
   AB:{emoji:'🎭',color:'#DDA0DD',title:'천재적 이중인격(?)',
     personality:'독특하고 다면적인 성격! A형과 B형의 특성을 모두 가지고 있어서 상황에 따라 다른 모습을 보여요. 분석력과 창의력을 겸비.',
     love:'쿨하고 이성적으로 보이지만 속으로는 로맨틱해요. 상대의 지적인 면에 끌리며, 깊은 대화를 좋아합니다.',
     work:'분석력이 뛰어나고 합리적인 판단을 해요. 다양한 관점에서 문제를 볼 수 있는 능력자.',
     weakness:'감정 표현이 서툴고 가끔 냉정해 보일 수 있어요. 결정을 내리기 어려워할 때가 있습니다.',
-    goodWith:['B형','AB형'],badWith:['O형']},
+    goodWith:['B형','AB형'],badWith:['O형'],
+    stats:{꼼꼼함:70,사교성:50,리더십:65,감성:75,독립성:80}},
 };
+const COMPAT_MATRIX={A:{A:'💛',B:'💔',O:'💚',AB:'💛'},B:{A:'💔',B:'💛',O:'💚',AB:'💚'},O:{A:'💚',B:'💚',O:'💛',AB:'💔'},AB:{A:'💛',B:'💚',O:'💔',AB:'💚'}};
+const FORTUNES=['오늘은 새로운 인연이 찾아올 수 있는 날!','금전운이 좋아요. 작은 행운이 기다려요!','건강에 신경 쓰세요. 가벼운 산책 추천!','오랜 친구에게 연락해보세요. 좋은 소식이 올 수도!','오늘은 도전에 좋은 날! 용기를 내보세요.','자기 자신에게 투자하는 시간을 가져보세요.','예상치 못한 기쁜 소식이 올 수 있어요!','오늘은 푹 쉬는 게 최고의 행운!','새로운 취미를 시작하면 좋은 결과가 있을 거예요.','주변 사람들에게 감사를 표현해보세요.'];
+function getDailyFortune(type){const d=new Date();const seed=d.getFullYear()*10000+d.getMonth()*100+d.getDate()+type.charCodeAt(0);return FORTUNES[seed%FORTUNES.length];}
+const ALL_TESTS=[{name:'MBTI 테스트 🧠',url:'mbti.html'},{name:'연애 유형 테스트 💕',url:'love.html'},{name:'스트레스 지수 테스트 😰',url:'stress.html'},{name:'동물 성격 테스트 🐾',url:'animal.html'}];
 
 function showSelect(){
+  const prev=localStorage.getItem('blood_result');
   document.getElementById('app').innerHTML=`
     <h1>🩸 혈액형 성격 분석</h1>
     <p class="sub">당신의 혈액형을 선택하세요!</p>
+    <p class="time-est">예상 소요시간: 2분</p>
+    ${prev?`<div class="prev-result">이전 결과: ${prev}형</div>`:''}
     <div class="blood-btns">
       ${Object.entries(DATA).map(([t,d])=>`
         <div class="blood-btn" onclick="showResult('${t}')" style="border-color:${d.color}30">
@@ -66,21 +100,48 @@ function showSelect(){
 
 function showResult(type){
   const d=DATA[type];
+  localStorage.setItem('blood_result',type);
+  const types=['A','B','O','AB'];
+  const recs=ALL_TESTS.sort(()=>Math.random()-0.5).slice(0,3);
   document.getElementById('app').innerHTML=`
-    <div class="result">
-      <h2 style="color:${d.color}">${type}형</h2>
-      <div class="emoji">${d.emoji}</div>
-      <h2 style="font-size:20px">${d.title}</h2>
+    <div class="result-card">
+      <h2 style="color:${d.color};text-align:center">${type}형</h2>
+      <div class="big-emoji" style="text-align:center">${d.emoji}</div>
+      <h2 style="font-size:20px;text-align:center">${d.title}</h2>
       <div class="section"><h3>🧑 성격</h3><p>${d.personality}</p></div>
       <div class="section"><h3>💕 연애</h3><p>${d.love}</p></div>
       <div class="section"><h3>💼 직장/학교</h3><p>${d.work}</p></div>
       <div class="section"><h3>⚠️ 약점</h3><p>${d.weakness}</p></div>
+      <div class="section">
+        <h3>📊 능력치</h3>
+        ${Object.entries(d.stats).map(([k,v])=>`<div class="stat-bar"><div class="sl">${k}</div><div class="sb"><div class="sf" style="width:${v}%;background:${d.color}"></div></div><div style="color:${d.color};font-size:12px;width:30px">${v}</div></div>`).join('')}
+      </div>
+      <div class="section">
+        <h3>💫 혈액형 궁합 매트릭스</h3>
+        <div class="matrix">
+          <div class="mh"></div>${types.map(t=>`<div class="mh">${t}형</div>`).join('')}
+          ${types.map(r=>`<div class="mh">${r}형</div>${types.map(c=>`<div class="mc">${COMPAT_MATRIX[r][c]}</div>`).join('')}`).join('')}
+        </div>
+        <div style="text-align:center;font-size:11px;color:#666;margin-top:6px">💚좋음 💛보통 💔주의</div>
+      </div>
       <h3 style="text-align:center;margin-top:15px;color:#888">궁합</h3>
       <div class="compat">
         ${d.goodWith.map(t=>`<div class="compat-item good">💚 ${t} 좋음</div>`).join('')}
         ${d.badWith.map(t=>`<div class="compat-item bad">💔 ${t} 주의</div>`).join('')}
       </div>
+      <div class="fortune-box">
+        <h3>🔮 오늘의 ${type}형 운세</h3>
+        <p>${getDailyFortune(type)}</p>
+      </div>
+      <div class="share-row">
+        <div class="share-btn2" onclick="navigator.clipboard.writeText('나의 혈액형: ${type}형 - ${d.title} ${d.emoji}').then(()=>this.textContent='복사 완료!')">📋 결과 복사</div>
+        <div class="share-btn2" onclick="navigator.clipboard.writeText(location.href).then(()=>this.textContent='링크 복사됨!')">🔗 링크 공유</div>
+      </div>
       <button class="btn" onclick="showSelect()">다른 혈액형 보기</button>
+      <div class="recommend-section">
+        <h3>🎯 다른 테스트 추천</h3>
+        <div class="recommend-links">${recs.map(r=>`<a href="${r.url}">${r.name}</a>`).join('')}</div>
+      </div>
     </div>`;
 }
 showSelect();

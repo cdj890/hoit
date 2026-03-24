@@ -13,6 +13,28 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 .start-btn:hover{opacity:.9}
 .emoji{font-size:4em;margin:16px 0}.result-type{font-size:1.4em;font-weight:bold;color:#fdcb6e;margin-bottom:12px}
 .result-desc{color:#bbb;line-height:1.7;margin-bottom:20px;font-size:.95em}.hidden{display:none}
+@keyframes slideIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1)}}
+.q-slide{animation:slideIn .35s ease}
+.btn.selected{background:#fdcb6e!important;color:#1a1a2e!important;animation:pulse .3s ease}
+.btn.selected::after{content:' \2713';font-weight:bold}
+.result-card{background:linear-gradient(135deg,#1a1a2e,#2a2a3e);border:2px solid transparent;border-image:linear-gradient(135deg,#e17055,#fdcb6e) 1;border-radius:16px;padding:24px;margin-bottom:16px;box-shadow:0 8px 32px rgba(225,112,85,.2)}
+.scroll-card{background:linear-gradient(135deg,#3e2f1a,#5a4227);border:3px double #c8a96e;border-radius:12px;padding:24px;margin:16px 0;position:relative;box-shadow:inset 0 0 30px rgba(0,0,0,.3),0 4px 20px rgba(0,0,0,.4)}
+.scroll-card::before{content:'';position:absolute;top:8px;left:8px;right:8px;bottom:8px;border:1px solid rgba(200,169,110,.3);border-radius:8px;pointer-events:none}
+.scroll-card .era-title{font-size:1.3em;color:#f0d78c;margin-bottom:8px;font-weight:bold}
+.scroll-card .era-role{color:#c8a96e;font-size:.95em;margin-bottom:12px}
+.scroll-card .story{color:#d4c4a0;font-size:.9em;line-height:1.7;text-align:left;font-style:italic}
+.stat-bars{text-align:left;margin:16px 0}
+.stat-bar{margin:6px 0}.stat-bar label{font-size:.8em;color:#aaa;display:flex;justify-content:space-between}
+.stat-bar .bar{height:8px;background:#2a2a3e;border-radius:4px;overflow:hidden;margin-top:3px}
+.stat-bar .bar-fill{height:100%;border-radius:4px;transition:width 1s ease}
+.share-box{display:flex;gap:8px;margin-top:14px;justify-content:center}
+.share-btn{padding:10px 18px;border:none;border-radius:10px;font-size:.85em;cursor:pointer;font-weight:bold;transition:opacity .2s}
+.share-btn:hover{opacity:.8}
+.share-copy{background:#fdcb6e;color:#1a1a2e}
+.share-other{background:#2a2a3e;color:#e0e0e0}
+.prev-result{background:#2a2a3e;border-radius:10px;padding:12px;margin-bottom:16px;font-size:.85em;color:#aaa}
+.time-est{color:#888;font-size:.85em;margin-top:8px}
 </style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 </head><body>
 <a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
@@ -21,6 +43,8 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 <div style="font-size:3em;margin-bottom:10px">🔮</div>
 <h1>전생 테스트</h1>
 <p class="sub">당신의 전생은 어떤 모습이었을까요?</p>
+<p class="time-est">예상 소요시간: 약 2분</p>
+<div id="prevResult"></div>
 <button class="btn start-btn" onclick="startQuiz()">전생 알아보기</button>
 </div>
 <div id="quiz" class="hidden">
@@ -29,9 +53,22 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 <div id="opts"></div>
 </div>
 <div id="result" class="hidden">
+<div class="result-card">
 <div class="emoji" id="rEmoji"></div>
 <div class="result-type" id="rType"></div>
+<div class="scroll-card">
+<div class="era-title" id="rEra"></div>
+<div class="era-role" id="rRole"></div>
+<div class="story" id="rStory"></div>
+</div>
 <div class="result-desc" id="rDesc"></div>
+<div class="stat-bars" id="rStats"></div>
+</div>
+<div class="share-box">
+<button class="share-btn share-copy" onclick="copyResult()">결과 복사</button>
+<button class="share-btn share-other" onclick="location.href='brain.html'">좌뇌우뇌 테스트</button>
+<button class="share-btn share-other" onclick="location.href='disc.html'">DISC 테스트</button>
+</div>
 <button class="btn start-btn" onclick="location.reload()">다시 하기</button>
 </div>
 </div>
@@ -46,15 +83,19 @@ const questions=[
 {q:"사람들이 당신에게 자주 하는 말?",a:[["카리스마 있다","royal"],["정의롭다","knight"],["독특하다","artist"],["장사 수완이 좋다","merchant"]]},
 {q:"이유 없이 끌리는 음식은?",a:[["고급 코스 요리","royal"],["투박한 빵과 스튜","knight"],["이국적인 향신료 요리","merchant"],["자연 재료 음식","explorer"]]}
 ];
-const types={royal:{e:"👑",n:"왕족",d:"전생에 당신은 왕실의 일원이었습니다! 타고난 리더십과 카리스마로 많은 사람을 이끌었죠. 지금도 고급스러운 취향과 당당한 기운이 남아있어요."},
-knight:{e:"⚔️",n:"기사",d:"전생에 당신은 용감한 기사였습니다! 정의를 위해 싸우는 강인한 전사였죠. 지금도 불의를 보면 참지 못하는 성격이 그 흔적이에요."},
-artist:{e:"🎨",n:"예술가",d:"전생에 당신은 천재 예술가였습니다! 아름다움을 창조하는 데 일생을 바쳤죠. 지금도 뛰어난 감성과 창의력이 빛나고 있어요."},
-scholar:{e:"📚",n:"학자",d:"전생에 당신은 위대한 학자였습니다! 진리를 탐구하며 지혜를 쌓았죠. 지금도 배움에 대한 열정과 깊은 사색이 그 증거예요."},
-explorer:{e:"🧭",n:"탐험가",d:"전생에 당신은 대담한 탐험가였습니다! 미지의 세계를 개척했죠. 지금도 새로운 경험과 자유를 갈망하는 영혼이에요."},
-merchant:{e:"💰",n:"무역상",d:"전생에 당신은 부유한 무역상이었습니다! 실크로드를 누비며 부를 쌓았죠. 지금도 뛰어난 사업 감각과 사교성이 돋보여요."}};
+const types={royal:{e:"👑",n:"왕족",d:"전생에 당신은 왕실의 일원이었습니다! 타고난 리더십과 카리스마로 많은 사람을 이끌었죠. 지금도 고급스러운 취향과 당당한 기운이 남아있어요.",era:"중세 유럽 15세기",role:"🏰 왕국의 통치자",story:"장엄한 성에서 태어나 어린 시절부터 제왕학을 배웠습니다. 현명한 판단과 강인한 의지로 왕국을 번영시켰고, 백성들에게 공정한 법을 내려 '현명한 왕'이라 불렸습니다. 궁전의 화려한 연회 속에서도 언제나 나라의 미래를 걱정하는 고독한 통치자였죠.",stats:{권력:95,부:85,지혜:70,행복:60,모험:30}},
+knight:{e:"⚔️",n:"기사",d:"전생에 당신은 용감한 기사였습니다! 정의를 위해 싸우는 강인한 전사였죠. 지금도 불의를 보면 참지 못하는 성격이 그 흔적이에요.",era:"중세 유럽 12세기",role:"⚔️ 왕실 기사단장",story:"가난한 집안에서 태어났지만, 뛰어난 무예와 정의로운 마음으로 기사단에 발탁되었습니다. 수많은 전장에서 용맹을 떨쳤고, 약한 자를 지키는 것을 평생의 사명으로 삼았습니다. 당신의 검에는 명예와 충성이 깃들어 있었죠.",stats:{권력:60,부:40,지혜:50,행복:55,모험:90}},
+artist:{e:"🎨",n:"예술가",d:"전생에 당신은 천재 예술가였습니다! 아름다움을 창조하는 데 일생을 바쳤죠. 지금도 뛰어난 감성과 창의력이 빛나고 있어요.",era:"르네상스 이탈리아 16세기",role:"🎨 궁정 화가",story:"피렌체의 작은 공방에서 재능을 꽃피운 당신은 귀족과 교황의 후원을 받는 궁정 화가가 되었습니다. 대리석 조각과 프레스코 벽화로 시대를 초월한 아름다움을 남겼고, 사람들은 당신의 작품 앞에서 눈물을 흘렸습니다.",stats:{권력:25,부:50,지혜:75,행복:80,모험:55}},
+scholar:{e:"📚",n:"학자",d:"전생에 당신은 위대한 학자였습니다! 진리를 탐구하며 지혜를 쌓았죠. 지금도 배움에 대한 열정과 깊은 사색이 그 증거예요.",era:"고대 동양 당나라 시대",role:"📜 한림학사",story:"수천 권의 서적을 읽고 깊은 사색에 잠기던 당신은 황제의 자문 학자로 초빙되었습니다. 천문과 역사, 철학을 아울렀으며 제자들에게 지혜를 전수했습니다. 조용한 서재에서 붓을 들고 진리를 기록하는 것이 가장 큰 행복이었죠.",stats:{권력:40,부:35,지혜:95,행복:70,모험:25}},
+explorer:{e:"🧭",n:"탐험가",d:"전생에 당신은 대담한 탐험가였습니다! 미지의 세계를 개척했죠. 지금도 새로운 경험과 자유를 갈망하는 영혼이에요.",era:"대항해시대 17세기",role:"🚢 신대륙 탐험대장",story:"드넓은 바다가 당신의 집이었습니다. 폭풍우를 뚫고, 미지의 해안에 닻을 내리며, 아무도 밟지 않은 땅에 첫 발자국을 남겼습니다. 두려움보다 호기심이 큰 영혼으로 수많은 항해일지를 남겼고, 새로운 세계의 문을 열었습니다.",stats:{권력:35,부:45,지혜:55,행복:75,모험:95}},
+merchant:{e:"💰",n:"무역상",d:"전생에 당신은 부유한 무역상이었습니다! 실크로드를 누비며 부를 쌓았죠. 지금도 뛰어난 사업 감각과 사교성이 돋보여요.",era:"실크로드 시대 13세기",role:"🐫 대상단 수장",story:"동서양을 잇는 실크로드 위에서 비단과 향신료를 교역하며 막대한 부를 쌓았습니다. 뛰어난 언변과 사교술로 각국의 상인들과 신뢰를 쌓았고, 여러 도시에 상관을 열어 무역 네트워크를 구축했습니다. 당신의 대상단은 사막 위의 황금 행렬이었죠.",stats:{권력:50,부:95,지혜:60,행복:65,모험:75}}};
 let cur=0,scores={};
 function startQuiz(){_shuf(questions);document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();}
-function showQ(){if(!window._qs){_shuf(questions);window._qs=1;}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=()=>pick(a[1]);o.appendChild(b);});}
+function showQ(){if(!window._qs){_shuf(questions);window._qs=1;}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';const wrap=document.getElementById('quiz');wrap.querySelector('.question').classList.remove('q-slide');void wrap.querySelector('.question').offsetWidth;wrap.querySelector('.question').classList.add('q-slide');q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=function(){if(window._picking)return;window._picking=true;b.classList.add('selected');setTimeout(()=>{window._picking=false;pick(a[1]);},400);};o.appendChild(b);});}
 function pick(t){scores[t]=(scores[t]||0)+1;cur++;if(cur<questions.length)showQ();else showResult();}
-function showResult(){const top=Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];const r=types[top];document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');document.getElementById('rEmoji').textContent=r.e;document.getElementById('rType').textContent='당신의 전생은 '+r.n+'!';document.getElementById('rDesc').textContent=r.d;}
+function showResult(){const top=Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];const r=types[top];document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');document.getElementById('rEmoji').textContent=r.e;document.getElementById('rType').textContent='당신의 전생은 '+r.n+'!';document.getElementById('rDesc').textContent=r.d;document.getElementById('rEra').textContent=r.era;document.getElementById('rRole').textContent=r.role;document.getElementById('rStory').textContent=r.story;
+const statsEl=document.getElementById('rStats');statsEl.innerHTML='';const colors={권력:'#e74c3c',부:'#f39c12',지혜:'#3498db',행복:'#2ecc71',모험:'#9b59b6'};Object.entries(r.stats).forEach(([k,v])=>{const d=document.createElement('div');d.className='stat-bar';d.innerHTML='<label><span>'+k+'</span><span>'+v+'</span></label><div class="bar"><div class="bar-fill" style="width:0;background:'+colors[k]+'"></div></div>';statsEl.appendChild(d);setTimeout(()=>d.querySelector('.bar-fill').style.width=v+'%',100);});
+localStorage.setItem('pastlife_result',JSON.stringify({type:r.n,emoji:r.e,date:new Date().toLocaleDateString('ko-KR')}));}
+function copyResult(){const r=document.getElementById('rType').textContent+'\n'+document.getElementById('rEra').textContent+' - '+document.getElementById('rRole').textContent+'\n'+document.getElementById('rStory').textContent;navigator.clipboard.writeText('[전생 테스트 결과]\n'+r).then(()=>{const btn=document.querySelector('.share-copy');btn.textContent='복사 완료!';setTimeout(()=>btn.textContent='결과 복사',1500);});}
+(function(){const prev=localStorage.getItem('pastlife_result');if(prev){try{const d=JSON.parse(prev);document.getElementById('prevResult').innerHTML='<div class="prev-result">이전 결과: '+d.emoji+' '+d.type+' ('+d.date+')</div>';}catch(e){}}})();
 </script></body></html>

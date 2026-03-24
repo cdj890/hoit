@@ -1,6 +1,40 @@
 <!DOCTYPE html>
 <html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>연애 유형 테스트</title>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center}.wrap{max-width:500px;width:100%;padding:20px;text-align:center}h1{font-size:30px;margin-bottom:8px}.sub{color:#888;margin-bottom:25px}.q-card{background:#1a1a2e;border-radius:16px;padding:22px;border:1px solid #2a2a4a;margin-bottom:15px}.q-num{color:#888;font-size:13px;margin-bottom:8px}.q-text{font-size:16px;margin-bottom:16px;line-height:1.5}.opts{display:flex;flex-direction:column;gap:8px}.opt{background:#252545;border:2px solid #333;border-radius:12px;padding:13px;cursor:pointer;font-size:14px;transition:all .2s;text-align:left}.opt:hover{border-color:#FF69B4;transform:scale(1.02)}.progress{background:#1a1a2e;border-radius:10px;height:8px;margin-bottom:18px;overflow:hidden}.progress-fill{background:linear-gradient(90deg,#FF69B4,#FFD700);height:100%;border-radius:10px;transition:width .3s}.result{background:#1a1a2e;border-radius:16px;padding:28px;border:1px solid #2a2a4a}.btn{background:#FF69B4;border:none;color:#fff;padding:12px 30px;border-radius:10px;font-size:15px;cursor:pointer;margin-top:18px;font-weight:bold;width:100%}a.back{position:fixed;top:8px;left:8px;z-index:99;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent}a.back:hover{background:rgba(0,0,0,0.85)}</style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center}.wrap{max-width:500px;width:100%;padding:20px;text-align:center}h1{font-size:30px;margin-bottom:8px}.sub{color:#888;margin-bottom:25px}.q-card{background:#1a1a2e;border-radius:16px;padding:22px;border:1px solid #2a2a4a;margin-bottom:15px}.q-num{color:#888;font-size:13px;margin-bottom:8px}.q-text{font-size:16px;margin-bottom:16px;line-height:1.5}.opts{display:flex;flex-direction:column;gap:8px}.opt{background:#252545;border:2px solid #333;border-radius:12px;padding:13px;cursor:pointer;font-size:14px;transition:all .2s;text-align:left}.opt:hover{border-color:#FF69B4;transform:scale(1.02)}
+.opt.selected{border-color:#FF69B4;background:#3a2a4a;position:relative}
+.opt.selected::after{content:'✓';position:absolute;right:14px;top:50%;transform:translateY(-50%);color:#FF69B4;font-weight:bold;font-size:18px}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,105,180,0.5)}70%{box-shadow:0 0 0 12px rgba(255,105,180,0)}100%{box-shadow:0 0 0 0 rgba(255,105,180,0)}}
+.opt.selected{animation:pulse .5s ease-out}
+@keyframes fadeOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(-30px)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+.q-card.fade-out{animation:fadeOut .25s ease-in forwards}
+.q-card.slide-in{animation:slideIn .3s ease-out forwards}
+.result-card{background:#1a1a2e;border-radius:20px;padding:28px;position:relative;box-shadow:0 8px 32px rgba(255,105,180,0.15);border:2px solid transparent;background-clip:padding-box}
+.result-card::before{content:'';position:absolute;inset:-2px;border-radius:22px;background:linear-gradient(135deg,#FF69B4,#FFD700,#FF4444,#FF69B4);z-index:-1}
+.big-emoji{font-size:64px;text-align:center;margin:10px 0}
+.stat-bar{margin:6px 0;display:flex;align-items:center;gap:8px;font-size:12px}
+.stat-bar .sl{width:50px;text-align:right;color:#aaa}
+.stat-bar .sb{flex:1;height:8px;background:#1a1a2e;border-radius:4px;overflow:hidden}
+.stat-bar .sf{height:100%;border-radius:4px;transition:width 1s}
+.advice-box{background:#252545;border-radius:10px;padding:13px;margin:12px 0}
+.advice-box h3{font-size:14px;margin-bottom:8px}
+.advice-box ul{list-style:none;padding:0}
+.advice-box ul li{color:#ccc;font-size:13px;padding:3px 0}
+.share-row{display:flex;gap:8px;justify-content:center;margin-top:15px;flex-wrap:wrap}
+.share-btn2{background:#2a2a4a;border:1px solid #555;color:#ccc;padding:10px 20px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:bold;transition:all .2s}
+.share-btn2:hover{border-color:#FF69B4;color:#fff}
+.recommend-section{margin-top:25px;padding-top:20px;border-top:1px solid #2a2a4a}
+.recommend-section h3{color:#888;font-size:14px;margin-bottom:12px;text-align:center}
+.recommend-links{display:flex;flex-direction:column;gap:8px}
+.recommend-links a{background:#252545;border:1px solid #333;border-radius:10px;padding:12px;color:#ccc;text-decoration:none;font-size:13px;text-align:center;transition:all .2s}
+.recommend-links a:hover{border-color:#FF69B4;color:#fff}
+.prev-result{background:#252545;border-radius:8px;padding:8px 14px;font-size:12px;color:#888;margin-bottom:15px;display:inline-block}
+.time-est{color:#666;font-size:13px;margin-bottom:15px}
+.couple-section{background:#252545;border-radius:10px;padding:15px;margin:12px 0;text-align:center}
+.couple-section h3{color:#FF69B4;font-size:14px;margin-bottom:10px}
+.couple-btn{background:#FF69B4;border:none;color:#fff;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;margin:5px}
+.couple-result{margin-top:10px;color:#ccc;font-size:13px;line-height:1.6}
+.progress{background:#1a1a2e;border-radius:10px;height:8px;margin-bottom:18px;overflow:hidden}.progress-fill{background:linear-gradient(90deg,#FF69B4,#FFD700);height:100%;border-radius:10px;transition:width .3s}.result{background:#1a1a2e;border-radius:16px;padding:28px;border:1px solid #2a2a4a}.btn{background:#FF69B4;border:none;color:#fff;padding:12px 30px;border-radius:10px;font-size:15px;cursor:pointer;margin-top:18px;font-weight:bold;width:100%}a.back{position:fixed;top:8px;left:8px;z-index:99;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent}a.back:hover{background:rgba(0,0,0,0.85)}</style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 </head><body>
 <a class="back" href="../index.html">← 뒤로</a>
 <div class="wrap" id="app"></div>
@@ -20,41 +54,102 @@ const TYPES={
   P:{emoji:'🔥',title:'정열적 사랑꾼',color:'#FF4444',
     desc:'사랑에 올인하는 스타일! 적극적이고 열정적으로 다가가며, 연애할 때 세상 행복해져요. 표현력이 뛰어나고 상대를 감동시키는 달인!',
     tip:'가끔은 한 발짝 물러서서 상대의 페이스도 맞춰주세요. 너무 뜨거우면 상대가 부담느낄 수 있어요!',
-    match:'기다림형 또는 감성형과 찰떡!'},
+    match:'기다림형 또는 감성형과 찰떡!',
+    stats:{열정:95,헌신:80,소통:85,독립:30,로맨틱:70},
+    dos:['매일 사랑한다 표현하기','깜짝 이벤트 자주 해주기','함께하는 시간 충분히 갖기'],
+    donts:['상대 사생활 지나치게 간섭하기','질투로 상대 옥죄기','자기 감정만 앞세우기']},
   W:{emoji:'🌙',title:'로맨틱 기다림형',color:'#DDA0DD',
     desc:'은근한 매력으로 상대를 끌어들이는 타입! 섬세하고 로맨틱하며, 작은 것에서 감동을 느껴요. 기다릴 줄 아는 인내심이 있습니다.',
     tip:'때로는 용기를 내서 먼저 표현해보세요! 기다리기만 하면 좋은 인연을 놓칠 수도 있어요.',
-    match:'정열형이 당신의 소극적인 면을 채워줄 거예요!'},
+    match:'정열형이 당신의 소극적인 면을 채워줄 거예요!',
+    stats:{열정:50,헌신:75,소통:45,독립:60,로맨틱:95},
+    dos:['분위기 있는 데이트 계획하기','손편지나 메시지 보내기','상대의 취향 세심하게 기억하기'],
+    donts:['속마음 숨기고 혼자 상처받기','너무 오래 기다리기만 하기','수동적으로만 관계 이어가기']},
   F:{emoji:'😄',title:'유쾌한 친구형',color:'#FFD700',
     desc:'친구에서 연인으로 발전하는 타입! 함께 있으면 즐겁고 편안한 매력이 있어요. 유머 감각이 뛰어나고 분위기 메이커!',
     tip:'연애와 우정의 경계를 잘 구분하세요. 너무 편한 것도 때로는 독이 될 수 있어요.',
-    match:'감성형과 만나면 깊이가 더해져요!'},
+    match:'감성형과 만나면 깊이가 더해져요!',
+    stats:{열정:65,헌신:60,소통:95,독립:70,로맨틱:40},
+    dos:['재미있는 활동 함께 즐기기','진지한 대화 시간도 갖기','상대를 웃게 만들어주기'],
+    donts:['모든 걸 농담으로 넘기기','깊은 감정 표현 회피하기','연인과 친구 경계 무시하기']},
   S:{emoji:'🌊',title:'깊은 감성형',color:'#4FC3F7',
     desc:'깊고 진지한 사랑을 하는 타입! 감정이 풍부하고 상대를 깊이 이해하려 해요. 한 번 사랑하면 오래가는 스타일.',
     tip:'가끔은 가볍게 즐기는 법도 배워보세요. 모든 걸 너무 깊게 생각하면 지칠 수 있어요.',
-    match:'정열형의 에너지가 당신에게 활력을 줄 거예요!'},
+    match:'정열형의 에너지가 당신에게 활력을 줄 거예요!',
+    stats:{열정:60,헌신:90,소통:70,독립:50,로맨틱:85},
+    dos:['깊은 대화로 유대감 쌓기','상대 감정에 공감해주기','기념일 소중히 챙기기'],
+    donts:['사소한 말에 너무 상처받기','과거에 집착하기','혼자 감정 곱씹으며 우울해지기']},
 };
+const COUPLE_COMPAT={PP:'불꽃 만남! 열정은 최고지만 다툼도 뜨거울 수 있어요 🔥',PW:'완벽한 균형! 적극적인 쪽과 기다려주는 쪽이 딱 맞아요 💕',PF:'신나는 커플! 함께 있으면 재미있지만 깊이가 필요해요',PS:'보완적 궁합! 열정과 깊이가 만나 풍요로워져요 ✨',WW:'로맨틱하지만 누군가 먼저 다가가야 해요 🌙',WF:'편안한 궁합! 친구 같으면서도 로맨틱해요',WS:'감성 충만 커플! 서로의 마음을 깊이 이해해요 💜',FF:'최고로 즐거운 커플! 하지만 진지한 대화도 필요해요 😄',FS:'균형 잡힌 커플! 즐거움과 깊이를 모두 가져요',SS:'깊은 유대감! 서로를 완전히 이해하는 소울메이트 🌊'};
+function getCoupleCompat(a,b){const k=[a,b].sort().join('');return COUPLE_COMPAT[k]||'서로를 알아가는 과정이 특별할 거예요!';}
+const ALL_TESTS=[{name:'MBTI 테스트 🧠',url:'mbti.html'},{name:'혈액형 성격 분석 🩸',url:'blood.html'},{name:'스트레스 지수 테스트 😰',url:'stress.html'},{name:'동물 성격 테스트 🐾',url:'animal.html'}];
 
 let cur=0,scores={P:0,W:0,F:0,S:0};
 function render(){
   const app=document.getElementById('app');
+  if(cur===0 && !window._started){
+    const prev=localStorage.getItem('love_result');
+    app.innerHTML=`<h1>💕 연애 유형 테스트</h1><p class="sub">나의 연애 스타일은?</p>
+      <p class="time-est">예상 소요시간: 2분</p>
+      ${prev?`<div class="prev-result">이전 결과: ${prev}</div>`:''}
+      <button class="btn" onclick="window._started=true;render()">시작하기</button>`;
+    return;
+  }
   if(cur<Q.length){
     const q=Q[cur],pct=(cur/Q.length*100)|0;
     app.innerHTML=`<h1>💕 연애 유형 테스트</h1><p class="sub">나의 연애 스타일은?</p>
       <div class="progress"><div class="progress-fill" style="width:${pct}%"></div></div>
-      <div class="q-card"><div class="q-num">${cur+1}/${Q.length}</div><div class="q-text">${q.q}</div>
-      <div class="opts">${q.a.map((a,i)=>`<div class="opt" onclick="pick('${a.s}')">${a.t}</div>`).join('')}</div></div>`;
+      <div class="q-card slide-in"><div class="q-num">${cur+1}/${Q.length}</div><div class="q-text">${q.q}</div>
+      <div class="opts">${q.a.map((a,i)=>`<div class="opt" onclick="pickLove('${a.s}',this)">${a.t}</div>`).join('')}</div></div>`;
   } else {
     const top=Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];
     const r=TYPES[top];
-    app.innerHTML=`<div class="result"><div style="font-size:50px;margin-bottom:10px">${r.emoji}</div>
-      <h2 style="color:${r.color};font-size:24px">${r.title}</h2>
+    localStorage.setItem('love_result',r.title);
+    const partner=localStorage.getItem('love_partner');
+    const recs=ALL_TESTS.sort(()=>Math.random()-0.5).slice(0,3);
+    app.innerHTML=`<div class="result-card"><div class="big-emoji">${r.emoji}</div>
+      <h2 style="color:${r.color};font-size:24px;text-align:center">${r.title}</h2>
       <p style="color:#aaa;margin:15px 0;font-size:14px;line-height:1.7">${r.desc}</p>
+      <div class="advice-box"><h3 style="color:#FFD700">📊 연애 능력치</h3>
+        ${Object.entries(r.stats).map(([k,v])=>`<div class="stat-bar"><div class="sl">${k}</div><div class="sb"><div class="sf" style="width:${v}%;background:${r.color}"></div></div><div style="color:${r.color};font-size:12px;width:30px">${v}</div></div>`).join('')}
+      </div>
+      <div class="advice-box"><h3 style="color:#4CAF50">✅ 이렇게 하세요 (Do's)</h3>
+        <ul>${r.dos.map(d=>`<li>👍 ${d}</li>`).join('')}</ul>
+      </div>
+      <div class="advice-box"><h3 style="color:#FF6B6B">❌ 이건 피하세요 (Don'ts)</h3>
+        <ul>${r.donts.map(d=>`<li>⚠️ ${d}</li>`).join('')}</ul>
+      </div>
       <div style="background:#252545;border-radius:10px;padding:13px;margin:12px 0"><h3 style="color:#FFD700;font-size:14px;margin-bottom:6px">💡 연애 조언</h3><p style="color:#ccc;font-size:13px;line-height:1.6">${r.tip}</p></div>
       <div style="background:#252545;border-radius:10px;padding:13px;margin:12px 0"><h3 style="color:#FF69B4;font-size:14px;margin-bottom:6px">💑 궁합</h3><p style="color:#ccc;font-size:13px">${r.match}</p></div>
-      <button class="btn" onclick="cur=0;scores={P:0,W:0,F:0,S:0};render()">다시 하기</button></div>`;
+      <div class="couple-section">
+        <h3>💑 궁합 테스트</h3>
+        <p style="font-size:12px;color:#888;margin-bottom:8px">상대방의 연애 유형을 선택하세요</p>
+        <div>${Object.entries(TYPES).map(([k,t])=>`<button class="couple-btn" onclick="showCouple('${top}','${k}',this)">${t.emoji} ${t.title}</button>`).join('')}</div>
+        <div id="coupleResult"></div>
+        ${partner?`<p style="font-size:12px;color:#666;margin-top:8px">저장된 파트너: ${TYPES[partner]?TYPES[partner].title:'?'}</p>`:''}
+      </div>
+      <div class="share-row">
+        <div class="share-btn2" onclick="navigator.clipboard.writeText('나의 연애 유형: ${r.title} ${r.emoji}\\n${r.desc}').then(()=>this.textContent='복사 완료!')">📋 결과 복사</div>
+        <div class="share-btn2" onclick="navigator.clipboard.writeText(location.href).then(()=>this.textContent='링크 복사됨!')">🔗 링크 공유</div>
+      </div>
+      <button class="btn" onclick="cur=0;scores={P:0,W:0,F:0,S:0};window._started=false;render()">다시 하기</button>
+      <div class="recommend-section"><h3>🎯 다른 테스트 추천</h3><div class="recommend-links">${recs.map(r=>`<a href="${r.url}">${r.name}</a>`).join('')}</div></div>
+    </div>`;
   }
 }
-function pick(s){scores[s]++;cur++;render();}
+function showCouple(me,partner,el){
+  localStorage.setItem('love_partner',partner);
+  const txt=getCoupleCompat(me,partner);
+  document.getElementById('coupleResult').innerHTML=`<div class="couple-result">${txt}</div>`;
+}
+function pickLove(s,el){
+  if(window._answering)return;
+  window._answering=true;
+  scores[s]++;
+  if(el){el.classList.add('selected');}
+  const card=document.querySelector('.q-card');
+  if(card)card.classList.add('fade-out');
+  setTimeout(()=>{cur++;window._answering=false;render();},400);
+}
 render();
 </script></body></html>

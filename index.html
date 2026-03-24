@@ -68,6 +68,12 @@ header .sub{color:#888;font-size:14px}
 .lb-tab:hover{border-color:#888}
 .lb-tab.active{border-color:#FFD700;color:#FFD700}
 footer{text-align:center;padding:20px;color:#444;font-size:12px}
+/* Game category filters */
+.cat-filters{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin:8px auto;max-width:1200px;padding:0 20px}
+.cat-btn{background:#1a1a2e;border:1px solid #2a2a4a;color:#888;padding:5px 12px;border-radius:8px;font-size:12px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.cat-btn:hover{border-color:#555;color:#ccc}
+.cat-btn.cat-active{background:#252545;border-color:#FFD700;color:#FFD700}
+@media(max-width:600px){.cat-filters{gap:3px;padding:0 8px}.cat-btn{padding:4px 8px;font-size:11px}}
 .pc-badge{position:absolute;top:8px;left:8px;background:rgba(0,0,0,0.7);padding:3px 8px;border-radius:6px;font-size:10px;color:#FF9800;backdrop-filter:blur(4px)}
 .card.pc-only{opacity:0.5;order:99}
 /* Mobile responsive */
@@ -122,6 +128,7 @@ footer{text-align:center;padding:20px;color:#444;font-size:12px}
   <div class="tab" onclick="switchTab('tools')"><span class="tab-icon">🛠️</span><span class="tab-label">도구</span><span class="badge" id="tl-count"></span></div>
 </div>
 
+<div class="cat-filters" id="catFilters" style="display:none"></div>
 <div class="grid" id="grid"></div>
 <div class="lb" id="lb-section" style="display:none">
   <h2>🏆 오늘의 리더보드</h2>
@@ -212,59 +219,59 @@ let currentTab='game', lbFilter='all';
 
 // Items
 const GAMES=[
-  {file:'games/tetris.html',title:'블록 쌓기',desc:'블록을 쌓고 줄을 완성',emoji:'🧱',id:'tetris',bg:'linear-gradient(135deg,#FF9AA2,#FFDAC1)',mobile:'pc'},
-  {file:'games/snake.html',title:'뱀 키우기',desc:'귀여운 뱀 먹이 먹기',emoji:'🐍',id:'snake',bg:'linear-gradient(135deg,#7EC8A0,#B5EAD7)',mobile:'pc'},
-  {file:'games/flappy.html',title:'날아라 병아리',desc:'장애물 피하기',emoji:'🐥',id:'flappy',bg:'linear-gradient(135deg,#87CEEB,#FFD700)',mobile:'ok'},
-  {file:'games/tower_defense.html',title:'성 지키기',desc:'무한 타워 디펜스',emoji:'🏰',id:'tower_defense',bg:'linear-gradient(135deg,#66BB6A,#4CAF50)',mobile:'pc'},
+  {file:'games/tetris.html',title:'블록 쌓기',desc:'블록을 쌓고 줄을 완성',emoji:'🧱',id:'tetris',cat:'arcade',bg:'linear-gradient(135deg,#FF9AA2,#FFDAC1)',mobile:'pc'},
+  {file:'games/snake.html',title:'뱀 키우기',desc:'귀여운 뱀 먹이 먹기',emoji:'🐍',id:'snake',cat:'arcade',bg:'linear-gradient(135deg,#7EC8A0,#B5EAD7)',mobile:'pc'},
+  {file:'games/flappy.html',title:'날아라 병아리',desc:'장애물 피하기',emoji:'🐥',id:'flappy',cat:'arcade',bg:'linear-gradient(135deg,#87CEEB,#FFD700)',mobile:'ok'},
+  {file:'games/tower_defense.html',title:'성 지키기',desc:'무한 타워 디펜스',emoji:'🏰',id:'tower_defense',cat:'rpg',bg:'linear-gradient(135deg,#66BB6A,#4CAF50)',mobile:'pc'},
   {file:'games/rhythm.html',title:'리듬 스타',desc:'키보드 리듬 게임',emoji:'🎵',id:'rhythm',bg:'linear-gradient(135deg,#E0B0FF,#7B68EE)',mobile:'pc'},
-  {file:'games/bullet_storm.html',title:'불렛 스톰',desc:'총알 피하기',emoji:'🚀',id:'bullet_storm',bg:'linear-gradient(135deg,#1a1a4a,#3a3a8a)',mobile:'pc'},
-  {file:'games/gomoku.html',title:'오목',desc:'AI 또는 2인 대전',emoji:'⚫',id:'gomoku',bg:'linear-gradient(135deg,#D4A76A,#8B6914)',mobile:'pc'},
-  {file:'games/digging.html',title:'땅굴 탐험',desc:'용암 피해 지하 하강',emoji:'⛏️',id:'digging',bg:'linear-gradient(135deg,#2a1a0a,#5a3a1a)',mobile:'pc'},
-  {file:'games/puzzle2048.html',title:'2048',desc:'숫자 타일 합치기',emoji:'🔢',id:'puzzle2048',bg:'linear-gradient(135deg,#EDB879,#F9D976)',mobile:'pc'},
-  {file:'games/minesweeper.html',title:'지뢰찾기',desc:'클래식 지뢰찾기',emoji:'💣',id:'minesweeper',bg:'linear-gradient(135deg,#607D8B,#90A4AE)',mobile:'pc'},
-  {file:'games/pong.html',title:'핑퐁',desc:'클래식 핑퐁 대전',emoji:'🏓',id:'pong',bg:'linear-gradient(135deg,#1a3a1a,#2a5a2a)',mobile:'pc'},
-  {file:'games/runner.html',title:'달려라!',desc:'끝없는 달리기',emoji:'🏃',id:'runner',bg:'linear-gradient(135deg,#FF7043,#FFB74D)',mobile:'ok'},
-  {file:'games/memory.html',title:'기억력 게임',desc:'카드 짝 맞추기',emoji:'🃏',id:'memory',bg:'linear-gradient(135deg,#CE93D8,#F48FB1)',mobile:'ok'},
-  {file:'games/shooting.html',title:'사격장',desc:'60초 타겟 사격',emoji:'🎯',id:'shooting',bg:'linear-gradient(135deg,#EF5350,#FF8A65)',mobile:'ok'},
-  {file:'games/sliding.html',title:'슬라이딩 퍼즐',desc:'15퍼즐 맞추기',emoji:'🧩',id:'sliding',bg:'linear-gradient(135deg,#4FC3F7,#4DD0E1)',mobile:'ok'},
-  {file:'games/hangman.html',title:'단어 맞추기',desc:'행맨 단어 퀴즈',emoji:'📝',id:'hangman',bg:'linear-gradient(135deg,#8D6E63,#A1887F)',mobile:'ok'},
-  {file:'games/breakout.html',title:'벽돌깨기',desc:'클래식 브레이크아웃',emoji:'🧱',id:'breakout',bg:'linear-gradient(135deg,#E91E63,#F48FB1)',mobile:'pc'},
-  {file:'games/colormatch.html',title:'색 맞추기',desc:'스트룹 반응 테스트',emoji:'🌈',id:'colormatch',bg:'linear-gradient(135deg,#00BCD4,#4DD0E1)',mobile:'ok'},
-  {file:'games/typing.html',title:'타자 게임',desc:'떨어지는 단어 타자',emoji:'⌨️',id:'typing',bg:'linear-gradient(135deg,#455A64,#78909C)',mobile:'pc'},
-  {file:'games/cardgame.html',title:'카드 배틀',desc:'카드 뒤집기 대전',emoji:'🃏',id:'cardgame',bg:'linear-gradient(135deg,#5C6BC0,#7986CB)',mobile:'ok'},
+  {file:'games/bullet_storm.html',title:'불렛 스톰',desc:'총알 피하기',emoji:'🚀',id:'bullet_storm',cat:'arcade',bg:'linear-gradient(135deg,#1a1a4a,#3a3a8a)',mobile:'pc'},
+  {file:'games/gomoku.html',title:'오목',desc:'AI 또는 2인 대전',emoji:'⚫',id:'gomoku',cat:'board',bg:'linear-gradient(135deg,#D4A76A,#8B6914)',mobile:'pc'},
+  {file:'games/digging.html',title:'땅굴 탐험',desc:'용암 피해 지하 하강',emoji:'⛏️',id:'digging',cat:'arcade',bg:'linear-gradient(135deg,#2a1a0a,#5a3a1a)',mobile:'pc'},
+  {file:'games/puzzle2048.html',title:'2048',desc:'숫자 타일 합치기',emoji:'🔢',id:'puzzle2048',cat:'puzzle',bg:'linear-gradient(135deg,#EDB879,#F9D976)',mobile:'pc'},
+  {file:'games/minesweeper.html',title:'지뢰찾기',desc:'클래식 지뢰찾기',emoji:'💣',id:'minesweeper',cat:'puzzle',bg:'linear-gradient(135deg,#607D8B,#90A4AE)',mobile:'pc'},
+  {file:'games/pong.html',title:'핑퐁',desc:'클래식 핑퐁 대전',emoji:'🏓',id:'pong',cat:'arcade',bg:'linear-gradient(135deg,#1a3a1a,#2a5a2a)',mobile:'pc'},
+  {file:'games/runner.html',title:'달려라!',desc:'끝없는 달리기',emoji:'🏃',id:'runner',cat:'arcade',bg:'linear-gradient(135deg,#FF7043,#FFB74D)',mobile:'ok'},
+  {file:'games/memory.html',title:'기억력 게임',desc:'카드 짝 맞추기',emoji:'🃏',id:'memory',cat:'puzzle',bg:'linear-gradient(135deg,#CE93D8,#F48FB1)',mobile:'ok'},
+  {file:'games/shooting.html',title:'사격장',desc:'60초 타겟 사격',emoji:'🎯',id:'shooting',cat:'puzzle',bg:'linear-gradient(135deg,#EF5350,#FF8A65)',mobile:'ok'},
+  {file:'games/sliding.html',title:'슬라이딩 퍼즐',desc:'15퍼즐 맞추기',emoji:'🧩',id:'sliding',cat:'puzzle',bg:'linear-gradient(135deg,#4FC3F7,#4DD0E1)',mobile:'ok'},
+  {file:'games/hangman.html',title:'단어 맞추기',desc:'행맨 단어 퀴즈',emoji:'📝',id:'hangman',cat:'puzzle',bg:'linear-gradient(135deg,#8D6E63,#A1887F)',mobile:'ok'},
+  {file:'games/breakout.html',title:'벽돌깨기',desc:'클래식 브레이크아웃',emoji:'🧱',id:'breakout',cat:'arcade',bg:'linear-gradient(135deg,#E91E63,#F48FB1)',mobile:'pc'},
+  {file:'games/colormatch.html',title:'색 맞추기',desc:'스트룹 반응 테스트',emoji:'🌈',id:'colormatch',cat:'casual',bg:'linear-gradient(135deg,#00BCD4,#4DD0E1)',mobile:'ok'},
+  {file:'games/typing.html',title:'타자 게임',desc:'떨어지는 단어 타자',emoji:'⌨️',id:'typing',cat:'puzzle',bg:'linear-gradient(135deg,#455A64,#78909C)',mobile:'pc'},
+  {file:'games/cardgame.html',title:'카드 배틀',desc:'카드 뒤집기 대전',emoji:'🃏',id:'cardgame',cat:'card',bg:'linear-gradient(135deg,#5C6BC0,#7986CB)',mobile:'ok'},
   // 모바일 전용 게임
-  {file:'games/tap_speed.html',title:'탭 스피드',desc:'10초 안에 최대한 빠르게 탭!',emoji:'👆',id:'tap_speed',bg:'linear-gradient(135deg,#FF5252,#FF8A80)',mobile:'ok'},
-  {file:'games/whack.html',title:'두더지 잡기',desc:'올라오는 두더지를 잡아라',emoji:'🔨',id:'whack',bg:'linear-gradient(135deg,#8D6E63,#D7CCC8)',mobile:'ok'},
-  {file:'games/catch.html',title:'과일 받기',desc:'떨어지는 과일을 바구니로',emoji:'🧺',id:'catch',bg:'linear-gradient(135deg,#66BB6A,#C8E6C9)',mobile:'ok'},
-  {file:'games/stack.html',title:'블록 쌓기',desc:'블록을 정확히 쌓아올려라',emoji:'📦',id:'stack',bg:'linear-gradient(135deg,#42A5F5,#90CAF9)',mobile:'ok'},
-  {file:'games/bubble.html',title:'버블 터뜨리기',desc:'올라오는 버블을 터뜨려라',emoji:'🫧',id:'bubble',bg:'linear-gradient(135deg,#AB47BC,#E1BEE7)',mobile:'ok'},
-  {file:'games/swipe_match.html',title:'스와이프 퍼즐',desc:'같은 색 3개를 맞춰라',emoji:'💎',id:'swipe_match',bg:'linear-gradient(135deg,#26C6DA,#80DEEA)',mobile:'ok'},
-  {file:'games/reaction.html',title:'반응속도 테스트',desc:'초록불에 최대한 빠르게 탭!',emoji:'⚡',id:'reaction',bg:'linear-gradient(135deg,#FFC107,#FFEB3B)',mobile:'ok'},
-  {file:'games/dodge_ball.html',title:'공 피하기',desc:'떨어지는 공을 피해라',emoji:'🏐',id:'dodge_ball',bg:'linear-gradient(135deg,#5C6BC0,#9FA8DA)',mobile:'ok'},
-  {file:'games/number_tap.html',title:'숫자 순서 터치',desc:'1부터 25까지 빠르게 터치',emoji:'🔢',id:'number_tap',bg:'linear-gradient(135deg,#FF7043,#FFAB91)',mobile:'ok'},
-  {file:'games/color_switch.html',title:'컬러 스위치',desc:'같은 색 게이트를 통과해라',emoji:'🌈',id:'color_switch',bg:'linear-gradient(135deg,#EC407A,#F48FB1)',mobile:'ok'},
+  {file:'games/tap_speed.html',title:'탭 스피드',desc:'10초 안에 최대한 빠르게 탭!',emoji:'👆',id:'tap_speed',cat:'casual',bg:'linear-gradient(135deg,#FF5252,#FF8A80)',mobile:'ok'},
+  {file:'games/whack.html',title:'두더지 잡기',desc:'올라오는 두더지를 잡아라',emoji:'🔨',id:'whack',cat:'casual',bg:'linear-gradient(135deg,#8D6E63,#D7CCC8)',mobile:'ok'},
+  {file:'games/catch.html',title:'과일 받기',desc:'떨어지는 과일을 바구니로',emoji:'🧺',id:'catch',cat:'casual',bg:'linear-gradient(135deg,#66BB6A,#C8E6C9)',mobile:'ok'},
+  {file:'games/stack.html',title:'블록 쌓기',desc:'블록을 정확히 쌓아올려라',emoji:'📦',id:'stack',cat:'arcade',bg:'linear-gradient(135deg,#42A5F5,#90CAF9)',mobile:'ok'},
+  {file:'games/bubble.html',title:'버블 터뜨리기',desc:'올라오는 버블을 터뜨려라',emoji:'🫧',id:'bubble',cat:'casual',bg:'linear-gradient(135deg,#AB47BC,#E1BEE7)',mobile:'ok'},
+  {file:'games/swipe_match.html',title:'스와이프 퍼즐',desc:'같은 색 3개를 맞춰라',emoji:'💎',id:'swipe_match',cat:'casual',bg:'linear-gradient(135deg,#26C6DA,#80DEEA)',mobile:'ok'},
+  {file:'games/reaction.html',title:'반응속도 테스트',desc:'초록불에 최대한 빠르게 탭!',emoji:'⚡',id:'reaction',cat:'casual',bg:'linear-gradient(135deg,#FFC107,#FFEB3B)',mobile:'ok'},
+  {file:'games/dodge_ball.html',title:'공 피하기',desc:'떨어지는 공을 피해라',emoji:'🏐',id:'dodge_ball',cat:'casual',bg:'linear-gradient(135deg,#5C6BC0,#9FA8DA)',mobile:'ok'},
+  {file:'games/number_tap.html',title:'숫자 순서 터치',desc:'1부터 25까지 빠르게 터치',emoji:'🔢',id:'number_tap',cat:'casual',bg:'linear-gradient(135deg,#FF7043,#FFAB91)',mobile:'ok'},
+  {file:'games/color_switch.html',title:'컬러 스위치',desc:'같은 색 게이트를 통과해라',emoji:'🌈',id:'color_switch',cat:'arcade',bg:'linear-gradient(135deg,#EC407A,#F48FB1)',mobile:'ok'},
   // 신규 대형 게임
-  {file:'games/fortress.html',title:'대포 대전',desc:'대포로 상대를 맞춰라!',emoji:'💣',id:'fortress',bg:'linear-gradient(135deg,#4E342E,#8D6E63)',mobile:'ok'},
-  {file:'games/vampire.html',title:'몬스터 웨이브',desc:'몰려오는 적을 처치하라!',emoji:'🧛',id:'vampire',bg:'linear-gradient(135deg,#4A148C,#7B1FA2)',mobile:'ok'},
-  {file:'games/racing.html',title:'레이싱',desc:'끝없는 도로를 달려라',emoji:'🏎️',id:'racing',bg:'linear-gradient(135deg,#E53935,#EF5350)',mobile:'ok'},
-  {file:'games/survival.html',title:'무인도 생존',desc:'자원을 모아 생존하라',emoji:'🏝️',id:'survival',bg:'linear-gradient(135deg,#2E7D32,#66BB6A)',mobile:'ok'},
-  {file:'games/hackslash.html',title:'던전 용사',desc:'던전을 탐험하고 적을 쓰러뜨려라',emoji:'⚔️',id:'hackslash',bg:'linear-gradient(135deg,#BF360C,#FF7043)',mobile:'ok'},
-  {file:'games/climbing.html',title:'절벽 올라가기',desc:'포기하지 말고 올라가라!',emoji:'🧗',id:'climbing',bg:'linear-gradient(135deg,#37474F,#78909C)',mobile:'ok'},
-  {file:'games/rts.html',title:'미니 전략',desc:'유닛을 생산해 적 기지를 파괴',emoji:'🏰',id:'rts',bg:'linear-gradient(135deg,#1565C0,#42A5F5)',mobile:'ok'},
-  {file:'games/blackjack.html',title:'블랙잭',desc:'딜러를 이겨라! 21에 가깝게',emoji:'🃏',id:'blackjack',bg:'linear-gradient(135deg,#1B5E20,#4CAF50)',mobile:'ok'},
-  {file:'games/poker.html',title:'텍사스 홀덤',desc:'AI와 포커 대결',emoji:'♠️',id:'poker',bg:'linear-gradient(135deg,#0D47A1,#1565C0)',mobile:'ok'},
-  {file:'games/solitaire.html',title:'솔리테어',desc:'카드를 정리해 완성하라',emoji:'🂡',id:'solitaire',bg:'linear-gradient(135deg,#006064,#00838F)',mobile:'ok'},
+  {file:'games/fortress.html',title:'대포 대전',desc:'대포로 상대를 맞춰라!',emoji:'💣',id:'fortress',cat:'action',bg:'linear-gradient(135deg,#4E342E,#8D6E63)',mobile:'ok'},
+  {file:'games/vampire.html',title:'몬스터 웨이브',desc:'몰려오는 적을 처치하라!',emoji:'🧛',id:'vampire',cat:'rpg',bg:'linear-gradient(135deg,#4A148C,#7B1FA2)',mobile:'ok'},
+  {file:'games/racing.html',title:'레이싱',desc:'끝없는 도로를 달려라',emoji:'🏎️',id:'racing',cat:'action',bg:'linear-gradient(135deg,#E53935,#EF5350)',mobile:'ok'},
+  {file:'games/survival.html',title:'무인도 생존',desc:'자원을 모아 생존하라',emoji:'🏝️',id:'survival',cat:'rpg',bg:'linear-gradient(135deg,#2E7D32,#66BB6A)',mobile:'ok'},
+  {file:'games/hackslash.html',title:'던전 용사',desc:'던전을 탐험하고 적을 쓰러뜨려라',emoji:'⚔️',id:'hackslash',cat:'rpg',bg:'linear-gradient(135deg,#BF360C,#FF7043)',mobile:'ok'},
+  {file:'games/climbing.html',title:'절벽 올라가기',desc:'포기하지 말고 올라가라!',emoji:'🧗',id:'climbing',cat:'action',bg:'linear-gradient(135deg,#37474F,#78909C)',mobile:'ok'},
+  {file:'games/rts.html',title:'미니 전략',desc:'유닛을 생산해 적 기지를 파괴',emoji:'🏰',id:'rts',cat:'rpg',bg:'linear-gradient(135deg,#1565C0,#42A5F5)',mobile:'ok'},
+  {file:'games/blackjack.html',title:'블랙잭',desc:'딜러를 이겨라! 21에 가깝게',emoji:'🃏',id:'blackjack',cat:'card',bg:'linear-gradient(135deg,#1B5E20,#4CAF50)',mobile:'ok'},
+  {file:'games/poker.html',title:'텍사스 홀덤',desc:'AI와 포커 대결',emoji:'♠️',id:'poker',cat:'card',bg:'linear-gradient(135deg,#0D47A1,#1565C0)',mobile:'ok'},
+  {file:'games/solitaire.html',title:'솔리테어',desc:'카드를 정리해 완성하라',emoji:'🂡',id:'solitaire',cat:'card',bg:'linear-gradient(135deg,#006064,#00838F)',mobile:'ok'},
   // 보드게임
-  {file:'games/chess.html',title:'체스',desc:'AI와 체스 대결',emoji:'♟️',id:'chess',bg:'linear-gradient(135deg,#3E2723,#6D4C41)',mobile:'ok'},
-  {file:'games/janggi.html',title:'장기',desc:'AI와 장기 대결',emoji:'🀄',id:'janggi',bg:'linear-gradient(135deg,#BF360C,#E64A19)',mobile:'ok'},
-  {file:'games/yutnori.html',title:'윷놀이',desc:'윷을 던져 말을 움직여라',emoji:'🎯',id:'yutnori',bg:'linear-gradient(135deg,#F57F17,#FDD835)',mobile:'ok'},
-  {file:'games/baduk.html',title:'바둑',desc:'9x9 바둑 AI 대전',emoji:'⚫',id:'baduk',bg:'linear-gradient(135deg,#4E342E,#795548)',mobile:'ok'},
-  {file:'games/othello.html',title:'오셀로',desc:'돌을 뒤집어 많이 차지해라',emoji:'⚪',id:'othello',bg:'linear-gradient(135deg,#1B5E20,#388E3C)',mobile:'ok'},
+  {file:'games/chess.html',title:'체스',desc:'AI와 체스 대결',emoji:'♟️',id:'chess',cat:'board',bg:'linear-gradient(135deg,#3E2723,#6D4C41)',mobile:'ok'},
+  {file:'games/janggi.html',title:'장기',desc:'AI와 장기 대결',emoji:'🀄',id:'janggi',cat:'board',bg:'linear-gradient(135deg,#BF360C,#E64A19)',mobile:'ok'},
+  {file:'games/yutnori.html',title:'윷놀이',desc:'윷을 던져 말을 움직여라',emoji:'🎯',id:'yutnori',cat:'board',bg:'linear-gradient(135deg,#F57F17,#FDD835)',mobile:'ok'},
+  {file:'games/baduk.html',title:'바둑',desc:'9x9 바둑 AI 대전',emoji:'⚫',id:'baduk',cat:'board',bg:'linear-gradient(135deg,#4E342E,#795548)',mobile:'ok'},
+  {file:'games/othello.html',title:'오셀로',desc:'돌을 뒤집어 많이 차지해라',emoji:'⚪',id:'othello',cat:'board',bg:'linear-gradient(135deg,#1B5E20,#388E3C)',mobile:'ok'},
   // 화투/마작
-  {file:'games/mahjong.html',title:'마작',desc:'같은 패를 찾아 제거하라',emoji:'🀄',id:'mahjong',bg:'linear-gradient(135deg,#004D40,#00897B)',mobile:'ok'},
-  {file:'games/sutda.html',title:'섯다',desc:'화투 2장으로 승부!',emoji:'🎴',id:'sutda',bg:'linear-gradient(135deg,#B71C1C,#E53935)',mobile:'ok'},
-  {file:'games/matgo.html',title:'맞고',desc:'2인 화투 고스톱',emoji:'🌸',id:'matgo',bg:'linear-gradient(135deg,#880E4F,#AD1457)',mobile:'ok'},
-  {file:'games/gostop.html',title:'고스톱',desc:'3인 고스톱 대전',emoji:'🎴',id:'gostop',bg:'linear-gradient(135deg,#4A148C,#6A1B9A)',mobile:'ok'},
+  {file:'games/mahjong.html',title:'마작',desc:'같은 패를 찾아 제거하라',emoji:'🀄',id:'mahjong',cat:'puzzle',bg:'linear-gradient(135deg,#004D40,#00897B)',mobile:'ok'},
+  {file:'games/sutda.html',title:'섯다',desc:'화투 2장으로 승부!',emoji:'🎴',id:'sutda',cat:'card',bg:'linear-gradient(135deg,#B71C1C,#E53935)',mobile:'ok'},
+  {file:'games/matgo.html',title:'맞고',desc:'2인 화투 고스톱',emoji:'🌸',id:'matgo',cat:'card',bg:'linear-gradient(135deg,#880E4F,#AD1457)',mobile:'ok'},
+  {file:'games/gostop.html',title:'고스톱',desc:'3인 고스톱 대전',emoji:'🎴',id:'gostop',cat:'card',bg:'linear-gradient(135deg,#4A148C,#6A1B9A)',mobile:'ok'},
 ];
 
 const TESTS=[
@@ -423,15 +430,39 @@ function confirmNick(){
   setNick(n);closeNickModal();renderNick();renderGrid();
 }
 
+// Game categories
+const GAME_CATS={
+  all:{label:'전체',emoji:'🎮'},
+  arcade:{label:'아케이드',emoji:'🕹️'},
+  casual:{label:'캐주얼',emoji:'📱'},
+  puzzle:{label:'퍼즐',emoji:'🧩'},
+  card:{label:'카드',emoji:'🃏'},
+  board:{label:'보드',emoji:'♟️'},
+  rpg:{label:'RPG/전략',emoji:'⚔️'},
+  action:{label:'액션',emoji:'💥'},
+};
+let gameCatFilter='all';
+
+function renderCatFilters(){
+  const div=document.getElementById('catFilters');
+  if(currentTab!=='game'){div.style.display='none';return;}
+  div.style.display='flex';
+  div.innerHTML=Object.entries(GAME_CATS).map(([id,c])=>
+    `<div class="cat-btn ${gameCatFilter===id?'cat-active':''}" onclick="gameCatFilter='${id}';renderCatFilters();renderGrid()">${c.emoji} ${c.label}</div>`
+  ).join('');
+}
+
 // Tabs
 function switchTab(tab){
   currentTab=tab;
+  gameCatFilter='all';
   document.querySelectorAll('.tab').forEach(t=>t.className='tab');
   const tabs={game:0,test:1,destiny:2,itknow:3,quiz:4,tools:5};
   const cls=['active-game','active-test','active-destiny','active-game','active-test','active-destiny','active-game'];
   const idx=tabs[tab]||0;
   document.querySelectorAll('.tab')[idx]?.classList.add(cls[idx]);
   document.getElementById('lb-section').style.display=tab==='game'?'block':'none';
+  renderCatFilters();
   renderGrid();
   if(tab==='game')renderLB().catch(()=>{});
 }
@@ -443,8 +474,13 @@ function renderGrid(){
   const grid=document.getElementById('grid');
   grid.innerHTML='';
   const TAB_MAP={game:GAMES,test:TESTS,destiny:DESTINY,itknow:ITKNOW,quiz:QUIZ,tools:TOOLS};
-  const items=TAB_MAP[currentTab]||GAMES;
+  let items=TAB_MAP[currentTab]||GAMES;
   const scores=getScores();
+
+  // Game category filter
+  if(currentTab==='game'&&gameCatFilter!=='all'){
+    items=items.filter(g=>g.cat===gameCatFilter);
+  }
 
   // Sort: mobile-ok first on mobile
   const sorted = isMobile && currentTab==='game'

@@ -12,6 +12,38 @@ h1{font-size:32px;margin-bottom:8px}
 .opts{display:flex;flex-direction:column;gap:10px}
 .opt{background:#252545;border:2px solid #333;border-radius:12px;padding:14px;cursor:pointer;font-size:15px;transition:all .2s;text-align:left}
 .opt:hover{border-color:#7B68EE;transform:scale(1.02)}
+.opt.selected{border-color:#7B68EE;background:#3a3a6e;position:relative}
+.opt.selected::after{content:'✓';position:absolute;right:14px;top:50%;transform:translateY(-50%);color:#7B68EE;font-weight:bold;font-size:18px}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(123,104,238,0.5)}70%{box-shadow:0 0 0 12px rgba(123,104,238,0)}100%{box-shadow:0 0 0 0 rgba(123,104,238,0)}}
+.opt.selected{animation:pulse .5s ease-out}
+@keyframes fadeOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(-30px)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+.q-card.fade-out{animation:fadeOut .25s ease-in forwards}
+.q-card.slide-in{animation:slideIn .3s ease-out forwards}
+.result-card{background:#1a1a2e;border-radius:20px;padding:30px;border:2px solid transparent;background-clip:padding-box;position:relative;box-shadow:0 8px 32px rgba(123,104,238,0.2)}
+.result-card::before{content:'';position:absolute;inset:-2px;border-radius:22px;background:linear-gradient(135deg,#7B68EE,#FF6B6B,#FFD700,#7B68EE);z-index:-1}
+.result-card .big-emoji{font-size:64px;margin:10px 0}
+.axis-bar{margin:8px 0;display:flex;align-items:center;gap:8px;font-size:13px}
+.axis-bar .label{width:20px;text-align:center;font-weight:bold}
+.axis-bar .bar-bg{flex:1;height:10px;background:#252545;border-radius:5px;overflow:hidden}
+.axis-bar .bar-fill{height:100%;border-radius:5px;transition:width 1s ease-out}
+.mini-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:15px 0}
+.mini-grid .cell{background:#252545;border-radius:6px;padding:6px 2px;font-size:11px;text-align:center;color:#888}
+.mini-grid .cell.me{background:#7B68EE;color:#fff;font-weight:bold;box-shadow:0 0 8px rgba(123,104,238,0.5)}
+.compat-section{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:10px 0}
+.compat-tag{padding:6px 14px;border-radius:10px;font-size:13px}
+.compat-tag.good{background:rgba(76,175,80,0.15);border:1px solid #4CAF50;color:#4CAF50}
+.compat-tag.warn{background:rgba(255,107,107,0.15);border:1px solid #FF6B6B;color:#FF6B6B}
+.share-row{display:flex;gap:8px;justify-content:center;margin-top:15px;flex-wrap:wrap}
+.share-btn2{background:#2a2a4a;border:1px solid #555;color:#ccc;padding:10px 20px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:bold;transition:all .2s}
+.share-btn2:hover{border-color:#7B68EE;color:#fff}
+.recommend-section{margin-top:25px;padding-top:20px;border-top:1px solid #2a2a4a}
+.recommend-section h3{color:#888;font-size:14px;margin-bottom:12px}
+.recommend-links{display:flex;flex-direction:column;gap:8px}
+.recommend-links a{background:#252545;border:1px solid #333;border-radius:10px;padding:12px;color:#ccc;text-decoration:none;font-size:13px;transition:all .2s}
+.recommend-links a:hover{border-color:#7B68EE;color:#fff}
+.prev-result{background:#252545;border-radius:8px;padding:8px 14px;font-size:12px;color:#888;margin-bottom:15px;display:inline-block}
+.time-est{color:#666;font-size:13px;margin-bottom:15px}
 .progress{background:#1a1a2e;border-radius:10px;height:8px;margin-bottom:20px;overflow:hidden}
 .progress-fill{background:linear-gradient(90deg,#7B68EE,#FF6B6B);height:100%;border-radius:10px;transition:width .3s}
 .result{background:#1a1a2e;border-radius:16px;padding:30px;border:1px solid #2a2a4a}
@@ -46,28 +78,45 @@ const Q=_shuf([
 ]);
 
 const TYPES={
-  INTJ:{title:"전략가",emoji:"🧠",desc:"독립적이고 전략적인 사고를 하는 당신! 높은 기준을 가지고 있으며 효율성을 중시해요. 혼자서 깊이 생각하는 것을 좋아하고, 장기적 비전을 가지고 움직입니다."},
-  INTP:{title:"논리술사",emoji:"🔬",desc:"호기심 많은 분석가! 논리와 이론을 사랑하며, 복잡한 문제를 풀 때 가장 행복해요. 조용하지만 아이디어가 넘치는 당신입니다."},
-  ENTJ:{title:"통솔자",emoji:"👑",desc:"타고난 리더! 효율적이고 결단력 있으며, 목표를 향해 강하게 밀고 나가요. 당신이 있으면 일이 척척 진행됩니다."},
-  ENTP:{title:"변론가",emoji:"💡",desc:"창의적 도전자! 새로운 아이디어를 던지고 토론하는 것을 즐겨요. 기존 관념에 도전하는 것을 두려워하지 않습니다."},
-  INFJ:{title:"옹호자",emoji:"🌟",desc:"이상주의적 조력자! 조용하지만 강한 신념을 가지고 있어요. 다른 사람을 돕는 것에서 보람을 느끼며, 깊은 관계를 중시합니다."},
-  INFP:{title:"중재자",emoji:"🦋",desc:"이상주의적 몽상가! 풍부한 감정과 상상력을 가지고 있어요. 자신의 가치관에 충실하며, 세상을 더 좋은 곳으로 만들고 싶어합니다."},
-  ENFJ:{title:"선도자",emoji:"🌈",desc:"카리스마 넘치는 리더! 사람들에게 영감을 주고 이끄는 능력이 탁월해요. 공감력이 뛰어나고 다른 사람의 성장을 돕습니다."},
-  ENFP:{title:"활동가",emoji:"🎨",desc:"열정 넘치는 자유영혼! 새로운 가능성을 보는 눈이 있고, 사람들과 어울리는 것을 좋아해요. 창의적이고 에너지가 넘칩니다."},
-  ISTJ:{title:"현실주의자",emoji:"📋",desc:"신뢰할 수 있는 책임감의 달인! 규칙과 질서를 중시하며, 맡은 일은 반드시 해내요. 꼼꼼하고 성실한 당신입니다."},
-  ISFJ:{title:"수호자",emoji:"🛡️",desc:"따뜻한 수호자! 조용하지만 헌신적이며, 주변 사람들을 세심하게 챙겨요. 안정적이고 신뢰할 수 있는 존재입니다."},
-  ESTJ:{title:"경영자",emoji:"📊",desc:"조직의 기둥! 체계적이고 실용적이며, 목표 달성을 위해 효율적으로 움직여요. 리더십과 관리 능력이 뛰어납니다."},
-  ESFJ:{title:"집정관",emoji:"🤝",desc:"사교적인 돌봄이! 다른 사람의 필요를 잘 파악하고, 조화로운 관계를 만들어요. 따뜻하고 친절한 당신입니다."},
-  ISTP:{title:"장인",emoji:"🔧",desc:"냉철한 분석가! 실용적이고 관찰력이 뛰어나며, 손재주가 좋아요. 문제가 생기면 즉시 해결할 수 있는 능력자입니다."},
-  ISFP:{title:"모험가",emoji:"🎵",desc:"온화한 예술가! 현재를 즐기며, 아름다움과 감각적 경험을 중시해요. 조용하지만 내면에 풍부한 감성을 가지고 있습니다."},
-  ESTP:{title:"사업가",emoji:"⚡",desc:"대담한 행동파! 현실적이고 에너지가 넘치며, 즉각적인 결과를 만들어내요. 모험을 즐기고 적응력이 뛰어납니다."},
-  ESFP:{title:"연예인",emoji:"🎭",desc:"즉흥적인 엔터테이너! 주변을 밝게 만드는 태양 같은 존재예요. 재미와 경험을 중시하며, 사람들과 함께하는 것을 좋아합니다."},
+  INTJ:{title:"전략가",emoji:"🧠",desc:"독립적이고 전략적인 사고를 하는 당신! 높은 기준을 가지고 있으며 효율성을 중시해요. 혼자서 깊이 생각하는 것을 좋아하고, 장기적 비전을 가지고 움직입니다.",famous:"일론 머스크, 셜록 홈즈",good:"ENFP, ENTP",warn:"ESFP, ESFJ"},
+  INTP:{title:"논리술사",emoji:"🔬",desc:"호기심 많은 분석가! 논리와 이론을 사랑하며, 복잡한 문제를 풀 때 가장 행복해요. 조용하지만 아이디어가 넘치는 당신입니다.",famous:"아인슈타인, 빌 게이츠",good:"ENTJ, ENFJ",warn:"ESFJ, ISFJ"},
+  ENTJ:{title:"통솔자",emoji:"👑",desc:"타고난 리더! 효율적이고 결단력 있으며, 목표를 향해 강하게 밀고 나가요. 당신이 있으면 일이 척척 진행됩니다.",famous:"스티브 잡스, 마거릿 대처",good:"INTP, INFP",warn:"ISFP, INFP"},
+  ENTP:{title:"변론가",emoji:"💡",desc:"창의적 도전자! 새로운 아이디어를 던지고 토론하는 것을 즐겨요. 기존 관념에 도전하는 것을 두려워하지 않습니다.",famous:"토마스 에디슨, 로버트 다우니 주니어",good:"INTJ, INFJ",warn:"ISFJ, ISTJ"},
+  INFJ:{title:"옹호자",emoji:"🌟",desc:"이상주의적 조력자! 조용하지만 강한 신념을 가지고 있어요. 다른 사람을 돕는 것에서 보람을 느끼며, 깊은 관계를 중시합니다.",famous:"마틴 루터 킹, 간디",good:"ENTP, ENFP",warn:"ESTP, ISTP"},
+  INFP:{title:"중재자",emoji:"🦋",desc:"이상주의적 몽상가! 풍부한 감정과 상상력을 가지고 있어요. 자신의 가치관에 충실하며, 세상을 더 좋은 곳으로 만들고 싶어합니다.",famous:"윌리엄 셰익스피어, 뷔(BTS)",good:"ENFJ, ENTJ",warn:"ESTJ, ISTJ"},
+  ENFJ:{title:"선도자",emoji:"🌈",desc:"카리스마 넘치는 리더! 사람들에게 영감을 주고 이끄는 능력이 탁월해요. 공감력이 뛰어나고 다른 사람의 성장을 돕습니다.",famous:"오바마, 오프라 윈프리",good:"INFP, ISFP",warn:"ISTP, INTP"},
+  ENFP:{title:"활동가",emoji:"🎨",desc:"열정 넘치는 자유영혼! 새로운 가능성을 보는 눈이 있고, 사람들과 어울리는 것을 좋아해요. 창의적이고 에너지가 넘칩니다.",famous:"로빈 윌리엄스, 월트 디즈니",good:"INTJ, INFJ",warn:"ISTJ, ESTJ"},
+  ISTJ:{title:"현실주의자",emoji:"📋",desc:"신뢰할 수 있는 책임감의 달인! 규칙과 질서를 중시하며, 맡은 일은 반드시 해내요. 꼼꼼하고 성실한 당신입니다.",famous:"워렌 버핏, 나탈리 포트만",good:"ESFP, ESTP",warn:"ENFP, INFP"},
+  ISFJ:{title:"수호자",emoji:"🛡️",desc:"따뜻한 수호자! 조용하지만 헌신적이며, 주변 사람들을 세심하게 챙겨요. 안정적이고 신뢰할 수 있는 존재입니다.",famous:"비욘세, 앤 해서웨이",good:"ESFP, ENFP",warn:"ENTP, INTP"},
+  ESTJ:{title:"경영자",emoji:"📊",desc:"조직의 기둥! 체계적이고 실용적이며, 목표 달성을 위해 효율적으로 움직여요. 리더십과 관리 능력이 뛰어납니다.",famous:"헨리 포드, 미셸 오바마",good:"ISFP, ISTP",warn:"INFP, ENFP"},
+  ESFJ:{title:"집정관",emoji:"🤝",desc:"사교적인 돌봄이! 다른 사람의 필요를 잘 파악하고, 조화로운 관계를 만들어요. 따뜻하고 친절한 당신입니다.",famous:"테일러 스위프트, 제니퍼 로페즈",good:"ISFP, ISTP",warn:"INTJ, INTP"},
+  ISTP:{title:"장인",emoji:"🔧",desc:"냉철한 분석가! 실용적이고 관찰력이 뛰어나며, 손재주가 좋아요. 문제가 생기면 즉시 해결할 수 있는 능력자입니다.",famous:"마이클 조던, 클린트 이스트우드",good:"ESTJ, ESFJ",warn:"ENFJ, INFJ"},
+  ISFP:{title:"모험가",emoji:"🎵",desc:"온화한 예술가! 현재를 즐기며, 아름다움과 감각적 경험을 중시해요. 조용하지만 내면에 풍부한 감성을 가지고 있습니다.",famous:"밥 로스, 마이클 잭슨",good:"ENFJ, ESFJ",warn:"ENTJ, ESTJ"},
+  ESTP:{title:"사업가",emoji:"⚡",desc:"대담한 행동파! 현실적이고 에너지가 넘치며, 즉각적인 결과를 만들어내요. 모험을 즐기고 적응력이 뛰어납니다.",famous:"어니스트 헤밍웨이, 마돈나",good:"ISTJ, ISFJ",warn:"INFJ, INFP"},
+  ESFP:{title:"연예인",emoji:"🎭",desc:"즉흥적인 엔터테이너! 주변을 밝게 만드는 태양 같은 존재예요. 재미와 경험을 중시하며, 사람들과 함께하는 것을 좋아합니다.",famous:"엘튼 존, 마릴린 먼로",good:"ISTJ, ISFJ",warn:"INTJ, INFJ"},
 };
 
 let cur=0,answers={EI:0,SN:0,TF:0,JP:0};
 
+const ALL_TESTS=[
+  {name:'혈액형 성격 분석 🩸',url:'blood.html'},
+  {name:'연애 유형 테스트 💕',url:'love.html'},
+  {name:'스트레스 지수 테스트 😰',url:'stress.html'},
+  {name:'동물 성격 테스트 🐾',url:'animal.html'},
+];
+
 function render(){
   const app=document.getElementById('app');
+  if(cur===0 && !window._started){
+    const prev=localStorage.getItem('mbti_result');
+    app.innerHTML=`
+      <h1>MBTI 테스트</h1>
+      <p class="sub">나의 성격 유형은?</p>
+      <p class="time-est">예상 소요시간: 2분</p>
+      ${prev?`<div class="prev-result">이전 결과: ${prev}</div>`:''}
+      <button class="btn" onclick="window._started=true;render()">시작하기</button>`;
+    return;
+  }
   if(cur<Q.length){
     const q=Q[cur];
     const pct=((cur/Q.length)*100).toFixed(0);
@@ -75,42 +124,88 @@ function render(){
       <h1>MBTI 테스트</h1>
       <p class="sub">나의 성격 유형은?</p>
       <div class="progress"><div class="progress-fill" style="width:${pct}%"></div></div>
-      <div class="q-card">
+      <div class="q-card slide-in">
         <div class="q-num">${cur+1} / ${Q.length}</div>
         <div class="q-text">${q.q}</div>
         <div class="opts">
-          <div class="opt" onclick="answer(0)">${q.a[0]}</div>
-          <div class="opt" onclick="answer(1)">${q.a[1]}</div>
+          <div class="opt" onclick="answer(0,this)">${q.a[0]}</div>
+          <div class="opt" onclick="answer(1,this)">${q.a[1]}</div>
         </div>
       </div>`;
   } else showResult();
 }
 
-function answer(i){
+function answer(i,el){
+  if(window._answering)return;
+  window._answering=true;
   const q=Q[cur];
   const dim=q.d;
   if(i===0)answers[dim]++;
-  cur++;render();
+  if(el){el.classList.add('selected');el.style.pointerEvents='none';}
+  const card=document.querySelector('.q-card');
+  if(card){card.classList.add('fade-out');}
+  setTimeout(()=>{cur++;window._answering=false;render();},400);
 }
 
 function showResult(){
-  const E=answers.EI>=Q.filter(q=>q.d==='EI').length/2?'E':'I';
-  const S=answers.SN>=Q.filter(q=>q.d==='SN').length/2?'S':'N';
-  const T=answers.TF>=Q.filter(q=>q.d==='TF').length/2?'T':'F';
-  const J=answers.JP>=Q.filter(q=>q.d==='JP').length/2?'J':'P';
+  const eiTotal=Q.filter(q=>q.d==='EI').length;
+  const snTotal=Q.filter(q=>q.d==='SN').length;
+  const tfTotal=Q.filter(q=>q.d==='TF').length;
+  const jpTotal=Q.filter(q=>q.d==='JP').length;
+  const E=answers.EI>=eiTotal/2?'E':'I';
+  const S=answers.SN>=snTotal/2?'S':'N';
+  const T=answers.TF>=tfTotal/2?'T':'F';
+  const J=answers.JP>=jpTotal/2?'J':'P';
   const type=E+S+T+J;
-  const info=TYPES[type]||{title:'탐험가',emoji:'🌍',desc:'독특한 유형!'};
+  const info=TYPES[type]||{title:'탐험가',emoji:'🌍',desc:'독특한 유형!',famous:'',good:'',warn:''};
+  localStorage.setItem('mbti_result',type);
+  const ePct=eiTotal?Math.round(answers.EI/eiTotal*100):50;
+  const iPct=100-ePct;
+  const sPct=snTotal?Math.round(answers.SN/snTotal*100):50;
+  const nPct=100-sPct;
+  const tPct=tfTotal?Math.round(answers.TF/tfTotal*100):50;
+  const fPct=100-tPct;
+  const jPct=jpTotal?Math.round(answers.JP/jpTotal*100):50;
+  const pPct=100-jPct;
+  const allTypes=['INTJ','INTP','ENTJ','ENTP','INFJ','INFP','ENFJ','ENFP','ISTJ','ISFJ','ESTJ','ESFJ','ISTP','ISFP','ESTP','ESFP'];
+  const recs=ALL_TESTS.sort(()=>Math.random()-0.5).slice(0,3);
+  function axisBar(l1,p1,l2,p2,c1,c2){
+    return `<div class="axis-bar"><div class="label" style="color:${c1}">${l1} ${p1}%</div><div class="bar-bg"><div class="bar-fill" style="width:${p1}%;background:linear-gradient(90deg,${c1},${c2})"></div></div><div class="label" style="color:${c2}">${l2} ${p2}%</div></div>`;
+  }
   document.getElementById('app').innerHTML=`
-    <div class="result">
+    <div class="result-card">
       <h1>당신의 MBTI는</h1>
       <div class="result-type">${type}</div>
-      <div style="font-size:40px">${info.emoji}</div>
+      <div class="big-emoji">${info.emoji}</div>
       <div class="result-title">${info.title}</div>
       <div class="result-desc">${info.desc}</div>
-      <div class="share-btns">
-        <div class="share-btn" onclick="navigator.clipboard.writeText('나의 MBTI: ${type} (${info.title}) ${info.emoji}').then(()=>alert('복사됨!'))">결과 복사</div>
+      <div style="background:#252545;border-radius:10px;padding:13px;margin:15px 0">
+        <h3 style="color:#FFD700;font-size:14px;margin-bottom:10px">📊 성향 분석</h3>
+        ${axisBar('E',ePct,'I',iPct,'#FF6B6B','#7B68EE')}
+        ${axisBar('S',sPct,'N',nPct,'#4CAF50','#FFD700')}
+        ${axisBar('T',tPct,'F',fPct,'#2196F3','#FF69B4')}
+        ${axisBar('J',jPct,'P',pPct,'#FF9800','#00BCD4')}
       </div>
-      <button class="btn" onclick="cur=0;answers={EI:0,SN:0,TF:0,JP:0};render()">다시 하기</button>
+      ${info.famous?`<div style="background:#252545;border-radius:10px;padding:13px;margin:12px 0"><h3 style="color:#7DF;font-size:14px;margin-bottom:6px">🌟 유명인</h3><p style="color:#ccc;font-size:13px">${info.famous}</p></div>`:''}
+      <div style="background:#252545;border-radius:10px;padding:13px;margin:12px 0">
+        <h3 style="color:#4CAF50;font-size:14px;margin-bottom:8px">💚 잘 맞는 유형</h3>
+        <div class="compat-section">${(info.good||'').split(', ').map(t=>`<span class="compat-tag good">${t}</span>`).join('')}</div>
+        <h3 style="color:#FF6B6B;font-size:14px;margin:8px 0">💔 주의할 유형</h3>
+        <div class="compat-section">${(info.warn||'').split(', ').map(t=>`<span class="compat-tag warn">${t}</span>`).join('')}</div>
+      </div>
+      <div style="background:#252545;border-radius:10px;padding:13px;margin:12px 0">
+        <h3 style="color:#888;font-size:13px;margin-bottom:8px">16가지 유형 한눈에</h3>
+        <div class="mini-grid">${allTypes.map(t=>`<div class="cell${t===type?' me':''}">${t}</div>`).join('')}</div>
+      </div>
+      <div class="share-row">
+        <div class="share-btn2" onclick="navigator.clipboard.writeText('나의 MBTI: ${type} (${info.title}) ${info.emoji}\\n${info.desc}').then(()=>this.textContent='복사 완료!')">📋 결과 복사</div>
+        <div class="share-btn2" onclick="navigator.clipboard.writeText(location.href).then(()=>this.textContent='링크 복사됨!')">🔗 링크 공유</div>
+      </div>
+      <button class="btn" onclick="cur=0;answers={EI:0,SN:0,TF:0,JP:0};window._started=false;render()">다시 하기</button>
+      <div class="recommend-section">
+        <h3>🎯 다른 테스트 추천</h3>
+        <div class="recommend-links">${recs.map(r=>`<a href="${r.url}">${r.name}</a>`).join('')}</div>
+      </div>
     </div>`;
 }
 render();
