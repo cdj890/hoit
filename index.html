@@ -17,8 +17,9 @@ header .sub{color:#888;font-size:14px}
 .nick-display{color:#FFD700;font-size:16px;font-weight:bold;cursor:pointer}
 .nick-display:hover{text-decoration:underline}
 /* Tabs */
-.tabs{display:flex;justify-content:center;gap:6px;padding:15px 20px;position:sticky;top:0;z-index:50;background:#0f0f1e}
-.tab{padding:10px 24px;border-radius:10px;cursor:pointer;font-size:15px;font-weight:bold;transition:all .2s;border:2px solid transparent;background:#1a1a2e}
+.tabs{display:flex;justify-content:center;gap:6px;padding:15px 20px;position:sticky;top:0;z-index:50;background:#0f0f1e;flex-wrap:wrap}
+.tab{padding:10px 24px;border-radius:10px;cursor:pointer;font-size:15px;font-weight:bold;transition:all .2s;border:2px solid transparent;background:#1a1a2e;display:flex;align-items:center;gap:5px}
+.tab-icon{font-size:16px}.tab-label{font-size:14px}
 .tab:hover{border-color:#555}
 .tab.active-game{border-color:#FFD700;background:#252535;color:#FFD700}
 .tab.active-test{border-color:#FF69B4;background:#2a1a2a;color:#FF69B4}
@@ -54,9 +55,12 @@ footer{text-align:center;padding:20px;color:#444;font-size:12px}
 @media(max-width:600px){
   header{padding:25px 15px 10px}
   header h1{font-size:28px}
-  .tabs{gap:4px;padding:10px 8px}
-  .tab{padding:8px 12px;font-size:13px}
-  .tab .badge{font-size:9px;padding:1px 4px}
+  .tabs{gap:4px;padding:8px 6px;display:grid;grid-template-columns:repeat(3,1fr)}
+  .tab{padding:8px 6px;font-size:12px;flex-direction:column;text-align:center;gap:2px;justify-content:center}
+  .tab-icon{font-size:20px;display:block}
+  .tab-label{font-size:11px;display:block}
+  .tab .badge{font-size:8px;padding:1px 4px;position:absolute;top:2px;right:2px}
+  .tab{position:relative}
   .grid{grid-template-columns:repeat(2,1fr);gap:10px;padding:0 10px 20px}
   .card-thumb{height:90px;font-size:36px}
   .card-info{padding:10px 12px}
@@ -91,12 +95,12 @@ footer{text-align:center;padding:20px;color:#444;font-size:12px}
 </header>
 
 <div class="tabs" id="tabs">
-  <div class="tab" onclick="switchTab('game')">🎮 게임 <span class="badge" id="game-count"></span></div>
-  <div class="tab" onclick="switchTab('test')">🧠 테스트 <span class="badge" id="test-count"></span></div>
-  <div class="tab" onclick="switchTab('destiny')">🔮 운세 <span class="badge" id="dest-count"></span></div>
-<div class="tab" onclick="switchTab('itknow')">💻 IT <span class="badge" id="it-count"></span></div>
-  <div class="tab" onclick="switchTab('quiz')">📚 퀴즈 <span class="badge" id="qz-count"></span></div>
-  <div class="tab" onclick="switchTab('tools')">🛠️ 도구 <span class="badge" id="tl-count"></span></div>
+  <div class="tab" onclick="switchTab('game')"><span class="tab-icon">🎮</span><span class="tab-label">게임</span><span class="badge" id="game-count"></span></div>
+  <div class="tab" onclick="switchTab('test')"><span class="tab-icon">🧠</span><span class="tab-label">테스트</span><span class="badge" id="test-count"></span></div>
+  <div class="tab" onclick="switchTab('destiny')"><span class="tab-icon">🔮</span><span class="tab-label">운세</span><span class="badge" id="dest-count"></span></div>
+  <div class="tab" onclick="switchTab('itknow')"><span class="tab-icon">💻</span><span class="tab-label">IT</span><span class="badge" id="it-count"></span></div>
+  <div class="tab" onclick="switchTab('quiz')"><span class="tab-icon">📚</span><span class="tab-label">퀴즈</span><span class="badge" id="qz-count"></span></div>
+  <div class="tab" onclick="switchTab('tools')"><span class="tab-icon">🛠️</span><span class="tab-label">도구</span><span class="badge" id="tl-count"></span></div>
 </div>
 
 <div class="grid" id="grid"></div>
