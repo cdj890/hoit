@@ -39,8 +39,15 @@ function popBubble(i){
   const b=bubbles[i];
   combo++;comboT=30;
   const pts=combo>=5?3:combo>=3?2:1;score+=pts;
-  for(let j=0;j<6;j++)pops.push({x:b.x,y:b.y,vx:(Math.random()-0.5)*4,vy:(Math.random()-0.5)*4,color:b.color,life:15});
-  if(combo>2)pops.push({x:b.x,y:b.y-20,text:`x${combo}!`,life:25,vy:-1});
+  // Pop expand animation
+  pops.push({x:b.x,y:b.y,r:b.r,isExpand:true,color:b.color,life:10});
+  for(let j=0;j<8;j++)pops.push({x:b.x,y:b.y,vx:(Math.random()-0.5)*5,vy:(Math.random()-0.5)*5,color:b.color,life:18});
+  if(combo>2)pops.push({x:b.x,y:b.y-20,text:`x${combo}! +${pts}`,life:30,vy:-1.2});
+  // Chain reaction - pop nearby same-color bubbles
+  if(combo>=3){for(let j=bubbles.length-1;j>=0;j--){if(j!==i&&bubbles[j].color===b.color&&Math.sqrt((bubbles[j].x-b.x)**2+(bubbles[j].y-b.y)**2)<60){
+    const nb=bubbles[j];score+=1;pops.push({x:nb.x,y:nb.y,r:nb.r,isExpand:true,color:nb.color,life:8});
+    for(let k=0;k<4;k++)pops.push({x:nb.x,y:nb.y,vx:(Math.random()-0.5)*3,vy:(Math.random()-0.5)*3,color:nb.color,life:12});
+    bubbles.splice(j,1);if(j<i)i--;break;}}}
   bubbles.splice(i,1);
 }
 
@@ -71,7 +78,15 @@ function draw(){
     COLORS.forEach((c2,i)=>{x.fillStyle=c2;x.globalAlpha=0.5;x.beginPath();x.arc(50+i*50,H/2+100+Math.sin(Date.now()/500+i)*10,18,0,6.28);x.fill();});
     x.globalAlpha=1;
   } else {
+    // Last 5 seconds warning
+    if(timeLeft<=5&&timeLeft>0&&state==='playing'){
+      x.fillStyle=`rgba(255,0,0,${0.05+Math.sin(frame*0.2)*0.05})`;x.fillRect(0,0,W,H);
+      x.fillStyle='rgba(255,50,50,0.8)';x.font='bold 40px sans-serif';x.textAlign='center';
+      x.fillText(timeLeft+'',W/2,H/2);x.textAlign='left';
+    }
     bubbles.forEach(b=>{
+      // Shadow
+      x.fillStyle='rgba(0,0,0,0.15)';x.beginPath();x.arc(b.x+3,b.y+3,b.r,0,6.28);x.fill();
       x.fillStyle=b.color+'40';x.beginPath();x.arc(b.x,b.y,b.r+4,0,6.28);x.fill();
       x.fillStyle=b.color;x.beginPath();x.arc(b.x,b.y,b.r,0,6.28);x.fill();
       x.fillStyle='rgba(255,255,255,0.35)';x.beginPath();x.arc(b.x-b.r*0.25,b.y-b.r*0.3,b.r*0.3,0,6.28);x.fill();
@@ -82,16 +97,18 @@ function draw(){
       x.beginPath();x.arc(b.x+b.r*0.25,b.y-b.r*0.05,b.r*0.08,0,6.28);x.fill();
     });
     pops.forEach(p=>{
-      x.globalAlpha=p.life/25;
-      if(p.text){x.fillStyle='#FFD700';x.font='bold 16px sans-serif';x.textAlign='center';x.fillText(p.text,p.x,p.y);}
-      else{x.fillStyle=p.color;x.beginPath();x.arc(p.x,p.y,3*(p.life/15),0,6.28);x.fill();}
+      x.globalAlpha=p.life/(p.isExpand?10:25);
+      if(p.text){x.fillStyle='#FFD700';x.font='bold 18px sans-serif';x.textAlign='center';x.fillText(p.text,p.x,p.y);}
+      else if(p.isExpand){x.strokeStyle=p.color;x.lineWidth=2;x.beginPath();x.arc(p.x,p.y,p.r*(2-p.life/10),0,6.28);x.stroke();}
+      else{x.fillStyle=p.color;x.beginPath();x.arc(p.x,p.y,3*(p.life/18),0,6.28);x.fill();}
     });
     x.globalAlpha=1;
     // HUD
     x.fillStyle='rgba(0,0,0,0.5)';x.fillRect(0,0,W,35);
     x.fillStyle='#fff';x.font='bold 16px sans-serif';x.textAlign='left';x.fillText(`🫧 ${score}`,10,24);
     x.textAlign='right';x.fillStyle='#FF6B6B';x.fillText(`⏱️ ${timeLeft}초`,W-10,24);
-    if(combo>2){x.textAlign='center';x.fillStyle='#FFD700';x.font='bold 14px sans-serif';x.fillText(`${combo} 콤보!`,W/2,24);}
+    const multi=combo>=5?'x3':combo>=3?'x2':'';
+    if(combo>2){x.textAlign='center';x.fillStyle='#FFD700';x.font='bold 14px sans-serif';x.fillText(`${combo} 콤보! ${multi}`,W/2,24);}
     if(state==='done'){
       x.fillStyle='rgba(0,0,0,0.6)';x.fillRect(0,H/2-60,W,130);
       x.textAlign='center';x.fillStyle='#FFD700';x.font='bold 32px sans-serif';x.fillText(`${score}점`,W/2,H/2-10);

@@ -10,9 +10,10 @@ const W=Math.min(window.innerWidth,420),H=Math.min(window.innerHeight,700);
 c.width=W;c.height=H;
 
 const BH=25;let state='menu',score=0,blocks=[],current,speed,dir,hs=parseInt(localStorage.getItem('stack_hs')||'0');
+let perfectCount=0,floatingTexts=[],swayAngle=0,swaySpeed=0;
 
 function initGame(){
-  state='playing';score=0;speed=2;dir=1;
+  state='playing';score=0;speed=2;dir=1;perfectCount=0;floatingTexts=[];swayAngle=0;swaySpeed=0;
   blocks=[{x:W/2-60,w:120,y:H-BH,color:hsl(0)}];
   current={x:0,w:120,y:H-BH*2,color:hsl(30)};
 }
@@ -26,9 +27,20 @@ function drop(){
   const overlap_right=Math.min(current.x+current.w,prev.x+prev.w);
   const overlap=overlap_right-overlap_left;
   if(overlap<=0){state='done';if(score>hs){hs=score;localStorage.setItem('stack_hs',hs);}_hub('stack',score);return;}
-  blocks.push({x:overlap_left,w:overlap,y:current.y,color:current.color});
-  score++;speed=Math.min(6,2+score*0.15);
-  current={x:0,w:overlap,y:current.y-BH,color:hsl(score*30)};dir=1;
+  const isPerfect=Math.abs(overlap-prev.w)<3;
+  const finalW=isPerfect?prev.w:overlap;
+  const finalX=isPerfect?prev.x:overlap_left;
+  blocks.push({x:finalX,w:finalW,y:current.y,color:current.color});
+  score++;
+  // Perfect bonus
+  if(isPerfect){perfectCount++;floatingTexts.push({x:W/2,y:current.y,text:perfectCount>1?'PERFECT x'+perfectCount+'!':'PERFECT!',color:'#FFD700',life:40,vy:-1.5});swaySpeed=0;}
+  else{perfectCount=0;swaySpeed=Math.min(0.02,Math.abs(current.x-prev.x)*0.001);}
+  // Near edge warning
+  if(!isPerfect&&overlap<prev.w*0.3){floatingTexts.push({x:W/2,y:current.y-15,text:'위험!',color:'#ff4444',life:25,vy:-1});}
+  // Height metaphor
+  const names=['기초','1층','2층','3층','4층','5층','6층','7층','8층','9층','10층','옥상','하늘','구름','성층권','우주'];
+  speed=Math.min(6,2+score*0.15);
+  current={x:0,w:finalW,y:current.y-BH,color:hsl(score*30)};dir=1;
 }
 
 c.addEventListener('touchstart',e=>{e.preventDefault();if(state==='menu')initGame();else if(state==='playing')drop();else{state='menu';}},{passive:false});
@@ -39,6 +51,8 @@ function update(){
   current.x+=speed*dir;
   if(current.x+current.w>W){dir=-1;current.x=W-current.w;}
   if(current.x<0){dir=1;current.x=0;}
+  swayAngle+=swaySpeed;
+  floatingTexts=floatingTexts.filter(t=>{t.y+=t.vy;t.life--;return t.life>0;});
 }
 
 function draw(){
@@ -54,14 +68,21 @@ function draw(){
     // camera offset
     const camY=Math.min(0,H*0.6-current.y);
     ctx.save();ctx.translate(0,camY);
+    // Building sway
+    if(swayAngle!==0){ctx.translate(W/2,H);ctx.rotate(Math.sin(swayAngle)*0.005*Math.min(score,20));ctx.translate(-W/2,-H);}
     blocks.forEach(b=>{ctx.fillStyle=b.color;ctx.beginPath();ctx.roundRect(b.x,b.y,b.w,BH-2,4);ctx.fill();
       ctx.fillStyle='rgba(255,255,255,0.2)';ctx.beginPath();ctx.roundRect(b.x+2,b.y+2,b.w-4,BH/3,3);ctx.fill();});
     if(state==='playing'){ctx.fillStyle=current.color;ctx.beginPath();ctx.roundRect(current.x,current.y,current.w,BH-2,4);ctx.fill();
       ctx.fillStyle='rgba(255,255,255,0.25)';ctx.beginPath();ctx.roundRect(current.x+2,current.y+2,current.w-4,BH/3,3);ctx.fill();}
     ctx.restore();
+    // Floating texts
+    for(let t of floatingTexts){const ty=t.y+camY;ctx.globalAlpha=Math.min(1,t.life/15);ctx.fillStyle=t.color;ctx.font='bold 18px sans-serif';ctx.textAlign='center';ctx.fillText(t.text,t.x,ty);}
+    ctx.globalAlpha=1;
     // HUD
-    ctx.fillStyle='rgba(0,0,0,0.5)';ctx.fillRect(0,0,W,35);
-    ctx.fillStyle='#FFD700';ctx.font='bold 18px sans-serif';ctx.textAlign='center';ctx.fillText(`${score}층`,W/2,24);
+    ctx.fillStyle='rgba(0,0,0,0.5)';ctx.fillRect(0,0,W,45);
+    ctx.fillStyle='#FFD700';ctx.font='bold 18px sans-serif';ctx.textAlign='center';ctx.fillText(`${score}층`,W/2,20);
+    const names=['기초','1층','2층','3층','4층','5층','아파트','빌딩','타워','마천루','하늘','구름','성층권','우주','은하'];
+    ctx.fillStyle='#aaa';ctx.font='12px sans-serif';ctx.fillText(names[Math.min(score,names.length-1)],W/2,36);
     if(state==='done'){
       ctx.fillStyle='rgba(0,0,0,0.6)';ctx.fillRect(0,H/2-60,W,130);
       ctx.fillStyle='#FF6B6B';ctx.font='bold 28px sans-serif';ctx.fillText(`${score}층!`,W/2,H/2-15);

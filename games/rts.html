@@ -94,6 +94,7 @@ const UNIT_TYPES={
 };
 
 let units,projectiles,playerBase,enemyBase,gold,goldRate,round,roundsWon,gameRunning,aiTimer;
+let floatingTexts=[],deathEffects=[],baseDamageFlash={player:0,enemy:0};
 
 function startGame(){
   document.getElementById('overlay').style.display='none';
@@ -105,7 +106,7 @@ function startGame(){
 }
 
 function startRound(){
-  units=[];projectiles=[];
+  units=[];projectiles=[];floatingTexts=[];deathEffects=[];baseDamageFlash={player:0,enemy:0};
   playerBase={x:40,y:CH/2,hp:800,maxHp:800,team:'player'};
   enemyBase={x:CW-40,y:CH/2,hp:200+round*50,maxHp:200+round*50,team:'enemy'};
   gold=300;
@@ -121,14 +122,15 @@ function spawnUnit(type){
   if(gold<t.cost) return;
   gold-=t.cost;
   let yOff=(Math.random()-0.5)*100;
-  units.push({x:playerBase.x+30,y:CH/2+yOff,hp:t.hp,maxHp:t.hp,atk:t.atk,speed:t.speed,range:t.range,size:t.size,color:t.color,team:'player',atkCd:0,atkSpeed:t.atkSpeed,type});
+  units.push({x:playerBase.x+30,y:CH/2+yOff,hp:t.hp,maxHp:t.hp,atk:t.atk,speed:t.speed,range:t.range,size:t.size,color:t.color,team:'player',atkCd:0,atkSpeed:t.atkSpeed,type,spawnAnim:15});
+  floatingTexts.push({x:playerBase.x+40,y:CH/2+yOff-15,text:'-'+t.cost,color:'#ffd700',life:30,vy:-1});
 }
 
 function spawnEnemy(type){
   let t=UNIT_TYPES[type];
   let diff=0.7+round*0.1;
   let yOff=(Math.random()-0.5)*100;
-  units.push({x:enemyBase.x-30,y:CH/2+yOff,hp:t.hp*diff,maxHp:t.hp*diff,atk:t.atk*diff,speed:t.speed,range:t.range,size:t.size,color:'#ff4a5a',team:'enemy',atkCd:0,atkSpeed:t.atkSpeed,type});
+  units.push({x:enemyBase.x-30,y:CH/2+yOff,hp:t.hp*diff,maxHp:t.hp*diff,atk:t.atk*diff,speed:t.speed,range:t.range,size:t.size,color:'#ff4a5a',team:'enemy',atkCd:0,atkSpeed:t.atkSpeed,type,spawnAnim:15});
 }
 
 function aiSpawn(){
@@ -159,8 +161,11 @@ function findTarget(unit){
 
 function update(){
   if(!gameRunning) return;
+  const prevGold=Math.floor(gold);
   gold+=goldRate/60;
-  document.getElementById('gold').textContent=Math.floor(gold);
+  const newGold=Math.floor(gold);
+  document.getElementById('gold').textContent=newGold;
+  if(newGold>prevGold&&newGold%30===0) floatingTexts.push({x:CW/2,y:15,text:'+'+Math.floor(goldRate)+'g',color:'#ffd700',life:25,vy:-0.5});
   aiSpawn();
 
   for(let u of units){
@@ -215,7 +220,7 @@ function update(){
       }
       // Check bases
       let base=p.team==='player'?enemyBase:playerBase;
-      if(Math.abs(base.x-p.x)<30&&Math.abs(base.y-p.y)<30) base.hp-=p.atk;
+      if(Math.abs(base.x-p.x)<30&&Math.abs(base.y-p.y)<30){base.hp-=p.atk;baseDamageFlash[p.team==='player'?'enemy':'player']=8;}
       projectiles.splice(i,1);continue;
     }
     p.x+=dx/d*p.speed;
@@ -224,8 +229,17 @@ function update(){
     if(p.life<=0) projectiles.splice(i,1);
   }
 
-  // Remove dead
-  units=units.filter(u=>u.hp>0);
+  // Remove dead with death effect
+  units=units.filter(u=>{
+    if(u.hp<=0){deathEffects.push({x:u.x,y:u.y,size:u.size,color:u.color,life:12});return false;}
+    if(u.spawnAnim>0)u.spawnAnim--;
+    return true;
+  });
+  // Update floating texts
+  floatingTexts=floatingTexts.filter(t=>{t.y+=t.vy;t.life--;return t.life>0;});
+  deathEffects=deathEffects.filter(d=>{d.life--;d.size+=0.5;return d.life>0;});
+  if(baseDamageFlash.player>0)baseDamageFlash.player--;
+  if(baseDamageFlash.enemy>0)baseDamageFlash.enemy--;
 
   // Win/lose check
   if(enemyBase.hp<=0){
@@ -295,11 +309,22 @@ function draw(){
   ctx.fillText('🏴',enemyBase.x,enemyBase.y+6);
   drawHPBar(enemyBase.x,enemyBase.y-35,50,enemyBase.hp,enemyBase.maxHp,'#f44');
 
+  // Death effects
+  for(let d of deathEffects){
+    ctx.globalAlpha=d.life/12;
+    ctx.fillStyle=d.color;
+    ctx.beginPath();ctx.arc(d.x,d.y,d.size,0,Math.PI*2);ctx.fill();
+    ctx.globalAlpha=1;
+  }
+  // Base damage flash
+  if(baseDamageFlash.player>0){ctx.fillStyle=`rgba(255,0,0,${baseDamageFlash.player/16})`;ctx.fillRect(playerBase.x-28,playerBase.y-33,56,66);}
+  if(baseDamageFlash.enemy>0){ctx.fillStyle=`rgba(255,0,0,${baseDamageFlash.enemy/16})`;ctx.fillRect(enemyBase.x-28,enemyBase.y-33,56,66);}
   // Units
   for(let u of units){
+    const scale=u.spawnAnim>0?1-u.spawnAnim/15:1;
     ctx.fillStyle=u.color;
     ctx.beginPath();
-    ctx.arc(u.x,u.y,u.size,0,Math.PI*2);
+    ctx.arc(u.x,u.y,u.size*scale,0,Math.PI*2);
     ctx.fill();
     ctx.strokeStyle='rgba(0,0,0,0.3)';
     ctx.lineWidth=1;
@@ -321,6 +346,22 @@ function draw(){
     ctx.arc(p.x,p.y,3,0,Math.PI*2);
     ctx.fill();
   }
+  // Floating texts
+  for(let t of floatingTexts){
+    ctx.globalAlpha=t.life/30;
+    ctx.fillStyle=t.color;
+    ctx.font='bold 13px sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText(t.text,t.x,t.y);
+  }
+  ctx.globalAlpha=1;ctx.textAlign='left';
+  // Unit count
+  const pCount=units.filter(u=>u.team==='player').length;
+  const eCount=units.filter(u=>u.team==='enemy').length;
+  ctx.fillStyle='rgba(0,0,0,0.5)';ctx.fillRect(0,CH-20,CW,20);
+  ctx.fillStyle='#4af';ctx.font='11px sans-serif';ctx.textAlign='left';ctx.fillText('아군: '+pCount,5,CH-6);
+  ctx.fillStyle='#f44';ctx.textAlign='right';ctx.fillText('적군: '+eCount,CW-5,CH-6);
+  ctx.textAlign='left';
 }
 
 function loop(){

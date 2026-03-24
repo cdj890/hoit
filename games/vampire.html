@@ -64,6 +64,8 @@ let camX=0,camY=0;
 let joyActive=false,joyX=0,joyY=0,joyStartX=0,joyStartY=0,joyCurX=0,joyCurY=0;
 let orbAngle=0,lightningTimer=0;
 let animFrame,timerInterval;
+let levelFlash=0;
+let damageNums=[];
 
 const UPGRADES=[
   {name:'⚔️ 공격력 +5',apply:()=>{player.damage+=5}},
@@ -125,8 +127,14 @@ function addXP(val){
     xp-=xpNeeded;
     level++;
     xpNeeded=Math.floor(xpNeeded*1.4)+3;
+    levelFlash=30;
     showLevelUp();
   }
+  // XP bar glow when near level up
+  const xpRatio=xp/xpNeeded;
+  const bar=document.getElementById('xpBar');
+  if(xpRatio>0.8){bar.style.boxShadow='0 0 8px #a855f7, 0 0 16px #a855f7';}
+  else{bar.style.boxShadow='none';}
   updateHUD();
 }
 
@@ -222,7 +230,7 @@ function update(){
     if(nearest&&nd<player.atkRange+nearest.r){
       player.atkCooldown=player.atkSpeed;
       nearest.hp-=player.damage;
-      particles.push({x:nearest.x,y:nearest.y,t:0,text:'-'+player.damage,color:'#ff0'});
+      damageNums.push({x:nearest.x+(Math.random()-0.5)*10,y:nearest.y-10,t:0,val:player.damage,color:'#ff0',crit:false});
       weaponProjectiles.push({x:player.x,y:player.y,tx:nearest.x,ty:nearest.y,t:0,max:8,type:'slash'});
       if(nearest.hp<=0){
         kills++;
@@ -356,7 +364,22 @@ function draw(){
   ctx.fillStyle='rgba(0,0,0,0.5)';ctx.fillRect(px-18,py-24,36,5);
   ctx.fillStyle='#4ade80';ctx.fillRect(px-18,py-24,36*(player.hp/player.maxHp),5);
 
-  // particles
+  // damage numbers (floating up with scale)
+  damageNums.forEach(d=>{
+    const alpha=1-d.t/35;
+    if(alpha<=0)return;
+    ctx.globalAlpha=alpha;
+    const scale=d.t<5?1+d.t*0.1:1.5-d.t*0.02;
+    ctx.fillStyle=d.color;
+    ctx.font=`bold ${Math.max(10,14*scale)}px sans-serif`;
+    ctx.textAlign='center';
+    ctx.fillText(d.val,sx(d.x),sy(d.y)-d.t*1.2);
+    ctx.textAlign='left';
+    ctx.globalAlpha=1;
+  });
+  damageNums=damageNums.filter(d=>{d.t++;return d.t<35;});
+
+  // particles (kept for text like player damage)
   particles.forEach(p=>{
     const alpha=1-p.t/30;
     ctx.fillStyle=p.color;ctx.globalAlpha=alpha;
@@ -364,6 +387,13 @@ function draw(){
     ctx.fillText(p.text,sx(p.x)-10,sy(p.y)-p.t);
     ctx.globalAlpha=1;
   });
+
+  // level up flash
+  if(levelFlash>0){
+    ctx.fillStyle=`rgba(168,85,247,${levelFlash/30*0.2})`;
+    ctx.fillRect(0,0,W,H);
+    levelFlash--;
+  }
 
   // joystick visual
   if(joyActive){

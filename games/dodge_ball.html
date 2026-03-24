@@ -10,6 +10,7 @@ const W=Math.min(window.innerWidth,420),H=Math.min(window.innerHeight,700);
 c.width=W;c.height=H;
 let state='menu',px=W/2,balls=[],score=0,frame=0,startTime,touching=false,touchX=W/2;
 let hs=parseInt(localStorage.getItem('dodge_hs')||'0');
+let trail=[],nearMissFlash=0,lastMilestone=0,milestoneText='',milestoneTimer=0;
 
 c.addEventListener('touchstart',e=>{e.preventDefault();if(state!=='playing'){if(state==='menu')startGame();else state='menu';return;}touching=true;touchX=e.touches[0].clientX-c.getBoundingClientRect().left;},{passive:false});
 c.addEventListener('touchmove',e=>{e.preventDefault();if(touching)touchX=e.touches[0].clientX-c.getBoundingClientRect().left;},{passive:false});
@@ -17,7 +18,7 @@ c.addEventListener('touchend',e=>{e.preventDefault();touching=false;},{passive:f
 c.addEventListener('click',()=>{if(state==='menu')startGame();else if(state==='done')state='menu';});
 c.addEventListener('mousemove',e=>{if(state==='playing'){const r=c.getBoundingClientRect();touchX=e.clientX-r.left;}});
 
-function startGame(){state='playing';px=W/2;balls=[];score=0;frame=0;startTime=Date.now();}
+function startGame(){state='playing';px=W/2;balls=[];score=0;frame=0;startTime=Date.now();trail=[];nearMissFlash=0;lastMilestone=0;milestoneTimer=0;}
 
 function update(){
   if(state!=='playing')return;frame++;
@@ -42,15 +43,26 @@ function update(){
   }
   balls.forEach(b=>{b.y+=b.speed;b.x+=(b.hspeed||0);});
   balls=balls.filter(b=>b.y<H+20&&b.x>-30&&b.x<W+30);
+  // Trail
+  if(frame%2===0)trail.push({x:px,y:H-40,life:10});
+  trail=trail.filter(t=>{t.life--;return t.life>0;});
+  if(nearMissFlash>0)nearMissFlash--;
+  // Score milestones
+  if(score>0&&score%10===0&&score!==lastMilestone){lastMilestone=score;milestoneText=score+'초 생존!';milestoneTimer=60;}
+  if(milestoneTimer>0)milestoneTimer--;
   // collision
   for(const b of balls){
     const d=Math.sqrt((b.x-px)**2+(b.y-(H-40))**2);
     if(d<b.r+12){state='done';if(score>hs){hs=score;localStorage.setItem('dodge_hs',hs);}_hub('dodge_ball',score);return;}
+    // Near miss detection
+    if(d<b.r+22&&d>=b.r+12){nearMissFlash=8;}
   }
 }
 
 function draw(){
-  x.fillStyle='#0f0f1e';x.fillRect(0,0,W,H);
+  // Background gets redder with danger
+  const dangerR=state==='playing'?Math.min(40,score*1.5):0;
+  x.fillStyle=`rgb(${15+dangerR},${15-dangerR*0.3},${30-dangerR*0.5})`;x.fillRect(0,0,W,H);
   if(state==='menu'){
     x.textAlign='center';x.fillStyle='#fff';x.font='bold 28px sans-serif';x.fillText('🏐 공 피하기',W/2,H/2-60);
     x.fillStyle='#aaa';x.font='16px sans-serif';x.fillText('터치하여 캐릭터를 움직이세요!',W/2,H/2-20);
@@ -63,6 +75,15 @@ function draw(){
       x.fillStyle=b.color;x.beginPath();x.arc(b.x,b.y,b.r,0,6.28);x.fill();
       x.fillStyle='rgba(255,255,255,0.3)';x.beginPath();x.arc(b.x-b.r*0.25,b.y-b.r*0.3,b.r*0.25,0,6.28);x.fill();
     });
+    // Ball shadows
+    balls.forEach(b=>{x.fillStyle='rgba(0,0,0,0.2)';x.beginPath();x.arc(b.x+3,b.y+3,b.r,0,6.28);x.fill();});
+    // Player trail
+    for(let t of trail){x.globalAlpha=t.life/10*0.3;x.fillStyle='#FFD700';x.beginPath();x.arc(t.x,t.y,10,0,6.28);x.fill();}
+    x.globalAlpha=1;
+    // Near miss flash
+    if(nearMissFlash>0){x.fillStyle=`rgba(255,255,255,${nearMissFlash/16})`;x.fillRect(0,0,W,H);}
+    // Milestone notification
+    if(milestoneTimer>0){x.fillStyle=`rgba(255,215,0,${milestoneTimer/60})`;x.font='bold 22px sans-serif';x.textAlign='center';x.fillText(milestoneText,W/2,H/2-40);x.textAlign='left';}
     // player
     const py=H-40;
     x.fillStyle='#FFD700';x.beginPath();x.arc(px,py,14,0,6.28);x.fill();

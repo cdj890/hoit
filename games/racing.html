@@ -53,6 +53,8 @@ let playerX=W/2,playerTargetX=W/2;
 let npcCars=[],coinItems=[],particles=[];
 let laneOffset=0,frame=0;
 let touchStartX=0,touchCurX=0,touching=false;
+let nearMissTimer=0,nearMissBonus=0;
+let speedLines=[];
 
 const carColors=['#ef4444','#3b82f6','#22c55e','#f59e0b','#8b5cf6','#ec4899'];
 
@@ -163,17 +165,32 @@ function update(){
     return true;
   });
 
-  // collision
+  // collision & near-miss detection
   const py=H-80;
+  if(nearMissTimer>0) nearMissTimer--;
   for(const c of npcCars){
-    if(Math.abs(c.x-playerX)<carW-4&&Math.abs(c.y-py)<carH-4){
-      // crash
+    const dx=Math.abs(c.x-playerX), dy=Math.abs(c.y-py);
+    if(dx<carW-4&&dy<carH-4){
       for(let i=0;i<15;i++){
         particles.push({x:playerX+(Math.random()-0.5)*40,y:py+(Math.random()-0.5)*40,t:0,text:'💥',color:'#f00'});
       }
       endGame();return;
     }
+    // near-miss: close but no collision
+    if(!c.nearMissed && dx<carW+8 && dx>=carW-4 && dy<carH+10){
+      c.nearMissed=true;
+      nearMissBonus++;
+      coins+=2;
+      particles.push({x:playerX,y:py-30,t:0,text:'Near Miss! +20',color:'#4af'});
+      nearMissTimer=20;
+    }
   }
+
+  // speed lines at high speed
+  if(speed>6 && frame%2===0){
+    speedLines.push({x:roadL+Math.random()*roadW, y:-5, len:10+speed*3, alpha:0.2+speed*0.03});
+  }
+  speedLines=speedLines.filter(l=>{l.y+=speed*2;return l.y<H;});
 
   particles=particles.filter(p=>{p.t++;return p.t<40;});
 
@@ -187,6 +204,20 @@ function draw(){
   ctx.fillStyle='#0f0f1e';ctx.fillRect(0,0,W,H);
   // grass
   ctx.fillStyle='#1a3a1a';ctx.fillRect(0,0,roadL,H);ctx.fillRect(roadR,0,W-roadR,H);
+
+  // road scenery - trees on sides
+  for(let i=0;i<6;i++){
+    const ty=((i*150+laneOffset*3)%(H+100))-50;
+    // left tree
+    ctx.fillStyle='#0d2a0d';
+    ctx.beginPath();ctx.moveTo(roadL-25,ty);ctx.lineTo(roadL-35,ty-20);ctx.lineTo(roadL-15,ty-20);ctx.fill();
+    ctx.fillStyle='#2a1a0a';ctx.fillRect(roadL-27,ty,4,10);
+    // right tree
+    ctx.fillStyle='#0d2a0d';
+    ctx.beginPath();ctx.moveTo(roadR+25,ty);ctx.lineTo(roadR+15,ty-20);ctx.lineTo(roadR+35,ty-20);ctx.fill();
+    ctx.fillStyle='#2a1a0a';ctx.fillRect(roadR+23,ty,4,10);
+  }
+
   // road
   ctx.fillStyle='#333';ctx.fillRect(roadL,0,roadW,H);
   // lane markings
@@ -213,11 +244,34 @@ function draw(){
     ctx.fillText('$',c.x-4,c.y+4);
   });
 
+  // speed lines
+  speedLines.forEach(l=>{
+    ctx.strokeStyle=`rgba(255,255,255,${Math.min(l.alpha,0.4)})`;
+    ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(l.x,l.y);ctx.lineTo(l.x,l.y+l.len);ctx.stroke();
+  });
+
   // npc cars
   npcCars.forEach(c=>drawCar(c.x,c.y,carW,carH,c.color,false));
 
-  // player car
+  // player car with tilt
+  const tilt=(playerTargetX-playerX)*0.008;
+  ctx.save();
+  ctx.translate(playerX,H-80);
+  ctx.rotate(tilt);
+  ctx.translate(-playerX,-(H-80));
   drawCar(playerX,H-80,carW,carH,'#60a5fa',true);
+  ctx.restore();
+
+  // speedometer display
+  const kmh=Math.floor(speed*20);
+  ctx.fillStyle='rgba(0,0,0,0.6)';
+  ctx.beginPath();ctx.roundRect(W-75,H-50,68,40,8);ctx.fill();
+  ctx.fillStyle=speed>8?'#ef4444':'#4af';ctx.font='bold 18px sans-serif';ctx.textAlign='center';
+  ctx.fillText(kmh,W-41,H-28);
+  ctx.fillStyle='#888';ctx.font='10px sans-serif';
+  ctx.fillText('km/h',W-41,H-16);
+  ctx.textAlign='left';
 
   // particles
   particles.forEach(p=>{

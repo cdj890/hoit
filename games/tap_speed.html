@@ -4,6 +4,8 @@
 .area{width:100%;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;user-select:none}
 .circle{width:200px;height:200px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:60px;font-weight:bold;cursor:pointer;transition:transform .05s;-webkit-tap-highlight-color:transparent}
 .circle:active{transform:scale(0.92)}
+@keyframes rippleOut{0%{width:200px;height:200px;opacity:1}100%{width:350px;height:350px;opacity:0}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
 .info{font-size:18px;margin:15px 0;color:#aaa}
 .score{font-size:72px;font-weight:bold;color:#FFD700}
 .timer{font-size:24px;color:#FF6B6B;margin:10px 0}
@@ -27,8 +29,14 @@ function render(){
     app.innerHTML=`<div style="font-size:48px;margin-bottom:10px">${isNew?'🎉':'👆'}</div><div class="score">${taps}탭</div><p class="info">${isNew?'새 기록!':'게임 오버'}</p><div class="hs">최고: ${hs}탭</div><div class="circle" style="background:#4CAF50" ontouchstart="reset(event)" onclick="reset(event)">다시</div>`;
   }
 }
-function startGame(e){e.preventDefault();clearInterval(timer);state='playing';taps=0;timeLeft=10;render();timer=setInterval(()=>{timeLeft-=0.1;if(timeLeft<=0){clearInterval(timer);state='done';render();}else{document.querySelector('.timer').textContent=timeLeft.toFixed(1)+'초';}},100);}
-function tap(e){e.preventDefault();if(state!=='playing')return;taps++;const s=document.querySelector('.score');if(s)s.textContent=taps;const c=document.querySelector('.circle');if(c)c.style.background=`hsl(${taps*8%360},70%,55%)`;}
+function startGame(e){e.preventDefault();clearInterval(timer);state='playing';taps=0;timeLeft=10;render();timer=setInterval(()=>{timeLeft-=0.1;if(timeLeft<=0){clearInterval(timer);state='done';render();}else{const t=document.querySelector('.timer');if(t){t.textContent=timeLeft.toFixed(1)+'초';if(timeLeft<=3)t.style.color='#ff0000';if(timeLeft<=3&&timeLeft>2.9)t.style.fontSize='36px';if(timeLeft<=2&&timeLeft>1.9)t.style.fontSize='42px';if(timeLeft<=1&&timeLeft>0.9)t.style.fontSize='50px';}const enc=taps>=50?'<div style="color:#FFD700;font-size:20px;font-weight:bold;animation:pulse 0.3s infinite">'+(taps>=80?'신이야?!':taps>=60?'미쳤다!':'대단해!')+'</div>':'';const info=document.querySelector('.info');if(info)info.innerHTML=enc||'빠르게 탭!';}},100);}
+function tap(e){e.preventDefault();if(state!=='playing')return;taps++;const s=document.querySelector('.score');if(s)s.textContent=taps;const c=document.querySelector('.circle');if(c){c.style.background=`hsl(${taps*8%360},70%,55%)`;
+  // Ripple effect
+  const ripple=document.createElement('div');ripple.style.cssText='position:absolute;width:200px;height:200px;border-radius:50%;border:3px solid hsl('+taps*8%360+',70%,55%);pointer-events:none;animation:rippleOut 0.5s ease-out forwards;left:50%;top:50%;transform:translate(-50%,-50%)';
+  c.parentElement.style.position='relative';c.parentElement.appendChild(ripple);setTimeout(()=>ripple.remove(),500);
+  // Screen shake
+  if(taps%5===0){document.body.style.transform='translateX('+(Math.random()>0.5?3:-3)+'px)';setTimeout(()=>document.body.style.transform='',50);}
+}
 function reset(e){e.preventDefault();clearInterval(timer);state='ready';render();}
 render();
 </script></body></html>

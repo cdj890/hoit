@@ -14,28 +14,34 @@
 <div id="app" style="text-align:center;padding:50px 20px"></div>
 <script>
 let state='menu',score=0,timeLeft=30,moles=[0,0,0,0,0,0,0,0,0],timer,spawnTimer,hs=parseInt(localStorage.getItem('whack_hs')||'0');
-const MOLE='🐹',EMPTY='🕳️',HIT='💥';
+let comboCount=0,comboTimer=0,missCount=0;
+const MOLE='🐹',GOLDEN='👑',EMPTY='🕳️',HIT='💥',MISS='❌';
 
 function render(){
   const app=document.getElementById('app');
   if(state==='menu'){
     app.innerHTML=`<div style="font-size:48px">🔨</div><h1 style="margin:10px 0">두더지 잡기</h1><p style="color:#aaa;margin-bottom:20px">30초 안에 두더지를 잡으세요!</p><button class="btn" ontouchstart="start(event)" onclick="start(event)">시작!</button>${hs?`<p style="color:#888;margin-top:10px">최고: ${hs}점</p>`:''}`;
   } else if(state==='playing'){
-    app.innerHTML=`<div class="hud"><span>⏱️ ${timeLeft}초</span><span>🏆 ${score}점</span></div>
-      <div class="grid">${moles.map((m,i)=>`<div class="hole ${m===1?'active':m===2?'hit':''}" ontouchstart="hit(${i},event)" onclick="hit(${i},event)">${m===1?MOLE:m===2?HIT:EMPTY}</div>`).join('')}</div>`;
+    const comboText=comboCount>=3?`<div style="text-align:center;color:#FFD700;font-weight:bold;animation:pop .15s">${comboCount} COMBO!</div>`:'';
+    app.innerHTML=`<div class="hud"><span>⏱️ ${timeLeft}초</span><span>🏆 ${score}점</span></div>${comboText}
+      <div class="grid">${moles.map((m,i)=>`<div class="hole ${m===1||m===3?'active':m===2?'hit':''}" ontouchstart="hit(${i},event)" onclick="hit(${i},event)" style="${m===3?'background:#FFD700;box-shadow:0 0 15px #FFD700':''}">${m===3?GOLDEN:m===1?MOLE:m===2?HIT:EMPTY}</div>`).join('')}</div>`;
   } else {
     const isNew=score>hs;if(isNew){hs=score;localStorage.setItem('whack_hs',hs);}_hub('whack',score);
     app.innerHTML=`<div style="font-size:48px">${isNew?'🎉':'🔨'}</div><h1 style="margin:10px 0">${score}점</h1><p style="color:#aaa">${isNew?'새 기록!':'게임 오버'}</p><p style="color:#888;margin:8px 0">최고: ${hs}점</p><button class="btn" ontouchstart="backToMenu(event)" onclick="backToMenu(event)">다시 하기</button>`;
   }
 }
 
-function start(e){e.preventDefault();clearInterval(timer);clearInterval(spawnTimer);state='playing';score=0;timeLeft=30;moles=[0,0,0,0,0,0,0,0,0];render();
+function start(e){e.preventDefault();clearInterval(timer);clearInterval(spawnTimer);state='playing';score=0;timeLeft=30;moles=[0,0,0,0,0,0,0,0,0];comboCount=0;comboTimer=0;missCount=0;render();
   timer=setInterval(()=>{timeLeft--;if(timeLeft<=0){clearInterval(timer);clearInterval(spawnTimer);state='done';render();}else render();},1000);
-  function spawnMoles(){moles=moles.map(m=>m===1?0:0);const count=1+Math.floor((30-timeLeft)/10);for(let i=0;i<count;i++){const r=Math.floor(Math.random()*9);moles[r]=1;}render();const interval=Math.max(400,800-score*20);clearInterval(spawnTimer);spawnTimer=setInterval(spawnMoles,interval);}
+  function spawnMoles(){const missed=moles.filter(m=>m===1).length;if(missed>0){missCount++;comboCount=0;}moles=moles.map(m=>m===1?0:0);const count=1+Math.floor((30-timeLeft)/10);for(let i=0;i<count;i++){const r=Math.floor(Math.random()*9);moles[r]=Math.random()<0.12?3:1;}render();const interval=Math.max(400,800-score*20);clearInterval(spawnTimer);spawnTimer=setInterval(spawnMoles,interval);}
   spawnTimer=setInterval(spawnMoles,800);
 }
 
-function hit(i,e){e.preventDefault();if(state!=='playing'||moles[i]!==1)return;moles[i]=2;score++;render();setTimeout(()=>{if(moles[i]===2)moles[i]=0;},200);}
+function hit(i,e){e.preventDefault();if(state!=='playing')return;if(moles[i]===0)return;
+  const isGolden=moles[i]===3;
+  moles[i]=2;comboCount++;comboTimer=60;
+  score+=isGolden?5:comboCount>=5?3:comboCount>=3?2:1;
+  render();setTimeout(()=>{if(moles[i]===2)moles[i]=0;},200);}
 function backToMenu(e){e.preventDefault();clearInterval(timer);clearInterval(spawnTimer);state='menu';render();}
 render();
 </script></body></html>

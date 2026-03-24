@@ -57,6 +57,7 @@ const STACK_OFFSET=Math.min(22,Math.floor((H-TAB_Y-CH-40)/12));
 let stock,waste,foundations,tableau,moveCount,startTime,score,gameActive;
 let dragging=null,dragCards=[],dragOffX=0,dragOffY=0,dragFromCol=-1,dragFromType='';
 let history=[];
+let cardAnimations=[],winParticles=[];
 
 function makeDeck(){
   let d=[];
@@ -107,6 +108,9 @@ function cardX(col){return MARGIN+col*GAP;}
 
 function drawCard(x,y,card,highlight){
   ctx.save();
+  // Card shadow
+  ctx.fillStyle='rgba(0,0,0,0.25)';
+  ctx.beginPath();ctx.roundRect(x+3,y+3,CW,CH,5);ctx.fill();
   if(!card.faceUp){
     ctx.fillStyle='#2a3a6a';
     ctx.strokeStyle='#4a6aaa';
@@ -450,10 +454,29 @@ function winGame(){
   let finalScore=Math.max(100,1000-elapsed*2-moveCount*5+520);
   score=finalScore;
   _hub('solitaire',finalScore);
+  // Win celebration animation
+  winParticles=[];
+  let winAnim=setInterval(()=>{
+    for(let i=0;i<5;i++){
+      winParticles.push({x:Math.random()*W,y:H+10,vx:(Math.random()-0.5)*3,vy:-(4+Math.random()*6),
+        color:`hsl(${Math.random()*360},80%,60%)`,life:60+Math.random()*40,r:3+Math.random()*4});
+    }
+    winParticles=winParticles.filter(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=0.1;p.life--;return p.life>0;});
+    ctx.fillStyle='#0f0f1e';ctx.fillRect(0,0,W,H);
+    render();
+    for(let p of winParticles){
+      ctx.globalAlpha=p.life/60;ctx.fillStyle=p.color;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();
+    }
+    ctx.globalAlpha=1;
+    ctx.fillStyle='#4aff7a';ctx.font='bold 28px sans-serif';ctx.textAlign='center';
+    ctx.fillText('CLEAR!',W/2,H/2);ctx.textAlign='left';
+  },1000/30);
   setTimeout(()=>{
+    clearInterval(winAnim);
     document.getElementById('overlay').innerHTML=`<h2 style="color:#4aff7a;">🎉 축하합니다!</h2><p style="color:#ccc;font-size:16px;">점수: ${finalScore}<br>시간: ${Math.floor(elapsed/60)}분 ${elapsed%60}초<br>이동: ${moveCount}회</p><button class="btn" onclick="startGame()">다시 하기</button>`;
     document.getElementById('overlay').style.display='flex';
-  },500);
+  },3000);
 }
 
 // Input handlers

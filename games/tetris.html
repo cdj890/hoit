@@ -42,7 +42,10 @@ const SHAPES = [
 let board, score, level, lines, gameOver, paused, started;
 let current, currentX, currentY, currentColor, currentShape;
 let nextShape, nextColor;
+let next2Shape, next2Color;
 let dropTimer, dropInterval;
+let levelUpText = 0;
+let scorePopups = [];
 let particles = [];
 let highScore = parseInt(localStorage.getItem('tetris_hs') || '0');
 let combo = 0;
@@ -63,6 +66,9 @@ function spawnNext() {
   const i = Math.floor(Math.random() * SHAPES.length);
   nextShape = SHAPES[i];
   nextColor = COLORS[i];
+  const j = Math.floor(Math.random() * SHAPES.length);
+  next2Shape = SHAPES[j];
+  next2Color = COLORS[j];
 }
 
 function spawnPiece() {
@@ -70,7 +76,11 @@ function spawnPiece() {
   currentColor = nextColor;
   currentX = Math.floor((COLS - currentShape[0].length) / 2);
   currentY = 0;
-  spawnNext();
+  nextShape = next2Shape;
+  nextColor = next2Color;
+  const j = Math.floor(Math.random() * SHAPES.length);
+  next2Shape = SHAPES[j];
+  next2Color = COLORS[j];
   if (collides(currentShape, currentX, currentY)) {
     gameOver = true;
     if (score > highScore) { highScore = score; localStorage.setItem('tetris_hs', highScore); }
@@ -120,9 +130,18 @@ function clearLines() {
     combo++;
     const pts = [0, 100, 300, 500, 800][cleared.length] * level;
     const comboBonus = combo > 1 ? combo * 50 : 0;
-    score += pts + comboBonus;
+    const totalPts = pts + comboBonus;
+    score += totalPts;
+    if (totalPts > 0) {
+      scorePopups.push({x: BOARD_W/2, y: cleared[0] * CELL + 10, text: '+' + totalPts + '!', life: 40, maxLife: 40, color: cleared.length >= 4 ? '#FFD700' : '#fff'});
+    }
     lines += cleared.length;
+    const oldLevel = level;
     level = Math.floor(lines / 10) + 1;
+    if (level > oldLevel) {
+      levelUpText = 80;
+      scorePopups.push({x: BOARD_W/2, y: BOARD_H/2, text: 'LEVEL ' + level + '!', life: 60, maxLife: 60, color: '#B5EAD7'});
+    }
     dropInterval = Math.max(100, 800 - (level - 1) * 60);
     // particles
     for (const row of cleared)
@@ -255,7 +274,11 @@ function drawBoard() {
       if (board[y][x]) {
         const flash = flashLines.includes(y);
         if (flash && flashTimer > 0) {
-          drawCell(x, y, '#fff', 0.5 + Math.sin(flashTimer)*0.5);
+          const flashI = Math.sin(flashTimer * 0.8) * 0.5 + 0.5;
+          drawCell(x, y, '#fff', flashI);
+          // extra glow
+          ctx.fillStyle = `rgba(255,255,200,${flashI * 0.3})`;
+          ctx.fillRect(10, 10 + y * CELL, BOARD_W, CELL);
         } else {
           drawCell(x, y, board[y][x]);
         }
@@ -267,7 +290,18 @@ function drawPiece() {
   const gy = ghostY();
   for (let y = 0; y < currentShape.length; y++)
     for (let x = 0; x < currentShape[y].length; x++)
-      if (currentShape[y][x]) drawCell(currentX+x, gy+y, currentColor, 0.2);
+      if (currentShape[y][x]) {
+        drawCell(currentX+x, gy+y, currentColor, 0.35);
+        // ghost piece dashed outline
+        const cx2 = 10 + (currentX+x) * CELL, cy2 = 10 + (gy+y) * CELL;
+        ctx.strokeStyle = currentColor;
+        ctx.globalAlpha = 0.5;
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([3,3]);
+        ctx.strokeRect(cx2+1, cy2+1, CELL-2, CELL-2);
+        ctx.setLineDash([]);
+        ctx.globalAlpha = 1;
+      }
   // current piece
   let faceDrawn = false;
   for (let y = 0; y < currentShape.length; y++)
@@ -333,11 +367,29 @@ function drawSidePanel() {
         }
   }
 
+  // next2 piece
+  ctx.fillStyle = '#777';
+  ctx.font = '12px sans-serif';
+  ctx.fillText('그 다음', sx, 385);
+  drawRoundRect(sx-2, 392, 90, 60, 8, '#16213e');
+  if (next2Shape) {
+    const offX2 = sx + 10 + (4 - next2Shape[0].length) * 8;
+    const offY2 = 400 + (3 - next2Shape.length) * 8;
+    for (let y = 0; y < next2Shape.length; y++)
+      for (let x = 0; x < next2Shape[y].length; x++)
+        if (next2Shape[y][x]) {
+          const cx = offX2 + x * 16, cy = offY2 + y * 16;
+          drawRoundRect(cx, cy, 14, 14, 3, next2Color);
+          ctx.fillStyle = 'rgba(255,255,255,0.2)';
+          ctx.beginPath(); ctx.roundRect(cx+1, cy+1, 12, 5, 2); ctx.fill();
+        }
+  }
+
   // controls
   ctx.fillStyle = '#666';
   ctx.font = '11px sans-serif';
   const controls = ['← → 이동', '↑ 회전', '↓ 내리기', 'Space 떨어뜨리기', 'P 일시정지'];
-  controls.forEach((t, i) => ctx.fillText(t, sx, 400 + i * 18));
+  controls.forEach((t, i) => ctx.fillText(t, sx, 470 + i * 18));
 }
 
 function drawParticles() {
@@ -416,14 +468,23 @@ function drawGameOver() {
   ctx.font = '16px sans-serif';
   ctx.fillText(`레벨 ${level} · ${lines}줄 제거`, canvas.width/2, 295);
 
+  // stats box
+  ctx.fillStyle = 'rgba(255,255,255,0.05)';
+  const bx = canvas.width/2 - 80, by = 310;
+  ctx.beginPath(); ctx.roundRect(bx, by, 160, 50, 8); ctx.fill();
+  ctx.fillStyle = '#999'; ctx.font = '13px sans-serif';
+  ctx.fillText(`분당 ${lines > 0 ? Math.round(lines / Math.max(1, score / 1000)) : 0}줄`, canvas.width/2, by + 20);
+  ctx.fillText(`최대 콤보: ${combo}`, canvas.width/2, by + 38);
+
   if (score >= highScore && score > 0) {
+    const pulse = 0.8 + Math.sin(Date.now()/200)*0.2;
     ctx.fillStyle = '#FFD700';
-    ctx.font = 'bold 20px sans-serif';
-    ctx.fillText('새 기록!', canvas.width/2, 340);
+    ctx.font = `bold ${20*pulse}px sans-serif`;
+    ctx.fillText('새 기록!', canvas.width/2, 390);
   } else if (highScore > 0) {
     ctx.fillStyle = '#888';
     ctx.font = '16px sans-serif';
-    ctx.fillText(`최고 점수: ${highScore.toLocaleString()}`, canvas.width/2, 340);
+    ctx.fillText(`최고 점수: ${highScore.toLocaleString()}`, canvas.width/2, 390);
   }
 
   const t = Date.now()/1000;
@@ -497,6 +558,28 @@ function gameLoop(time) {
   if (!gameOver) drawPiece();
   drawSidePanel();
   drawParticles();
+
+  // score popups
+  scorePopups.forEach(p => {
+    const a = p.life / p.maxLife;
+    ctx.globalAlpha = a;
+    ctx.fillStyle = p.color;
+    ctx.font = `bold ${16 + (1-a)*10}px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText(p.text, p.x + 10, p.y - (1-a)*40 + 10);
+    p.life--;
+  });
+  ctx.globalAlpha = 1;
+  ctx.textAlign = 'left';
+  scorePopups = scorePopups.filter(p => p.life > 0);
+
+  // level-up flash
+  if (levelUpText > 0) {
+    const a = levelUpText / 80;
+    ctx.fillStyle = `rgba(181,234,215,${a * 0.1})`;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    levelUpText--;
+  }
 
   if (paused && !gameOver) {
     ctx.fillStyle = 'rgba(0,0,0,0.5)';

@@ -10,15 +10,16 @@ const W=Math.min(window.innerWidth,420),H=Math.min(window.innerHeight,700);
 c.width=W;c.height=H;
 
 const FRUITS=['🍎','🍊','🍋','🍇','🍓','🍑','🥝','🍌'];const BOMB='💣';
-let state='menu',score=0,timeLeft=45,basket={x:W/2,w:60},fruits=[],timer,spawnT=0,frame=0;
+let state='menu',score=0,timeLeft=45,basket={x:W/2,w:60,stretch:0},fruits=[],timer,spawnT=0,frame=0;
 let hs=parseInt(localStorage.getItem('catch_hs')||'0');
+let comboCount=0,comboTimer=0,caughtCount=0,floatingTexts=[],nearMissTimer=0;
 
 c.addEventListener('touchmove',e=>{e.preventDefault();basket.x=e.touches[0].clientX-c.getBoundingClientRect().left;},{passive:false});
 c.addEventListener('touchstart',e=>{e.preventDefault();if(state!=='playing'){if(state==='menu')startGame();else{state='menu';}}basket.x=e.touches[0].clientX-c.getBoundingClientRect().left;},{passive:false});
 c.addEventListener('mousemove',e=>{const r=c.getBoundingClientRect();basket.x=e.clientX-r.left;});
 c.addEventListener('click',()=>{if(state==='menu')startGame();else if(state==='done')state='menu';});
 
-function startGame(){clearInterval(timer);state='playing';score=0;timeLeft=45;fruits=[];frame=0;
+function startGame(){clearInterval(timer);state='playing';score=0;timeLeft=45;fruits=[];frame=0;comboCount=0;comboTimer=0;caughtCount=0;floatingTexts=[];nearMissTimer=0;basket.stretch=0;
   timer=setInterval(()=>{timeLeft--;if(timeLeft<=0){clearInterval(timer);state='done';if(score>hs){hs=score;localStorage.setItem('catch_hs',hs);}_hub('catch',score);}},1000);}
 
 function update(){
@@ -29,9 +30,20 @@ function update(){
   }
   fruits.forEach(f=>{f.y+=f.speed;});
   // catch check
+  if(basket.stretch>0)basket.stretch-=0.5;
+  if(nearMissTimer>0)nearMissTimer--;
+  if(comboTimer>0){comboTimer--;}else{comboCount=0;}
+  floatingTexts=floatingTexts.filter(t=>{t.y+=t.vy;t.life--;return t.life>0;});
   fruits=fruits.filter(f=>{
-    if(f.y>H)return false;
-    if(f.y>H-60&&f.y<H-20&&Math.abs(f.x-basket.x)<35){if(f.bomb){score=Math.max(0,score-3);}else{score++;}return false;}
+    if(f.y>H){comboCount=0;return false;}
+    if(f.y>H-60&&f.y<H-20&&Math.abs(f.x-basket.x)<35){
+      if(f.bomb){score=Math.max(0,score-3);comboCount=0;floatingTexts.push({x:f.x,y:f.y,text:'-3',color:'#ff4444',life:25,vy:-2});}
+      else{comboCount++;comboTimer=40;caughtCount++;const pts=comboCount>=5?3:comboCount>=3?2:1;score+=pts;basket.stretch=5;
+        floatingTexts.push({x:f.x,y:f.y-10,text:'+'+pts,color:pts>1?'#FFD700':'#fff',life:20,vy:-2});}
+      return false;
+    }
+    // Near miss warning
+    if(f.y>H-80&&f.y<H-60&&Math.abs(f.x-basket.x)<50&&Math.abs(f.x-basket.x)>35&&!f.bomb){nearMissTimer=15;}
     return true;
   });
 }
@@ -49,12 +61,22 @@ function draw(){
   } else if(state==='playing'){
     // fruits
     fruits.forEach(f=>{x.font='28px sans-serif';x.textAlign='center';x.fillText(f.emoji,f.x,f.y);});
-    // basket
-    x.font='36px sans-serif';x.textAlign='center';x.fillText('🧺',basket.x,H-30);
+    // basket with stretch animation
+    x.save();x.translate(basket.x,H-30);
+    if(basket.stretch>0){x.scale(1+basket.stretch*0.03,1-basket.stretch*0.02);}
+    x.font='36px sans-serif';x.textAlign='center';x.fillText('🧺',0,0);
+    x.restore();
+    // Near miss warning
+    if(nearMissTimer>0){x.fillStyle=`rgba(255,100,100,${nearMissTimer/15})`;x.font='bold 18px sans-serif';x.textAlign='center';x.fillText('위험!',basket.x,H-55);}
+    // Floating texts
+    for(let t of floatingTexts){x.globalAlpha=t.life/25;x.fillStyle=t.color;x.font='bold 16px sans-serif';x.textAlign='center';x.fillText(t.text,t.x,t.y);}
+    x.globalAlpha=1;
     // HUD
     x.fillStyle='rgba(0,0,0,0.5)';x.fillRect(0,0,W,35);
     x.fillStyle='#fff';x.font='bold 16px sans-serif';x.textAlign='left';x.fillText(`🍎 ${score}`,10,24);
-    x.textAlign='right';x.fillStyle='#FF6B6B';x.fillText(`⏱️ ${timeLeft}초`,W-10,24);
+    x.textAlign='center';if(comboCount>=3){x.fillStyle='#FFD700';x.fillText(`${comboCount}콤보!`,W/2,24);}
+    x.fillStyle='#aaa';x.font='12px sans-serif';x.fillText(`잡은수:${caughtCount}`,W/2,34);
+    x.textAlign='right';x.fillStyle='#FF6B6B';x.font='bold 16px sans-serif';x.fillText(`⏱️ ${timeLeft}초`,W-10,24);
   } else {
     x.textAlign='center';x.fillStyle='#FFD700';x.font='bold 36px sans-serif';x.fillText(`${score}점`,W/2,H/2-30);
     x.fillStyle=score>=hs?'#4CAF50':'#aaa';x.font='18px sans-serif';x.fillText(score>=hs?'🎉 새 기록!':'게임 오버',W/2,H/2+10);

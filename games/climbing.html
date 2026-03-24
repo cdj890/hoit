@@ -56,6 +56,7 @@ canvas.width=W;canvas.height=H;
 let player,ledges,camera,bestHeight,maxHeight,gameRunning,grabTarget,swinging;
 let pointerDown=false,pointerX=0,pointerY=0;
 let particles=[];
+let floatingMsgs=[],bestHeightLine=0,lastMilestone=0;
 
 const GRAVITY=0.4;
 const GRAB_RANGE=70;
@@ -68,13 +69,14 @@ function genLedges(){
   ledges.push({x:W/2,y:0,w:W,h:20,type:'ground'});
   // Generate ledges going up
   let y=80;
+  const ledgeColors=['#8b6aa8','#6a8bb8','#b86a7a','#6ab88a','#b8a86a'];
   for(let i=0;i<300;i++){
     let x=40+Math.random()*(W-80);
-    let w=40+Math.random()*60;
+    let w=35+Math.random()*70;
     // Alternate sides somewhat
     if(i%3===0) x=30+Math.random()*(W/2-40);
     else if(i%3===1) x=W/2+Math.random()*(W/2-40);
-    ledges.push({x,y,w,h:12,type:'ledge'});
+    ledges.push({x,y,w,h:10+Math.random()*6,type:'ledge',color:ledgeColors[i%ledgeColors.length]});
     y+=55+Math.random()*40;
   }
 }
@@ -96,6 +98,7 @@ function startGame(){
   swinging=false;
   gameRunning=true;
   particles=[];
+  floatingMsgs=[];lastMilestone=0;
   loop();
 }
 
@@ -208,6 +211,14 @@ function update(){
   let height=Math.floor(player.y/10);
   if(height>maxHeight) maxHeight=height;
   if(height>bestHeight) bestHeight=height;
+  // Milestone messages
+  const milestone=Math.floor(height/50)*50;
+  if(milestone>0&&milestone>lastMilestone){
+    lastMilestone=milestone;
+    const msgs=['대단해!','계속 가자!','포기하지마!','거의 다 왔어!','전설이다!','미쳤다!'];
+    floatingMsgs.push({y:player.y,text:milestone+'m! '+msgs[Math.floor(Math.random()*msgs.length)],life:80});
+    addParticles(player.x,player.y,'#ffd700',10);
+  }
 
   // Camera follows player
   let targetCam=player.y-H*0.4;
@@ -220,6 +231,14 @@ function update(){
     p.x+=p.vx;p.y+=p.vy;p.vy-=0.1;p.life--;
     if(p.life<=0) particles.splice(i,1);
   }
+  // Floating messages
+  floatingMsgs=floatingMsgs.filter(m=>{m.life--;return m.life>0;});
+  // Falling scream
+  if(player.vy<-8&&!player._screaming){
+    player._screaming=true;
+    floatingMsgs.push({y:player.y+30,text:'아아아!',life:40,isScream:true});
+  }
+  if(player.vy>-3) player._screaming=false;
 
   document.getElementById('heightVal').textContent=Math.floor(player.y/10)+'m';
   document.getElementById('bestVal').textContent=maxHeight+'m';
@@ -257,9 +276,10 @@ function draw(){
       ctx.fillStyle='#3a2a4a';
       ctx.fillRect(0,s.y-l.h/2,W,l.h+200);
     } else {
+      let baseColor=l.color||'#8b6aa8';
       let grd=ctx.createLinearGradient(s.x-l.w/2,s.y-l.h/2,s.x-l.w/2,s.y+l.h/2);
-      grd.addColorStop(0,'#8b6aa8');
-      grd.addColorStop(1,'#5a3a7a');
+      grd.addColorStop(0,baseColor);
+      grd.addColorStop(1,'#3a2a4a');
       ctx.fillStyle=grd;
       ctx.beginPath();
       ctx.roundRect(s.x-l.w/2,s.y-l.h/2,l.w,l.h,4);
@@ -269,11 +289,13 @@ function draw(){
       ctx.fillRect(s.x-l.w/2+2,s.y-l.h/2,l.w-4,3);
 
       if(grabTarget===l){
+        ctx.shadowColor='#ff6b4a';ctx.shadowBlur=15;
         ctx.strokeStyle='#ff6b4a';
         ctx.lineWidth=2;
         ctx.beginPath();
         ctx.roundRect(s.x-l.w/2-2,s.y-l.h/2-2,l.w+4,l.h+4,6);
         ctx.stroke();
+        ctx.shadowBlur=0;
       }
     }
   }
@@ -335,6 +357,29 @@ function draw(){
   }
   ctx.globalAlpha=1;
 
+  // Best height line
+  if(maxHeight>10){
+    let bls=worldToScreen(W/2,maxHeight*10);
+    if(bls.y>0&&bls.y<H){
+      ctx.strokeStyle='rgba(255,215,0,0.4)';ctx.lineWidth=1;ctx.setLineDash([5,5]);
+      ctx.beginPath();ctx.moveTo(15,bls.y);ctx.lineTo(W-15,bls.y);ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle='rgba(255,215,0,0.5)';ctx.font='10px sans-serif';ctx.textAlign='left';
+      ctx.fillText('BEST '+maxHeight+'m',15,bls.y-3);
+    }
+  }
+  // Floating messages
+  for(let m of floatingMsgs){
+    let ms=worldToScreen(W/2,m.y);
+    if(ms.y>0&&ms.y<H){
+      ctx.globalAlpha=Math.min(1,m.life/20);
+      ctx.fillStyle=m.isScream?'#ff4444':'#ffd700';
+      ctx.font=m.isScream?'bold 20px sans-serif':'bold 16px sans-serif';
+      ctx.textAlign='center';
+      ctx.fillText(m.text,W/2,ms.y);
+      ctx.globalAlpha=1;
+    }
+  }
   // Height markers
   for(let h=100;h<20000;h+=100){
     let s=worldToScreen(W/2,h*10);

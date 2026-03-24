@@ -35,13 +35,15 @@ let particles = [];
 let highScore = parseInt(localStorage.getItem('flappy_hs') || '0');
 let groundX = 0;
 let flashAlpha = 0;
+let scorePops = [];
+let bestThisRun = 0;
 
 function init() {
   bird = {x: 80, y: H/2 - 30, vy: 0, rotation: 0, wingFrame: 0};
   pipes = [];
   score = 0; gameOver = false; frame = 0;
   gameSpeed = BASE_PIPE_SPEED; currentGap = BASE_GAP;
-  particles = []; flashAlpha = 0;
+  particles = []; flashAlpha = 0; scorePops = []; bestThisRun = 0;
 }
 
 function flap() {
@@ -99,6 +101,7 @@ function update() {
     if (!p.scored && p.x + PIPE_W < bird.x) {
       score++;
       p.scored = true;
+      scorePops.push({x: bird.x + 20, y: bird.y - 15, text: '+1', life: 25, maxLife: 25});
     }
     // collision (use pipe's own gap for fairness)
     const pGap = p.gap || currentGap;
@@ -225,6 +228,11 @@ function drawBird() {
   ctx.translate(bird.x, bird.y);
   ctx.rotate(bird.rotation * Math.PI / 180);
 
+  // squash/stretch effect on flap
+  const stretchAmt = bird.wingFrame > 0 ? 1 + bird.wingFrame * 0.015 : 1;
+  const squashAmt = bird.wingFrame > 0 ? 1 - bird.wingFrame * 0.01 : 1;
+  ctx.scale(squashAmt, stretchAmt);
+
   // body
   ctx.fillStyle = '#FFD700';
   ctx.beginPath(); ctx.ellipse(0, 0, 16, 14, 0, 0, Math.PI*2); ctx.fill();
@@ -345,21 +353,48 @@ function drawGameOver() {
   ctx.font = '18px sans-serif';
   ctx.fillText('점수', W/2, 290);
 
+  // Medal system
+  let medal = '', medalColor = '';
+  if (score >= 40) { medal = 'PLATINUM'; medalColor = '#E5E4E2'; }
+  else if (score >= 20) { medal = 'GOLD'; medalColor = '#FFD700'; }
+  else if (score >= 10) { medal = 'SILVER'; medalColor = '#C0C0C0'; }
+  else if (score >= 5) { medal = 'BRONZE'; medalColor = '#CD7F32'; }
+  if (medal) {
+    const pulse = 0.9 + Math.sin(Date.now()/250)*0.1;
+    ctx.save();
+    ctx.translate(W/2, 325);
+    ctx.scale(pulse, pulse);
+    // medal circle
+    ctx.fillStyle = medalColor;
+    ctx.beginPath(); ctx.arc(0, 0, 22, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.3)'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(0, 0, 22, 0, Math.PI*2); ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.beginPath(); ctx.arc(-5, -6, 8, 0, Math.PI*2); ctx.fill();
+    // star
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 18px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(score >= 40 ? '★' : '☆', 0, 6);
+    ctx.restore();
+    ctx.textAlign = 'center';
+    ctx.fillStyle = medalColor; ctx.font = 'bold 13px sans-serif';
+    ctx.fillText(medal, W/2, 360);
+  }
+
   if (score >= highScore && score > 0) {
     ctx.fillStyle = '#FFD700';
-    ctx.font = 'bold 22px sans-serif';
-    ctx.fillText('새 기록!', W/2, 340);
+    ctx.font = 'bold 20px sans-serif';
+    ctx.fillText('새 기록!', W/2, medal ? 385 : 340);
   } else {
     ctx.fillStyle = '#888';
     ctx.font = '16px sans-serif';
-    ctx.fillText(`최고: ${highScore}`, W/2, 340);
+    ctx.fillText(`최고: ${highScore}`, W/2, medal ? 385 : 340);
   }
 
   const t = Date.now()/1000;
   ctx.globalAlpha = 0.5+Math.sin(t*2)*0.5;
   ctx.fillStyle = '#FFD700';
   ctx.font = '18px sans-serif';
-  ctx.fillText('탭하여 다시 시작', W/2, 420);
+  ctx.fillText('탭하여 다시 시작', W/2, medal ? 430 : 420);
   ctx.globalAlpha = 1;
   ctx.textAlign = 'left';
 }
@@ -392,6 +427,20 @@ function gameLoop() {
   drawBird();
   drawGround();
   drawScore();
+
+  // score popups
+  scorePops.forEach(p => {
+    const a = p.life / p.maxLife;
+    ctx.globalAlpha = a;
+    ctx.fillStyle = '#fff';
+    ctx.font = `bold ${14+(1-a)*6}px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText(p.text, p.x, p.y - (1-a)*20);
+    p.life--;
+  });
+  ctx.globalAlpha = 1;
+  ctx.textAlign = 'left';
+  scorePops = scorePops.filter(p => p.life > 0);
 
   // death flash
   if (flashAlpha > 0) {

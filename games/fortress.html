@@ -25,6 +25,9 @@ h1{font-size:36px;margin-bottom:10px;text-shadow:0 0 20px #ff6b6b}
 #turnDisplay{position:absolute;top:90px;left:50%;transform:translateX(-50%);font-size:14px;font-weight:bold;pointer-events:none}
 #powerBar{width:150px;height:20px;background:rgba(0,0,0,0.5);border-radius:10px;border:1px solid #fff;overflow:hidden;display:inline-block;vertical-align:middle}
 #powerFill{height:100%;width:0%;background:linear-gradient(90deg,#4f4,#ff0,#f44);border-radius:10px;transition:none}
+@keyframes windPulse{0%,100%{opacity:1;transform:translateX(0)}50%{opacity:0.6;transform:translateX(3px)}}
+@keyframes turnBounce{0%{transform:scale(0.5);opacity:0}50%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
+@keyframes craterGlow{0%{opacity:0.5}100%{opacity:0}}
 </style>
 </head>
 <body>
@@ -77,7 +80,7 @@ let players=[
   {x:0,y:0,hp:100,maxHp:100,angle:45,color:'#6bf',name:'P1'},
   {x:0,y:0,hp:100,maxHp:100,angle:135,color:'#f66',name:'P2'}
 ];
-let projectile=null,explosions=[];
+let projectile=null,explosions=[],craters=[],trailParticles=[];
 let powerCharging=false,power=0,powerDir=1;
 let animFrame;
 
@@ -224,6 +227,8 @@ function updateProjectile(){
   if(!projectile)return;
   projectile.trail.push({x:projectile.x,y:projectile.y});
   if(projectile.trail.length>20)projectile.trail.shift();
+  // Spawn trail particles
+  if(Math.random()<0.4) trailParticles.push({x:projectile.x,y:projectile.y,vx:(Math.random()-0.5)*1.5,vy:(Math.random()-0.5)*1.5,life:15,r:1+Math.random()*2});
   projectile.vx+=wind*0.001;
   projectile.vy+=0.15;
   projectile.x+=projectile.vx;
@@ -249,6 +254,7 @@ function explode(ex,ey){
   const radius=25;
   destroyTerrain(ex,ey,radius);
   explosions.push({x:ex,y:ey,r:radius,t:0,max:20});
+  craters.push({x:ex,y:ey,r:radius,alpha:0.6});
   // damage
   for(let i=0;i<2;i++){
     const dist=Math.hypot(ex-players[i].x,ey-(players[i].y-12));
@@ -306,8 +312,10 @@ function doAI(){
 }
 
 function updateUI(){
-  document.getElementById('windDisplay').textContent='바람: '+(wind>0?'→':'←')+' '+Math.abs(wind);
-  document.getElementById('turnDisplay').textContent=(turn===0?'🔵 플레이어 1':'🔴 플레이어 2')+' 차례';
+  const windArrow=wind>0?'→→→'.slice(0,Math.abs(wind)):wind<0?'←←←'.slice(0,Math.abs(wind)):'―';
+  document.getElementById('windDisplay').innerHTML='바람: <span style="display:inline-block;animation:windPulse 1s infinite">'+windArrow+'</span> '+Math.abs(wind);
+  const turnText=turn===0?'🔵 YOUR TURN!':'🔴 '+(mode==='ai'?'AI TURN':'P2 TURN');
+  document.getElementById('turnDisplay').innerHTML='<span style="animation:turnBounce 0.5s">'+turnText+'</span>';
   document.getElementById('angleShow').textContent=Math.floor(players[turn].angle)+'°';
 }
 
@@ -373,8 +381,24 @@ function gameLoop(){
   drawTerrain();
   drawCannon(players[0],0);
   drawCannon(players[1],1);
+  // Draw craters
+  for(let cr of craters){
+    ctx.fillStyle=`rgba(40,20,0,${cr.alpha})`;
+    ctx.beginPath();ctx.arc(cr.x,cr.y,cr.r*0.8,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle=`rgba(80,40,0,${cr.alpha*0.5})`;ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(cr.x,cr.y,cr.r,0,Math.PI*2);ctx.stroke();
+    cr.alpha=Math.max(0.1,cr.alpha-0.001);
+  }
   drawProjectile();
   drawExplosions();
+  // Trail particles
+  trailParticles=trailParticles.filter(p=>{
+    p.x+=p.vx;p.y+=p.vy;p.life--;
+    if(p.life<=0)return false;
+    ctx.fillStyle=`rgba(255,150,50,${p.life/15})`;
+    ctx.beginPath();ctx.arc(p.x,p.y,p.r*(p.life/15),0,Math.PI*2);ctx.fill();
+    return true;
+  });
   if(powerCharging){
     power+=powerDir*2;
     if(power>=100)powerDir=-1;
