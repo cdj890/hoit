@@ -19,6 +19,13 @@ canvas{display:block;border-radius:8px;}
 .btn:active{transform:scale(0.95);}
 #hud{position:absolute;top:50px;right:10px;z-index:50;text-align:right;font-size:14px;color:#fff;pointer-events:none;}
 #hud .val{font-size:22px;font-weight:bold;color:#ff6b4a;}
+#hud .stars{color:#ffd700;font-size:16px;margin-top:4px;}
+.skin-select{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:12px 0;max-width:360px;}
+.skin-btn{background:rgba(255,255,255,0.08);border:2px solid rgba(255,255,255,0.2);color:#fff;padding:8px 14px;border-radius:10px;font-size:14px;cursor:pointer;min-height:44px;touch-action:manipulation;transition:all 0.2s;}
+.skin-btn.selected{background:rgba(255,107,74,0.25);border-color:#ff6b4a;box-shadow:0 0 10px rgba(255,107,74,0.3);}
+.skin-btn:active{transform:scale(0.95);}
+.skin-desc{font-size:11px;color:#aaa;display:block;margin-top:2px;}
+#milestonePopup{position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);font-size:28px;font-weight:bold;color:#ffd700;text-shadow:0 0 20px rgba(255,215,0,0.6);pointer-events:none;opacity:0;transition:opacity 0.3s;z-index:60;text-align:center;}
 </style>
 </head>
 <body>
@@ -31,11 +38,21 @@ canvas{display:block;border-radius:8px;}
   <div class="val" id="heightVal">0m</div>
   <div style="margin-top:6px;">최고</div>
   <div class="val" id="bestVal">0m</div>
+  <div class="stars" id="starCount">⭐ 0</div>
 </div>
+<div id="milestonePopup"></div>
 
 <div id="startScreen">
   <h1>🧗 절벽 올라가기</h1>
   <p>터치/클릭으로 발판을 잡고 올라가세요!<br>떨어져도 포기하지 마세요!</p>
+  <p style="color:#ff6b4a;font-size:13px;margin-bottom:4px;">캐릭터 선택</p>
+  <div class="skin-select" id="skinSelect">
+    <button class="skin-btn selected" data-skin="default" onclick="selectSkin('default',this)">🧗 기본<span class="skin-desc">밸런스</span></button>
+    <button class="skin-btn" data-skin="cat" onclick="selectSkin('cat',this)">🐱 고양이<span class="skin-desc">민첩</span></button>
+    <button class="skin-btn" data-skin="frog" onclick="selectSkin('frog',this)">🐸 개구리<span class="skin-desc">높은점프</span></button>
+    <button class="skin-btn" data-skin="robot" onclick="selectSkin('robot',this)">🤖 로봇<span class="skin-desc">느리지만 안정</span></button>
+    <button class="skin-btn" data-skin="hero" onclick="selectSkin('hero',this)">🦸 히어로<span class="skin-desc">빠름</span></button>
+  </div>
   <button class="btn" onclick="startGame()">시작하기</button>
 </div>
 
@@ -57,14 +74,28 @@ let player,ledges,camera,bestHeight,maxHeight,gameRunning,grabTarget,swinging;
 let pointerDown=false,pointerX=0,pointerY=0;
 let particles=[];
 let floatingMsgs=[],bestHeightLine=0,lastMilestone=0;
+let selectedSkin='default';
+let obstacles=[],savePoints=[],stars=[],collectedStars=0;
+let allTimeBest=parseInt(localStorage.getItem('climbing_best')||'0');
+let milestoneShown={};
 
-const GRAVITY=0.4;
-const GRAB_RANGE=70;
-const SWING_SPEED=0.04;
-const LAUNCH_POWER=10;
+const SKINS={
+  default:{name:'🧗',color:'#ff6b4a',gravity:0.4,swingSpeed:0.04,launchPower:10,grabRange:70,face:'😊'},
+  cat:{name:'🐱',color:'#f0a050',gravity:0.38,swingSpeed:0.05,launchPower:10,grabRange:80,face:'😺'},
+  frog:{name:'🐸',color:'#50c050',gravity:0.4,swingSpeed:0.04,launchPower:13,grabRange:70,face:'🐸'},
+  robot:{name:'🤖',color:'#8090b0',gravity:0.5,swingSpeed:0.03,launchPower:9,grabRange:75,face:'🤖'},
+  hero:{name:'🦸',color:'#e040e0',gravity:0.35,swingSpeed:0.055,launchPower:11,grabRange:65,face:'🦸'}
+};
+
+function selectSkin(s,el){selectedSkin=s;document.querySelectorAll('.skin-btn').forEach(b=>b.classList.remove('selected'));el.classList.add('selected');}
+
+let GRAVITY=0.4;
+let GRAB_RANGE=70;
+let SWING_SPEED=0.04;
+let LAUNCH_POWER=10;
 
 function genLedges(){
-  ledges=[];
+  ledges=[];obstacles=[];savePoints=[];stars=[];
   // Ground
   ledges.push({x:W/2,y:0,w:W,h:20,type:'ground'});
   // Generate ledges going up
@@ -73,16 +104,41 @@ function genLedges(){
   for(let i=0;i<300;i++){
     let x=40+Math.random()*(W-80);
     let w=35+Math.random()*70;
-    // Alternate sides somewhat
     if(i%3===0) x=30+Math.random()*(W/2-40);
     else if(i%3===1) x=W/2+Math.random()*(W/2-40);
-    ledges.push({x,y,w,h:10+Math.random()*6,type:'ledge',color:ledgeColors[i%ledgeColors.length]});
+    let lType='ledge';
+    // Ice platforms (slippery) - start appearing after some height
+    if(i>10&&Math.random()<0.15) lType='ice';
+    // Moving platforms
+    if(i>15&&Math.random()<0.1) lType='moving';
+    ledges.push({x,y,w,h:10+Math.random()*6,type:lType,color:lType==='ice'?'#8de8f0':ledgeColors[i%ledgeColors.length],origX:x,moveDir:1,moveRange:40+Math.random()*30});
+    // Collectible stars near some ledges
+    if(Math.random()<0.3){
+      stars.push({x:x+(Math.random()-0.5)*40,y:y+30+Math.random()*20,collected:false,bob:Math.random()*Math.PI*2});
+    }
     y+=55+Math.random()*40;
+  }
+  // Save points every 50m (y=500 world units)
+  for(let sy=500;sy<30000;sy+=500){
+    savePoints.push({y:sy,x:W/2,active:false});
+  }
+  // Obstacles
+  for(let oi=0;oi<80;oi++){
+    let oy=300+oi*350+Math.random()*100;
+    let otype=['rock','wind','rock','wind'][oi%4];
+    if(otype==='rock'){
+      obstacles.push({type:'rock',x:30+Math.random()*(W-60),y:oy,vy:-1-Math.random()*2,r:8+Math.random()*6,respawnY:oy,active:true});
+    } else {
+      let dir=Math.random()<0.5?-1:1;
+      obstacles.push({type:'wind',x:W/2,y:oy,w:W*0.6,h:40,dir:dir,strength:1.5+Math.random(),active:true});
+    }
   }
 }
 
 function initPlayer(){
-  player={x:W/2,y:30,vx:0,vy:0,r:16,grabbed:false,angle:0,ropeLen:0,anchorX:0,anchorY:0};
+  const sk=SKINS[selectedSkin];
+  player={x:W/2,y:30,vx:0,vy:0,r:16,grabbed:false,angle:0,ropeLen:0,anchorX:0,anchorY:0,skin:selectedSkin,lastSaveY:0};
+  GRAVITY=sk.gravity;GRAB_RANGE=sk.grabRange;SWING_SPEED=sk.swingSpeed;LAUNCH_POWER=sk.launchPower;
 }
 
 function startGame(){
@@ -94,11 +150,13 @@ function startGame(){
   camera=0;
   bestHeight=0;
   maxHeight=0;
+  collectedStars=0;
   grabTarget=null;
   swinging=false;
   gameRunning=true;
   particles=[];
-  floatingMsgs=[];lastMilestone=0;
+  floatingMsgs=[];lastMilestone=0;milestoneShown={};
+  document.getElementById('starCount').textContent='⭐ 0';
   loop();
 }
 
@@ -134,24 +192,26 @@ function update(){
   if(!gameRunning) return;
 
   if(swinging && grabTarget){
-    // Swing around anchor point
     player.angle+=SWING_SPEED*(pointerX<W/2?-1:1);
+    // Update moving platform position
+    if(grabTarget.type==='moving'){
+      grabTarget.x+=grabTarget.moveDir*0.5;
+      if(Math.abs(grabTarget.x-grabTarget.origX)>grabTarget.moveRange) grabTarget.moveDir*=-1;
+    }
     let tx=grabTarget.x+Math.cos(player.angle)*player.ropeLen;
     let ty=grabTarget.y+Math.sin(player.angle)*player.ropeLen;
     player.x=tx;
     player.y=ty;
 
     if(!pointerDown){
-      // Release! Launch
       let launchAngle=player.angle+Math.PI/2*(pointerX<W/2?-1:1);
       player.vx=Math.cos(launchAngle)*LAUNCH_POWER*0.7;
       player.vy=Math.abs(Math.sin(launchAngle)*LAUNCH_POWER)+3;
       swinging=false;
       grabTarget=null;
-      addParticles(player.x,player.y,'#ff6b4a',5);
+      addParticles(player.x,player.y,SKINS[selectedSkin].color,5);
     }
   } else {
-    // Physics
     player.vy-=GRAVITY;
     player.x+=player.vx;
     player.y+=player.vy;
@@ -163,6 +223,11 @@ function update(){
 
     // Ledge collision
     for(let l of ledges){
+      // Update moving platforms
+      if(l.type==='moving'){
+        l.x+=l.moveDir*0.5;
+        if(Math.abs(l.x-l.origX)>l.moveRange) l.moveDir*=-1;
+      }
       let lLeft=l.x-l.w/2;
       let lRight=l.x+l.w/2;
       let lTop=l.y+l.h/2;
@@ -172,17 +237,28 @@ function update(){
         if(player.y-player.r<lTop && player.y-player.r>lBot-10 && player.vy<0){
           player.y=lTop+player.r;
           player.vy=0;
-          player.vx*=0.8;
-          if(Math.abs(player.vx)<0.1) player.vx=0;
+          // Ice platforms: slippery (less friction)
+          if(l.type==='ice'){
+            player.vx*=0.98;
+            if(Math.abs(player.vx)<0.5) player.vx+=(Math.random()-0.5)*1.5;
+          } else {
+            player.vx*=0.8;
+            if(Math.abs(player.vx)<0.1) player.vx=0;
+          }
         }
       }
     }
 
-    // Ground
+    // Ground or save point respawn
     if(player.y<player.r){
-      player.y=player.r;
-      player.vy=0;
-      player.vx*=0.8;
+      if(player.lastSaveY>0){
+        // Respawn at last save point
+        player.x=W/2;player.y=player.lastSaveY+20;player.vx=0;player.vy=0;
+        floatingMsgs.push({y:player.y+20,text:'💫 세이브 포인트!',life:60});
+        addParticles(player.x,player.y,'#4af',8);
+      } else {
+        player.y=player.r;player.vy=0;player.vx*=0.8;
+      }
     }
 
     // Try grab on pointer down
@@ -190,7 +266,6 @@ function update(){
       let wp=screenToWorld(pointerX,pointerY);
       let ledge=findNearestLedge(wp.x,wp.y);
       if(!ledge){
-        // Also search near player
         ledge=findNearestLedge(player.x,player.y+GRAB_RANGE*0.7);
       }
       if(ledge){
@@ -207,18 +282,79 @@ function update(){
     }
   }
 
+  // Obstacles
+  for(let ob of obstacles){
+    if(!ob.active)continue;
+    let screenDist=Math.abs(ob.respawnY-player.y);
+    if(screenDist>H*2)continue; // skip far obstacles
+    if(ob.type==='rock'){
+      ob.y+=ob.vy;
+      // Reset rock if it falls too far below
+      if(ob.y<ob.respawnY-400) ob.y=ob.respawnY+200;
+      // Collision with player
+      if(Math.hypot(player.x-ob.x,player.y-ob.y)<player.r+ob.r){
+        player.vy=-3;player.vx+=(player.x>ob.x?2:-2);
+        addParticles(player.x,player.y,'#f44',5);
+        floatingMsgs.push({y:player.y+15,text:'💥',life:25});
+      }
+    } else if(ob.type==='wind'){
+      // Push player sideways if in range
+      if(player.y>ob.y-ob.h/2&&player.y<ob.y+ob.h/2&&player.x>ob.x-ob.w/2&&player.x<ob.x+ob.w/2){
+        player.vx+=ob.dir*ob.strength*0.1;
+      }
+    }
+  }
+
+  // Save points
+  for(let sp of savePoints){
+    if(sp.active)continue;
+    if(Math.abs(player.y-sp.y)<30){
+      sp.active=true;
+      player.lastSaveY=sp.y;
+      addParticles(sp.x,sp.y,'#ffd700',10);
+      floatingMsgs.push({y:sp.y+20,text:'⭐ 세이브!',life:60});
+    }
+  }
+
+  // Collectible stars
+  for(let st of stars){
+    if(st.collected)continue;
+    st.bob+=0.05;
+    if(Math.hypot(player.x-st.x,player.y-st.y)<25){
+      st.collected=true;
+      collectedStars++;
+      addParticles(st.x,st.y,'#ffd700',8);
+      document.getElementById('starCount').textContent='⭐ '+collectedStars;
+    }
+  }
+
   // Height tracking
   let height=Math.floor(player.y/10);
   if(height>maxHeight) maxHeight=height;
   if(height>bestHeight) bestHeight=height;
-  // Milestone messages
-  const milestone=Math.floor(height/50)*50;
-  if(milestone>0&&milestone>lastMilestone){
-    lastMilestone=milestone;
-    const msgs=['대단해!','계속 가자!','포기하지마!','거의 다 왔어!','전설이다!','미쳤다!'];
-    floatingMsgs.push({y:player.y,text:milestone+'m! '+msgs[Math.floor(Math.random()*msgs.length)],life:80});
+
+  // Milestone messages with specific texts
+  const milestones={50:'워밍업!',100:'반쯤 왔어!',200:'대단해!',500:'전설!'};
+  for(let m in milestones){
+    let mv=parseInt(m);
+    if(height>=mv&&!milestoneShown[mv]){
+      milestoneShown[mv]=true;
+      let popup=document.getElementById('milestonePopup');
+      popup.textContent=mv+'m - '+milestones[mv];
+      popup.style.opacity='1';
+      setTimeout(()=>{popup.style.opacity='0';},2500);
+      addParticles(player.x,player.y,'#ffd700',15);
+    }
+  }
+
+  // Generic milestones beyond defined ones
+  const genMilestone=Math.floor(height/50)*50;
+  if(genMilestone>500&&genMilestone>lastMilestone){
+    lastMilestone=genMilestone;
+    floatingMsgs.push({y:player.y,text:genMilestone+'m! 미쳤다!',life:80});
     addParticles(player.x,player.y,'#ffd700',10);
   }
+  if(genMilestone<=500&&genMilestone>lastMilestone) lastMilestone=genMilestone;
 
   // Camera follows player
   let targetCam=player.y-H*0.4;
@@ -277,26 +413,79 @@ function draw(){
       ctx.fillRect(0,s.y-l.h/2,W,l.h+200);
     } else {
       let baseColor=l.color||'#8b6aa8';
+      if(l.type==='moving') baseColor='#b8a0d8';
       let grd=ctx.createLinearGradient(s.x-l.w/2,s.y-l.h/2,s.x-l.w/2,s.y+l.h/2);
       grd.addColorStop(0,baseColor);
-      grd.addColorStop(1,'#3a2a4a');
+      grd.addColorStop(1,l.type==='ice'?'#4a8a9a':'#3a2a4a');
       ctx.fillStyle=grd;
       ctx.beginPath();
       ctx.roundRect(s.x-l.w/2,s.y-l.h/2,l.w,l.h,4);
       ctx.fill();
       // Highlight
-      ctx.fillStyle='rgba(255,255,255,0.15)';
+      ctx.fillStyle=l.type==='ice'?'rgba(200,240,255,0.3)':'rgba(255,255,255,0.15)';
       ctx.fillRect(s.x-l.w/2+2,s.y-l.h/2,l.w-4,3);
-
+      // Moving platform indicator
+      if(l.type==='moving'){
+        ctx.fillStyle='rgba(255,255,255,0.3)';ctx.font='8px sans-serif';ctx.textAlign='center';
+        ctx.fillText('↔',s.x,s.y+3);
+      }
       if(grabTarget===l){
-        ctx.shadowColor='#ff6b4a';ctx.shadowBlur=15;
-        ctx.strokeStyle='#ff6b4a';
+        ctx.shadowColor=SKINS[selectedSkin].color;ctx.shadowBlur=15;
+        ctx.strokeStyle=SKINS[selectedSkin].color;
         ctx.lineWidth=2;
         ctx.beginPath();
         ctx.roundRect(s.x-l.w/2-2,s.y-l.h/2-2,l.w+4,l.h+4,6);
         ctx.stroke();
         ctx.shadowBlur=0;
       }
+    }
+  }
+
+  // Save points
+  for(let sp of savePoints){
+    let ss=worldToScreen(sp.x,sp.y);
+    if(ss.y<-20||ss.y>H+40) continue;
+    ctx.font='16px sans-serif';ctx.textAlign='center';
+    ctx.fillText(sp.active?'✅':'⭐',ss.x,ss.y);
+    if(!sp.active){
+      ctx.strokeStyle='rgba(255,215,0,0.3)';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+      ctx.beginPath();ctx.moveTo(15,ss.y);ctx.lineTo(W-15,ss.y);ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle='rgba(255,215,0,0.4)';ctx.font='9px sans-serif';
+      ctx.fillText(Math.floor(sp.y/10)+'m',W-35,ss.y+3);
+    }
+  }
+
+  // Collectible stars
+  for(let st of stars){
+    if(st.collected)continue;
+    let ss=worldToScreen(st.x,st.y);
+    if(ss.y<-20||ss.y>H+20)continue;
+    ctx.font='14px sans-serif';ctx.textAlign='center';
+    ctx.fillText('⭐',ss.x,ss.y+Math.sin(st.bob)*4);
+  }
+
+  // Obstacles
+  for(let ob of obstacles){
+    if(!ob.active)continue;
+    if(ob.type==='rock'){
+      let os=worldToScreen(ob.x,ob.y);
+      if(os.y<-30||os.y>H+30)continue;
+      ctx.fillStyle='#8a6a5a';
+      ctx.beginPath();ctx.arc(os.x,os.y,ob.r,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#6a4a3a';
+      ctx.beginPath();ctx.arc(os.x-2,os.y-2,ob.r*0.6,0,Math.PI*2);ctx.fill();
+    } else if(ob.type==='wind'){
+      let os=worldToScreen(ob.x,ob.y);
+      if(os.y<-50||os.y>H+50)continue;
+      ctx.globalAlpha=0.15;
+      ctx.fillStyle=ob.dir>0?'#4af':'#fa4';
+      ctx.fillRect(os.x-ob.w/2,os.y-ob.h/2,ob.w,ob.h);
+      ctx.globalAlpha=0.5;
+      ctx.font='12px sans-serif';ctx.textAlign='center';
+      ctx.fillStyle='#fff';
+      ctx.fillText(ob.dir>0?'💨→':'←💨',os.x,os.y+4);
+      ctx.globalAlpha=1;
     }
   }
 
@@ -314,19 +503,38 @@ function draw(){
 
   // Player
   let ps=worldToScreen(player.x,player.y);
+  const sk=SKINS[selectedSkin];
   // Body
-  ctx.fillStyle='#ff6b4a';
+  ctx.fillStyle=sk.color;
   ctx.beginPath();
   ctx.arc(ps.x,ps.y,player.r,0,Math.PI*2);
   ctx.fill();
+  // Skin-specific details
+  if(selectedSkin==='cat'){
+    // Ears
+    ctx.fillStyle=sk.color;
+    ctx.beginPath();ctx.moveTo(ps.x-10,ps.y-12);ctx.lineTo(ps.x-6,ps.y-20);ctx.lineTo(ps.x-2,ps.y-12);ctx.fill();
+    ctx.beginPath();ctx.moveTo(ps.x+2,ps.y-12);ctx.lineTo(ps.x+6,ps.y-20);ctx.lineTo(ps.x+10,ps.y-12);ctx.fill();
+  } else if(selectedSkin==='robot'){
+    ctx.strokeStyle='#a0b0c0';ctx.lineWidth=2;
+    ctx.strokeRect(ps.x-10,ps.y-12,20,6);
+    ctx.fillStyle='#60f060';ctx.fillRect(ps.x-4,ps.y-10,8,2);
+  } else if(selectedSkin==='hero'){
+    // Cape
+    ctx.fillStyle='rgba(200,40,200,0.5)';
+    ctx.beginPath();ctx.moveTo(ps.x-6,ps.y);ctx.lineTo(ps.x,ps.y+22);ctx.lineTo(ps.x+6,ps.y);ctx.fill();
+  }
   // Face
   ctx.fillStyle='#fff';
   ctx.beginPath();
   ctx.arc(ps.x-5,ps.y-3,3,0,Math.PI*2);
   ctx.arc(ps.x+5,ps.y-3,3,0,Math.PI*2);
   ctx.fill();
+  // Eyes pupils
+  ctx.fillStyle='#000';
+  ctx.beginPath();ctx.arc(ps.x-5,ps.y-3,1.5,0,Math.PI*2);ctx.arc(ps.x+5,ps.y-3,1.5,0,Math.PI*2);ctx.fill();
   // Mouth
-  ctx.fillStyle='#c0392b';
+  ctx.fillStyle=selectedSkin==='frog'?'#2a8a2a':'#c0392b';
   ctx.beginPath();
   if(swinging){
     ctx.arc(ps.x,ps.y+5,4,0,Math.PI);
@@ -338,12 +546,14 @@ function draw(){
   ctx.fill();
 
   // Glow
-  ctx.shadowColor='#ff6b4a';
+  ctx.shadowColor=sk.color;
   ctx.shadowBlur=15;
   ctx.beginPath();
   ctx.arc(ps.x,ps.y,player.r-2,0,Math.PI*2);
-  ctx.fillStyle='rgba(255,107,74,0.15)';
+  ctx.fillStyle=sk.color.replace(')',',0.15)').replace('rgb','rgba');
+  ctx.globalAlpha=0.15;ctx.fillStyle=sk.color;
   ctx.fill();
+  ctx.globalAlpha=1;
   ctx.shadowBlur=0;
 
   // Particles
@@ -357,7 +567,18 @@ function draw(){
   }
   ctx.globalAlpha=1;
 
-  // Best height line
+  // All-time best ghost line
+  if(allTimeBest>10){
+    let abls=worldToScreen(W/2,allTimeBest*10);
+    if(abls.y>0&&abls.y<H){
+      ctx.strokeStyle='rgba(255,100,100,0.3)';ctx.lineWidth=1;ctx.setLineDash([8,4]);
+      ctx.beginPath();ctx.moveTo(15,abls.y);ctx.lineTo(W-15,abls.y);ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle='rgba(255,100,100,0.4)';ctx.font='10px sans-serif';ctx.textAlign='left';
+      ctx.fillText('🏆 RECORD '+allTimeBest+'m',15,abls.y-3);
+    }
+  }
+  // Current session best height line
   if(maxHeight>10){
     let bls=worldToScreen(W/2,maxHeight*10);
     if(bls.y>0&&bls.y<H){
@@ -429,9 +650,10 @@ function resetInactive(){
 
 function endGame(){
   gameRunning=false;
+  if(maxHeight>allTimeBest){allTimeBest=maxHeight;localStorage.setItem('climbing_best',String(allTimeBest));}
   _hub('climbing',maxHeight);
-  document.getElementById('finalScore').textContent='도달 높이: '+maxHeight+'m';
-  document.getElementById('bestScore').textContent='';
+  document.getElementById('finalScore').textContent='도달 높이: '+maxHeight+'m (⭐'+collectedStars+'개)';
+  document.getElementById('bestScore').textContent='역대 최고: '+allTimeBest+'m';
   document.getElementById('gameOver').style.display='flex';
   document.getElementById('hud').style.display='none';
 }

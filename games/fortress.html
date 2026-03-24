@@ -24,10 +24,21 @@ h1{font-size:36px;margin-bottom:10px;text-shadow:0 0 20px #ff6b6b}
 #windDisplay{position:absolute;top:70px;left:50%;transform:translateX(-50%);font-size:13px;color:#aef;pointer-events:none}
 #turnDisplay{position:absolute;top:90px;left:50%;transform:translateX(-50%);font-size:14px;font-weight:bold;pointer-events:none}
 #powerBar{width:150px;height:20px;background:rgba(0,0,0,0.5);border-radius:10px;border:1px solid #fff;overflow:hidden;display:inline-block;vertical-align:middle}
-#powerFill{height:100%;width:0%;background:linear-gradient(90deg,#4f4,#ff0,#f44);border-radius:10px;transition:none}
+#powerFill{height:100%;width:0%;background:linear-gradient(90deg,#22cc22,#88cc00,#cccc00,#cc8800,#cc2222);border-radius:10px;transition:none}
+#windArrowDisplay{font-size:18px;letter-spacing:-2px;display:inline-block}
+.weapon-select,.terrain-select{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:10px 0;max-width:360px}
+.weapon-btn,.terrain-btn{background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.25);color:#fff;padding:8px 12px;border-radius:10px;font-size:13px;cursor:pointer;touch-action:manipulation;min-height:44px;transition:all 0.2s}
+.weapon-btn.selected,.terrain-btn.selected{background:rgba(255,180,60,0.3);border-color:#ffa500;box-shadow:0 0 10px rgba(255,165,0,0.4)}
+.weapon-btn:active,.terrain-btn:active{transform:scale(0.95)}
+#itemStatus{position:absolute;top:110px;left:50%;transform:translateX(-50%);font-size:12px;color:#aef;pointer-events:none;text-align:center}
+#weaponHud{position:absolute;top:130px;left:50%;transform:translateX(-50%);font-size:12px;color:#fda;pointer-events:none}
+#koOverlay{position:absolute;top:0;left:0;width:100%;height:100%;display:none;align-items:center;justify-content:center;flex-direction:column;pointer-events:none;z-index:50}
+#koText{font-size:64px;font-weight:bold;color:#ff4444;text-shadow:0 0 30px #ff0,0 0 60px #f80;animation:koAnim 1.5s ease-out forwards}
+@keyframes koAnim{0%{transform:scale(3);opacity:0}30%{transform:scale(1);opacity:1}80%{opacity:1}100%{opacity:0;transform:scale(0.8)}}
 @keyframes windPulse{0%,100%{opacity:1;transform:translateX(0)}50%{opacity:0.6;transform:translateX(3px)}}
 @keyframes turnBounce{0%{transform:scale(0.5);opacity:0}50%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
 @keyframes craterGlow{0%{opacity:0.5}100%{opacity:0}}
+@keyframes confettiFall{0%{transform:translateY(-10px) rotate(0deg);opacity:1}100%{transform:translateY(100px) rotate(720deg);opacity:0}}
 </style>
 </head>
 <body>
@@ -36,6 +47,22 @@ h1{font-size:36px;margin-bottom:10px;text-shadow:0 0 20px #ff6b6b}
 <div id="startScreen">
 <h1>🏰 대포 대전</h1>
 <p class="subtitle">대포를 쏴서 상대를 무찔러라!</p>
+<p style="color:#aef;font-size:13px;margin-bottom:4px">무기 선택</p>
+<div class="weapon-select" id="weaponSelect">
+<button class="weapon-btn selected" data-w="basic" onclick="selectWeapon('basic',this)">💣기본포</button>
+<button class="weapon-btn" data-w="missile" onclick="selectWeapon('missile',this)">🚀미사일</button>
+<button class="weapon-btn" data-w="shotgun" onclick="selectWeapon('shotgun',this)">🧨산탄</button>
+<button class="weapon-btn" data-w="fire" onclick="selectWeapon('fire',this)">🔥화염탄</button>
+<button class="weapon-btn" data-w="ice" onclick="selectWeapon('ice',this)">🧊얼음탄</button>
+</div>
+<p style="color:#aef;font-size:13px;margin-bottom:4px">지형 선택</p>
+<div class="terrain-select" id="terrainSelect">
+<button class="terrain-btn selected" data-t="plain" onclick="selectTerrain('plain',this)">🌿평원</button>
+<button class="terrain-btn" data-t="mountain" onclick="selectTerrain('mountain',this)">⛰️산악</button>
+<button class="terrain-btn" data-t="valley" onclick="selectTerrain('valley',this)">🏜️협곡</button>
+<button class="terrain-btn" data-t="city" onclick="selectTerrain('city',this)">🏙️도시</button>
+<button class="terrain-btn" data-t="island" onclick="selectTerrain('island',this)">🏝️섬</button>
+</div>
 <button class="btn mode-btn" onclick="startGame('ai')">🤖 1인용 (vs AI)</button>
 <button class="btn mode-btn" onclick="startGame('2p')">👥 2인용 (같은 기기)</button>
 </div>
@@ -56,6 +83,9 @@ h1{font-size:36px;margin-bottom:10px;text-shadow:0 0 20px #ff6b6b}
 </div>
 <div id="windDisplay"></div>
 <div id="turnDisplay"></div>
+<div id="itemStatus"></div>
+<div id="weaponHud"></div>
+<div id="koOverlay"><div id="koText">💥 KO!</div></div>
 <div id="controls">
 <button class="btn" id="angleLeftBtn">◀ 각도</button>
 <button class="btn" id="angleRightBtn">각도 ▶</button>
@@ -76,21 +106,52 @@ canvas.width=W;canvas.height=H;
 
 let mode='ai',gameState='menu',turn=0,wind=0,wins=0;
 let terrain=[];
+let selectedWeapon='basic',selectedTerrain='plain';
+const WEAPONS={
+  basic:{name:'💣기본포',speed:1,dmgMul:1,radius:25,color:'#ff0',splitCount:0,aoe:null},
+  missile:{name:'🚀미사일',speed:1.5,dmgMul:0.6,radius:18,color:'#f80',splitCount:0,aoe:null},
+  shotgun:{name:'🧨산탄',speed:0.9,dmgMul:0.5,radius:15,color:'#fa0',splitCount:3,aoe:null},
+  fire:{name:'🔥화염탄',speed:1,dmgMul:0.8,radius:22,color:'#f40',splitCount:0,aoe:'fire'},
+  ice:{name:'🧊얼음탄',speed:1,dmgMul:0.7,radius:22,color:'#4df',splitCount:0,aoe:'ice'}
+};
 let players=[
-  {x:0,y:0,hp:100,maxHp:100,angle:45,color:'#6bf',name:'P1'},
-  {x:0,y:0,hp:100,maxHp:100,angle:135,color:'#f66',name:'P2'}
+  {x:0,y:0,hp:100,maxHp:100,angle:45,color:'#6bf',name:'P1',weapon:'basic',powerUp:false,shield:false},
+  {x:0,y:0,hp:100,maxHp:100,angle:135,color:'#f66',name:'P2',weapon:'basic',powerUp:false,shield:false}
 ];
-let projectile=null,explosions=[],craters=[],trailParticles=[];
+let projectile=null,explosions=[],craters=[],trailParticles=[],confettiParts=[];
+let fieldItems=[];
+let aoeTiles=[];
 let powerCharging=false,power=0,powerDir=1;
 let animFrame;
+let splitProjectiles=[];
+
+function selectWeapon(w,el){selectedWeapon=w;document.querySelectorAll('.weapon-btn').forEach(b=>b.classList.remove('selected'));el.classList.add('selected');}
+function selectTerrain(t,el){selectedTerrain=t;document.querySelectorAll('.terrain-btn').forEach(b=>b.classList.remove('selected'));el.classList.add('selected');}
 
 function generateTerrain(){
   terrain=new Uint8Array(W*H);
   let heights=[];
-  let h=H*0.55;
+  let baseH=H*0.55;
   for(let x=0;x<W;x++){
-    h+=Math.sin(x*0.02)*2+Math.sin(x*0.05)*1+(Math.random()-0.5)*2;
-    h=Math.max(H*0.4,Math.min(H*0.75,h));
+    let h=baseH;
+    if(selectedTerrain==='plain'){
+      h=H*0.6+Math.sin(x*0.01)*5+(Math.random()-0.5)*1;
+    } else if(selectedTerrain==='mountain'){
+      h=H*0.55+Math.sin(x*0.015)*40+Math.sin(x*0.04)*15+(Math.random()-0.5)*3;
+      h=Math.max(H*0.3,Math.min(H*0.8,h));
+    } else if(selectedTerrain==='valley'){
+      let center=Math.abs(x-W/2)/(W/2);
+      h=H*0.45+center*H*0.25+Math.sin(x*0.03)*8+(Math.random()-0.5)*2;
+    } else if(selectedTerrain==='city'){
+      h=H*0.6+Math.sin(x*0.02)*5;
+      if(Math.floor(x/30)%3===0 && x>W*0.25 && x<W*0.75){
+        h-=30+Math.random()*40;
+      }
+    } else if(selectedTerrain==='island'){
+      h=H*0.6+Math.sin(x*0.02)*5;
+      let isWater=(x>W*0.3&&x<W*0.42)||(x>W*0.58&&x<W*0.7);
+      if(isWater) h=H*0.85;
+    }
     heights.push(Math.floor(h));
   }
   for(let x=0;x<W;x++){
@@ -105,23 +166,57 @@ function generateTerrain(){
     for(let y=0;y<H;y++){if(terrain[y*W+players[i].x]){fy=y;break;}}
     players[i].y=fy;
   }
+  spawnFieldItems();
+}
+
+function spawnFieldItems(){
+  fieldItems=[];
+  const types=['heal','power','shield'];
+  const icons=['❤️','⚔️','🛡️'];
+  for(let i=0;i<3;i++){
+    let fx=W*0.25+Math.random()*W*0.5;
+    let fy=0;
+    for(let y=0;y<H;y++){if(terrain[y*W+Math.floor(fx)]){fy=y-10;break;}}
+    fieldItems.push({x:fx,y:fy,type:types[i%3],icon:icons[i%3],alive:true,bob:Math.random()*Math.PI*2});
+  }
 }
 
 function drawTerrain(){
   const img=ctx.createImageData(W,H);
+  const isWater=selectedTerrain==='island';
   for(let y=0;y<H;y++){
     for(let x=0;x<W;x++){
       const i=(y*W+x)*4;
       if(terrain[y*W+x]){
         const depth=(y-H*0.4)/(H*0.6);
-        img.data[i]=30+Math.floor(depth*40);
-        img.data[i+1]=120+Math.floor(depth*60);
-        img.data[i+2]=40+Math.floor(depth*30);
-        img.data[i+3]=255;
+        if(isWater&&y>H*0.82&&((x>W*0.3&&x<W*0.42)||(x>W*0.58&&x<W*0.7))){
+          img.data[i]=20;img.data[i+1]=60+Math.floor(depth*40);img.data[i+2]=140+Math.floor(depth*30);img.data[i+3]=255;
+        } else if(selectedTerrain==='city'){
+          img.data[i]=60+Math.floor(depth*30);img.data[i+1]=60+Math.floor(depth*30);img.data[i+2]=80+Math.floor(depth*30);img.data[i+3]=255;
+        } else {
+          img.data[i]=30+Math.floor(depth*40);img.data[i+1]=120+Math.floor(depth*60);img.data[i+2]=40+Math.floor(depth*30);img.data[i+3]=255;
+        }
       }
     }
   }
   ctx.putImageData(img,0,0);
+  // Draw AoE tiles
+  aoeTiles=aoeTiles.filter(a=>{
+    a.life--;
+    if(a.life<=0)return false;
+    ctx.globalAlpha=a.life/a.maxLife*0.5;
+    ctx.fillStyle=a.type==='fire'?'#f60':'#4df';
+    ctx.beginPath();ctx.arc(a.x,a.y,a.r,0,Math.PI*2);ctx.fill();
+    ctx.globalAlpha=1;
+    return true;
+  });
+  // Draw field items
+  for(let it of fieldItems){
+    if(!it.alive)continue;
+    it.bob+=0.05;
+    ctx.font='20px sans-serif';ctx.textAlign='center';
+    ctx.fillText(it.icon,it.x,it.y+Math.sin(it.bob)*3);
+  }
 }
 
 function drawSky(){
@@ -184,18 +279,27 @@ function drawExplosions(){
 }
 
 function drawProjectile(){
+  // Draw split projectiles
+  for(let sp of splitProjectiles){
+    ctx.fillStyle='#fa0';
+    ctx.beginPath();ctx.arc(sp.x,sp.y,3,0,Math.PI*2);ctx.fill();
+  }
   if(!projectile)return;
-  ctx.fillStyle='#ff0';
+  const w=WEAPONS[projectile.weapon]||WEAPONS.basic;
+  ctx.fillStyle=w.color;
   ctx.beginPath();ctx.arc(projectile.x,projectile.y,4,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#f80';
+  ctx.fillStyle='#fff';
   ctx.beginPath();ctx.arc(projectile.x,projectile.y,2,0,Math.PI*2);ctx.fill();
   // trail
   if(projectile.trail){
     for(let i=0;i<projectile.trail.length;i++){
       const a=i/projectile.trail.length*0.5;
-      ctx.fillStyle=`rgba(255,200,0,${a})`;
+      ctx.fillStyle=w.color.replace(')',','+a+')').replace('rgb','rgba').replace('#','');
+      // Use hex-based alpha
+      ctx.globalAlpha=a;ctx.fillStyle=w.color;
       ctx.beginPath();ctx.arc(projectile.trail[i].x,projectile.trail[i].y,2,0,Math.PI*2);ctx.fill();
     }
+    ctx.globalAlpha=1;
   }
 }
 
@@ -211,79 +315,179 @@ function destroyTerrain(cx,cy,radius){
 
 function fire(pIdx,angle,pow){
   const p=players[pIdx];
+  const w=WEAPONS[p.weapon]||WEAPONS.basic;
   const dir=pIdx===0?1:-1;
   const rad=angle*Math.PI/180;
-  const speed=pow*0.15+3;
+  const speed=(pow*0.15+3)*w.speed;
   projectile={
     x:p.x+Math.cos(rad)*25*dir,
     y:p.y-12-Math.sin(rad)*25,
     vx:Math.cos(rad)*speed*dir,
     vy:-Math.sin(rad)*speed,
-    trail:[]
+    trail:[],
+    weapon:p.weapon,
+    owner:pIdx
   };
+  splitProjectiles=[];
 }
 
 function updateProjectile(){
-  if(!projectile)return;
+  if(!projectile&&splitProjectiles.length===0)return;
+  // Update split projectiles
+  for(let si=splitProjectiles.length-1;si>=0;si--){
+    let sp=splitProjectiles[si];
+    sp.vx+=wind*0.001;sp.vy+=0.15;sp.x+=sp.vx;sp.y+=sp.vy;
+    if(sp.x<-20||sp.x>W+20||sp.y>H+20){splitProjectiles.splice(si,1);continue;}
+    let spx=Math.floor(sp.x),spy=Math.floor(sp.y);
+    if(spx>=0&&spx<W&&spy>=0&&spy<H&&terrain[spy*W+spx]){
+      miniExplode(sp.x,sp.y,sp.weapon,sp.owner);splitProjectiles.splice(si,1);continue;
+    }
+    for(let i=0;i<2;i++){
+      if(Math.hypot(sp.x-players[i].x,sp.y-(players[i].y-12))<16){
+        miniExplode(sp.x,sp.y,sp.weapon,sp.owner);splitProjectiles.splice(si,1);break;
+      }
+    }
+  }
+  if(!projectile){
+    if(splitProjectiles.length===0){checkPostExplosion();nextTurn();}
+    return;
+  }
   projectile.trail.push({x:projectile.x,y:projectile.y});
   if(projectile.trail.length>20)projectile.trail.shift();
-  // Spawn trail particles
-  if(Math.random()<0.4) trailParticles.push({x:projectile.x,y:projectile.y,vx:(Math.random()-0.5)*1.5,vy:(Math.random()-0.5)*1.5,life:15,r:1+Math.random()*2});
+  const w=WEAPONS[projectile.weapon]||WEAPONS.basic;
+  if(Math.random()<0.4) trailParticles.push({x:projectile.x,y:projectile.y,vx:(Math.random()-0.5)*1.5,vy:(Math.random()-0.5)*1.5,life:15,r:1+Math.random()*2,color:w.color});
   projectile.vx+=wind*0.001;
   projectile.vy+=0.15;
   projectile.x+=projectile.vx;
   projectile.y+=projectile.vy;
-  // out of bounds
   if(projectile.x<-20||projectile.x>W+20||projectile.y>H+20){
-    projectile=null;nextTurn();return;
+    projectile=null;if(splitProjectiles.length===0)nextTurn();return;
   }
-  // hit terrain or player
   const px=Math.floor(projectile.x),py=Math.floor(projectile.y);
   if(px>=0&&px<W&&py>=0&&py<H&&terrain[py*W+px]){
     explode(projectile.x,projectile.y);return;
   }
-  // hit player
   for(let i=0;i<2;i++){
     if(Math.hypot(projectile.x-players[i].x,projectile.y-(players[i].y-12))<16){
       explode(projectile.x,projectile.y);return;
     }
   }
+  // Check item pickup by projectile
+  for(let it of fieldItems){
+    if(!it.alive)continue;
+    if(Math.hypot(projectile.x-it.x,projectile.y-it.y)<15){
+      it.alive=false;
+      applyItem(it.type,projectile.owner);
+    }
+  }
 }
 
-function explode(ex,ey){
-  const radius=25;
+function miniExplode(ex,ey,weaponKey,owner){
+  const w=WEAPONS[weaponKey]||WEAPONS.basic;
+  const radius=w.radius*0.7;
   destroyTerrain(ex,ey,radius);
-  explosions.push({x:ex,y:ey,r:radius,t:0,max:20});
-  craters.push({x:ex,y:ey,r:radius,alpha:0.6});
-  // damage
+  explosions.push({x:ex,y:ey,r:radius,t:0,max:15});
   for(let i=0;i<2;i++){
     const dist=Math.hypot(ex-players[i].x,ey-(players[i].y-12));
     if(dist<radius+15){
-      const dmg=Math.max(5,Math.floor(35*(1-dist/(radius+15))));
+      let dmg=Math.max(3,Math.floor(20*w.dmgMul*(1-dist/(radius+15))));
+      if(players[projectile?projectile.owner:owner]&&players[projectile?projectile.owner:owner].powerUp){dmg*=2;}
+      if(players[i].shield){dmg=Math.floor(dmg*0.5);players[i].shield=false;}
       players[i].hp=Math.max(0,players[i].hp-dmg);
       document.getElementById('hp'+(i+1)).style.width=((players[i].hp/players[i].maxHp)*100)+'%';
     }
   }
+}
+
+function applyItem(type,pIdx){
+  const p=players[pIdx];
+  if(type==='heal'){p.hp=Math.min(p.maxHp,p.hp+25);document.getElementById('hp'+(pIdx+1)).style.width=((p.hp/p.maxHp)*100)+'%';showItemMsg('❤️ +25 HP!');}
+  else if(type==='power'){p.powerUp=true;showItemMsg('⚔️ 다음 공격 2배!');}
+  else if(type==='shield'){p.shield=true;showItemMsg('🛡️ 피해 50% 감소!');}
+}
+function showItemMsg(txt){
+  document.getElementById('itemStatus').textContent=txt;
+  setTimeout(()=>{document.getElementById('itemStatus').textContent='';},2000);
+}
+
+function explode(ex,ey){
+  const wKey=projectile?projectile.weapon:'basic';
+  const owner=projectile?projectile.owner:0;
+  const w=WEAPONS[wKey]||WEAPONS.basic;
+  const radius=w.radius;
+  destroyTerrain(ex,ey,radius);
+  explosions.push({x:ex,y:ey,r:radius,t:0,max:20});
+  craters.push({x:ex,y:ey,r:radius,alpha:0.6});
+  // AoE effects
+  if(w.aoe==='fire'){
+    for(let i=0;i<6;i++) aoeTiles.push({x:ex+(Math.random()-0.5)*radius*2,y:ey+(Math.random()-0.5)*radius,r:8+Math.random()*8,life:60,maxLife:60,type:'fire'});
+  } else if(w.aoe==='ice'){
+    for(let i=0;i<6;i++) aoeTiles.push({x:ex+(Math.random()-0.5)*radius*2,y:ey+(Math.random()-0.5)*radius,r:8+Math.random()*8,life:80,maxLife:80,type:'ice'});
+  }
+  // Shotgun split
+  if(w.splitCount>0){
+    for(let s=0;s<w.splitCount;s++){
+      let ang=-0.6+s*0.6;
+      splitProjectiles.push({x:ex,y:ey,vx:Math.cos(ang)*3+(Math.random()-0.5),vy:-2-Math.random()*2,weapon:wKey,owner:owner});
+    }
+  }
+  // damage
+  for(let i=0;i<2;i++){
+    const dist=Math.hypot(ex-players[i].x,ey-(players[i].y-12));
+    if(dist<radius+15){
+      let dmg=Math.max(5,Math.floor(35*w.dmgMul*(1-dist/(radius+15))));
+      if(players[owner]&&players[owner].powerUp){dmg*=2;players[owner].powerUp=false;}
+      if(players[i].shield){dmg=Math.floor(dmg*0.5);players[i].shield=false;}
+      players[i].hp=Math.max(0,players[i].hp-dmg);
+      document.getElementById('hp'+(i+1)).style.width=((players[i].hp/players[i].maxHp)*100)+'%';
+    }
+  }
+  // AoE damage over time
+  if(w.aoe==='fire'){
+    let burnInterval=setInterval(()=>{
+      for(let i=0;i<2;i++){
+        if(Math.hypot(ex-players[i].x,ey-(players[i].y-12))<radius+10){
+          players[i].hp=Math.max(0,players[i].hp-3);
+          document.getElementById('hp'+(i+1)).style.width=((players[i].hp/players[i].maxHp)*100)+'%';
+        }
+      }
+    },500);
+    setTimeout(()=>clearInterval(burnInterval),3000);
+  }
   projectile=null;
-  // check win
-  setTimeout(()=>{
-    for(let i=0;i<2;i++){
-      if(players[i].hp<=0){
-        const winner=i===0?1:0;
-        endGame(winner);return;
-      }
+  // check win after short delay (let splits land first)
+  if(splitProjectiles.length===0){
+    setTimeout(()=>{checkPostExplosion();nextTurn();},300);
+  }
+}
+
+function checkPostExplosion(){
+  for(let i=0;i<2;i++){
+    if(players[i].hp<=0){
+      const winner=i===0?1:0;
+      showKO(winner);return;
     }
-    // update positions (gravity)
-    for(let i=0;i<2;i++){
-      let fy=0;
-      for(let y=Math.max(0,players[i].y-30);y<H;y++){
-        if(terrain[y*W+Math.floor(players[i].x)]){fy=y;break;}
-        if(y===H-1)fy=H-5;
-      }
-      players[i].y=fy;
+  }
+  // update positions (gravity)
+  for(let i=0;i<2;i++){
+    let fy=0;
+    for(let y=Math.max(0,players[i].y-30);y<H;y++){
+      if(terrain[y*W+Math.floor(players[i].x)]){fy=y;break;}
+      if(y===H-1)fy=H-5;
     }
-    nextTurn();
-  },300);
+    players[i].y=fy;
+  }
+}
+
+function showKO(winner){
+  // Confetti
+  for(let i=0;i<40;i++){
+    confettiParts.push({x:W*Math.random(),y:-10,vx:(Math.random()-0.5)*3,vy:Math.random()*3+1,color:['#f44','#4f4','#44f','#ff0','#f0f','#0ff'][Math.floor(Math.random()*6)],life:120,r:3+Math.random()*3,rot:Math.random()*360});
+  }
+  // KO overlay
+  const ko=document.getElementById('koOverlay');
+  ko.style.display='flex';
+  setTimeout(()=>{ko.style.display='none';endGame(winner);},1800);
 }
 
 function nextTurn(){
@@ -299,24 +503,28 @@ function doAI(){
   if(gameState!=='playing')return;
   const p=players[1];
   const target=players[0];
-  let bestAngle=45,bestPow=50;
-  // simple aim
   const dx=p.x-target.x;
   const dy=target.y-p.y;
   let ang=Math.atan2(dy+40,dx)*180/Math.PI;
   ang=Math.max(10,Math.min(80,ang+(Math.random()-0.5)*15));
-  bestAngle=ang;
-  bestPow=40+Math.random()*30;
-  p.angle=bestAngle;
-  fire(1,bestAngle,bestPow);
+  let bestPow=40+Math.random()*30;
+  p.angle=ang;
+  fire(1,ang,bestPow);
 }
 
 function updateUI(){
-  const windArrow=wind>0?'→→→'.slice(0,Math.abs(wind)):wind<0?'←←←'.slice(0,Math.abs(wind)):'―';
-  document.getElementById('windDisplay').innerHTML='바람: <span style="display:inline-block;animation:windPulse 1s infinite">'+windArrow+'</span> '+Math.abs(wind);
+  const absW=Math.abs(wind);
+  const arrows=wind>0?'▸'.repeat(absW):wind<0?'◂'.repeat(absW):'―';
+  const windColor=absW<=2?'#aef':absW<=4?'#fe8':'#f66';
+  document.getElementById('windDisplay').innerHTML='바람: <span id="windArrowDisplay" style="color:'+windColor+';display:inline-block;animation:windPulse 1s infinite">'+arrows+'</span> <b>'+absW+'</b>';
   const turnText=turn===0?'🔵 YOUR TURN!':'🔴 '+(mode==='ai'?'AI TURN':'P2 TURN');
   document.getElementById('turnDisplay').innerHTML='<span style="animation:turnBounce 0.5s">'+turnText+'</span>';
   document.getElementById('angleShow').textContent=Math.floor(players[turn].angle)+'°';
+  const pw=players[turn];
+  let statTxt=WEAPONS[pw.weapon].name;
+  if(pw.powerUp) statTxt+=' ⚔️2x';
+  if(pw.shield) statTxt+=' 🛡️';
+  document.getElementById('weaponHud').textContent=statTxt;
 }
 
 function endGame(winner){
@@ -332,6 +540,10 @@ function startGame(m){
   mode=m;gameState='playing';turn=0;wind=Math.floor(Math.random()*11)-5;
   players[0].hp=100;players[1].hp=100;
   players[0].angle=45;players[1].angle=135;
+  players[0].weapon=selectedWeapon;players[1].weapon=selectedWeapon;
+  players[0].powerUp=false;players[1].powerUp=false;
+  players[0].shield=false;players[1].shield=false;
+  confettiParts=[];aoeTiles=[];splitProjectiles=[];
   document.getElementById('hp1').style.width='100%';
   document.getElementById('hp2').style.width='100%';
   document.getElementById('startScreen').style.display='none';
@@ -395,8 +607,21 @@ function gameLoop(){
   trailParticles=trailParticles.filter(p=>{
     p.x+=p.vx;p.y+=p.vy;p.life--;
     if(p.life<=0)return false;
-    ctx.fillStyle=`rgba(255,150,50,${p.life/15})`;
+    ctx.globalAlpha=p.life/15;
+    ctx.fillStyle=p.color||'rgba(255,150,50,1)';
     ctx.beginPath();ctx.arc(p.x,p.y,p.r*(p.life/15),0,Math.PI*2);ctx.fill();
+    ctx.globalAlpha=1;
+    return true;
+  });
+  // Confetti
+  confettiParts=confettiParts.filter(c=>{
+    c.x+=c.vx;c.y+=c.vy;c.vy+=0.05;c.rot+=5;c.life--;
+    if(c.life<=0)return false;
+    ctx.save();ctx.translate(c.x,c.y);ctx.rotate(c.rot*Math.PI/180);
+    ctx.globalAlpha=Math.min(1,c.life/30);
+    ctx.fillStyle=c.color;
+    ctx.fillRect(-c.r/2,-c.r/2,c.r,c.r*0.6);
+    ctx.restore();ctx.globalAlpha=1;
     return true;
   });
   if(powerCharging){
