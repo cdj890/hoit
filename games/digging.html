@@ -126,9 +126,10 @@ function update() {
 
   player.x += player.vx;
   player.y += player.vy;
-  // Wrap
-  if (player.x + PW < 0) player.x = W;
-  else if (player.x > W) player.x = -PW;
+  // Wall collision (block, not wrap)
+  const WALL = 16; // wall width
+  if (player.x < WALL) { player.x = WALL; player.vx = 0; }
+  else if (player.x + PW > W - WALL) { player.x = W - WALL - PW; player.vx = 0; }
 
   // Landing
   if (!player.standPlat && player.vy > 0) {
