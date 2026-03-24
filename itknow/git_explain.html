@@ -1,13 +1,28 @@
 <!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Git 기초</title><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;min-height:100vh}
-.wrap{max-width:450px;margin:0 auto;padding:50px 16px 30px;text-align:center}
-.card{background:#1a1a2e;border-radius:16px;padding:20px;margin:12px 0;border:1px solid #2a2a4a}
-input,select{background:#252545;border:2px solid #333;color:#fff;padding:10px 14px;border-radius:10px;font-size:16px;width:100%;margin:6px 0}
-input:focus,select:focus{border-color:#7B68EE;outline:none}
-.btn{background:#7B68EE;border:none;color:#fff;padding:12px 24px;border-radius:10px;font-size:16px;cursor:pointer;font-weight:bold;width:100%;margin:8px 0}
-.btn:hover{opacity:0.9}
-.result{font-size:28px;font-weight:bold;color:#FFD700;margin:12px 0}
-.sub{color:#888;font-size:13px}</style></head><body><a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
-<div class="wrap"><h1 style="font-size:24px;margin-bottom:5px">📝 Git 기초</h1><p style="color:#888;font-size:14px;margin-bottom:15px">버전 관리 시스템</p>
-<div class="card"><h2 style="color:#FFD700;margin-bottom:10px">📝 Git 기초</h2><p style="color:#ccc;font-size:14px;line-height:1.8">버전 관리 시스템에 대한 인터랙티브 설명 페이지입니다.</p></div>
-<div class="card"><p style="color:#aaa;font-size:13px">콘텐츠 준비 중입니다. 곧 업데이트됩니다! 🚀</p></div></div></body></html>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;min-height:100vh}.wrap{max-width:550px;margin:0 auto;padding:50px 16px 30px}.card{background:#1a1a2e;border-radius:12px;padding:16px;margin:10px 0;border:1px solid #2a2a4a}.flow{display:flex;align-items:center;justify-content:center;gap:6px;margin:15px 0;flex-wrap:wrap}.box{background:#252545;padding:10px 14px;border-radius:10px;text-align:center;font-size:12px;min-width:80px}.box b{display:block;margin-bottom:3px;font-size:13px}.arr{color:#7B68EE;font-size:16px}code{background:#252545;padding:2px 8px;border-radius:4px;font-size:13px;color:#FFD700}.cmd{background:#252545;padding:10px;border-radius:8px;margin:6px 0;font-family:monospace;font-size:13px}.cmd span{color:#4CAF50}</style></head><body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center">← 뒤로</a>
+<div class="wrap"><h1 style="font-size:24px;text-align:center;margin-bottom:15px">📝 Git 기초</h1>
+<div class="card"><h3 style="margin-bottom:8px">Git = 코드의 타임머신</h3><p style="color:#aaa;font-size:13px;line-height:1.7">파일의 변경 이력을 기록하고, 언제든 과거로 돌아갈 수 있는 버전 관리 시스템입니다.</p></div>
+<div class="card"><h3 style="margin-bottom:10px">기본 흐름</h3>
+<div class="flow">
+<div class="box" style="border:2px solid #FF9800"><b>📁 작업 디렉토리</b>파일 수정</div><div class="arr">→</div>
+<div class="box" style="border:2px solid #4CAF50"><b>📋 스테이징</b>변경 선택</div><div class="arr">→</div>
+<div class="box" style="border:2px solid #2196F3"><b>💾 저장소</b>커밋 저장</div><div class="arr">→</div>
+<div class="box" style="border:2px solid #9C27B0"><b>☁️ 원격</b>GitHub</div>
+</div></div>
+<div class="card"><h3 style="margin-bottom:10px">필수 명령어</h3>
+<div class="cmd"><span>$</span> git init <span style="color:#888"># 저장소 초기화</span></div>
+<div class="cmd"><span>$</span> git add . <span style="color:#888"># 변경 파일 스테이징</span></div>
+<div class="cmd"><span>$</span> git commit -m "메시지" <span style="color:#888"># 커밋 저장</span></div>
+<div class="cmd"><span>$</span> git push origin main <span style="color:#888"># 원격에 업로드</span></div>
+<div class="cmd"><span>$</span> git pull <span style="color:#888"># 원격에서 다운로드</span></div>
+<div class="cmd"><span>$</span> git branch feature <span style="color:#888"># 브랜치 생성</span></div>
+<div class="cmd"><span>$</span> git merge feature <span style="color:#888"># 브랜치 병합</span></div>
+<div class="cmd"><span>$</span> git log --oneline <span style="color:#888"># 커밋 이력 보기</span></div>
+</div>
+<div class="card"><h3 style="margin-bottom:8px">🌿 브랜치란?</h3>
+<p style="color:#aaa;font-size:13px;line-height:1.7">독립된 작업 공간을 만드는 기능입니다.<br><br>
+<code>main</code> ─── 메인 브랜치 (안정 버전)<br>
+<code>feature</code> ─── 새 기능 개발용<br>
+<code>hotfix</code> ─── 긴급 버그 수정용<br><br>
+작업 완료 후 <code>merge</code>로 합칩니다.</p></div></div></body></html>

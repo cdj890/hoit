@@ -1,3 +1,18 @@
 <!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>QR코드 생성기</title><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;min-height:100vh}.wrap{max-width:450px;margin:0 auto;padding:50px 16px 30px;text-align:center}.card{background:#1a1a2e;border-radius:16px;padding:20px;margin:12px 0;border:1px solid #2a2a4a}</style></head><body><a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
-<div class="wrap"><h1 style="font-size:24px;margin-bottom:15px">📱 QR코드 생성기</h1><div class="card"><p style="color:#aaa;font-size:14px">콘텐츠 준비 중입니다 🚀</p></div></div></body></html>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;min-height:100vh}.wrap{max-width:450px;margin:0 auto;padding:50px 16px 30px;text-align:center}.card{background:#1a1a2e;border-radius:16px;padding:20px;margin:10px 0;border:1px solid #2a2a4a}input{background:#252545;border:2px solid #333;color:#fff;padding:10px;border-radius:10px;font-size:16px;width:100%;margin:4px 0}input:focus{border-color:#7B68EE;outline:none}.btn{background:#7B68EE;border:none;color:#fff;padding:12px 24px;border-radius:10px;font-size:16px;cursor:pointer;font-weight:bold;width:100%;margin:8px 0}canvas{border-radius:8px;margin:12px auto;display:block;background:#fff;image-rendering:pixelated}</style></head><body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center">← 뒤로</a>
+<div class="wrap"><h1 style="font-size:24px;margin-bottom:12px">📱 QR코드 생성기</h1>
+<div class="card"><input id="text" placeholder="URL 또는 텍스트 입력" value="https://cdj890.github.io/hoit/">
+<button class="btn" onclick="gen()">생성</button><canvas id="qr" width="200" height="200"></canvas>
+<p style="color:#666;font-size:11px">※ 간이 데이터 매트릭스 (실제 QR 스캔 불가)</p></div></div>
+<script>
+function gen(){const t=document.getElementById('text').value;const c=document.getElementById('qr').getContext('2d');const s=200,g=10,cs=s/g;
+c.fillStyle='#fff';c.fillRect(0,0,s,s);c.fillStyle='#000';
+// Simple hash-based pattern (NOT real QR, visual representation)
+for(let y=0;y<g;y++)for(let x=0;x<g;x++){let hash=0;for(let i=0;i<t.length;i++)hash=((hash<<5)-hash+t.charCodeAt(i)*((x+1)*(y+1)+i))&0xFFFFFFFF;
+if((hash&(1<<(x+y)))!==0)c.fillRect(x*cs,y*cs,cs-1,cs-1);}
+// Corners (QR-like markers)
+function marker(mx,my){c.fillRect(mx,my,cs*3,cs);c.fillRect(mx,my,cs,cs*3);c.fillRect(mx+cs*2,my,cs,cs*3);c.fillRect(mx,my+cs*2,cs*3,cs);c.fillStyle='#000';c.fillRect(mx+cs,my+cs,cs,cs);c.fillStyle='#000';}
+marker(0,0);marker(s-cs*3,0);marker(0,s-cs*3);}
+gen();
+</script></body></html>

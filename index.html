@@ -86,7 +86,7 @@ footer{text-align:center;padding:20px;color:#444;font-size:12px}
 
 <header>
   <h1>놀이터</h1>
-  <p class="sub">게임 · 심리테스트 · 운세 · 먹방 · IT · 퀴즈 · 도구</p>
+  <p class="sub">게임 · 테스트 · 운세 · IT · 퀴즈 · 도구</p>
   <div class="nick-bar" id="nick-bar"></div>
 </header>
 
@@ -94,8 +94,7 @@ footer{text-align:center;padding:20px;color:#444;font-size:12px}
   <div class="tab" onclick="switchTab('game')">🎮 게임 <span class="badge" id="game-count"></span></div>
   <div class="tab" onclick="switchTab('test')">🧠 테스트 <span class="badge" id="test-count"></span></div>
   <div class="tab" onclick="switchTab('destiny')">🔮 운세 <span class="badge" id="dest-count"></span></div>
-  <div class="tab" onclick="switchTab('youtube')">📺 먹방 <span class="badge" id="yt-count"></span></div>
-  <div class="tab" onclick="switchTab('itknow')">💻 IT <span class="badge" id="it-count"></span></div>
+<div class="tab" onclick="switchTab('itknow')">💻 IT <span class="badge" id="it-count"></span></div>
   <div class="tab" onclick="switchTab('quiz')">📚 퀴즈 <span class="badge" id="qz-count"></span></div>
   <div class="tab" onclick="switchTab('tools')">🛠️ 도구 <span class="badge" id="tl-count"></span></div>
 </div>
@@ -208,28 +207,7 @@ const DESTINY=[
   {file:'destiny/color_fortune.html',title:'오늘의 색 운세',desc:'오늘의 행운 색은?',emoji:'🎨',bg:'linear-gradient(135deg,#C62828,#EF5350)'},
 ];
 
-const YOUTUBE=[
-  {file:'youtube/chicken.html',title:'치킨 먹방',desc:'바삭한 치킨 먹방 모음',emoji:'🍗',bg:'linear-gradient(135deg,#FF8F00,#FFB74D)'},
-  {file:'youtube/tteokbokki.html',title:'떡볶이 먹방',desc:'매콤달콤 떡볶이',emoji:'🌶️',bg:'linear-gradient(135deg,#E53935,#EF5350)'},
-  {file:'youtube/samgyeopsal.html',title:'고기 먹방',desc:'삼겹살/소고기 먹방',emoji:'🥩',bg:'linear-gradient(135deg,#6D4C41,#8D6E63)'},
-  {file:'youtube/jjajang.html',title:'면 먹방',desc:'짜장면/라면/국수',emoji:'🍜',bg:'linear-gradient(135deg,#F57F17,#FDD835)'},
-  {file:'youtube/kimbap.html',title:'분식 먹방',desc:'김밥/순대/튀김',emoji:'🍱',bg:'linear-gradient(135deg,#558B2F,#8BC34A)'},
-  {file:'youtube/cake.html',title:'케이크/빵',desc:'케이크 빵 먹방',emoji:'🎂',bg:'linear-gradient(135deg,#AD1457,#EC407A)'},
-  {file:'youtube/macaron.html',title:'마카롱/디저트',desc:'디저트 먹방 모음',emoji:'🧁',bg:'linear-gradient(135deg,#CE93D8,#F48FB1)'},
-  {file:'youtube/icecream.html',title:'아이스크림',desc:'아이스크림/빙수',emoji:'🍦',bg:'linear-gradient(135deg,#4FC3F7,#81D4FA)'},
-  {file:'youtube/waffle.html',title:'와플/팬케이크',desc:'와플 크레이프 먹방',emoji:'🧇',bg:'linear-gradient(135deg,#FFB74D,#FFE0B2)'},
-  {file:'youtube/cafe.html',title:'카페/브런치',desc:'카페 음료 브런치',emoji:'☕',bg:'linear-gradient(135deg,#5D4037,#8D6E63)'},
-  {file:'youtube/asmr_crispy.html',title:'바삭 ASMR',desc:'바삭바삭 소리 먹방',emoji:'🔊',bg:'linear-gradient(135deg,#FF7043,#FFAB91)'},
-  {file:'youtube/asmr_chewy.html',title:'쫀득 ASMR',desc:'쫀득쫀득 소리 먹방',emoji:'🔊',bg:'linear-gradient(135deg,#AB47BC,#CE93D8)'},
-  {file:'youtube/asmr_soup.html',title:'국물 ASMR',desc:'국물 슬러핑 소리',emoji:'🔊',bg:'linear-gradient(135deg,#FF5722,#FF8A65)'},
-  {file:'youtube/asmr_noodle.html',title:'면 ASMR',desc:'면 후루룩 소리',emoji:'🔊',bg:'linear-gradient(135deg,#FFC107,#FFE082)'},
-  {file:'youtube/asmr_fruit.html',title:'과일 ASMR',desc:'아삭아삭 과일 소리',emoji:'🔊',bg:'linear-gradient(135deg,#66BB6A,#A5D6A7)'},
-  {file:'youtube/onepan.html',title:'원팬 요리',desc:'팬 하나로 완성!',emoji:'🍳',bg:'linear-gradient(135deg,#FFB300,#FFD54F)'},
-  {file:'youtube/alone.html',title:'자취 요리',desc:'자취생 필수 레시피',emoji:'🏠',bg:'linear-gradient(135deg,#78909C,#B0BEC5)'},
-  {file:'youtube/snack.html',title:'간식 만들기',desc:'쉽고 맛있는 간식',emoji:'🍿',bg:'linear-gradient(135deg,#FF7043,#FFCCBC)'},
-  {file:'youtube/nightfood.html',title:'야식 레시피',desc:'밤에 먹으면 최고',emoji:'🌙',bg:'linear-gradient(135deg,#1A237E,#3949AB)'},
-  {file:'youtube/brunch.html',title:'브런치/건강식',desc:'건강한 한 끼',emoji:'🥑',bg:'linear-gradient(135deg,#2E7D32,#66BB6A)'},
-];
+
 
 const ITKNOW=[
   {file:'itknow/bubble_sort.html',title:'버블 정렬',desc:'버블 정렬 시각화',emoji:'🫧',bg:'linear-gradient(135deg,#42A5F5,#90CAF9)'},
@@ -318,7 +296,7 @@ function changeNick(){const n=prompt('닉네임 변경:',getNick());if(n?.trim()
 function switchTab(tab){
   currentTab=tab;
   document.querySelectorAll('.tab').forEach(t=>t.className='tab');
-  const tabs={game:0,test:1,destiny:2,youtube:3,itknow:4,quiz:5,tools:6};
+  const tabs={game:0,test:1,destiny:2,itknow:3,quiz:4,tools:5};
   const cls=['active-game','active-test','active-destiny','active-game','active-test','active-destiny','active-game'];
   const idx=tabs[tab]||0;
   document.querySelectorAll('.tab')[idx]?.classList.add(cls[idx]);
@@ -333,7 +311,7 @@ const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
 function renderGrid(){
   const grid=document.getElementById('grid');
   grid.innerHTML='';
-  const TAB_MAP={game:GAMES,test:TESTS,destiny:DESTINY,youtube:YOUTUBE,itknow:ITKNOW,quiz:QUIZ,tools:TOOLS};
+  const TAB_MAP={game:GAMES,test:TESTS,destiny:DESTINY,itknow:ITKNOW,quiz:QUIZ,tools:TOOLS};
   const items=TAB_MAP[currentTab]||GAMES;
   const scores=getScores();
 
@@ -437,7 +415,7 @@ renderNick();
 document.getElementById('game-count').textContent=GAMES.length;
 document.getElementById('test-count').textContent=TESTS.length;
 document.getElementById('dest-count').textContent=DESTINY.length;
-document.getElementById('yt-count').textContent=YOUTUBE.length;
+
 document.getElementById('it-count').textContent=ITKNOW.length;
 document.getElementById('qz-count').textContent=QUIZ.length;
 document.getElementById('tl-count').textContent=TOOLS.length;

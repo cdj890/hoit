@@ -1,13 +1,29 @@
 <!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>HTTP 동작 원리</title><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;min-height:100vh}
-.wrap{max-width:450px;margin:0 auto;padding:50px 16px 30px;text-align:center}
-.card{background:#1a1a2e;border-radius:16px;padding:20px;margin:12px 0;border:1px solid #2a2a4a}
-input,select{background:#252545;border:2px solid #333;color:#fff;padding:10px 14px;border-radius:10px;font-size:16px;width:100%;margin:6px 0}
-input:focus,select:focus{border-color:#7B68EE;outline:none}
-.btn{background:#7B68EE;border:none;color:#fff;padding:12px 24px;border-radius:10px;font-size:16px;cursor:pointer;font-weight:bold;width:100%;margin:8px 0}
-.btn:hover{opacity:0.9}
-.result{font-size:28px;font-weight:bold;color:#FFD700;margin:12px 0}
-.sub{color:#888;font-size:13px}</style></head><body><a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
-<div class="wrap"><h1 style="font-size:24px;margin-bottom:5px">🌐 HTTP 동작 원리</h1><p style="color:#888;font-size:14px;margin-bottom:15px">웹 통신의 기본 프로토콜</p>
-<div class="card"><h2 style="color:#FFD700;margin-bottom:10px">🌐 HTTP 동작 원리</h2><p style="color:#ccc;font-size:14px;line-height:1.8">웹 통신의 기본 프로토콜에 대한 인터랙티브 설명 페이지입니다.</p></div>
-<div class="card"><p style="color:#aaa;font-size:13px">콘텐츠 준비 중입니다. 곧 업데이트됩니다! 🚀</p></div></div></body></html>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;min-height:100vh}.wrap{max-width:550px;margin:0 auto;padding:50px 16px 30px}.step{background:#1a1a2e;border-radius:12px;padding:16px;margin:10px 0;border:1px solid #2a2a4a;cursor:pointer;transition:all .2s}.step:hover{border-color:#7B68EE}.step h3{font-size:16px;margin-bottom:6px}.step p{color:#aaa;font-size:13px;line-height:1.6;display:none}.step.open p{display:block}.arrow{text-align:center;color:#7B68EE;font-size:20px;margin:4px 0}.codes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.code{background:#252545;padding:10px;border-radius:8px;font-size:13px}.code b{display:block;margin-bottom:3px}</style></head><body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center">← 뒤로</a>
+<div class="wrap"><h1 style="font-size:24px;text-align:center;margin-bottom:15px">🌐 HTTP 동작 원리</h1>
+<p style="color:#888;text-align:center;font-size:13px;margin-bottom:15px">각 단계를 클릭하면 상세 설명을 볼 수 있어요</p>
+<div class="step" onclick="this.classList.toggle('open')"><h3>1️⃣ URL 입력</h3><p>브라우저 주소창에 URL을 입력합니다.<br>예: https://www.example.com/page<br><br>URL 구조: <code style="color:#FFD700">프로토콜://도메인/경로</code></p></div>
+<div class="arrow">↓</div>
+<div class="step" onclick="this.classList.toggle('open')"><h3>2️⃣ DNS 조회</h3><p>도메인 이름(www.example.com)을 IP 주소(93.184.216.34)로 변환합니다.<br><br>브라우저 캐시 → OS 캐시 → DNS 서버 순서로 조회합니다.</p></div>
+<div class="arrow">↓</div>
+<div class="step" onclick="this.classList.toggle('open')"><h3>3️⃣ TCP 연결</h3><p>서버와 TCP 3-way 핸드셰이크로 연결을 수립합니다.<br><br>1. 클라이언트 → SYN<br>2. 서버 → SYN+ACK<br>3. 클라이언트 → ACK<br><br>HTTPS의 경우 TLS 핸드셰이크도 추가됩니다.</p></div>
+<div class="arrow">↓</div>
+<div class="step" onclick="this.classList.toggle('open')"><h3>4️⃣ HTTP 요청</h3><p>브라우저가 서버에 HTTP 요청을 보냅니다.<br><br><code style="color:#4CAF50">GET /page HTTP/1.1</code><br><code style="color:#aaa">Host: www.example.com</code><br><code style="color:#aaa">Accept: text/html</code><br><code style="color:#aaa">User-Agent: Chrome/...</code></p></div>
+<div class="arrow">↓</div>
+<div class="step" onclick="this.classList.toggle('open')"><h3>5️⃣ 서버 처리</h3><p>웹 서버가 요청을 처리합니다.<br><br>• 정적 파일 → 바로 반환<br>• 동적 페이지 → 서버 로직 실행 → DB 조회 → HTML 생성</p></div>
+<div class="arrow">↓</div>
+<div class="step" onclick="this.classList.toggle('open')"><h3>6️⃣ HTTP 응답</h3><p>서버가 결과를 클라이언트에게 반환합니다.<br><br><code style="color:#FFD700">HTTP/1.1 200 OK</code><br><code style="color:#aaa">Content-Type: text/html</code><br><code style="color:#aaa">Content-Length: 1234</code><br><br>&lt;html&gt;...페이지 내용...&lt;/html&gt;</p></div>
+<div class="arrow">↓</div>
+<div class="step" onclick="this.classList.toggle('open')"><h3>7️⃣ 브라우저 렌더링</h3><p>브라우저가 HTML을 파싱하여 화면에 표시합니다.<br><br>HTML 파싱 → DOM 트리 → CSS 파싱 → 렌더 트리 → 레이아웃 → 페인트</p></div>
+<h2 style="font-size:18px;margin:20px 0 10px;text-align:center">📊 주요 상태 코드</h2>
+<div class="codes">
+<div class="code"><b style="color:#4CAF50">200 OK</b>요청 성공</div>
+<div class="code"><b style="color:#FF9800">301 Moved</b>영구 이동</div>
+<div class="code"><b style="color:#FF9800">304 Not Modified</b>캐시 사용</div>
+<div class="code"><b style="color:#F44336">400 Bad Request</b>잘못된 요청</div>
+<div class="code"><b style="color:#F44336">403 Forbidden</b>접근 금지</div>
+<div class="code"><b style="color:#F44336">404 Not Found</b>페이지 없음</div>
+<div class="code"><b style="color:#F44336">500 Server Error</b>서버 오류</div>
+<div class="code"><b style="color:#F44336">503 Unavailable</b>서비스 불가</div>
+</div></div></body></html>

@@ -1,3 +1,12 @@
 <!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>시간대 변환</title><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;min-height:100vh}.wrap{max-width:450px;margin:0 auto;padding:50px 16px 30px;text-align:center}.card{background:#1a1a2e;border-radius:16px;padding:20px;margin:12px 0;border:1px solid #2a2a4a}</style></head><body><a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
-<div class="wrap"><h1 style="font-size:24px;margin-bottom:15px">🕐 시간대 변환</h1><div class="card"><p style="color:#aaa;font-size:14px">콘텐츠 준비 중입니다 🚀</p></div></div></body></html>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;min-height:100vh}.wrap{max-width:450px;margin:0 auto;padding:50px 16px 30px;text-align:center}.card{background:#1a1a2e;border-radius:16px;padding:16px;margin:8px 0;border:1px solid #2a2a4a;display:flex;justify-content:space-between;align-items:center}.city{font-size:16px;font-weight:bold}.time{font-size:22px;font-family:monospace;color:#FFD700}.date{font-size:11px;color:#888}</style></head><body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center">← 뒤로</a>
+<div class="wrap"><h1 style="font-size:24px;margin-bottom:12px">🕐 세계 시간</h1><div id="clocks"></div></div>
+<script>
+const CITIES=[{name:'🇰🇷 서울',tz:'Asia/Seoul'},{name:'🇯🇵 도쿄',tz:'Asia/Tokyo'},{name:'🇨🇳 베이징',tz:'Asia/Shanghai'},{name:'🇺🇸 뉴욕',tz:'America/New_York'},{name:'🇺🇸 LA',tz:'America/Los_Angeles'},{name:'🇬🇧 런던',tz:'Europe/London'},{name:'🇫🇷 파리',tz:'Europe/Paris'},{name:'🇦🇺 시드니',tz:'Australia/Sydney'}];
+function update(){const now=new Date();document.getElementById('clocks').innerHTML=CITIES.map(c=>{
+const t=now.toLocaleTimeString('ko',{timeZone:c.tz,hour:'2-digit',minute:'2-digit',second:'2-digit'});
+const d=now.toLocaleDateString('ko',{timeZone:c.tz,month:'short',day:'numeric',weekday:'short'});
+return`<div class="card"><div><div class="city">${c.name}</div><div class="date">${d}</div></div><div class="time">${t}</div></div>`;}).join('');}
+update();setInterval(update,1000);
+</script></body></html>

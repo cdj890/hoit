@@ -1,3 +1,17 @@
 <!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>진법 변환기</title><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;min-height:100vh}.wrap{max-width:450px;margin:0 auto;padding:50px 16px 30px;text-align:center}.card{background:#1a1a2e;border-radius:16px;padding:20px;margin:12px 0;border:1px solid #2a2a4a}</style></head><body><a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
-<div class="wrap"><h1 style="font-size:24px;margin-bottom:15px">🔢 진법 변환기</h1><div class="card"><p style="color:#aaa;font-size:14px">콘텐츠 준비 중입니다 🚀</p></div></div></body></html>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;min-height:100vh}.wrap{max-width:450px;margin:0 auto;padding:50px 16px 30px;text-align:center}.card{background:#1a1a2e;border-radius:16px;padding:20px;margin:10px 0;border:1px solid #2a2a4a}input,select{background:#252545;border:2px solid #333;color:#fff;padding:10px;border-radius:10px;font-size:16px;width:100%;margin:4px 0;font-family:monospace}input:focus{border-color:#7B68EE;outline:none}.row{display:flex;gap:8px;align-items:center;margin:8px 0}.row label{color:#888;font-size:13px;width:50px;text-align:right;flex-shrink:0}.row input{flex:1}</style></head><body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center">← 뒤로</a>
+<div class="wrap"><h1 style="font-size:24px;margin-bottom:12px">🔢 진법 변환기</h1>
+<div class="card">
+<div class="row"><label>10진</label><input id="d" value="255" oninput="fromDec()"></div>
+<div class="row"><label>2진</label><input id="b" value="11111111" oninput="fromBin()"></div>
+<div class="row"><label>8진</label><input id="o" value="377" oninput="fromOct()"></div>
+<div class="row"><label>16진</label><input id="h" value="FF" oninput="fromHex()"></div>
+</div></div>
+<script>
+function set(d){document.getElementById('d').value=d;document.getElementById('b').value=d.toString(2);document.getElementById('o').value=d.toString(8);document.getElementById('h').value=d.toString(16).toUpperCase();}
+function fromDec(){const v=parseInt(document.getElementById('d').value);if(!isNaN(v))set(v);}
+function fromBin(){const v=parseInt(document.getElementById('b').value,2);if(!isNaN(v))set(v);}
+function fromOct(){const v=parseInt(document.getElementById('o').value,8);if(!isNaN(v))set(v);}
+function fromHex(){const v=parseInt(document.getElementById('h').value,16);if(!isNaN(v))set(v);}
+</script></body></html>

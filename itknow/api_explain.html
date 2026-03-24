@@ -1,13 +1,31 @@
 <!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>API란?</title><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;min-height:100vh}
-.wrap{max-width:450px;margin:0 auto;padding:50px 16px 30px;text-align:center}
-.card{background:#1a1a2e;border-radius:16px;padding:20px;margin:12px 0;border:1px solid #2a2a4a}
-input,select{background:#252545;border:2px solid #333;color:#fff;padding:10px 14px;border-radius:10px;font-size:16px;width:100%;margin:6px 0}
-input:focus,select:focus{border-color:#7B68EE;outline:none}
-.btn{background:#7B68EE;border:none;color:#fff;padding:12px 24px;border-radius:10px;font-size:16px;cursor:pointer;font-weight:bold;width:100%;margin:8px 0}
-.btn:hover{opacity:0.9}
-.result{font-size:28px;font-weight:bold;color:#FFD700;margin:12px 0}
-.sub{color:#888;font-size:13px}</style></head><body><a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
-<div class="wrap"><h1 style="font-size:24px;margin-bottom:5px">🔌 API란?</h1><p style="color:#888;font-size:14px;margin-bottom:15px">프로그램 간 소통 방법</p>
-<div class="card"><h2 style="color:#FFD700;margin-bottom:10px">🔌 API란?</h2><p style="color:#ccc;font-size:14px;line-height:1.8">프로그램 간 소통 방법에 대한 인터랙티브 설명 페이지입니다.</p></div>
-<div class="card"><p style="color:#aaa;font-size:13px">콘텐츠 준비 중입니다. 곧 업데이트됩니다! 🚀</p></div></div></body></html>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;min-height:100vh}.wrap{max-width:550px;margin:0 auto;padding:50px 16px 30px}.card{background:#1a1a2e;border-radius:12px;padding:16px;margin:10px 0;border:1px solid #2a2a4a}.method{display:inline-block;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:bold;margin-right:6px}.get{background:#4CAF50}.post{background:#FF9800}.put{background:#2196F3}.del{background:#F44336}pre{background:#252545;padding:12px;border-radius:8px;font-size:12px;overflow-x:auto;color:#ccc;margin:8px 0}.btn{background:#7B68EE;border:none;color:#fff;padding:10px 20px;border-radius:8px;font-size:14px;cursor:pointer;font-weight:bold;width:100%;margin:8px 0}</style></head><body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center">← 뒤로</a>
+<div class="wrap"><h1 style="font-size:24px;text-align:center;margin-bottom:15px">🔌 API란?</h1>
+<div class="card"><h3 style="margin-bottom:8px">API = 프로그램 간의 대화 방법</h3><p style="color:#aaa;font-size:13px;line-height:1.7">식당에서 주문할 때 메뉴판을 보고 주문하듯이, API는 프로그램이 다른 프로그램에게 데이터를 요청하는 규칙입니다.</p></div>
+<div class="card"><h3 style="margin-bottom:10px">REST API 메서드</h3>
+<p style="margin:6px 0;font-size:14px"><span class="method get">GET</span> 데이터 조회 (읽기)</p>
+<p style="margin:6px 0;font-size:14px"><span class="method post">POST</span> 데이터 생성 (쓰기)</p>
+<p style="margin:6px 0;font-size:14px"><span class="method put">PUT</span> 데이터 수정 (업데이트)</p>
+<p style="margin:6px 0;font-size:14px"><span class="method del">DELETE</span> 데이터 삭제</p></div>
+<div class="card"><h3 style="margin-bottom:8px">🌤️ 날씨 API 체험</h3>
+<p style="color:#aaa;font-size:12px;margin-bottom:8px">버튼을 누르면 가상 API 응답을 볼 수 있어요</p>
+<button class="btn" onclick="callAPI()">GET /api/weather?city=서울</button>
+<pre id="response" style="display:none"></pre></div>
+<div class="card"><h3 style="margin-bottom:8px">요청/응답 구조</h3>
+<p style="color:#888;font-size:12px;margin-bottom:6px">📤 요청 (Request)</p>
+<pre>GET /api/users/1 HTTP/1.1
+Host: api.example.com
+Authorization: Bearer eyJhbG...
+Accept: application/json</pre>
+<p style="color:#888;font-size:12px;margin-bottom:6px">📥 응답 (Response)</p>
+<pre>HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "id": 1,
+  "name": "홍길동",
+  "email": "hong@example.com"
+}</pre></div></div>
+<script>function callAPI(){const r=document.getElementById('response');r.style.display='block';r.textContent='요청 중...';
+setTimeout(()=>{const temp=Math.round(Math.random()*15+10);r.textContent=JSON.stringify({status:200,data:{city:"서울",temperature:temp,humidity:Math.round(Math.random()*40+40),weather:temp>20?"맑음":"흐림",wind:"2.5m/s"},message:"success"},null,2);},500);}</script></body></html>

@@ -1,13 +1,137 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>이진 트리</title><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;min-height:100vh}
-.wrap{max-width:450px;margin:0 auto;padding:50px 16px 30px;text-align:center}
-.card{background:#1a1a2e;border-radius:16px;padding:20px;margin:12px 0;border:1px solid #2a2a4a}
-input,select{background:#252545;border:2px solid #333;color:#fff;padding:10px 14px;border-radius:10px;font-size:16px;width:100%;margin:6px 0}
-input:focus,select:focus{border-color:#7B68EE;outline:none}
-.btn{background:#7B68EE;border:none;color:#fff;padding:12px 24px;border-radius:10px;font-size:16px;cursor:pointer;font-weight:bold;width:100%;margin:8px 0}
-.btn:hover{opacity:0.9}
-.result{font-size:28px;font-weight:bold;color:#FFD700;margin:12px 0}
-.sub{color:#888;font-size:13px}</style></head><body><a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
-<div class="wrap"><h1 style="font-size:24px;margin-bottom:5px">🌳 이진 트리</h1><p style="color:#888;font-size:14px;margin-bottom:15px">이진 탐색 트리 시각화</p>
-<div class="card"><h2 style="color:#FFD700;margin-bottom:10px">🌳 이진 트리</h2><p style="color:#ccc;font-size:14px;line-height:1.8">이진 탐색 트리 시각화에 대한 인터랙티브 설명 페이지입니다.</p></div>
-<div class="card"><p style="color:#aaa;font-size:13px">콘텐츠 준비 중입니다. 곧 업데이트됩니다! 🚀</p></div></div></body></html>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>이진 탐색 트리 시각화</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center}
+.wrap{max-width:550px;width:100%;padding:60px 16px 40px}
+h1{text-align:center;font-size:22px;margin-bottom:6px;color:#7ecfff}
+.sub{text-align:center;color:#888;font-size:13px;margin-bottom:20px}
+.row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.row input{flex:1;min-width:80px;padding:10px 12px;border-radius:10px;border:1px solid #333;background:#1a1a2e;color:#fff;font-size:15px;outline:none}
+.row input:focus{border-color:#7ecfff}
+.btn{padding:10px 14px;border-radius:10px;border:none;font-size:13px;font-weight:bold;cursor:pointer;touch-action:manipulation;min-height:44px;transition:transform .1s}
+.btn:active{transform:scale(0.95)}
+.btn-ins{background:#4caf50;color:#fff}
+.btn-clr{background:#f44336;color:#fff}
+.trav-row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.btn-trav{background:#7c4dff;color:#fff;font-size:12px;padding:8px 12px;border-radius:8px;border:none;cursor:pointer;font-weight:bold;touch-action:manipulation;min-height:40px}
+.btn-trav:active{transform:scale(0.95)}
+canvas{width:100%;background:#12122a;border-radius:12px;display:block;margin-bottom:10px}
+.result{background:#1a1a2e;border-radius:10px;padding:12px;font-size:13px;color:#aaa;min-height:40px;margin-bottom:12px;word-break:break-all}
+.result b{color:#f59e0b}
+.explain{background:#1a1a2e;border-radius:12px;padding:16px;border:1px solid #2a2a4a}
+.explain h3{color:#f59e0b;font-size:14px;margin-bottom:8px}
+.explain p{color:#aaa;font-size:12px;line-height:1.7}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<div class="wrap">
+<h1>이진 탐색 트리 (BST)</h1>
+<p class="sub">숫자를 삽입하고 트리 구조와 순회를 확인해보세요</p>
+<div class="row">
+<input type="number" id="inp" placeholder="숫자 입력">
+<button class="btn btn-ins" onclick="insertVal()">삽입</button>
+<button class="btn btn-clr" onclick="clearTree()">초기화</button>
+</div>
+<div class="trav-row">
+<button class="btn-trav" onclick="doTraversal('in')">중위 순회 (Inorder)</button>
+<button class="btn-trav" onclick="doTraversal('pre')">전위 순회 (Preorder)</button>
+<button class="btn-trav" onclick="doTraversal('post')">후위 순회 (Postorder)</button>
+</div>
+<canvas id="cv" width="550" height="360"></canvas>
+<div class="result" id="res">숫자를 삽입하면 트리가 그려집니다</div>
+<div class="explain">
+<h3>이진 탐색 트리란?</h3>
+<p>왼쪽 자식은 부모보다 작고, 오른쪽 자식은 부모보다 큰 이진 트리입니다. 검색, 삽입, 삭제 평균 O(log n). 중위 순회하면 정렬된 순서로 출력됩니다.</p>
+</div>
+</div>
+<script>
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d'),res=document.getElementById('res'),inp=document.getElementById('inp');
+let dpr=window.devicePixelRatio||1;
+function sizeCanvas(){
+const w=cv.parentElement.clientWidth;cv.style.width=w+'px';cv.style.height='360px';
+cv.width=w*dpr;cv.height=360*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+sizeCanvas();window.addEventListener('resize',()=>{sizeCanvas();draw()});
+
+class TNode{constructor(v){this.val=v;this.left=null;this.right=null;this.x=0;this.y=0}}
+let root=null,highlighted=new Set();
+
+function insert(node,v){
+if(!node)return new TNode(v);
+if(v<node.val)node.left=insert(node.left,v);
+else if(v>node.val)node.right=insert(node.right,v);
+return node;
+}
+function insertVal(){
+const v=parseInt(inp.value);if(isNaN(v)){res.textContent='숫자를 입력해주세요';return}
+root=insert(root,v);inp.value='';highlighted.clear();draw();
+res.innerHTML=`<b>${v}</b> 삽입 완료 (노드 수: ${countNodes(root)})`;
+}
+function clearTree(){root=null;highlighted.clear();draw();res.textContent='트리가 초기화되었습니다';}
+function countNodes(n){return n?1+countNodes(n.left)+countNodes(n.right):0}
+
+function assignPositions(node,x,y,spread){
+if(!node)return;
+node.x=x;node.y=y;
+assignPositions(node.left,x-spread,y+55,spread*0.55);
+assignPositions(node.right,x+spread,y+55,spread*0.55);
+}
+
+function draw(){
+const w=cv.width/dpr,h=cv.height/dpr;
+ctx.clearRect(0,0,w,h);
+if(!root){ctx.fillStyle='#555';ctx.font='14px sans-serif';ctx.textAlign='center';ctx.fillText('트리가 비어있습니다',w/2,h/2);return}
+assignPositions(root,w/2,35,w/4.5);
+drawEdges(root);drawNodes(root);
+}
+function drawEdges(n){
+if(!n)return;
+ctx.strokeStyle='#334155';ctx.lineWidth=2;
+if(n.left){ctx.beginPath();ctx.moveTo(n.x,n.y);ctx.lineTo(n.left.x,n.left.y);ctx.stroke();drawEdges(n.left)}
+if(n.right){ctx.beginPath();ctx.moveTo(n.x,n.y);ctx.lineTo(n.right.x,n.right.y);ctx.stroke();drawEdges(n.right)}
+}
+function drawNodes(n){
+if(!n)return;
+const r=20,isH=highlighted.has(n.val);
+ctx.beginPath();ctx.arc(n.x,n.y,r,0,Math.PI*2);
+ctx.fillStyle=isH?'#f59e0b':'#1e293b';ctx.fill();
+ctx.strokeStyle=isH?'#fbbf24':'#7ecfff';ctx.lineWidth=2.5;ctx.stroke();
+if(isH){ctx.shadowColor='rgba(245,158,11,0.5)';ctx.shadowBlur=12}
+ctx.fillStyle=isH?'#000':'#7ecfff';ctx.font='bold 14px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+ctx.fillText(n.val,n.x,n.y);ctx.shadowBlur=0;
+drawNodes(n.left);drawNodes(n.right);
+}
+
+function inorder(n,a){if(!n)return;inorder(n.left,a);a.push(n.val);inorder(n.right,a)}
+function preorder(n,a){if(!n)return;a.push(n.val);preorder(n.left,a);preorder(n.right,a)}
+function postorder(n,a){if(!n)return;postorder(n.left,a);postorder(n.right,a);a.push(n.val)}
+
+function doTraversal(type){
+if(!root){res.textContent='트리가 비어있습니다';return}
+const arr=[];
+if(type==='in')inorder(root,arr);
+else if(type==='pre')preorder(root,arr);
+else postorder(root,arr);
+const names={in:'중위 순회 (Inorder)',pre:'전위 순회 (Preorder)',post:'후위 순회 (Postorder)'};
+highlighted.clear();draw();
+let i=0;
+const iv=setInterval(()=>{
+if(i>=arr.length){clearInterval(iv);return}
+highlighted.add(arr[i]);draw();
+res.innerHTML=`<b>${names[type]}</b>: ${arr.slice(0,i+1).map((v,j)=>j===i?`<b style="color:#fbbf24">[${v}]</b>`:v).join(' → ')}`;
+i++;
+},500);
+}
+
+inp.addEventListener('keydown',e=>{if(e.key==='Enter')insertVal()});
+draw();
+</script>
+</body>
+</html>

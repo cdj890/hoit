@@ -1,13 +1,140 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>해시 테이블</title><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;min-height:100vh}
-.wrap{max-width:450px;margin:0 auto;padding:50px 16px 30px;text-align:center}
-.card{background:#1a1a2e;border-radius:16px;padding:20px;margin:12px 0;border:1px solid #2a2a4a}
-input,select{background:#252545;border:2px solid #333;color:#fff;padding:10px 14px;border-radius:10px;font-size:16px;width:100%;margin:6px 0}
-input:focus,select:focus{border-color:#7B68EE;outline:none}
-.btn{background:#7B68EE;border:none;color:#fff;padding:12px 24px;border-radius:10px;font-size:16px;cursor:pointer;font-weight:bold;width:100%;margin:8px 0}
-.btn:hover{opacity:0.9}
-.result{font-size:28px;font-weight:bold;color:#FFD700;margin:12px 0}
-.sub{color:#888;font-size:13px}</style></head><body><a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
-<div class="wrap"><h1 style="font-size:24px;margin-bottom:5px">#️⃣ 해시 테이블</h1><p style="color:#888;font-size:14px;margin-bottom:15px">키-값 쌍 저장 자료구조</p>
-<div class="card"><h2 style="color:#FFD700;margin-bottom:10px">#️⃣ 해시 테이블</h2><p style="color:#ccc;font-size:14px;line-height:1.8">키-값 쌍 저장 자료구조에 대한 인터랙티브 설명 페이지입니다.</p></div>
-<div class="card"><p style="color:#aaa;font-size:13px">콘텐츠 준비 중입니다. 곧 업데이트됩니다! 🚀</p></div></div></body></html>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>해시 테이블 시각화</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center}
+.wrap{max-width:550px;width:100%;padding:60px 16px 40px}
+h1{text-align:center;font-size:22px;margin-bottom:6px;color:#7ecfff}
+.sub{text-align:center;color:#888;font-size:13px;margin-bottom:20px}
+.row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.row input{flex:1;min-width:60px;padding:10px 12px;border-radius:10px;border:1px solid #333;background:#1a1a2e;color:#fff;font-size:15px;outline:none}
+.row input:focus{border-color:#7ecfff}
+.btn{padding:10px 14px;border-radius:10px;border:none;font-size:13px;font-weight:bold;cursor:pointer;touch-action:manipulation;min-height:44px;transition:transform .1s}
+.btn:active{transform:scale(0.95)}
+.btn-ins{background:#4caf50;color:#fff}
+.btn-find{background:#2196f3;color:#fff}
+.btn-del{background:#f44336;color:#fff}
+.hash-calc{background:#1a1a2e;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:13px;color:#aaa;min-height:36px;text-align:center}
+.hash-calc b{color:#f59e0b}
+.table{margin-bottom:14px}
+.bucket{display:flex;align-items:center;margin-bottom:6px;gap:6px}
+.bucket-idx{width:36px;height:36px;background:#2a2a4a;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:bold;color:#7ecfff;flex-shrink:0;transition:background .3s,box-shadow .3s}
+.bucket-idx.active{background:#f59e0b;color:#000;box-shadow:0 0 12px rgba(245,158,11,.4)}
+.bucket-chain{display:flex;gap:4px;flex-wrap:wrap;min-height:36px;align-items:center;flex:1;padding:4px 0}
+.chain-item{background:#1e293b;border:1px solid #7ecfff;border-radius:8px;padding:5px 10px;font-size:12px;color:#7ecfff;animation:fadeIn .3s;white-space:nowrap}
+.chain-item.found{border-color:#4caf50;background:#1b3a1b;color:#4caf50}
+.chain-arrow{color:#f59e0b;font-size:14px}
+.empty-txt{color:#444;font-size:11px;font-style:italic}
+.info{text-align:center;color:#888;font-size:13px;margin-bottom:14px;min-height:18px}
+.explain{background:#1a1a2e;border-radius:12px;padding:16px;border:1px solid #2a2a4a}
+.explain h3{color:#f59e0b;font-size:14px;margin-bottom:8px}
+.explain p{color:#aaa;font-size:12px;line-height:1.7}
+@keyframes fadeIn{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<div class="wrap">
+<h1>해시 테이블 시각화</h1>
+<p class="sub">키를 입력하면 해시 함수로 버킷에 저장됩니다</p>
+<div class="row">
+<input type="text" id="keyInp" placeholder="키 (key)" maxlength="12">
+<input type="text" id="valInp" placeholder="값 (value)" maxlength="12">
+</div>
+<div class="row">
+<button class="btn btn-ins" onclick="doInsert()">삽입</button>
+<button class="btn btn-find" onclick="doSearch()">검색</button>
+<button class="btn btn-del" onclick="doDelete()">삭제</button>
+</div>
+<div class="hash-calc" id="hashCalc">키를 입력하면 해시 계산 과정이 표시됩니다</div>
+<div class="info" id="info"></div>
+<div class="table" id="table"></div>
+<div class="explain">
+<h3>해시 테이블이란?</h3>
+<p>키(key)를 해시 함수에 넣으면 배열의 인덱스가 나옵니다. 평균 O(1)으로 삽입/검색/삭제가 가능합니다. 두 키가 같은 인덱스를 받으면 "충돌(collision)"이 발생하며, 여기서는 체이닝(연결 리스트)으로 해결합니다.</p>
+</div>
+</div>
+<script>
+const SIZE=10;
+const buckets=Array.from({length:SIZE},()=>[]);
+const keyInp=document.getElementById('keyInp'),valInp=document.getElementById('valInp');
+const hashCalc=document.getElementById('hashCalc'),info=document.getElementById('info');
+
+function hashFn(key){
+let sum=0;
+for(let i=0;i<key.length;i++)sum+=key.charCodeAt(i);
+return sum%SIZE;
+}
+function showHash(key){
+let sum=0,parts=[];
+for(let i=0;i<key.length;i++){const c=key.charCodeAt(i);sum+=c;parts.push(`'${key[i]}'=${c}`)}
+const idx=sum%SIZE;
+hashCalc.innerHTML=`hash("${key}") = (${parts.join(' + ')}) % ${SIZE} = <b>${sum} % ${SIZE} = ${idx}</b>`;
+return idx;
+}
+
+function doInsert(){
+const k=keyInp.value.trim(),v=valInp.value.trim();
+if(!k){info.textContent='키를 입력해주세요';return}
+const idx=showHash(k);
+const bucket=buckets[idx];
+const exist=bucket.find(item=>item.key===k);
+if(exist){exist.value=v||'(빈값)';info.textContent=`키 "${k}" 의 값을 업데이트했습니다 (버킷 ${idx})`}
+else{bucket.push({key:k,value:v||'(빈값)'});
+info.textContent=bucket.length>1?`충돌 발생! 버킷 ${idx}에 체이닝으로 추가 (${bucket.length}개)`:`버킷 ${idx}에 삽입 완료`}
+keyInp.value='';valInp.value='';render(idx);
+}
+function doSearch(){
+const k=keyInp.value.trim();
+if(!k){info.textContent='검색할 키를 입력해주세요';return}
+const idx=showHash(k);
+const bucket=buckets[idx];
+const item=bucket.find(it=>it.key===k);
+if(item){info.textContent=`검색 성공: "${k}" → "${item.value}" (버킷 ${idx})`}
+else{info.textContent=`"${k}" 를 찾을 수 없습니다`}
+render(idx,k);
+}
+function doDelete(){
+const k=keyInp.value.trim();
+if(!k){info.textContent='삭제할 키를 입력해주세요';return}
+const idx=showHash(k);
+const bucket=buckets[idx];
+const fi=bucket.findIndex(it=>it.key===k);
+if(fi!==-1){bucket.splice(fi,1);info.textContent=`"${k}" 삭제 완료 (버킷 ${idx})`}
+else{info.textContent=`"${k}" 를 찾을 수 없습니다`}
+keyInp.value='';render(idx);
+}
+
+function render(activeIdx=-1,foundKey=''){
+const table=document.getElementById('table');
+table.innerHTML='';
+for(let i=0;i<SIZE;i++){
+const d=document.createElement('div');d.className='bucket';
+const idxDiv=document.createElement('div');
+idxDiv.className='bucket-idx'+(i===activeIdx?' active':'');
+idxDiv.textContent=i;
+d.appendChild(idxDiv);
+const chain=document.createElement('div');chain.className='bucket-chain';
+if(buckets[i].length===0){chain.innerHTML='<span class="empty-txt">비어있음</span>'}
+else{
+buckets[i].forEach((item,j)=>{
+if(j>0){const ar=document.createElement('span');ar.className='chain-arrow';ar.textContent='→';chain.appendChild(ar)}
+const ci=document.createElement('span');
+ci.className='chain-item'+(item.key===foundKey?' found':'');
+ci.textContent=`${item.key}: ${item.value}`;
+chain.appendChild(ci);
+});
+}
+d.appendChild(chain);table.appendChild(d);
+}
+}
+keyInp.addEventListener('keydown',e=>{if(e.key==='Enter')doInsert()});
+render();
+</script>
+</body>
+</html>
