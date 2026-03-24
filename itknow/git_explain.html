@@ -1,28 +1,204 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Git 기초</title><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;min-height:100vh}.wrap{max-width:550px;margin:0 auto;padding:50px 16px 30px}.card{background:#1a1a2e;border-radius:12px;padding:16px;margin:10px 0;border:1px solid #2a2a4a}.flow{display:flex;align-items:center;justify-content:center;gap:6px;margin:15px 0;flex-wrap:wrap}.box{background:#252545;padding:10px 14px;border-radius:10px;text-align:center;font-size:12px;min-width:80px}.box b{display:block;margin-bottom:3px;font-size:13px}.arr{color:#7B68EE;font-size:16px}code{background:#252545;padding:2px 8px;border-radius:4px;font-size:13px;color:#FFD700}.cmd{background:#252545;padding:10px;border-radius:8px;margin:6px 0;font-family:monospace;font-size:13px}.cmd span{color:#4CAF50}</style></head><body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center">← 뒤로</a>
-<div class="wrap"><h1 style="font-size:24px;text-align:center;margin-bottom:15px">📝 Git 기초</h1>
-<div class="card"><h3 style="margin-bottom:8px">Git = 코드의 타임머신</h3><p style="color:#aaa;font-size:13px;line-height:1.7">파일의 변경 이력을 기록하고, 언제든 과거로 돌아갈 수 있는 버전 관리 시스템입니다.</p></div>
-<div class="card"><h3 style="margin-bottom:10px">기본 흐름</h3>
-<div class="flow">
-<div class="box" style="border:2px solid #FF9800"><b>📁 작업 디렉토리</b>파일 수정</div><div class="arr">→</div>
-<div class="box" style="border:2px solid #4CAF50"><b>📋 스테이징</b>변경 선택</div><div class="arr">→</div>
-<div class="box" style="border:2px solid #2196F3"><b>💾 저장소</b>커밋 저장</div><div class="arr">→</div>
-<div class="box" style="border:2px solid #9C27B0"><b>☁️ 원격</b>GitHub</div>
-</div></div>
-<div class="card"><h3 style="margin-bottom:10px">필수 명령어</h3>
-<div class="cmd"><span>$</span> git init <span style="color:#888"># 저장소 초기화</span></div>
-<div class="cmd"><span>$</span> git add . <span style="color:#888"># 변경 파일 스테이징</span></div>
-<div class="cmd"><span>$</span> git commit -m "메시지" <span style="color:#888"># 커밋 저장</span></div>
-<div class="cmd"><span>$</span> git push origin main <span style="color:#888"># 원격에 업로드</span></div>
-<div class="cmd"><span>$</span> git pull <span style="color:#888"># 원격에서 다운로드</span></div>
-<div class="cmd"><span>$</span> git branch feature <span style="color:#888"># 브랜치 생성</span></div>
-<div class="cmd"><span>$</span> git merge feature <span style="color:#888"># 브랜치 병합</span></div>
-<div class="cmd"><span>$</span> git log --oneline <span style="color:#888"># 커밋 이력 보기</span></div>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Git 기초</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center}
+.wrap{max-width:550px;width:100%;padding:60px 16px 40px}
+h1{text-align:center;font-size:22px;margin-bottom:6px;color:#7ecfff}
+.sub{text-align:center;color:#888;font-size:13px;margin-bottom:24px}
+.flow-diagram{background:#1a1a2e;border-radius:14px;padding:20px 12px;margin-bottom:20px;border:1px solid #2a2a4a}
+.flow-zones{display:flex;justify-content:space-between;gap:8px;margin-bottom:14px}
+.zone{flex:1;text-align:center;border-radius:10px;padding:14px 6px;border:2px solid #333;transition:all .4s;min-height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.zone.active{border-color:#f59e0b;background:rgba(245,158,11,.08);box-shadow:0 0 16px rgba(245,158,11,.15)}
+.zone-title{font-size:10px;font-weight:bold;color:#888;margin-bottom:4px}
+.zone.active .zone-title{color:#f59e0b}
+.zone-name{font-size:13px;font-weight:bold;color:#7ecfff}
+.zone-files{margin-top:6px;font-size:10px;color:#666;min-height:14px}
+.zone.active .zone-files{color:#aaa}
+.flow-arrows{display:flex;justify-content:space-around;margin:8px 0;font-size:11px;color:#555}
+.flow-arrows span{transition:color .3s}
+.flow-arrows span.active{color:#f59e0b;font-weight:bold}
+.commands{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;justify-content:center}
+.cmd-btn{padding:10px 16px;border-radius:10px;border:2px solid #333;background:transparent;color:#aaa;font-size:12px;font-weight:bold;cursor:pointer;touch-action:manipulation;font-family:monospace;min-height:42px;transition:all .2s}
+.cmd-btn:active{transform:scale(0.95)}
+.cmd-btn.active{border-color:#7ecfff;color:#7ecfff;background:#1a1a2e}
+.cmd-detail{background:#1a1a2e;border-radius:12px;padding:16px;margin-bottom:16px;border:1px solid #2a2a4a;display:none;animation:fadeIn .3s}
+.cmd-detail.show{display:block}
+.cmd-detail h3{font-size:14px;color:#f59e0b;margin-bottom:6px;font-family:monospace}
+.cmd-detail .syntax{background:#12122a;border-radius:8px;padding:10px;font-family:monospace;font-size:13px;color:#4caf50;margin:8px 0}
+.cmd-detail p{font-size:12px;color:#aaa;line-height:1.7}
+.branch-viz{background:#1a1a2e;border-radius:14px;padding:16px;margin-bottom:20px;border:1px solid #2a2a4a}
+.branch-viz h2{font-size:15px;color:#f59e0b;margin-bottom:12px}
+.branch-canvas{width:100%;height:160px;position:relative}
+.commit-dot{width:20px;height:20px;border-radius:50%;position:absolute;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:bold;color:#000;transition:all .5s}
+.commit-line{position:absolute;height:3px;border-radius:2px;transition:all .5s}
+.commit-label{position:absolute;font-size:10px;color:#aaa;white-space:nowrap}
+.branch-btns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.br-btn{padding:8px 14px;border-radius:8px;border:none;font-size:12px;font-weight:bold;cursor:pointer;touch-action:manipulation;min-height:38px;transition:transform .1s}
+.br-btn:active{transform:scale(0.95)}
+.br-btn-commit{background:#4caf50;color:#fff}
+.br-btn-branch{background:#2196f3;color:#fff}
+.br-btn-merge{background:#f59e0b;color:#000}
+.br-btn-reset{background:#f44336;color:#fff}
+.explain{background:#1a1a2e;border-radius:12px;padding:16px;border:1px solid #2a2a4a}
+.explain h3{color:#f59e0b;font-size:14px;margin-bottom:8px}
+.explain p{color:#aaa;font-size:12px;line-height:1.7}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<div class="wrap">
+<h1>Git 기초</h1>
+<p class="sub">버전 관리의 핵심 명령어와 흐름을 시각적으로 알아보세요</p>
+
+<div class="flow-diagram">
+<div class="flow-zones">
+<div class="zone" id="z0"><div class="zone-title">Working Directory</div><div class="zone-name">작업 디렉토리</div><div class="zone-files" id="zf0">수정된 파일들</div></div>
+<div class="zone" id="z1"><div class="zone-title">Staging Area</div><div class="zone-name">스테이징</div><div class="zone-files" id="zf1">커밋 준비 파일</div></div>
+<div class="zone" id="z2"><div class="zone-title">Repository</div><div class="zone-name">저장소</div><div class="zone-files" id="zf2">커밋 히스토리</div></div>
+<div class="zone" id="z3"><div class="zone-title">Remote</div><div class="zone-name">원격 저장소</div><div class="zone-files" id="zf3">GitHub 등</div></div>
 </div>
-<div class="card"><h3 style="margin-bottom:8px">🌿 브랜치란?</h3>
-<p style="color:#aaa;font-size:13px;line-height:1.7">독립된 작업 공간을 만드는 기능입니다.<br><br>
-<code>main</code> ─── 메인 브랜치 (안정 버전)<br>
-<code>feature</code> ─── 새 기능 개발용<br>
-<code>hotfix</code> ─── 긴급 버그 수정용<br><br>
-작업 완료 후 <code>merge</code>로 합칩니다.</p></div></div></body></html>
+<div class="flow-arrows">
+<span id="ar0">git add →</span>
+<span id="ar1">git commit →</span>
+<span id="ar2">git push →</span>
+</div>
+<div class="flow-arrows" style="margin-top:4px">
+<span id="ar3" style="margin-left:auto">← git pull</span>
+</div>
+</div>
+
+<div class="commands" id="commands"></div>
+<div class="cmd-detail" id="cmdDetail"></div>
+
+<div class="branch-viz">
+<h2>브랜치 시각화</h2>
+<div class="branch-canvas" id="branchCanvas"></div>
+<div class="branch-btns">
+<button class="br-btn br-btn-commit" onclick="brCommit()">커밋 추가</button>
+<button class="br-btn br-btn-branch" onclick="brBranch()">브랜치 생성</button>
+<button class="br-btn br-btn-merge" onclick="brMerge()">병합 (Merge)</button>
+<button class="br-btn br-btn-reset" onclick="brReset()">초기화</button>
+</div>
+</div>
+
+<div class="explain">
+<h3>Git이란?</h3>
+<p>Git은 분산 버전 관리 시스템(DVCS)으로, 코드의 변경 이력을 추적하고, 여러 개발자가 동시에 작업할 수 있게 해줍니다. 브랜치를 통해 독립적으로 기능을 개발하고, 머지로 합칠 수 있습니다. GitHub, GitLab 등은 원격 저장소 호스팅 서비스입니다.</p>
+</div>
+</div>
+<script>
+const cmds=[
+{name:'git add',desc:'작업 디렉토리의 변경 사항을 스테이징 영역에 추가합니다. 커밋할 파일을 선택하는 단계입니다.',syntax:'git add &lt;파일명&gt;\ngit add .  (모든 변경 사항)',zones:[0,1],arrows:[0]},
+{name:'git commit',desc:'스테이징된 변경 사항을 로컬 저장소에 기록합니다. 각 커밋은 고유한 해시값을 가지며, 메시지로 변경 내용을 설명합니다.',syntax:'git commit -m "커밋 메시지"',zones:[1,2],arrows:[1]},
+{name:'git push',desc:'로컬 저장소의 커밋들을 원격 저장소(GitHub 등)에 업로드합니다.',syntax:'git push origin main',zones:[2,3],arrows:[2]},
+{name:'git pull',desc:'원격 저장소의 변경 사항을 로컬로 가져와 병합합니다. fetch + merge를 한번에 수행합니다.',syntax:'git pull origin main',zones:[3,0],arrows:[3]},
+{name:'git branch',desc:'브랜치를 생성, 조회, 삭제합니다. 브랜치는 독립적인 작업 공간으로, main에 영향 없이 기능을 개발할 수 있습니다.',syntax:'git branch &lt;이름&gt;     (생성)\ngit branch -d &lt;이름&gt;  (삭제)\ngit branch            (목록)',zones:[2],arrows:[]},
+{name:'git merge',desc:'다른 브랜치의 변경 사항을 현재 브랜치에 합칩니다. 충돌이 발생하면 수동으로 해결해야 합니다.',syntax:'git merge &lt;브랜치명&gt;',zones:[2],arrows:[]}
+];
+
+const commandsEl=document.getElementById('commands');
+const cmdDetailEl=document.getElementById('cmdDetail');
+
+cmds.forEach((c,i)=>{
+const btn=document.createElement('button');
+btn.className='cmd-btn';btn.textContent=c.name;
+btn.onclick=()=>selectCmd(i);
+commandsEl.appendChild(btn);
+});
+
+function selectCmd(i){
+const c=cmds[i];
+document.querySelectorAll('.cmd-btn').forEach((b,j)=>b.classList.toggle('active',j===i));
+document.querySelectorAll('.zone').forEach(z=>z.classList.remove('active'));
+document.querySelectorAll('.flow-arrows span').forEach(a=>a.classList.remove('active'));
+c.zones.forEach(z=>document.getElementById('z'+z).classList.add('active'));
+c.arrows.forEach(a=>document.getElementById('ar'+a).classList.add('active'));
+cmdDetailEl.className='cmd-detail show';
+cmdDetailEl.innerHTML=`<h3>${c.name}</h3><div class="syntax">${c.syntax.replace(/\n/g,'<br>')}</div><p>${c.desc}</p>`;
+}
+
+// Branch visualization
+let commits=[{id:0,x:40,y:60,branch:'main',color:'#4caf50',label:'init'}];
+let branches=[{name:'main',color:'#4caf50',y:60}];
+let nextId=1,hasBranch=false,merged=false;
+
+function brCommit(){
+const currentBranch=hasBranch&&!merged?branches[1]:branches[0];
+const lastOnBranch=[...commits].reverse().find(c=>c.branch===currentBranch.name);
+const newX=(lastOnBranch?lastOnBranch.x:40)+50;
+if(newX>480)return;
+commits.push({id:nextId++,x:newX,y:currentBranch.y,branch:currentBranch.name,color:currentBranch.color,label:'c'+nextId});
+drawBranches();
+}
+function brBranch(){
+if(hasBranch)return;
+hasBranch=true;
+const lastMain=[...commits].reverse().find(c=>c.branch==='main');
+branches.push({name:'feature',color:'#2196f3',y:120});
+commits.push({id:nextId++,x:lastMain.x+50,y:120,branch:'feature',color:'#2196f3',label:'c'+nextId});
+drawBranches();
+}
+function brMerge(){
+if(!hasBranch||merged)return;
+merged=true;
+const lastMain=[...commits].reverse().find(c=>c.branch==='main');
+const lastFeat=[...commits].reverse().find(c=>c.branch==='feature');
+const mx=Math.max(lastMain.x,lastFeat.x)+50;
+if(mx>480)return;
+commits.push({id:nextId++,x:mx,y:60,branch:'main',color:'#f59e0b',label:'merge',mergeFrom:lastFeat});
+drawBranches();
+}
+function brReset(){
+commits=[{id:0,x:40,y:60,branch:'main',color:'#4caf50',label:'init'}];
+branches=[{name:'main',color:'#4caf50',y:60}];
+nextId=1;hasBranch=false;merged=false;
+drawBranches();
+}
+function drawBranches(){
+const canvas=document.getElementById('branchCanvas');
+canvas.innerHTML='';
+for(let i=1;i<commits.length;i++){
+const c=commits[i];
+if(c.mergeFrom){
+const lastMain=[...commits].filter(cc=>cc.branch==='main'&&cc.id<c.id).pop();
+if(lastMain)drawLine(canvas,lastMain.x,lastMain.y,c.x,c.y,c.color);
+drawLine(canvas,c.mergeFrom.x,c.mergeFrom.y,c.x,c.y,'#2196f3');
+}else{
+const sameBranch=commits.filter(cc=>cc.branch===c.branch&&cc.id<c.id);
+let prev=sameBranch[sameBranch.length-1];
+if(!prev){const mainLast=commits.filter(cc=>cc.branch==='main'&&cc.id<c.id);prev=mainLast[mainLast.length-1]}
+if(prev)drawLine(canvas,prev.x,prev.y,c.x,c.y,c.color);
+}
+}
+commits.forEach(c=>{
+const dot=document.createElement('div');dot.className='commit-dot';
+dot.style.cssText=`left:${c.x-10}px;top:${c.y-10}px;background:${c.color}`;
+dot.textContent=c.label==='merge'?'M':c.label==='init'?'I':'C';
+canvas.appendChild(dot);
+const lbl=document.createElement('div');lbl.className='commit-label';
+lbl.style.cssText=`left:${c.x-12}px;top:${c.y+14}px`;lbl.textContent=c.label;
+canvas.appendChild(lbl);
+});
+branches.forEach(b=>{
+const lbl=document.createElement('div');lbl.className='commit-label';
+lbl.style.cssText=`left:0px;top:${b.y-8}px;color:${b.color};font-weight:bold`;lbl.textContent=b.name;
+canvas.appendChild(lbl);
+});
+}
+function drawLine(container,x1,y1,x2,y2,color){
+const dx=x2-x1,dy=y2-y1,len=Math.sqrt(dx*dx+dy*dy),angle=Math.atan2(dy,dx)*180/Math.PI;
+const line=document.createElement('div');line.className='commit-line';
+line.style.cssText=`left:${x1}px;top:${y1-1}px;width:${len}px;background:${color};transform:rotate(${angle}deg);transform-origin:0 50%`;
+container.appendChild(line);
+}
+drawBranches();
+</script>
+</body>
+</html>

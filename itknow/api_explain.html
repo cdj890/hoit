@@ -1,31 +1,180 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>API란?</title><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;min-height:100vh}.wrap{max-width:550px;margin:0 auto;padding:50px 16px 30px}.card{background:#1a1a2e;border-radius:12px;padding:16px;margin:10px 0;border:1px solid #2a2a4a}.method{display:inline-block;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:bold;margin-right:6px}.get{background:#4CAF50}.post{background:#FF9800}.put{background:#2196F3}.del{background:#F44336}pre{background:#252545;padding:12px;border-radius:8px;font-size:12px;overflow-x:auto;color:#ccc;margin:8px 0}.btn{background:#7B68EE;border:none;color:#fff;padding:10px 20px;border-radius:8px;font-size:14px;cursor:pointer;font-weight:bold;width:100%;margin:8px 0}</style></head><body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center">← 뒤로</a>
-<div class="wrap"><h1 style="font-size:24px;text-align:center;margin-bottom:15px">🔌 API란?</h1>
-<div class="card"><h3 style="margin-bottom:8px">API = 프로그램 간의 대화 방법</h3><p style="color:#aaa;font-size:13px;line-height:1.7">식당에서 주문할 때 메뉴판을 보고 주문하듯이, API는 프로그램이 다른 프로그램에게 데이터를 요청하는 규칙입니다.</p></div>
-<div class="card"><h3 style="margin-bottom:10px">REST API 메서드</h3>
-<p style="margin:6px 0;font-size:14px"><span class="method get">GET</span> 데이터 조회 (읽기)</p>
-<p style="margin:6px 0;font-size:14px"><span class="method post">POST</span> 데이터 생성 (쓰기)</p>
-<p style="margin:6px 0;font-size:14px"><span class="method put">PUT</span> 데이터 수정 (업데이트)</p>
-<p style="margin:6px 0;font-size:14px"><span class="method del">DELETE</span> 데이터 삭제</p></div>
-<div class="card"><h3 style="margin-bottom:8px">🌤️ 날씨 API 체험</h3>
-<p style="color:#aaa;font-size:12px;margin-bottom:8px">버튼을 누르면 가상 API 응답을 볼 수 있어요</p>
-<button class="btn" onclick="callAPI()">GET /api/weather?city=서울</button>
-<pre id="response" style="display:none"></pre></div>
-<div class="card"><h3 style="margin-bottom:8px">요청/응답 구조</h3>
-<p style="color:#888;font-size:12px;margin-bottom:6px">📤 요청 (Request)</p>
-<pre>GET /api/users/1 HTTP/1.1
-Host: api.example.com
-Authorization: Bearer eyJhbG...
-Accept: application/json</pre>
-<p style="color:#888;font-size:12px;margin-bottom:6px">📥 응답 (Response)</p>
-<pre>HTTP/1.1 200 OK
-Content-Type: application/json
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>API란?</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center}
+.wrap{max-width:550px;width:100%;padding:60px 16px 40px}
+h1{text-align:center;font-size:22px;margin-bottom:6px;color:#7ecfff}
+.sub{text-align:center;color:#888;font-size:13px;margin-bottom:24px}
+.analogy{background:#1a1a2e;border-radius:12px;padding:16px;margin-bottom:20px;border:1px solid #2a2a4a;text-align:center}
+.analogy .icons{font-size:28px;margin-bottom:8px;display:flex;justify-content:center;align-items:center;gap:10px}
+.analogy .arrow-a{color:#f59e0b;animation:pulse 1.5s infinite}
+.analogy p{font-size:12px;color:#aaa;line-height:1.6}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.section{margin-bottom:20px}
+.section h2{font-size:16px;color:#f59e0b;margin-bottom:12px}
+.method-cards{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.method-card{background:#1a1a2e;border-radius:12px;padding:14px;border:1px solid #2a2a4a;display:flex;gap:12px;align-items:flex-start}
+.method-badge{padding:4px 10px;border-radius:6px;font-size:12px;font-weight:bold;color:#fff;flex-shrink:0;min-width:60px;text-align:center}
+.m-get{background:#4caf50}.m-post{background:#f59e0b;color:#000}.m-put{background:#2196f3}.m-delete{background:#f44336}
+.method-info{flex:1}
+.method-info .title{font-size:13px;font-weight:bold;color:#ccc;margin-bottom:3px}
+.method-info .desc{font-size:11px;color:#888;line-height:1.5}
+.demo-box{background:#1a1a2e;border-radius:12px;padding:16px;margin-bottom:16px;border:1px solid #2a2a4a}
+.demo-box h3{font-size:14px;color:#7ecfff;margin-bottom:12px}
+.endpoint{background:#12122a;border-radius:8px;padding:10px;margin-bottom:10px;font-family:monospace;font-size:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.endpoint .badge{padding:3px 8px;border-radius:4px;font-size:11px;font-weight:bold;color:#fff}
+.endpoint .url{color:#aaa;word-break:break-all}
+.btn-try{background:#7c4dff;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:bold;cursor:pointer;touch-action:manipulation;min-height:40px;width:100%;margin-bottom:10px;transition:transform .1s}
+.btn-try:active{transform:scale(0.97)}
+.req-res{display:none;animation:fadeIn .4s}
+.req-res.show{display:block}
+.code-block{background:#12122a;border-radius:8px;padding:12px;font-family:monospace;font-size:11px;line-height:1.6;overflow-x:auto;margin-bottom:8px;border:1px solid #222}
+.code-label{font-size:11px;color:#888;margin-bottom:4px;font-weight:bold}
+.json-key{color:#7ecfff}.json-str{color:#4caf50}.json-num{color:#f59e0b}.json-bool{color:#ff6b6b}
+.status-section{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.status-item{background:#1a1a2e;border-radius:8px;padding:10px;border:1px solid #2a2a4a}
+.status-code{font-weight:bold;font-size:16px}
+.s2{color:#4caf50}.s3{color:#2196f3}.s4{color:#f59e0b}.s5{color:#f44336}
+.status-txt{font-size:11px;color:#888;margin-top:2px}
+.header-section{background:#1a1a2e;border-radius:12px;padding:14px;margin-bottom:16px;border:1px solid #2a2a4a}
+.header-section h3{font-size:13px;color:#7ecfff;margin-bottom:10px}
+.header-item{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #222;font-size:12px}
+.header-item .hk{color:#f59e0b;font-family:monospace}.header-item .hv{color:#aaa}
+.explain{background:#1a1a2e;border-radius:12px;padding:16px;border:1px solid #2a2a4a}
+.explain h3{color:#f59e0b;font-size:14px;margin-bottom:8px}
+.explain p{color:#aaa;font-size:12px;line-height:1.7}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<div class="wrap">
+<h1>API란?</h1>
+<p class="sub">프로그램들이 서로 소통하는 방법을 알아보세요</p>
 
-{
-  "id": 1,
-  "name": "홍길동",
-  "email": "hong@example.com"
-}</pre></div></div>
-<script>function callAPI(){const r=document.getElementById('response');r.style.display='block';r.textContent='요청 중...';
-setTimeout(()=>{const temp=Math.round(Math.random()*15+10);r.textContent=JSON.stringify({status:200,data:{city:"서울",temperature:temp,humidity:Math.round(Math.random()*40+40),weather:temp>20?"맑음":"흐림",wind:"2.5m/s"},message:"success"},null,2);},500);}</script></body></html>
+<div class="analogy">
+<div class="icons">
+<span>📱 앱</span>
+<span class="arrow-a">⇄</span>
+<span>🔌 API</span>
+<span class="arrow-a">⇄</span>
+<span>🖥️ 서버</span>
+</div>
+<p>API는 식당의 웨이터와 같습니다. 손님(클라이언트)이 메뉴(요청)를 주문하면, 웨이터(API)가 주방(서버)에 전달하고, 요리(응답)를 가져다줍니다.</p>
+</div>
+
+<div class="section">
+<h2>HTTP 메서드</h2>
+<div class="method-cards">
+<div class="method-card"><span class="method-badge m-get">GET</span><div class="method-info"><div class="title">데이터 조회</div><div class="desc">서버에서 데이터를 가져옵니다. 예: 게시글 목록 조회</div></div></div>
+<div class="method-card"><span class="method-badge m-post">POST</span><div class="method-info"><div class="title">데이터 생성</div><div class="desc">서버에 새 데이터를 보냅니다. 예: 새 게시글 작성</div></div></div>
+<div class="method-card"><span class="method-badge m-put">PUT</span><div class="method-info"><div class="title">데이터 수정</div><div class="desc">기존 데이터를 업데이트합니다. 예: 프로필 수정</div></div></div>
+<div class="method-card"><span class="method-badge m-delete">DELETE</span><div class="method-info"><div class="title">데이터 삭제</div><div class="desc">서버에서 데이터를 삭제합니다. 예: 댓글 삭제</div></div></div>
+</div>
+</div>
+
+<div class="section">
+<h2>날씨 API 체험</h2>
+<div class="demo-box">
+<h3>가상 날씨 API</h3>
+<div class="endpoint"><span class="badge m-get">GET</span><span class="url">/api/weather?city=서울</span></div>
+<button class="btn-try" onclick="tryWeather('서울')">서울 날씨 조회</button>
+<button class="btn-try" onclick="tryWeather('부산')" style="background:#2196f3">부산 날씨 조회</button>
+<button class="btn-try" onclick="tryWeather('제주')" style="background:#f59e0b;color:#000">제주 날씨 조회</button>
+<div class="req-res" id="reqRes">
+<div class="code-label">요청 (Request)</div>
+<div class="code-block" id="reqBlock"></div>
+<div class="code-label">응답 (Response) - Status: <span id="resStatus" style="color:#4caf50">200 OK</span></div>
+<div class="code-block" id="resBlock"></div>
+</div>
+</div>
+</div>
+
+<div class="section">
+<h2>주요 헤더</h2>
+<div class="header-section">
+<h3>요청/응답에 포함되는 메타데이터</h3>
+<div class="header-item"><span class="hk">Content-Type</span><span class="hv">데이터 형식 (JSON, HTML 등)</span></div>
+<div class="header-item"><span class="hk">Authorization</span><span class="hv">인증 토큰 (API 키 등)</span></div>
+<div class="header-item"><span class="hk">Accept</span><span class="hv">원하는 응답 형식</span></div>
+<div class="header-item"><span class="hk">Cache-Control</span><span class="hv">캐시 정책</span></div>
+<div class="header-item"><span class="hk">User-Agent</span><span class="hv">클라이언트 정보</span></div>
+</div>
+</div>
+
+<div class="section">
+<h2>상태 코드</h2>
+<div class="status-section">
+<div class="status-item"><div class="status-code s2">200</div><div class="status-txt">성공 (OK)</div></div>
+<div class="status-item"><div class="status-code s2">201</div><div class="status-txt">생성됨 (Created)</div></div>
+<div class="status-item"><div class="status-code s4">400</div><div class="status-txt">잘못된 요청</div></div>
+<div class="status-item"><div class="status-code s4">401</div><div class="status-txt">인증 필요</div></div>
+<div class="status-item"><div class="status-code s4">404</div><div class="status-txt">찾을 수 없음</div></div>
+<div class="status-item"><div class="status-code s5">500</div><div class="status-txt">서버 오류</div></div>
+</div>
+</div>
+
+<div class="explain">
+<h3>API (Application Programming Interface)</h3>
+<p>API는 서로 다른 소프트웨어가 정해진 규칙에 따라 데이터를 주고받을 수 있게 해주는 인터페이스입니다. REST API는 HTTP 프로토콜을 사용하며, URL(엔드포인트)로 리소스를 지정하고, HTTP 메서드로 작업 종류를 구분합니다. 요청/응답 데이터는 주로 JSON 형식을 사용합니다.</p>
+</div>
+</div>
+<script>
+const weatherData={
+'서울':{temp:18,desc:'맑음',humidity:45,wind:3.2},
+'부산':{temp:21,desc:'구름 조금',humidity:62,wind:4.8},
+'제주':{temp:20,desc:'흐림',humidity:72,wind:5.5}
+};
+
+function tryWeather(city){
+const data=weatherData[city];
+const rr=document.getElementById('reqRes');
+rr.className='req-res show';
+
+document.getElementById('reqBlock').innerHTML=colorize(
+`GET /api/weather?city=${city} HTTP/1.1\nHost: api.weather.kr\nAccept: application/json\nAuthorization: Bearer sk-abc123...`
+);
+
+document.getElementById('resStatus').textContent='200 OK';
+document.getElementById('resStatus').style.color='#4caf50';
+
+const json={
+status:"success",
+city:city,
+temperature:data.temp,
+description:data.desc,
+humidity:data.humidity,
+wind_speed:data.wind,
+unit:"celsius",
+timestamp:new Date().toISOString()
+};
+
+document.getElementById('resBlock').innerHTML=syntaxHighlight(JSON.stringify(json,null,2));
+}
+
+function colorize(text){
+return text.split('\n').map(line=>{
+const [k,...v]=line.split(': ');
+if(v.length)return `<span style="color:#7ecfff">${k}</span>: <span style="color:#aaa">${v.join(': ')}</span>`;
+return `<span style="color:#4caf50">${line}</span>`;
+}).join('\n');
+}
+
+function syntaxHighlight(json){
+return json.replace(/("(\\u[\da-fA-F]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,m=>{
+let cls='json-num';
+if(/^"/.test(m)){cls=/:$/.test(m)?'json-key':'json-str'}
+else if(/true|false/.test(m))cls='json-bool';
+else if(/null/.test(m))cls='json-bool';
+return `<span class="${cls}">${m}</span>`;
+});
+}
+</script>
+</body>
+</html>

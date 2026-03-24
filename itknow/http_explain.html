@@ -1,29 +1,114 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>HTTP 동작 원리</title><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;min-height:100vh}.wrap{max-width:550px;margin:0 auto;padding:50px 16px 30px}.step{background:#1a1a2e;border-radius:12px;padding:16px;margin:10px 0;border:1px solid #2a2a4a;cursor:pointer;transition:all .2s}.step:hover{border-color:#7B68EE}.step h3{font-size:16px;margin-bottom:6px}.step p{color:#aaa;font-size:13px;line-height:1.6;display:none}.step.open p{display:block}.arrow{text-align:center;color:#7B68EE;font-size:20px;margin:4px 0}.codes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.code{background:#252545;padding:10px;border-radius:8px;font-size:13px}.code b{display:block;margin-bottom:3px}</style></head><body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center">← 뒤로</a>
-<div class="wrap"><h1 style="font-size:24px;text-align:center;margin-bottom:15px">🌐 HTTP 동작 원리</h1>
-<p style="color:#888;text-align:center;font-size:13px;margin-bottom:15px">각 단계를 클릭하면 상세 설명을 볼 수 있어요</p>
-<div class="step" onclick="this.classList.toggle('open')"><h3>1️⃣ URL 입력</h3><p>브라우저 주소창에 URL을 입력합니다.<br>예: https://www.example.com/page<br><br>URL 구조: <code style="color:#FFD700">프로토콜://도메인/경로</code></p></div>
-<div class="arrow">↓</div>
-<div class="step" onclick="this.classList.toggle('open')"><h3>2️⃣ DNS 조회</h3><p>도메인 이름(www.example.com)을 IP 주소(93.184.216.34)로 변환합니다.<br><br>브라우저 캐시 → OS 캐시 → DNS 서버 순서로 조회합니다.</p></div>
-<div class="arrow">↓</div>
-<div class="step" onclick="this.classList.toggle('open')"><h3>3️⃣ TCP 연결</h3><p>서버와 TCP 3-way 핸드셰이크로 연결을 수립합니다.<br><br>1. 클라이언트 → SYN<br>2. 서버 → SYN+ACK<br>3. 클라이언트 → ACK<br><br>HTTPS의 경우 TLS 핸드셰이크도 추가됩니다.</p></div>
-<div class="arrow">↓</div>
-<div class="step" onclick="this.classList.toggle('open')"><h3>4️⃣ HTTP 요청</h3><p>브라우저가 서버에 HTTP 요청을 보냅니다.<br><br><code style="color:#4CAF50">GET /page HTTP/1.1</code><br><code style="color:#aaa">Host: www.example.com</code><br><code style="color:#aaa">Accept: text/html</code><br><code style="color:#aaa">User-Agent: Chrome/...</code></p></div>
-<div class="arrow">↓</div>
-<div class="step" onclick="this.classList.toggle('open')"><h3>5️⃣ 서버 처리</h3><p>웹 서버가 요청을 처리합니다.<br><br>• 정적 파일 → 바로 반환<br>• 동적 페이지 → 서버 로직 실행 → DB 조회 → HTML 생성</p></div>
-<div class="arrow">↓</div>
-<div class="step" onclick="this.classList.toggle('open')"><h3>6️⃣ HTTP 응답</h3><p>서버가 결과를 클라이언트에게 반환합니다.<br><br><code style="color:#FFD700">HTTP/1.1 200 OK</code><br><code style="color:#aaa">Content-Type: text/html</code><br><code style="color:#aaa">Content-Length: 1234</code><br><br>&lt;html&gt;...페이지 내용...&lt;/html&gt;</p></div>
-<div class="arrow">↓</div>
-<div class="step" onclick="this.classList.toggle('open')"><h3>7️⃣ 브라우저 렌더링</h3><p>브라우저가 HTML을 파싱하여 화면에 표시합니다.<br><br>HTML 파싱 → DOM 트리 → CSS 파싱 → 렌더 트리 → 레이아웃 → 페인트</p></div>
-<h2 style="font-size:18px;margin:20px 0 10px;text-align:center">📊 주요 상태 코드</h2>
-<div class="codes">
-<div class="code"><b style="color:#4CAF50">200 OK</b>요청 성공</div>
-<div class="code"><b style="color:#FF9800">301 Moved</b>영구 이동</div>
-<div class="code"><b style="color:#FF9800">304 Not Modified</b>캐시 사용</div>
-<div class="code"><b style="color:#F44336">400 Bad Request</b>잘못된 요청</div>
-<div class="code"><b style="color:#F44336">403 Forbidden</b>접근 금지</div>
-<div class="code"><b style="color:#F44336">404 Not Found</b>페이지 없음</div>
-<div class="code"><b style="color:#F44336">500 Server Error</b>서버 오류</div>
-<div class="code"><b style="color:#F44336">503 Unavailable</b>서비스 불가</div>
-</div></div></body></html>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>HTTP 동작 원리</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center}
+.wrap{max-width:550px;width:100%;padding:60px 16px 40px}
+h1{text-align:center;font-size:22px;margin-bottom:6px;color:#7ecfff}
+.sub{text-align:center;color:#888;font-size:13px;margin-bottom:24px}
+.flow{position:relative;margin-bottom:24px}
+.flow-header{display:flex;justify-content:space-between;margin-bottom:16px}
+.flow-box{background:#1e293b;border:2px solid #7ecfff;border-radius:12px;padding:12px 20px;text-align:center;font-weight:bold;font-size:14px;color:#7ecfff;width:45%}
+.flow-arrow-mid{position:absolute;top:18px;left:50%;transform:translateX(-50%);color:#f59e0b;font-size:18px;text-align:center;line-height:1.2}
+.steps{margin-bottom:20px}
+.step{background:#1a1a2e;border-radius:12px;padding:14px 16px;margin-bottom:8px;border-left:4px solid #333;cursor:pointer;transition:all .3s;touch-action:manipulation}
+.step:active{transform:scale(0.98)}
+.step.active{border-left-color:#f59e0b;background:#1e1e35}
+.step-head{display:flex;align-items:center;gap:10px}
+.step-num{width:28px;height:28px;border-radius:50%;background:#2a2a4a;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;color:#7ecfff;flex-shrink:0;transition:background .3s}
+.step.active .step-num{background:#f59e0b;color:#000}
+.step-title{font-size:14px;font-weight:bold;color:#ccc}
+.step-detail{margin-top:10px;padding-top:10px;border-top:1px solid #2a2a4a;font-size:12px;color:#aaa;line-height:1.7;display:none}
+.step.active .step-detail{display:block}
+.section{margin-bottom:20px}
+.section h2{font-size:16px;color:#f59e0b;margin-bottom:12px}
+.status-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.status-card{background:#1a1a2e;border-radius:10px;padding:12px;border:1px solid #2a2a4a}
+.status-code{font-size:20px;font-weight:bold;margin-bottom:4px}
+.s2xx{color:#4caf50}.s3xx{color:#2196f3}.s4xx{color:#f59e0b}.s5xx{color:#f44336}
+.status-msg{font-size:11px;color:#888}
+.status-desc{font-size:12px;color:#aaa;margin-top:4px}
+.method-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.method-badge{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:bold;color:#fff}
+.m-get{background:#4caf50}.m-post{background:#f59e0b;color:#000}.m-put{background:#2196f3}.m-delete{background:#f44336}
+.explain{background:#1a1a2e;border-radius:12px;padding:16px;border:1px solid #2a2a4a}
+.explain h3{color:#f59e0b;font-size:14px;margin-bottom:8px}
+.explain p{color:#aaa;font-size:12px;line-height:1.7}
+.anim-arrow{display:inline-block;animation:bounce 1s infinite}
+@keyframes bounce{0%,100%{transform:translateX(0)}50%{transform:translateX(6px)}}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<div class="wrap">
+<h1>HTTP 동작 원리</h1>
+<p class="sub">웹 브라우저와 서버가 소통하는 과정을 단계별로 알아보세요</p>
+
+<div class="flow">
+<div class="flow-header">
+<div class="flow-box">클라이언트<br><span style="font-size:11px;color:#aaa">(브라우저)</span></div>
+<div class="flow-box">서버<br><span style="font-size:11px;color:#aaa">(웹 서버)</span></div>
+</div>
+<div class="flow-arrow-mid">요청 <span class="anim-arrow">→</span><br><span class="anim-arrow" style="animation-direction:reverse">←</span> 응답</div>
+</div>
+
+<div class="steps" id="steps"></div>
+
+<div class="section">
+<h2>HTTP 메서드</h2>
+<div class="method-row">
+<span class="method-badge m-get">GET</span>
+<span class="method-badge m-post">POST</span>
+<span class="method-badge m-put">PUT</span>
+<span class="method-badge m-delete">DELETE</span>
+</div>
+</div>
+
+<div class="section">
+<h2>주요 상태 코드</h2>
+<div class="status-grid" id="statusGrid"></div>
+</div>
+
+<div class="explain">
+<h3>HTTP란?</h3>
+<p>HyperText Transfer Protocol의 약자로, 웹에서 클라이언트와 서버가 데이터를 주고받는 규약입니다. 요청(Request)과 응답(Response) 구조로 이루어져 있으며, 무상태(Stateless) 프로토콜입니다.</p>
+</div>
+</div>
+<script>
+const stepsData=[
+{num:1,title:'URL 입력',detail:'사용자가 브라우저 주소창에 URL(예: https://example.com/page)을 입력합니다. URL은 프로토콜, 도메인, 경로, 쿼리 파라미터 등으로 구성됩니다.'},
+{num:2,title:'DNS 조회',detail:'브라우저는 도메인(example.com)을 IP 주소(예: 93.184.216.34)로 변환하기 위해 DNS 서버에 질의합니다. 캐시에 있으면 즉시 반환됩니다.'},
+{num:3,title:'TCP 연결 (3-way handshake)',detail:'클라이언트와 서버가 TCP 연결을 수립합니다. SYN → SYN-ACK → ACK 3단계를 거칩니다. HTTPS인 경우 TLS 핸드셰이크도 추가됩니다.'},
+{num:4,title:'HTTP 요청 전송',detail:'브라우저가 HTTP 요청을 보냅니다. 요청에는 메서드(GET/POST 등), 헤더(Host, User-Agent, Accept 등), 바디(POST일 때)가 포함됩니다.'},
+{num:5,title:'서버 처리',detail:'서버가 요청을 받아 처리합니다. 정적 파일을 찾거나, 데이터베이스를 조회하거나, 비즈니스 로직을 실행하여 응답을 생성합니다.'},
+{num:6,title:'HTTP 응답 반환',detail:'서버가 상태 코드(200, 404 등), 응답 헤더(Content-Type, Cache-Control 등), 응답 바디(HTML, JSON 등)를 포함한 응답을 보냅니다.'},
+{num:7,title:'브라우저 렌더링',detail:'브라우저가 HTML을 파싱하고, CSS를 적용하고, JavaScript를 실행하여 화면을 그립니다. 추가 리소스(이미지, JS, CSS)가 필요하면 새로운 HTTP 요청을 보냅니다.'}
+];
+const stepsEl=document.getElementById('steps');
+stepsData.forEach((s)=>{
+const d=document.createElement('div');d.className='step';
+d.innerHTML=`<div class="step-head"><div class="step-num">${s.num}</div><div class="step-title">${s.title}</div></div><div class="step-detail">${s.detail}</div>`;
+d.onclick=()=>{const wasActive=d.classList.contains('active');document.querySelectorAll('.step').forEach(el=>el.classList.remove('active'));if(!wasActive)d.classList.add('active')};
+stepsEl.appendChild(d);
+});
+
+const statuses=[
+{code:'200',cls:'s2xx',msg:'OK',desc:'요청 성공'},
+{code:'201',cls:'s2xx',msg:'Created',desc:'리소스 생성 성공'},
+{code:'301',cls:'s3xx',msg:'Moved',desc:'영구 리다이렉트'},
+{code:'304',cls:'s3xx',msg:'Not Modified',desc:'캐시 사용 가능'},
+{code:'400',cls:'s4xx',msg:'Bad Request',desc:'잘못된 요청'},
+{code:'404',cls:'s4xx',msg:'Not Found',desc:'리소스를 찾을 수 없음'},
+{code:'500',cls:'s5xx',msg:'Server Error',desc:'서버 내부 오류'},
+{code:'503',cls:'s5xx',msg:'Unavailable',desc:'서비스 일시 중단'}
+];
+const grid=document.getElementById('statusGrid');
+statuses.forEach(s=>{grid.innerHTML+=`<div class="status-card"><div class="status-code ${s.cls}">${s.code}</div><div class="status-msg">${s.msg}</div><div class="status-desc">${s.desc}</div></div>`});
+</script>
+</body>
+</html>

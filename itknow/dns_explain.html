@@ -1,14 +1,152 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>DNS 동작 원리</title><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;min-height:100vh}.wrap{max-width:550px;margin:0 auto;padding:50px 16px 30px}.step{background:#1a1a2e;border-radius:12px;padding:16px;margin:10px 0;border-left:4px solid #7B68EE}.step h3{font-size:15px;margin-bottom:6px}.step p{color:#aaa;font-size:13px;line-height:1.6}.arrow{text-align:center;color:#4FC3F7;font-size:18px;margin:4px 0}.box{background:#252545;border-radius:10px;padding:12px;margin:8px 0;text-align:center;font-size:14px}</style></head><body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center">← 뒤로</a>
-<div class="wrap"><h1 style="font-size:24px;text-align:center;margin-bottom:15px">🔍 DNS 동작 원리</h1>
-<div class="box">www.google.com 입력 → <span style="color:#FFD700">142.250.196.100</span> 반환</div>
-<div class="step"><h3>1. 브라우저 캐시 확인</h3><p>이전에 방문한 적 있으면 브라우저가 IP를 기억하고 있어요</p></div><div class="arrow">캐시에 없으면 ↓</div>
-<div class="step"><h3>2. OS 캐시 확인</h3><p>운영체제의 DNS 캐시와 hosts 파일을 확인합니다</p></div><div class="arrow">없으면 ↓</div>
-<div class="step" style="border-color:#FF9800"><h3>3. 로컬 DNS 서버 (ISP)</h3><p>인터넷 서비스 제공자(KT, SKT 등)의 DNS 서버에 질의합니다</p></div><div class="arrow">없으면 ↓</div>
-<div class="step" style="border-color:#F44336"><h3>4. 루트 DNS 서버</h3><p>전 세계 13개의 루트 서버 중 하나에 질의<br>"<span style="color:#FFD700">.com</span>은 어디서 관리하나요?"</p></div><div class="arrow">↓ ".com은 여기서 관리해요"</div>
-<div class="step" style="border-color:#4CAF50"><h3>5. TLD DNS 서버 (.com)</h3><p>.com 도메인을 관리하는 서버에 질의<br>"<span style="color:#FFD700">google.com</span>은 어디서 관리하나요?"</p></div><div class="arrow">↓ "google.com은 여기서 관리해요"</div>
-<div class="step" style="border-color:#2196F3"><h3>6. 권한 DNS 서버 (google)</h3><p>google.com을 실제로 관리하는 서버<br>"<span style="color:#FFD700">www.google.com</span>의 IP는 142.250.196.100입니다!"</p></div><div class="arrow">↓ IP 주소 반환!</div>
-<div class="box" style="border:2px solid #4CAF50">✅ 142.250.196.100 으로 접속!</div>
-<div class="step" style="margin-top:20px;border-color:#FFD700"><h3>💡 알아두면 좋은 것들</h3><p>• DNS 캐시 TTL: 보통 수 분~수 시간<br>• 공용 DNS: Google 8.8.8.8, Cloudflare 1.1.1.1<br>• DNS over HTTPS(DoH): 보안 강화된 DNS<br>• 전체 과정: 보통 수십 밀리초 이내</p></div>
-</div></body></html>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>DNS 동작 원리</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center}
+.wrap{max-width:550px;width:100%;padding:60px 16px 40px}
+h1{text-align:center;font-size:22px;margin-bottom:6px;color:#7ecfff}
+.sub{text-align:center;color:#888;font-size:13px;margin-bottom:20px}
+.url-bar{background:#1a1a2e;border-radius:12px;padding:14px 16px;margin-bottom:20px;display:flex;align-items:center;gap:10px;border:1px solid #2a2a4a}
+.url-bar .lock{color:#4caf50;font-size:14px;flex-shrink:0}
+.url-bar input{flex:1;background:transparent;border:none;color:#fff;font-size:14px;outline:none;min-width:0}
+.btn-go{background:#7ecfff;color:#000;border:none;border-radius:8px;padding:8px 16px;font-weight:bold;font-size:13px;cursor:pointer;touch-action:manipulation;min-height:40px;flex-shrink:0}
+.btn-go:active{transform:scale(0.95)}
+.info{text-align:center;font-size:13px;color:#888;margin-bottom:16px;min-height:18px}
+.flow-area{margin-bottom:20px}
+.dns-step{display:flex;align-items:flex-start;gap:12px;margin-bottom:4px;opacity:0.3;transition:all .5s;padding:10px 12px;border-radius:12px}
+.dns-step.active{opacity:1;background:#1a1a2e}
+.dns-step.done{opacity:0.7}
+.step-icon{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;border:2px solid #333;transition:border-color .3s,background .3s}
+.dns-step.active .step-icon{border-color:#f59e0b;background:#2a2000}
+.dns-step.done .step-icon{border-color:#4caf50;background:#1b2e1b}
+.step-content{flex:1}
+.step-title{font-size:13px;font-weight:bold;color:#ccc;margin-bottom:3px}
+.step-desc{font-size:11px;color:#888;line-height:1.5}
+.dns-step.active .step-title{color:#f59e0b}
+.dns-step.active .step-desc{color:#bbb}
+.arrow-down{text-align:center;color:#555;font-size:16px;margin:2px 0 2px 20px;transition:color .3s}
+.arrow-down.active{color:#f59e0b}
+.result-box{background:#1b3a1b;border:1px solid #4caf50;border-radius:12px;padding:14px;text-align:center;margin-bottom:20px;display:none}
+.result-box.show{display:block;animation:fadeIn .5s}
+.result-box .ip{font-size:20px;font-weight:bold;color:#4caf50;margin:4px 0}
+.result-box .time{font-size:12px;color:#888}
+.cache-section{background:#1a1a2e;border-radius:12px;padding:14px;margin-bottom:16px;border:1px solid #2a2a4a}
+.cache-section h3{font-size:13px;color:#7ecfff;margin-bottom:8px}
+.cache-item{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #222;font-size:12px;color:#aaa}
+.explain{background:#1a1a2e;border-radius:12px;padding:16px;border:1px solid #2a2a4a}
+.explain h3{color:#f59e0b;font-size:14px;margin-bottom:8px}
+.explain p{color:#aaa;font-size:12px;line-height:1.7}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<div class="wrap">
+<h1>DNS 동작 원리</h1>
+<p class="sub">도메인 이름이 IP 주소로 변환되는 과정을 시각적으로 확인하세요</p>
+
+<div class="url-bar">
+<span class="lock">https://</span>
+<input type="text" id="urlInput" placeholder="도메인 입력 (예: google.com)" value="google.com">
+<button class="btn-go" onclick="startLookup()">조회</button>
+</div>
+<div class="info" id="info">도메인을 입력하고 조회 버튼을 눌러보세요</div>
+
+<div class="flow-area" id="flowArea">
+<div class="dns-step" id="s0"><div class="step-icon">💻</div><div class="step-content"><div class="step-title">1. 브라우저 캐시 확인</div><div class="step-desc">브라우저가 이전에 방문한 도메인의 IP를 캐시에서 먼저 찾습니다.</div></div></div>
+<div class="arrow-down" id="a0">↓</div>
+<div class="dns-step" id="s1"><div class="step-icon">🖥️</div><div class="step-content"><div class="step-title">2. OS 캐시 / hosts 파일</div><div class="step-desc">운영체제의 DNS 캐시와 hosts 파일을 확인합니다.</div></div></div>
+<div class="arrow-down" id="a1">↓</div>
+<div class="dns-step" id="s2"><div class="step-icon">🏢</div><div class="step-content"><div class="step-title">3. Local DNS 서버 (ISP)</div><div class="step-desc">인터넷 제공업체(ISP)의 DNS 서버에 질의합니다.</div></div></div>
+<div class="arrow-down" id="a2">↓</div>
+<div class="dns-step" id="s3"><div class="step-icon">🌍</div><div class="step-content"><div class="step-title">4. Root DNS 서버</div><div class="step-desc">전 세계 13개 루트 서버 중 하나에 질의합니다. TLD 서버 주소를 알려줍니다.</div></div></div>
+<div class="arrow-down" id="a3">↓</div>
+<div class="dns-step" id="s4"><div class="step-icon">📂</div><div class="step-content"><div class="step-title">5. TLD DNS 서버</div><div class="step-desc">.com, .kr 등 최상위 도메인 서버가 권한 네임서버 주소를 반환합니다.</div></div></div>
+<div class="arrow-down" id="a4">↓</div>
+<div class="dns-step" id="s5"><div class="step-icon">🎯</div><div class="step-content"><div class="step-title">6. Authoritative DNS 서버</div><div class="step-desc">해당 도메인의 실제 DNS 레코드를 가진 서버가 최종 IP를 반환합니다.</div></div></div>
+<div class="arrow-down" id="a5">↓</div>
+<div class="dns-step" id="s6"><div class="step-icon">✅</div><div class="step-content"><div class="step-title">7. IP 주소 반환</div><div class="step-desc">IP 주소가 브라우저에 전달되고, HTTP 연결을 시작합니다.</div></div></div>
+</div>
+
+<div class="result-box" id="resultBox">
+<div style="font-size:12px;color:#aaa">조회 결과</div>
+<div class="ip" id="resultIP">-</div>
+<div class="time" id="resultTime">-</div>
+</div>
+
+<div class="cache-section">
+<h3>DNS 캐시</h3>
+<div id="cacheList"><div style="color:#555;font-size:12px">아직 캐시가 없습니다</div></div>
+</div>
+
+<div class="explain">
+<h3>DNS란?</h3>
+<p>Domain Name System은 사람이 읽을 수 있는 도메인 이름(google.com)을 컴퓨터가 이해하는 IP 주소(142.250.196.110)로 변환하는 시스템입니다. 인터넷의 전화번호부라고 할 수 있습니다. 한 번 조회된 결과는 TTL(Time To Live) 동안 캐시에 저장됩니다.</p>
+</div>
+</div>
+<script>
+const fakeIPs={'google.com':'142.250.196.110','naver.com':'223.130.195.200','github.com':'140.82.121.4','youtube.com':'142.250.80.78','kakao.com':'27.0.236.139','daum.net':'211.249.220.24','apple.com':'17.253.144.10','amazon.com':'54.239.28.85'};
+const dnsCache={};
+let running=false;
+
+function genIP(domain){
+if(fakeIPs[domain])return fakeIPs[domain];
+let h=0;for(let i=0;i<domain.length;i++)h=(h*31+domain.charCodeAt(i))&0x7fffffff;
+return `${(h%200)+20}.${(h>>8)%256}.${(h>>16)%256}.${(h>>24)%200+10}`;
+}
+
+function resetSteps(){
+for(let i=0;i<7;i++){document.getElementById('s'+i).className='dns-step';if(i<6)document.getElementById('a'+i).className='arrow-down'}
+document.getElementById('resultBox').className='result-box';
+}
+
+async function startLookup(){
+if(running)return;running=true;
+const domain=document.getElementById('urlInput').value.trim().replace(/^https?:\/\//,'').replace(/\/.*$/,'');
+if(!domain){document.getElementById('info').textContent='도메인을 입력해주세요';running=false;return}
+resetSteps();
+const ip=genIP(domain);const cached=!!dnsCache[domain];const t0=performance.now();
+document.getElementById('info').textContent=`"${domain}" 조회 중...`;
+if(cached){
+await animStep(0,300);
+document.getElementById('info').textContent=`캐시 히트! "${domain}" → ${ip}`;
+showResult(domain,ip,performance.now()-t0,true);
+}else{
+for(let i=0;i<7;i++)await animStep(i,400);
+dnsCache[domain]=ip;updateCache();
+showResult(domain,ip,performance.now()-t0,false);
+document.getElementById('info').textContent=`조회 완료: "${domain}" → ${ip}`;
+}
+running=false;
+}
+
+function animStep(i,ms){
+return new Promise(r=>{
+const s=document.getElementById('s'+i);s.className='dns-step active';
+if(i>0)document.getElementById('a'+(i-1)).className='arrow-down active';
+setTimeout(()=>{s.className='dns-step done';r()},ms);
+});
+}
+
+function showResult(domain,ip,ms,cached){
+const rb=document.getElementById('resultBox');
+document.getElementById('resultIP').textContent=`${domain} → ${ip}`;
+document.getElementById('resultTime').textContent=cached?`캐시에서 즉시 반환 (${ms.toFixed(0)}ms)`:`전체 조회 완료 (${ms.toFixed(0)}ms)`;
+rb.className='result-box show';
+}
+
+function updateCache(){
+const cl=document.getElementById('cacheList');const keys=Object.keys(dnsCache);
+if(!keys.length){cl.innerHTML='<div style="color:#555;font-size:12px">아직 캐시가 없습니다</div>';return}
+cl.innerHTML=keys.map(k=>`<div class="cache-item"><span>${k}</span><span style="color:#4caf50">${dnsCache[k]}</span></div>`).join('');
+}
+
+document.getElementById('urlInput').addEventListener('keydown',e=>{if(e.key==='Enter')startLookup()});
+</script>
+</body>
+</html>
