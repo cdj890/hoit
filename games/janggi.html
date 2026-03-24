@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>장기 - Korean Chess</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;display:flex;flex-direction:column;align-items:center;min-height:100vh;overflow-x:hidden;padding-top:50px}
+#startScreen,#gameOver{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,15,30,0.97);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;text-align:center;padding:20px}
+#startScreen h1{font-size:40px;margin-bottom:10px}
+#startScreen p{font-size:15px;color:#aaa;max-width:340px;line-height:1.6;margin-bottom:20px}
+.btn{background:linear-gradient(135deg,#e74c3c,#c0392b);color:#fff;border:none;padding:14px 40px;border-radius:12px;font-size:18px;font-weight:bold;cursor:pointer;touch-action:manipulation;min-width:44px;min-height:44px;margin:6px}
+.btn:active{transform:scale(0.95)}
+#gameOver{display:none}
+#gameOver h2{font-size:32px;margin-bottom:10px}
+#gameOver p{font-size:18px;color:#ccc;margin-bottom:20px}
+#info{display:flex;justify-content:space-between;width:100%;max-width:450px;padding:8px 4px;font-size:14px}
+#turn{padding:6px 14px;border-radius:8px;font-weight:bold}
+canvas{border-radius:8px;margin-top:4px;touch-action:none}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
+
+<div id="startScreen">
+<h1>🏯 장기</h1>
+<p>한국 전통 장기를 AI와 대전하세요!<br>한(빨강)으로 플레이합니다.<br>기물을 탭하여 선택, 이동할 곳을 탭하세요.</p>
+<button class="btn" onclick="startGame()">AI 대전 시작</button>
+</div>
+
+<div id="gameOver">
+<h2 id="resultText"></h2>
+<p id="resultSub"></p>
+<button class="btn" onclick="startGame()">다시 하기</button>
+</div>
+
+<div id="info" class="hidden">
+<span id="turn">내 차례 (한)</span>
+<span id="status"></span>
+</div>
+<canvas id="board" class="hidden"></canvas>
+
+<script>
+const canvas=document.getElementById('board'),ctx=canvas.getContext('2d');
+let W,H,SQ,board,selected,validMoves,turn,gameActive,wins,ox,oy;
+
+// Piece types: K=왕/楚, R=車, N=馬, E=象, A=士, C=包, P=卒/兵
+// Side: 'r'=red(한,player), 'b'=blue(초,AI)
+const NAMES_R={K:'왕',R:'車',N:'馬',E:'象',A:'士',C:'包',P:'卒'};
+const NAMES_B={K:'楚',R:'車',N:'馬',E:'象',A:'士',C:'包',P:'兵'};
+const VAL={K:10000,R:500,C:450,N:280,E:270,A:200,P:100};
+
+function initBoard(){
+  board=Array.from({length:10},()=>Array(9).fill(null));
+  // Blue (초) top - rows 0-4
+  board[0][0]={t:'R',s:'b'};board[0][1]={t:'E',s:'b'};board[0][2]={t:'N',s:'b'};
+  board[0][3]={t:'A',s:'b'};board[0][5]={t:'A',s:'b'};
+  board[0][6]={t:'E',s:'b'};board[0][7]={t:'N',s:'b'};board[0][8]={t:'R',s:'b'};
+  board[1][4]={t:'K',s:'b'};
+  board[2][1]={t:'C',s:'b'};board[2][7]={t:'C',s:'b'};
+  board[3][0]={t:'P',s:'b'};board[3][2]={t:'P',s:'b'};board[3][4]={t:'P',s:'b'};board[3][6]={t:'P',s:'b'};board[3][8]={t:'P',s:'b'};
+  // Red (한) bottom - rows 5-9
+  board[6][0]={t:'P',s:'r'};board[6][2]={t:'P',s:'r'};board[6][4]={t:'P',s:'r'};board[6][6]={t:'P',s:'r'};board[6][8]={t:'P',s:'r'};
+  board[7][1]={t:'C',s:'r'};board[7][7]={t:'C',s:'r'};
+  board[8][4]={t:'K',s:'r'};
+  board[9][0]={t:'R',s:'r'};board[9][1]={t:'N',s:'r'};board[9][2]={t:'E',s:'r'};
+  board[9][3]={t:'A',s:'r'};board[9][5]={t:'A',s:'r'};
+  board[9][6]={t:'N',s:'r'};board[9][7]={t:'E',s:'r'};board[9][8]={t:'R',s:'r'};
+}
+
+function inBounds(r,c){return r>=0&&r<10&&c>=0&&c<9}
+function inPalace(r,c,side){
+  if(c<3||c>5)return false;
+  if(side==='r')return r>=7&&r<=9;
+  return r>=0&&r<=2;
+}
+function inAnyPalace(r,c){return inPalace(r,c,'r')||inPalace(r,c,'b')}
+
+function countBetween(r1,c1,r2,c2,bd){
+  let cnt=0;
+  if(r1===r2){const mn=Math.min(c1,c2),mx=Math.max(c1,c2);for(let c=mn+1;c<mx;c++)if(bd[r1][c])cnt++;}
+  else if(c1===c2){const mn=Math.min(r1,r2),mx=Math.max(r1,r2);for(let r=mn+1;r<mx;r++)if(bd[r][c1])cnt++;}
+  return cnt;
+}
+
+function getRawMoves(r,c,bd){
+  const p=bd[r][c];if(!p)return[];
+  const moves=[];const s=p.s;const t=p.t;
+  if(t==='K'){
+    // King moves in palace
+    const pr=s==='r'?7:0;
+    for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){
+      if(!dr&&!dc)continue;
+      const nr=r+dr,nc=c+dc;
+      if(!inPalace(nr,nc,s))continue;
+      // Diagonal only on palace diagonals
+      if(dr!==0&&dc!==0){
+        const palCr=s==='r'?8:1,palCc=4;
+        if(!((r===palCr&&c===palCc)||(nr===palCr&&nc===palCc)))continue;
+      }
+      if(bd[nr][nc]&&bd[nr][nc].s===s)continue;
+      moves.push([nr,nc]);
+    }
+  }else if(t==='A'){
+    // Advisor in palace
+    const pr=s==='r'?7:0;
+    for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){
+      if(!dr&&!dc)continue;
+      const nr=r+dr,nc=c+dc;
+      if(!inPalace(nr,nc,s))continue;
+      if(dr!==0&&dc!==0){
+        const palCr=s==='r'?8:1,palCc=4;
+        if(!((r===palCr&&c===palCc)||(nr===palCr&&nc===palCc)))continue;
+      }
+      if(bd[nr][nc]&&bd[nr][nc].s===s)continue;
+      moves.push([nr,nc]);
+    }
+  }else if(t==='R'){
+    // Rook: orthogonal + palace diagonals
+    for(const[dr,dc]of[[0,1],[0,-1],[1,0],[-1,0]]){
+      let nr=r+dr,nc=c+dc;
+      while(inBounds(nr,nc)){
+        if(bd[nr][nc]){
+          if(bd[nr][nc].s!==s)moves.push([nr,nc]);
+          break;
+        }
+        moves.push([nr,nc]);nr+=dr;nc+=dc;
+      }
+    }
+    // Palace diagonal movement
+    if(inAnyPalace(r,c)){
+      const palCr=(r<=2)?1:8,palCc=4;
+      if(r===palCr&&c===palCc){
+        for(const[dr,dc]of[[-1,-1],[-1,1],[1,-1],[1,1]]){
+          const nr=r+dr,nc=c+dc;
+          if(inAnyPalace(nr,nc)){
+            if(!bd[nr][nc]||bd[nr][nc].s!==s)moves.push([nr,nc]);
+          }
+        }
+      }else if((r===0||r===2||r===7||r===9)&&(c===3||c===5)){
+        if(!bd[palCr][palCc]||bd[palCr][palCc].s!==s)moves.push([palCr,palCc]);
+      }
+    }
+  }else if(t==='C'){
+    // Cannon: jumps exactly one piece, cannot jump/capture another cannon
+    for(const[dr,dc]of[[0,1],[0,-1],[1,0],[-1,0]]){
+      let nr=r+dr,nc=c+dc;let jumped=false;let jumpPiece=null;
+      while(inBounds(nr,nc)){
+        if(!jumped){
+          if(bd[nr][nc]){
+            if(bd[nr][nc].t==='C'){break;}
+            jumped=true;jumpPiece=bd[nr][nc];
+          }
+        }else{
+          if(bd[nr][nc]){
+            if(bd[nr][nc].t!=='C'&&bd[nr][nc].s!==s)moves.push([nr,nc]);
+            break;
+          }
+          moves.push([nr,nc]);
+        }
+        nr+=dr;nc+=dc;
+      }
+    }
+  }else if(t==='N'){
+    // Horse: one step ortho, then one step diagonal (can be blocked)
+    for(const[dr,dc,dr2,dc2]of[[-1,0,-2,-1],[-1,0,-2,1],[1,0,2,-1],[1,0,2,1],[0,-1,-1,-2],[0,-1,1,-2],[0,1,-1,2],[0,1,1,2]]){
+      const mr=r+dr,mc=c+dc;
+      if(!inBounds(mr,mc)||bd[mr][mc])continue;
+      const nr=r+dr2,nc=c+dc2;
+      if(!inBounds(nr,nc))continue;
+      if(bd[nr][nc]&&bd[nr][nc].s===s)continue;
+      moves.push([nr,nc]);
+    }
+  }else if(t==='E'){
+    // Elephant: one step ortho, then two steps diagonal (can be blocked at each step)
+    for(const[dr,dc,mr2,mc2,dr2,dc2]of[
+      [-1,0,-2,-1,-3,-2],[-1,0,-2,1,-3,2],
+      [1,0,2,-1,3,-2],[1,0,2,1,3,2],
+      [0,-1,-1,-2,-2,-3],[0,-1,1,-2,2,-3],
+      [0,1,-1,2,-2,3],[0,1,1,2,2,3]
+    ]){
+      const m1r=r+dr,m1c=c+dc;
+      if(!inBounds(m1r,m1c)||bd[m1r][m1c])continue;
+      const m2r=r+mr2,m2c=c+mc2;
+      if(!inBounds(m2r,m2c)||bd[m2r][m2c])continue;
+      const nr=r+dr2,nc=c+dc2;
+      if(!inBounds(nr,nc))continue;
+      if(bd[nr][nc]&&bd[nr][nc].s===s)continue;
+      moves.push([nr,nc]);
+    }
+  }else if(t==='P'){
+    // Soldier: forward and sideways
+    const fwd=s==='r'?-1:1;
+    for(const[dr,dc]of[[fwd,0],[0,-1],[0,1]]){
+      const nr=r+dr,nc=c+dc;
+      if(!inBounds(nr,nc))continue;
+      if(bd[nr][nc]&&bd[nr][nc].s===s)continue;
+      moves.push([nr,nc]);
+    }
+    // Palace diagonal for soldiers
+    if(inAnyPalace(r,c)){
+      const palCr=(r<=2)?1:8,palCc=4;
+      if(r===palCr&&c===palCc){
+        for(const[dr,dc]of[[fwd,-1],[fwd,1]]){
+          const nr=r+dr,nc=c+dc;
+          if(inAnyPalace(nr,nc)&&(!bd[nr][nc]||bd[nr][nc].s!==s))moves.push([nr,nc]);
+        }
+      }
+    }
+  }
+  return moves;
+}
+
+function findKing(bd,side){
+  for(let r=0;r<10;r++)for(let c=0;c<9;c++)if(bd[r][c]&&bd[r][c].t==='K'&&bd[r][c].s===side)return[r,c];
+  return null;
+}
+
+function isAttacked(r,c,bySide,bd){
+  for(let i=0;i<10;i++)for(let j=0;j<9;j++){
+    if(bd[i][j]&&bd[i][j].s===bySide){
+      const mvs=getRawMoves(i,j,bd);
+      for(const m of mvs)if(m[0]===r&&m[1]===c)return true;
+    }
+  }
+  return false;
+}
+
+function inCheck(bd,side){
+  const kp=findKing(bd,side);
+  if(!kp)return true;
+  const enemy=side==='r'?'b':'r';
+  return isAttacked(kp[0],kp[1],enemy,bd);
+}
+
+function cloneBoard(bd){return bd.map(r=>r.map(c=>c?{...c}:null))}
+
+function getLegalMoves(r,c,bd){
+  const p=bd[r][c];if(!p)return[];
+  const raw=getRawMoves(r,c,bd);
+  const legal=[];
+  for(const m of raw){
+    const nb=cloneBoard(bd);
+    nb[m[0]][m[1]]=nb[r][c];nb[r][c]=null;
+    if(!inCheck(nb,p.s))legal.push(m);
+  }
+  return legal;
+}
+
+function getAllMoves(bd,side){
+  const moves=[];
+  for(let i=0;i<10;i++)for(let j=0;j<9;j++){
+    if(bd[i][j]&&bd[i][j].s===side){
+      const lm=getLegalMoves(i,j,bd);
+      for(const m of lm)moves.push({fr:i,fc:j,tr:m[0],tc:m[1]});
+    }
+  }
+  return moves;
+}
+
+function evaluate(bd){
+  let score=0;
+  for(let r=0;r<10;r++)for(let c=0;c<9;c++){
+    const p=bd[r][c];if(!p)continue;
+    const v=VAL[p.t]||0;
+    score+=p.s==='r'?v:-v;
+  }
+  return score;
+}
+
+function aiMove(){
+  if(!gameActive||turn!=='b')return;
+  const moves=getAllMoves(board,'b');
+  if(moves.length===0){endGame('r');return;}
+  // Simple: evaluate each move 1-ply
+  let bestScore=Infinity,bestMoves=[];
+  for(const m of moves){
+    const nb=cloneBoard(board);
+    nb[m.tr][m.tc]=nb[m.fr][m.fc];nb[m.fr][m.fc]=null;
+    const sc=evaluate(nb);
+    if(sc<bestScore){bestScore=sc;bestMoves=[m];}
+    else if(sc===bestScore)bestMoves.push(m);
+  }
+  const mv=bestMoves[Math.floor(Math.random()*bestMoves.length)];
+  board[mv.tr][mv.tc]=board[mv.fr][mv.fc];board[mv.fr][mv.fc]=null;
+  turn='r';selected=null;validMoves=[];
+  draw();updateUI();
+  const rm=getAllMoves(board,'r');
+  if(rm.length===0){endGame(inCheck(board,'r')?'b':'draw');}
+  else if(inCheck(board,'r'))document.getElementById('turn').textContent='⚠ 장군! 내 차례';
+}
+
+function executeMove(fr,fc,tr,tc){
+  board[tr][tc]=board[fr][fc];board[fr][fc]=null;
+  turn='b';selected=null;validMoves=[];
+  draw();updateUI();
+  const bm=getAllMoves(board,'b');
+  if(bm.length===0){endGame(inCheck(board,'b')?'r':'draw');return;}
+  setTimeout(aiMove,300);
+}
+
+function endGame(result){
+  gameActive=false;
+  const go=document.getElementById('gameOver');
+  const rt=document.getElementById('resultText');
+  const rs=document.getElementById('resultSub');
+  if(result==='r'){rt.textContent='🎉 승리!';rs.textContent='축하합니다!';wins++;_hub('janggi',wins);}
+  else if(result==='b'){rt.textContent='😢 패배';rs.textContent='다시 도전하세요!';}
+  else{rt.textContent='🤝 무승부';rs.textContent='';}
+  go.style.display='flex';
+}
+
+function updateUI(){
+  document.getElementById('turn').textContent=turn==='r'?'🔴 내 차례 (한)':'🔵 AI 차례 (초)';
+  document.getElementById('turn').style.background=turn==='r'?'rgba(200,50,50,0.3)':'rgba(50,100,200,0.3)';
+}
+
+function resize(){
+  const maxW=Math.min(window.innerWidth-20,450);
+  SQ=Math.floor(maxW/10);
+  ox=SQ;oy=SQ/2;
+  W=SQ*10;H=SQ*11;
+  canvas.width=W;canvas.height=H;
+  canvas.style.width=W+'px';canvas.style.height=H+'px';
+  draw();
+}
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  // Board background
+  ctx.fillStyle='#d4a843';
+  ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#c49a38';
+  ctx.fillRect(ox-SQ/2,oy-SQ/2,SQ*9,SQ*10);
+  // Grid lines
+  ctx.strokeStyle='#6b4c1e';ctx.lineWidth=1.5;
+  for(let r=0;r<10;r++){
+    ctx.beginPath();ctx.moveTo(ox,oy+r*SQ);ctx.lineTo(ox+8*SQ,oy+r*SQ);ctx.stroke();
+  }
+  for(let c=0;c<9;c++){
+    ctx.beginPath();ctx.moveTo(ox+c*SQ,oy);ctx.lineTo(ox+c*SQ,oy+9*SQ);ctx.stroke();
+  }
+  // River
+  ctx.fillStyle='rgba(100,150,200,0.15)';
+  ctx.fillRect(ox-SQ/2,oy+4*SQ,SQ*9,SQ);
+  ctx.fillStyle='#6b4c1e';ctx.font='bold '+(SQ*0.4)+'px serif';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('한     강',ox+4*SQ,oy+4.5*SQ);
+  // Palace X lines
+  ctx.strokeStyle='#6b4c1e';ctx.lineWidth=1;
+  // Top palace
+  ctx.beginPath();ctx.moveTo(ox+3*SQ,oy);ctx.lineTo(ox+5*SQ,oy+2*SQ);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(ox+5*SQ,oy);ctx.lineTo(ox+3*SQ,oy+2*SQ);ctx.stroke();
+  // Bottom palace
+  ctx.beginPath();ctx.moveTo(ox+3*SQ,oy+7*SQ);ctx.lineTo(ox+5*SQ,oy+9*SQ);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(ox+5*SQ,oy+7*SQ);ctx.lineTo(ox+3*SQ,oy+9*SQ);ctx.stroke();
+  // Highlights
+  if(selected){
+    ctx.fillStyle='rgba(255,255,0,0.4)';
+    ctx.beginPath();ctx.arc(ox+selected[1]*SQ,oy+selected[0]*SQ,SQ*0.42,0,Math.PI*2);ctx.fill();
+    for(const m of validMoves){
+      ctx.fillStyle=board[m[0]][m[1]]?'rgba(255,80,80,0.4)':'rgba(100,255,100,0.35)';
+      ctx.beginPath();ctx.arc(ox+m[1]*SQ,oy+m[0]*SQ,SQ*0.2,0,Math.PI*2);ctx.fill();
+    }
+  }
+  // Pieces
+  const ps=SQ*0.4;
+  for(let r=0;r<10;r++)for(let c=0;c<9;c++){
+    const p=board[r][c];if(!p)continue;
+    const x=ox+c*SQ,y=oy+r*SQ;
+    // Circle
+    ctx.beginPath();ctx.arc(x,y,SQ*0.38,0,Math.PI*2);
+    ctx.fillStyle=p.s==='r'?'#f5e6c8':'#f5e6c8';ctx.fill();
+    ctx.strokeStyle=p.s==='r'?'#c0392b':'#2980b9';ctx.lineWidth=2.5;ctx.stroke();
+    // Text
+    const name=p.s==='r'?NAMES_R[p.t]:NAMES_B[p.t];
+    ctx.fillStyle=p.s==='r'?'#c0392b':'#2980b9';
+    ctx.font='bold '+ps+'px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(name,x,y+1);
+  }
+}
+
+function handleClick(x,y){
+  if(!gameActive||turn!=='r')return;
+  // Find nearest intersection
+  let minD=SQ*0.5,br=-1,bc=-1;
+  for(let r=0;r<10;r++)for(let c=0;c<9;c++){
+    const dx=x-(ox+c*SQ),dy=y-(oy+r*SQ);
+    const d=Math.sqrt(dx*dx+dy*dy);
+    if(d<minD){minD=d;br=r;bc=c;}
+  }
+  if(br<0)return;
+  if(selected){
+    const mv=validMoves.find(m=>m[0]===br&&m[1]===bc);
+    if(mv){executeMove(selected[0],selected[1],br,bc);return;}
+  }
+  if(board[br][bc]&&board[br][bc].s==='r'){
+    selected=[br,bc];
+    validMoves=getLegalMoves(br,bc,board);
+    draw();
+  }else{selected=null;validMoves=[];draw();}
+}
+
+canvas.addEventListener('click',e=>{const rect=canvas.getBoundingClientRect();handleClick(e.clientX-rect.left,e.clientY-rect.top);});
+canvas.addEventListener('touchstart',e=>{e.preventDefault();const t=e.touches[0];const rect=canvas.getBoundingClientRect();handleClick(t.clientX-rect.left,t.clientY-rect.top);},{passive:false});
+
+function startGame(){
+  document.getElementById('startScreen').style.display='none';
+  document.getElementById('gameOver').style.display='none';
+  document.querySelectorAll('.hidden').forEach(e=>e.classList.remove('hidden'));
+  initBoard();selected=null;validMoves=[];turn='r';gameActive=true;
+  wins=parseInt(localStorage.getItem('janggi_wins')||'0');
+  resize();updateUI();
+}
+
+window.addEventListener('resize',resize);
+</script>
+</body>
+</html>

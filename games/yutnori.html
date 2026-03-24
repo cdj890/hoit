@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>윷놀이 - Yut Nori</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;display:flex;flex-direction:column;align-items:center;min-height:100vh;overflow-x:hidden;padding-top:50px}
+#startScreen,#gameOver{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,15,30,0.97);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;text-align:center;padding:20px}
+#startScreen h1{font-size:40px;margin-bottom:10px}
+#startScreen p{font-size:15px;color:#aaa;max-width:340px;line-height:1.6;margin-bottom:20px}
+.btn{background:linear-gradient(135deg,#f39c12,#e67e22);color:#fff;border:none;padding:14px 40px;border-radius:12px;font-size:18px;font-weight:bold;cursor:pointer;touch-action:manipulation;min-width:44px;min-height:44px;margin:6px}
+.btn:active{transform:scale(0.95)}
+.btn-small{padding:10px 20px;font-size:14px;border-radius:8px}
+#gameOver{display:none}
+#gameOver h2{font-size:32px;margin-bottom:10px}
+#gameOver p{font-size:18px;color:#ccc;margin-bottom:20px}
+#info{display:flex;justify-content:space-between;width:100%;max-width:450px;padding:8px 4px;font-size:14px;flex-wrap:wrap;gap:4px}
+#turn{padding:6px 14px;border-radius:8px;font-weight:bold}
+#yutResult{font-size:20px;font-weight:bold;color:#f1c40f;padding:4px 12px;min-height:30px}
+canvas{border-radius:8px;margin-top:4px;touch-action:none}
+#controls{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;justify-content:center}
+#horseInfo{width:100%;max-width:450px;margin-top:8px;display:flex;justify-content:space-around;font-size:13px}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
+
+<div id="startScreen">
+<h1>🎲 윷놀이</h1>
+<p>전통 윷놀이를 AI와 대전하세요!<br>윷을 던져서 말 4개를 먼저 골인시키면 승리!<br>윷이나 모가 나오면 한 번 더 던져요.<br>상대 말을 잡으면 시작점으로 돌려보냅니다.</p>
+<button class="btn" onclick="startGame()">AI 대전 시작</button>
+</div>
+
+<div id="gameOver">
+<h2 id="resultText"></h2>
+<p id="resultSub"></p>
+<button class="btn" onclick="startGame()">다시 하기</button>
+</div>
+
+<div id="info" class="hidden">
+<span id="turn">내 차례</span>
+<span id="yutResult"></span>
+</div>
+<canvas id="board" class="hidden"></canvas>
+<div id="controls" class="hidden">
+<button class="btn" id="throwBtn" onclick="throwYut()">윷 던지기</button>
+</div>
+<div id="horseInfo" class="hidden">
+<div id="p1info" style="color:#e74c3c">내 말: 0/4 골인</div>
+<div id="p2info" style="color:#3498db">AI 말: 0/4 골인</div>
+</div>
+
+<script>
+const canvas=document.getElementById('board'),ctx=canvas.getContext('2d');
+let BW,gameActive,turn,wins,phase,yutVal,players,selectedHorse;
+
+// Board positions: 29 spots
+// Outer path: 0-19 (0=start/end corner bottom-right, going counterclockwise)
+// 0=BR, 5=TR, 10=TL, 15=BL, 20=center
+// Shortcut from 5: 21,22,20,23,24 -> 15 (via center)
+// Shortcut from 10: 25,26,20,23,24 -> 15 (but actually different)
+// Let me define proper path
+
+// Positions on the board (x,y fractions of board)
+const NODES=[
+  // Outer ring: 0=start(bottom-right) going counterclockwise
+  {x:0.85,y:0.85}, // 0 - start/bottom-right corner
+  {x:0.85,y:0.68}, // 1
+  {x:0.85,y:0.51}, // 2
+  {x:0.85,y:0.34}, // 3
+  {x:0.85,y:0.17}, // 4
+  {x:0.85,y:0.02}, // 5 - top-right corner
+  {x:0.68,y:0.02}, // 6
+  {x:0.51,y:0.02}, // 7
+  {x:0.34,y:0.02}, // 8
+  {x:0.17,y:0.02}, // 9
+  {x:0.02,y:0.02}, // 10 - top-left corner
+  {x:0.02,y:0.17}, // 11
+  {x:0.02,y:0.34}, // 12
+  {x:0.02,y:0.51}, // 13
+  {x:0.02,y:0.68}, // 14
+  {x:0.02,y:0.85}, // 15 - bottom-left corner
+  {x:0.17,y:0.85}, // 16
+  {x:0.34,y:0.85}, // 17
+  {x:0.51,y:0.85}, // 18
+  {x:0.68,y:0.85}, // 19
+  // 20 - center
+  {x:0.435,y:0.435},
+  // Diagonal from top-right(5) to center: 21,22
+  {x:0.72,y:0.15}, // 21
+  {x:0.58,y:0.29}, // 22
+  // Diagonal from center to bottom-left(15): 23,24
+  {x:0.29,y:0.58}, // 23
+  {x:0.15,y:0.72}, // 24
+  // Diagonal from top-left(10) to center: 25,26
+  {x:0.15,y:0.15}, // 25
+  {x:0.29,y:0.29}, // 26
+  // Diagonal from center to bottom-right(0): 27,28
+  {x:0.58,y:0.58}, // 27
+  {x:0.72,y:0.72}, // 28
+];
+
+// Standard path (outer ring)
+const OUTER=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19];
+// When landing on 5: take shortcut 5->21->22->20->23->24->15->16...
+// When landing on 10: take shortcut 10->25->26->20->27->28->0(finish)
+// When on center(20) from top-right path: 20->23->24->15->16...
+// When on center(20) from top-left path: 20->27->28->0(finish)
+
+// Path definitions: from each node, what's the next node on standard path
+// -1 means finish (past node 0 = home)
+function getPath(startNode, steps) {
+  // Determine which path the horse is on
+  // Return destination node or -1 for finish
+  let path;
+  if(startNode===-1) { // at base
+    path = [-1, ...OUTER]; // -1,0,1,...,19,finish
+    // Find node after 'steps' moves from base
+    if(steps > 20) return {node:-2}; // finish
+    return {node:OUTER[steps-1], shortcutEntry: OUTER[steps-1]===5||OUTER[steps-1]===10 ? OUTER[steps-1] : -1};
+  }
+  return null; // complex, use route system
+}
+
+// Better approach: each horse has a route (sequence of nodes to follow)
+function getStandardRoute(){
+  return [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]; // 20 spots, after 19 = home
+}
+function getRoute5(){
+  return [0,1,2,3,4,5,21,22,20,23,24,15,16,17,18,19]; // shortcut from corner 5
+}
+function getRoute10(){
+  return [0,1,2,3,4,5,6,7,8,9,10,25,26,20,27,28]; // shortcut from corner 10
+}
+function getRoute5_10(){
+  // If on route through 5 and land on center, this shouldn't happen, center leads to 15
+  return getRoute5();
+}
+
+const YUTNAMES=['도','개','걸','윷','모','빽도'];
+
+function throwYut(){
+  if(!gameActive||phase!=='throw'||turn!==0)return;
+  // Random yut: simulate 4 sticks
+  // Each stick: flat(0) or round(1), P(round)~0.4
+  let rounds=0;
+  for(let i=0;i<4;i++)if(Math.random()<0.4)rounds++;
+  let val;
+  if(rounds===0)val=5; // 모 (all flat)
+  else if(rounds===1)val=1; // 도
+  else if(rounds===2)val=2; // 개
+  else if(rounds===3)val=3; // 걸
+  else val=4; // 윷
+  // Small chance of 빽도 (backdoe = -1)
+  if(val===1&&Math.random()<0.15)val=-1;
+
+  yutVal=val;
+  const name=val===-1?'빽도':YUTNAMES[val===5?4:val-1];
+  document.getElementById('yutResult').textContent=name+'! ('+( val===-1?'-1':val)+' 칸)';
+
+  phase='move';
+  // Check if player has any valid moves
+  const movable=getMovableHorses(0);
+  if(movable.length===0){
+    phase='throw';
+    turn=1;
+    updateUI();
+    setTimeout(aiTurn,500);
+    return;
+  }
+  document.getElementById('throwBtn').textContent='말을 선택하세요';
+  draw();
+}
+
+function getMovableHorses(player){
+  const p=players[player];
+  const movable=[];
+  for(let i=0;i<4;i++){
+    if(p.horses[i].done)continue;
+    if(p.horses[i].pos===-1&&yutVal===-1)continue; // can't backdoe from base
+    movable.push(i);
+  }
+  return movable;
+}
+
+function moveHorse(player,horseIdx){
+  const horse=players[player].horses[horseIdx];
+  const steps=yutVal;
+
+  if(horse.pos===-1){
+    // Enter from base
+    if(steps<=0)return false;
+    let route=getStandardRoute();
+    horse.route=[...route];
+    horse.routeIdx=steps-1;
+    if(horse.routeIdx>=route.length){horse.done=true;horse.pos=-2;checkWin(player);return true;}
+    horse.pos=route[horse.routeIdx];
+    // Check for shortcut
+    if(horse.pos===5){horse.route=getRoute5();horse.routeIdx=5;}
+    if(horse.pos===10){horse.route=getRoute10();horse.routeIdx=10;}
+  }else{
+    // Already on board
+    if(steps===-1){
+      // Backdoe: go back one
+      if(horse.routeIdx<=0){horse.pos=-1;horse.routeIdx=-1;return true;}
+      horse.routeIdx--;
+      horse.pos=horse.route[horse.routeIdx];
+    }else{
+      let newIdx=horse.routeIdx+steps;
+      if(newIdx>=horse.route.length){horse.done=true;horse.pos=-2;checkWin(player);return true;}
+      horse.pos=horse.route[newIdx];
+      horse.routeIdx=newIdx;
+      // Check shortcuts
+      if(horse.pos===5&&horse.route===getStandardRoute||!horse.route.includes(21)){
+        // Check if we just landed on 5 and aren't already on shortcut
+        const stdRoute=getStandardRoute();
+        if(JSON.stringify(horse.route)===JSON.stringify(stdRoute)){
+          horse.route=getRoute5();
+          horse.routeIdx=5;
+        }
+      }
+      if(horse.pos===10){
+        const r5=getRoute5();
+        if(JSON.stringify(horse.route)!==JSON.stringify(getRoute10())){
+          if(JSON.stringify(horse.route)===JSON.stringify(getStandardRoute())){
+            horse.route=getRoute10();
+            horse.routeIdx=10;
+          }
+        }
+      }
+    }
+  }
+
+  // Capture check
+  if(horse.pos>=0){
+    const enemy=1-player;
+    for(let i=0;i<4;i++){
+      if(!players[enemy].horses[i].done&&players[enemy].horses[i].pos===horse.pos){
+        players[enemy].horses[i].pos=-1;
+        players[enemy].horses[i].routeIdx=-1;
+        players[enemy].horses[i].route=getStandardRoute();
+      }
+    }
+  }
+  return true;
+}
+
+function checkWin(player){
+  const allDone=players[player].horses.every(h=>h.done);
+  if(allDone){
+    gameActive=false;
+    setTimeout(()=>{
+      const go=document.getElementById('gameOver');
+      const rt=document.getElementById('resultText');
+      const rs=document.getElementById('resultSub');
+      if(player===0){rt.textContent='🎉 승리!';rs.textContent='모든 말을 골인시켰습니다!';wins++;_hub('yutnori',wins);}
+      else{rt.textContent='😢 패배';rs.textContent='AI가 먼저 골인했습니다.';}
+      go.style.display='flex';
+    },300);
+  }
+}
+
+function handleClick(x,y){
+  if(!gameActive||turn!==0||phase!=='move')return;
+  // Check if clicked near a horse
+  const movable=getMovableHorses(0);
+  // Check horses on board
+  let clicked=-1;
+  for(const hi of movable){
+    const h=players[0].horses[hi];
+    let hx,hy;
+    if(h.pos===-1){
+      // Base position
+      hx=BW*0.7+hi*BW*0.07;hy=BW*0.95;
+    }else if(h.pos>=0){
+      const n=NODES[h.pos];
+      hx=(n.x*0.8+0.1)*BW;hy=(n.y*0.8+0.1)*BW;
+    }else continue;
+    const dx=x-hx,dy=y-hy;
+    if(dx*dx+dy*dy<(BW*0.05)*(BW*0.05)){clicked=hi;break;}
+  }
+  // Also check base area click for horses at base
+  if(clicked===-1){
+    for(const hi of movable){
+      if(players[0].horses[hi].pos===-1){
+        clicked=hi;break;
+      }
+    }
+  }
+  if(clicked>=0){
+    moveHorse(0,clicked);
+    const extraTurn=(yutVal===4||yutVal===5);
+    draw();updateUI();
+    if(!gameActive)return;
+    if(extraTurn){
+      phase='throw';yutVal=0;
+      document.getElementById('throwBtn').textContent='윷 던지기 (한 번 더!)';
+      document.getElementById('yutResult').textContent='윷/모! 한 번 더!';
+    }else{
+      phase='throw';yutVal=0;turn=1;
+      updateUI();
+      setTimeout(aiTurn,500);
+    }
+  }
+}
+
+function aiTurn(){
+  if(!gameActive||turn!==1)return;
+  // AI throw
+  let rounds=0;
+  for(let i=0;i<4;i++)if(Math.random()<0.4)rounds++;
+  let val;
+  if(rounds===0)val=5;
+  else if(rounds===1)val=1;
+  else if(rounds===2)val=2;
+  else if(rounds===3)val=3;
+  else val=4;
+  if(val===1&&Math.random()<0.15)val=-1;
+
+  yutVal=val;
+  const name=val===-1?'빽도':YUTNAMES[val===5?4:val-1];
+  document.getElementById('yutResult').textContent='AI: '+name+'! ('+( val===-1?'-1':val)+' 칸)';
+
+  const movable=getMovableHorses(1);
+  if(movable.length>0){
+    // AI picks: prefer horse closest to finish, or one that can capture
+    let bestH=movable[0];
+    let bestScore=-999;
+    for(const hi of movable){
+      const h=players[1].horses[hi];
+      let score=h.routeIdx>=0?h.routeIdx:0;
+      // Simulate move to check capture
+      const testPos=simulateMove(1,hi);
+      if(testPos>=0){
+        for(let j=0;j<4;j++){
+          if(!players[0].horses[j].done&&players[0].horses[j].pos===testPos)score+=50;
+        }
+      }
+      if(testPos===-2)score+=100; // finish
+      if(score>bestScore){bestScore=score;bestH=hi;}
+    }
+    moveHorse(1,bestH);
+  }
+
+  draw();updateUI();
+  if(!gameActive)return;
+
+  const extraTurn=(val===4||val===5);
+  if(extraTurn){
+    setTimeout(aiTurn,700);
+  }else{
+    turn=0;phase='throw';yutVal=0;
+    document.getElementById('throwBtn').textContent='윷 던지기';
+    updateUI();
+  }
+}
+
+function simulateMove(player,horseIdx){
+  const h=players[player].horses[horseIdx];
+  if(h.pos===-1){
+    if(yutVal<=0)return-3;
+    const route=getStandardRoute();
+    if(yutVal-1>=route.length)return-2;
+    return route[yutVal-1];
+  }
+  if(yutVal===-1){
+    if(h.routeIdx<=0)return-1;
+    return h.route[h.routeIdx-1];
+  }
+  const newIdx=h.routeIdx+yutVal;
+  if(newIdx>=h.route.length)return-2;
+  return h.route[newIdx];
+}
+
+function updateUI(){
+  document.getElementById('turn').textContent=turn===0?'🔴 내 차례':'🔵 AI 차례';
+  document.getElementById('turn').style.background=turn===0?'rgba(200,50,50,0.3)':'rgba(50,100,200,0.3)';
+  const p1done=players[0].horses.filter(h=>h.done).length;
+  const p2done=players[1].horses.filter(h=>h.done).length;
+  document.getElementById('p1info').textContent='내 말: '+p1done+'/4 골인';
+  document.getElementById('p2info').textContent='AI 말: '+p2done+'/4 골인';
+  document.getElementById('throwBtn').disabled=(turn!==0||phase!=='throw');
+}
+
+function resize(){
+  BW=Math.min(window.innerWidth-20,450);
+  canvas.width=BW;canvas.height=BW;
+  canvas.style.width=BW+'px';canvas.style.height=BW+'px';
+  draw();
+}
+
+function draw(){
+  ctx.clearRect(0,0,BW,BW);
+  // Board background
+  ctx.fillStyle='#2a1f14';
+  ctx.fillRect(0,0,BW,BW);
+  ctx.fillStyle='#3d2b1a';
+  ctx.fillRect(BW*0.05,BW*0.05,BW*0.9,BW*0.9);
+
+  const ox=BW*0.1,oy=BW*0.1,bw=BW*0.8;
+
+  // Draw connections
+  ctx.strokeStyle='#8b7355';ctx.lineWidth=2;
+  // Outer ring
+  const outerNodes=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,0];
+  for(let i=0;i<outerNodes.length-1;i++){
+    const a=NODES[outerNodes[i]],b=NODES[outerNodes[i+1]];
+    ctx.beginPath();ctx.moveTo(a.x*bw+ox,a.y*bw+oy);ctx.lineTo(b.x*bw+ox,b.y*bw+oy);ctx.stroke();
+  }
+  // Diagonals
+  const diags=[[5,21],[21,22],[22,20],[20,23],[23,24],[24,15],[10,25],[25,26],[26,20],[20,27],[27,28],[28,0]];
+  for(const[a,b]of diags){
+    const na=NODES[a],nb=NODES[b];
+    ctx.beginPath();ctx.moveTo(na.x*bw+ox,na.y*bw+oy);ctx.lineTo(nb.x*bw+ox,nb.y*bw+oy);ctx.stroke();
+  }
+
+  // Draw nodes
+  for(let i=0;i<NODES.length;i++){
+    const n=NODES[i];
+    const x=n.x*bw+ox,y=n.y*bw+oy;
+    const isCorner=[0,5,10,15,20].includes(i);
+    const r=isCorner?BW*0.035:BW*0.02;
+    ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);
+    ctx.fillStyle=isCorner?'#c49a38':'#8b7355';ctx.fill();
+    ctx.strokeStyle='#5a4a3a';ctx.lineWidth=1.5;ctx.stroke();
+  }
+
+  // Labels
+  ctx.fillStyle='#c49a38';ctx.font='bold '+BW*0.025+'px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+  const labels={0:'출발',5:'',10:'',15:'',20:'중앙'};
+  for(const[idx,label]of Object.entries(labels)){
+    if(!label)continue;
+    const n=NODES[parseInt(idx)];
+    ctx.fillText(label,n.x*bw+ox,n.y*bw+oy+BW*0.05);
+  }
+
+  // Draw horses
+  for(let p=0;p<2;p++){
+    for(let i=0;i<4;i++){
+      const h=players[p].horses[i];
+      let x,y;
+      if(h.done)continue;
+      if(h.pos===-1){
+        // Base
+        if(p===0){x=BW*0.55+i*BW*0.08;y=BW*0.95;}
+        else{x=BW*0.15+i*BW*0.08;y=BW*0.95;}
+      }else{
+        const n=NODES[h.pos];
+        x=n.x*bw+ox+(p===0?-5:5);
+        y=n.y*bw+oy+(p===0?-5:5);
+      }
+      ctx.beginPath();ctx.arc(x,y,BW*0.03,0,Math.PI*2);
+      ctx.fillStyle=p===0?'#e74c3c':'#3498db';ctx.fill();
+      ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();
+      ctx.fillStyle='#fff';ctx.font='bold '+BW*0.02+'px sans-serif';
+      ctx.fillText(''+(i+1),x,y+1);
+    }
+  }
+
+  // Base labels
+  ctx.fillStyle='#e74c3c';ctx.font=BW*0.025+'px sans-serif';
+  ctx.fillText('내 말',BW*0.7,BW*0.93);
+  ctx.fillStyle='#3498db';
+  ctx.fillText('AI 말',BW*0.3,BW*0.93);
+
+  // Highlight movable horses
+  if(phase==='move'&&turn===0){
+    const movable=getMovableHorses(0);
+    for(const hi of movable){
+      const h=players[0].horses[hi];
+      let x,y;
+      if(h.pos===-1){x=BW*0.55+hi*BW*0.08;y=BW*0.95;}
+      else{const n=NODES[h.pos];x=n.x*bw+ox-5;y=n.y*bw+oy-5;}
+      ctx.beginPath();ctx.arc(x,y,BW*0.04,0,Math.PI*2);
+      ctx.strokeStyle='#f1c40f';ctx.lineWidth=3;ctx.stroke();
+    }
+  }
+}
+
+canvas.addEventListener('click',e=>{const rect=canvas.getBoundingClientRect();handleClick(e.clientX-rect.left,e.clientY-rect.top);});
+canvas.addEventListener('touchstart',e=>{e.preventDefault();const t=e.touches[0];const rect=canvas.getBoundingClientRect();handleClick(t.clientX-rect.left,t.clientY-rect.top);},{passive:false});
+
+function startGame(){
+  document.getElementById('startScreen').style.display='none';
+  document.getElementById('gameOver').style.display='none';
+  document.querySelectorAll('.hidden').forEach(e=>e.classList.remove('hidden'));
+  players=[
+    {horses:[{pos:-1,routeIdx:-1,route:getStandardRoute(),done:false},{pos:-1,routeIdx:-1,route:getStandardRoute(),done:false},{pos:-1,routeIdx:-1,route:getStandardRoute(),done:false},{pos:-1,routeIdx:-1,route:getStandardRoute(),done:false}]},
+    {horses:[{pos:-1,routeIdx:-1,route:getStandardRoute(),done:false},{pos:-1,routeIdx:-1,route:getStandardRoute(),done:false},{pos:-1,routeIdx:-1,route:getStandardRoute(),done:false},{pos:-1,routeIdx:-1,route:getStandardRoute(),done:false}]}
+  ];
+  turn=0;phase='throw';yutVal=0;gameActive=true;
+  wins=parseInt(localStorage.getItem('yutnori_wins')||'0');
+  document.getElementById('throwBtn').textContent='윷 던지기';
+  document.getElementById('yutResult').textContent='';
+  resize();updateUI();
+}
+
+window.addEventListener('resize',resize);
+</script>
+</body>
+</html>

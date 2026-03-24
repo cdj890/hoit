@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>바둑 9x9 - Go</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;display:flex;flex-direction:column;align-items:center;min-height:100vh;overflow-x:hidden;padding-top:50px}
+#startScreen,#gameOver{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,15,30,0.97);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;text-align:center;padding:20px}
+#startScreen h1{font-size:42px;margin-bottom:10px}
+#startScreen p{font-size:15px;color:#aaa;max-width:340px;line-height:1.6;margin-bottom:20px}
+.btn{background:linear-gradient(135deg,#2ecc71,#27ae60);color:#fff;border:none;padding:14px 40px;border-radius:12px;font-size:18px;font-weight:bold;cursor:pointer;touch-action:manipulation;min-width:44px;min-height:44px;margin:6px}
+.btn:active{transform:scale(0.95)}
+.btn-pass{background:linear-gradient(135deg,#95a5a6,#7f8c8d)}
+#gameOver{display:none}
+#gameOver h2{font-size:32px;margin-bottom:10px}
+#gameOver p{font-size:18px;color:#ccc;margin-bottom:20px}
+#info{display:flex;justify-content:space-between;width:100%;max-width:450px;padding:8px 4px;font-size:14px;align-items:center}
+#turn{padding:6px 14px;border-radius:8px;font-weight:bold}
+#score{font-size:14px}
+canvas{border-radius:8px;margin-top:4px;touch-action:none}
+#controls{display:flex;gap:8px;margin-top:8px}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
+
+<div id="startScreen">
+<h1>⚫ 바둑 9x9</h1>
+<p>9x9 바둑을 AI와 대전하세요!<br>흑(선수)으로 플레이합니다.<br>교차점을 탭하여 돌을 놓으세요.<br>패스를 두 번 연속하면 게임이 종료됩니다.</p>
+<button class="btn" onclick="startGame()">AI 대전 시작</button>
+</div>
+
+<div id="gameOver">
+<h2 id="resultText"></h2>
+<p id="resultSub"></p>
+<button class="btn" onclick="startGame()">다시 하기</button>
+</div>
+
+<div id="info" class="hidden">
+<span id="turn">내 차례 (흑)</span>
+<span id="score">흑 0 | 백 0</span>
+</div>
+<canvas id="board" class="hidden"></canvas>
+<div id="controls" class="hidden">
+<button class="btn btn-pass" onclick="playerPass()">패스</button>
+</div>
+
+<script>
+const canvas=document.getElementById('board'),ctx=canvas.getContext('2d');
+const SIZE=9;
+let BW,SQ,OX,OY,board,turn,gameActive,wins,capturedB,capturedW,lastBoard,consecutivePasses,koPoint;
+
+function initBoard(){
+  board=Array.from({length:SIZE},()=>Array(SIZE).fill(0));
+  // 0=empty, 1=black, 2=white
+  capturedB=0;capturedW=0;
+  lastBoard=null;koPoint=null;consecutivePasses=0;
+}
+
+function cloneBoard(bd){return bd.map(r=>[...r])}
+
+function getGroup(r,c,bd){
+  const color=bd[r][c];if(!color)return{stones:[],liberties:new Set()};
+  const visited=new Set();const stones=[];const liberties=new Set();
+  const stack=[[r,c]];
+  while(stack.length){
+    const[cr,cc]=stack.pop();
+    const key=cr*SIZE+cc;
+    if(visited.has(key))continue;
+    visited.add(key);
+    stones.push([cr,cc]);
+    for(const[dr,dc]of[[-1,0],[1,0],[0,-1],[0,1]]){
+      const nr=cr+dr,nc=cc+dc;
+      if(nr<0||nr>=SIZE||nc<0||nc>=SIZE)continue;
+      if(bd[nr][nc]===0)liberties.add(nr*SIZE+nc);
+      else if(bd[nr][nc]===color&&!visited.has(nr*SIZE+nc))stack.push([nr,nc]);
+    }
+  }
+  return{stones,liberties};
+}
+
+function removeCaptures(bd,color){
+  // Remove groups of 'color' that have 0 liberties
+  let removed=0;
+  const checked=new Set();
+  for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++){
+    if(bd[r][c]===color&&!checked.has(r*SIZE+c)){
+      const g=getGroup(r,c,bd);
+      g.stones.forEach(s=>checked.add(s[0]*SIZE+s[1]));
+      if(g.liberties.size===0){
+        g.stones.forEach(s=>{bd[s[0]][s[1]]=0;});
+        removed+=g.stones.length;
+      }
+    }
+  }
+  return removed;
+}
+
+function isLegal(r,c,color,bd){
+  if(bd[r][c]!==0)return false;
+  const nb=cloneBoard(bd);
+  nb[r][c]=color;
+  const enemy=color===1?2:1;
+  removeCaptures(nb,enemy);
+  // Check suicide
+  const g=getGroup(r,c,nb);
+  if(g.liberties.size===0)return false;
+  // Check ko
+  if(koPoint&&koPoint[0]===r&&koPoint[1]===c&&color===(turn===1?1:2))return false;
+  return true;
+}
+
+function placeStone(r,c,color){
+  const prevBoard=cloneBoard(board);
+  board[r][c]=color;
+  const enemy=color===1?2:1;
+  const captured=removeCaptures(board,enemy);
+
+  // Ko detection
+  koPoint=null;
+  if(captured===1){
+    // Check if this is a potential ko
+    for(let i=0;i<SIZE;i++)for(let j=0;j<SIZE;j++){
+      if(prevBoard[i][j]===enemy&&board[i][j]===0){
+        // This was the captured stone - check if placing there would recreate
+        koPoint=[i,j];
+      }
+    }
+  }
+
+  if(color===1)capturedB+=captured;else capturedW+=captured;
+  consecutivePasses=0;
+  lastBoard=prevBoard;
+}
+
+function countTerritory(){
+  const territory=[0,0]; // black, white
+  const visited=new Set();
+  for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++){
+    if(board[r][c]!==0||visited.has(r*SIZE+c))continue;
+    // Flood fill empty region
+    const region=[];const borders=new Set();
+    const stack=[[r,c]];
+    while(stack.length){
+      const[cr,cc]=stack.pop();
+      const key=cr*SIZE+cc;
+      if(visited.has(key))continue;
+      if(board[cr][cc]!==0){borders.add(board[cr][cc]);continue;}
+      visited.add(key);region.push([cr,cc]);
+      for(const[dr,dc]of[[-1,0],[1,0],[0,-1],[0,1]]){
+        const nr=cr+dr,nc=cc+dc;
+        if(nr>=0&&nr<SIZE&&nc>=0&&nc<SIZE)stack.push([nr,nc]);
+      }
+    }
+    if(borders.size===1){
+      const owner=[...borders][0];
+      territory[owner-1]+=region.length;
+    }
+  }
+  return territory;
+}
+
+function endGame(){
+  gameActive=false;
+  const terr=countTerritory();
+  const blackScore=terr[0]+capturedB;
+  const whiteScore=terr[1]+capturedW+6.5; // Komi
+  const go=document.getElementById('gameOver');
+  const rt=document.getElementById('resultText');
+  const rs=document.getElementById('resultSub');
+  if(blackScore>whiteScore){
+    rt.textContent='🎉 승리!';
+    rs.textContent='흑 '+blackScore+' vs 백 '+whiteScore+' (덤 6.5)';
+    wins++;_hub('baduk',wins);
+  }else{
+    rt.textContent='😢 패배';
+    rs.textContent='흑 '+blackScore+' vs 백 '+whiteScore+' (덤 6.5)';
+  }
+  go.style.display='flex';
+}
+
+function playerPass(){
+  if(!gameActive||turn!==1)return;
+  consecutivePasses++;koPoint=null;
+  if(consecutivePasses>=2){endGame();return;}
+  turn=2;updateUI();draw();
+  setTimeout(aiMove,300);
+}
+
+function aiMove(){
+  if(!gameActive||turn!==2)return;
+  // Collect legal moves
+  const moves=[];
+  for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++){
+    if(isLegal(r,c,2,board))moves.push([r,c]);
+  }
+  if(moves.length===0){
+    consecutivePasses++;
+    if(consecutivePasses>=2){endGame();return;}
+    turn=1;koPoint=null;updateUI();draw();return;
+  }
+
+  // Score each move
+  let bestScore=-Infinity,bestMoves=[];
+  for(const[r,c]of moves){
+    let score=0;
+    const nb=cloneBoard(board);
+    nb[r][c]=2;
+    const cap=removeCaptures(nb,1);
+    score+=cap*10;
+
+    // Check if move saves own group
+    const g=getGroup(r,c,nb);
+    if(g.liberties.size===1)score-=3; // Risky
+
+    // Prefer center-ish
+    const dr=r-4,dc=c-4;
+    score-=(dr*dr+dc*dc)*0.1;
+
+    // Avoid self-atari
+    if(g.liberties.size<=1&&cap===0)score-=20;
+
+    // Prefer moves near existing stones
+    for(const[ddr,ddc]of[[-1,0],[1,0],[0,-1],[0,1]]){
+      if(r+ddr>=0&&r+ddr<SIZE&&c+ddc>=0&&c+ddc<SIZE){
+        if(board[r+ddr][c+ddc]===2)score+=2;
+        if(board[r+ddr][c+ddc]===1)score+=1;
+      }
+    }
+
+    if(score>bestScore){bestScore=score;bestMoves=[[r,c]];}
+    else if(score===bestScore)bestMoves.push([r,c]);
+  }
+
+  // Add some randomness
+  const pick=bestMoves[Math.floor(Math.random()*bestMoves.length)];
+  placeStone(pick[0],pick[1],2);
+  turn=1;updateUI();draw();
+}
+
+function handleClick(x,y){
+  if(!gameActive||turn!==1)return;
+  const r=Math.round((y-OY)/SQ),c=Math.round((x-OX)/SQ);
+  if(r<0||r>=SIZE||c<0||c>=SIZE)return;
+  if(!isLegal(r,c,1,board))return;
+  placeStone(r,c,1);
+  turn=2;updateUI();draw();
+  setTimeout(aiMove,300);
+}
+
+function updateUI(){
+  document.getElementById('turn').textContent=turn===1?'⚫ 내 차례 (흑)':'⚪ AI 차례 (백)';
+  document.getElementById('turn').style.background=turn===1?'rgba(100,100,100,0.3)':'rgba(200,200,200,0.2)';
+  document.getElementById('score').textContent='흑 잡은돌:'+capturedB+' | 백 잡은돌:'+capturedW;
+}
+
+function resize(){
+  BW=Math.min(window.innerWidth-20,450);
+  SQ=Math.floor((BW-40)/(SIZE-1));
+  OX=20;OY=20;
+  const totalW=OX*2+(SIZE-1)*SQ;
+  const totalH=OY*2+(SIZE-1)*SQ;
+  canvas.width=totalW;canvas.height=totalH;
+  canvas.style.width=totalW+'px';canvas.style.height=totalH+'px';
+  draw();
+}
+
+function draw(){
+  const cw=canvas.width,ch=canvas.height;
+  ctx.clearRect(0,0,cw,ch);
+  // Board
+  ctx.fillStyle='#c49a38';
+  ctx.fillRect(0,0,cw,ch);
+
+  // Grid
+  ctx.strokeStyle='#3a2a0a';ctx.lineWidth=1;
+  for(let i=0;i<SIZE;i++){
+    ctx.beginPath();ctx.moveTo(OX,OY+i*SQ);ctx.lineTo(OX+(SIZE-1)*SQ,OY+i*SQ);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(OX+i*SQ,OY);ctx.lineTo(OX+i*SQ,OY+(SIZE-1)*SQ);ctx.stroke();
+  }
+
+  // Star points (for 9x9: 2,2  2,6  4,4  6,2  6,6)
+  const stars=[[2,2],[2,6],[4,4],[6,2],[6,6]];
+  for(const[r,c]of stars){
+    ctx.beginPath();ctx.arc(OX+c*SQ,OY+r*SQ,3,0,Math.PI*2);
+    ctx.fillStyle='#3a2a0a';ctx.fill();
+  }
+
+  // Stones
+  const stoneR=SQ*0.42;
+  for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++){
+    if(!board[r][c])continue;
+    const x=OX+c*SQ,y=OY+r*SQ;
+    // Shadow
+    ctx.beginPath();ctx.arc(x+2,y+2,stoneR,0,Math.PI*2);
+    ctx.fillStyle='rgba(0,0,0,0.3)';ctx.fill();
+
+    if(board[r][c]===1){
+      // Black stone
+      const grad=ctx.createRadialGradient(x-stoneR*0.3,y-stoneR*0.3,stoneR*0.1,x,y,stoneR);
+      grad.addColorStop(0,'#555');grad.addColorStop(1,'#111');
+      ctx.beginPath();ctx.arc(x,y,stoneR,0,Math.PI*2);
+      ctx.fillStyle=grad;ctx.fill();
+    }else{
+      // White stone
+      const grad=ctx.createRadialGradient(x-stoneR*0.3,y-stoneR*0.3,stoneR*0.1,x,y,stoneR);
+      grad.addColorStop(0,'#fff');grad.addColorStop(1,'#ccc');
+      ctx.beginPath();ctx.arc(x,y,stoneR,0,Math.PI*2);
+      ctx.fillStyle=grad;ctx.fill();
+      ctx.strokeStyle='#999';ctx.lineWidth=0.5;ctx.stroke();
+    }
+  }
+
+  // Show last move indicator
+  if(lastBoard){
+    for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++){
+      if(board[r][c]&&!lastBoard[r][c]){
+        const x=OX+c*SQ,y=OY+r*SQ;
+        ctx.beginPath();ctx.arc(x,y,stoneR*0.3,0,Math.PI*2);
+        ctx.strokeStyle=board[r][c]===1?'#fff':'#333';
+        ctx.lineWidth=2;ctx.stroke();
+      }
+    }
+  }
+}
+
+canvas.addEventListener('click',e=>{const rect=canvas.getBoundingClientRect();handleClick(e.clientX-rect.left,e.clientY-rect.top);});
+canvas.addEventListener('touchstart',e=>{e.preventDefault();const t=e.touches[0];const rect=canvas.getBoundingClientRect();handleClick(t.clientX-rect.left,t.clientY-rect.top);},{passive:false});
+
+function startGame(){
+  document.getElementById('startScreen').style.display='none';
+  document.getElementById('gameOver').style.display='none';
+  document.querySelectorAll('.hidden').forEach(e=>e.classList.remove('hidden'));
+  initBoard();turn=1;gameActive=true;
+  wins=parseInt(localStorage.getItem('baduk_wins')||'0');
+  resize();updateUI();
+}
+
+window.addEventListener('resize',resize);
+</script>
+</body>
+</html>
