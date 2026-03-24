@@ -11,12 +11,14 @@ h1{font-size:1.8em;margin:10px 0 5px;background:linear-gradient(135deg,#a78bfa,#
 .info{color:#aaa;font-size:0.85em;margin-bottom:8px}
 canvas{border-radius:12px;display:block;box-shadow:0 4px 24px rgba(0,0,0,0.5);cursor:none}
 .overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,15,30,0.95);display:flex;align-items:center;justify-content:center;z-index:100}
-.overlay-box{background:#1a1a2e;border-radius:20px;padding:40px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.6);max-width:400px;width:90%}
+.overlay-box{background:#1a1a2e;border-radius:20px;padding:35px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.6);max-width:440px;width:90%}
 .overlay-box h2{font-size:1.8em;margin-bottom:15px;background:linear-gradient(135deg,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .overlay-box p{color:#ccc;margin:8px 0}
 .btn{padding:12px 32px;border:none;border-radius:12px;font-size:1em;cursor:pointer;transition:all 0.2s;font-weight:bold;margin:5px}
 .btn-primary{background:linear-gradient(135deg,#a78bfa,#60a5fa);color:#fff}
 .btn-primary:hover{transform:scale(1.05);box-shadow:0 4px 15px rgba(167,139,250,0.4)}
+.btn-upgrade{padding:10px 18px;border:2px solid #333;border-radius:10px;background:#16213e;color:#ccc;cursor:pointer;margin:5px;font-size:0.9em;transition:all 0.2s;display:inline-block}
+.btn-upgrade:hover{border-color:#a78bfa;color:#a78bfa}
 .result-emoji{font-size:3em;margin-bottom:10px}
 .high-score{color:#ffd700;font-size:0.9em;margin-top:10px}
 canvas{max-width:100%!important;height:auto!important;display:block;margin:0 auto}body{overflow-x:hidden}
@@ -32,7 +34,7 @@ canvas{max-width:100%!important;height:auto!important;display:block;margin:0 aut
 <div class="result-emoji">🧱</div>
 <h2>벽돌깨기</h2>
 <p>공으로 벽돌을 모두 부숴보세요!</p>
-<p style="font-size:0.85em;color:#aaa">마우스 또는 ←→ 키로 패들을 움직이세요</p>
+<p style="font-size:0.85em;color:#aaa">마우스 또는 ←→ 키로 패들 이동 | Space: 레이저</p>
 <div class="high-score" id="startHighScore"></div>
 <br>
 <button class="btn btn-primary" onclick="startGame()">게임 시작!</button>
@@ -44,181 +46,799 @@ canvas{max-width:100%!important;height:auto!important;display:block;margin:0 aut
 <div class="result-emoji" id="resultEmoji"></div>
 <h2 id="resultTitle"></h2>
 <p id="resultScore"></p>
+<p id="resultLevel" style="color:#aaa;font-size:0.85em"></p>
 <div class="high-score" id="resultHighScore"></div>
 <br>
 <button class="btn btn-primary" onclick="startGame()">다시 하기</button>
 </div>
 </div>
 
+<div id="upgradeScreen" class="overlay" style="display:none">
+<div class="overlay-box">
+<div class="result-emoji">🛠️</div>
+<h2>패들 업그레이드!</h2>
+<p id="upgradeLevelText"></p>
+<br>
+<button class="btn-upgrade" onclick="chooseUpgrade('wider')">🔳 확장 패들</button>
+<button class="btn-upgrade" onclick="chooseUpgrade('magnetic')">🧲 자석 패들</button>
+<button class="btn-upgrade" onclick="chooseUpgrade('laser')">🔫 레이저 패들</button>
+</div>
+</div>
+
 <div id="gameArea" style="display:none;text-align:center">
 <h1>벽돌깨기</h1>
-<div class="info">점수: <span id="scoreDisplay">0</span> | 최고: <span id="bestDisplay">0</span> | 공: <span id="livesDisplay">3</span></div>
-<canvas id="canvas" width="480" height="520"></canvas>
+<div class="info">점수: <span id="scoreDisplay">0</span> | 최고: <span id="bestDisplay">0</span> | 공: <span id="livesDisplay">3</span> | 레벨: <span id="levelDisplay">1</span></div>
+<canvas id="canvas" width="480" height="560"></canvas>
 </div>
 
 <script>
-const W=480,H=520;
-const COLS=8,ROWS=5,BRICK_W=52,BRICK_H=20,BRICK_PAD=4,BRICK_TOP=50,BRICK_LEFT=14;
-const PADDLE_W=80,PADDLE_H=12;
+const W=480,H=560;
+const COLS=8,ROWS=5,BRICK_W=52,BRICK_H=20,BRICK_PAD=4,BRICK_TOP=60,BRICK_LEFT=14;
+const BASE_PADDLE_W=80,PADDLE_H=12;
 const BALL_R=8;
 const COLORS=['#ff6b6b','#ffa502','#ffd43b','#69db7c','#74c0fc','#b197fc','#ff8787','#66d9e8'];
 
-let canvas,ctx,score,highScore,lives,bricks,ball,paddle,animId,keys={},gameRunning,level;
+let canvas,ctx,score,highScore,lives,bricks,balls,paddle,animId,keys={},gameRunning,level;
+let powerups=[], particles=[], lasers=[];
+let paddleUpgrades = {wider:0, magnetic:0, laser:0};
+let activePowerups = {}; // {multiball:false, expand:endTime, laser:endTime, pierce:endTime, slow:endTime}
+let boss = null;
+let bossProjectiles = [];
+
+// Powerup types
+const POWERUP_TYPES = [
+  {type:'multiball', emoji:'🔴', color:'#ff4444', desc:'멀티볼+2'},
+  {type:'expand', emoji:'🟢', color:'#44ff44', desc:'확장패들'},
+  {type:'laser', emoji:'🔵', color:'#4444ff', desc:'레이저'},
+  {type:'pierce', emoji:'🟡', color:'#ffff44', desc:'관통볼'},
+  {type:'slow', emoji:'⚡', color:'#ff8800', desc:'속도다운'},
+];
+
+// Brick types
+const BRICK_NORMAL = 0;
+const BRICK_GOLD = 1;   // 3 hits, bonus
+const BRICK_BOMB = 2;   // explodes neighbors
+const BRICK_STEEL = 3;  // unbreakable
 
 function loadHS(){highScore=parseInt(localStorage.getItem('breakout_high')||'0')}
 function saveHS(){if(score>highScore){highScore=score;localStorage.setItem('breakout_high',String(highScore))}_hub('breakout',score)}
 
+// Level patterns
+function getLevelPattern(lvl) {
+  const pat = (lvl - 1) % 6;
+  const rows = Math.min(5 + Math.floor(lvl/3), 8);
+  const cols = COLS;
+  let grid = [];
+
+  switch(pat) {
+    case 0: // Full
+      for(let r=0;r<rows;r++){
+        grid[r]=[];
+        for(let c=0;c<cols;c++) grid[r][c] = BRICK_NORMAL;
+      }
+      break;
+    case 1: // Pyramid
+      for(let r=0;r<rows;r++){
+        grid[r]=[];
+        const half = Math.floor(cols/2);
+        for(let c=0;c<cols;c++){
+          const dist = Math.abs(c - half + 0.5);
+          grid[r][c] = dist <= r+1 ? BRICK_NORMAL : -1;
+        }
+      }
+      break;
+    case 2: // Checkerboard
+      for(let r=0;r<rows;r++){
+        grid[r]=[];
+        for(let c=0;c<cols;c++) grid[r][c] = (r+c)%2===0 ? BRICK_NORMAL : -1;
+      }
+      break;
+    case 3: // Fortress
+      for(let r=0;r<rows;r++){
+        grid[r]=[];
+        for(let c=0;c<cols;c++){
+          if(r===0 || r===rows-1 || c===0 || c===cols-1) grid[r][c] = BRICK_NORMAL;
+          else if(r===Math.floor(rows/2) && c > 1 && c < cols-2) grid[r][c] = BRICK_NORMAL;
+          else grid[r][c] = -1;
+        }
+      }
+      break;
+    case 4: // Diamond
+      for(let r=0;r<rows;r++){
+        grid[r]=[];
+        const mid = Math.floor(rows/2);
+        const spread = r <= mid ? r+1 : rows-r;
+        const center = Math.floor(cols/2);
+        for(let c=0;c<cols;c++){
+          grid[r][c] = Math.abs(c - center + 0.5) < spread ? BRICK_NORMAL : -1;
+        }
+      }
+      break;
+    case 5: // Stripes
+      for(let r=0;r<rows;r++){
+        grid[r]=[];
+        for(let c=0;c<cols;c++) grid[r][c] = r%2===0 ? BRICK_NORMAL : -1;
+      }
+      break;
+  }
+
+  // Add special bricks based on level
+  if(lvl >= 2) {
+    // Add gold bricks
+    let goldCount = Math.min(3, Math.floor(lvl/2));
+    for(let i=0;i<goldCount;i++){
+      let r = Math.floor(Math.random()*grid.length);
+      let c = Math.floor(Math.random()*cols);
+      if(grid[r] && grid[r][c] === BRICK_NORMAL) grid[r][c] = BRICK_GOLD;
+    }
+  }
+  if(lvl >= 3) {
+    // Add bomb bricks
+    let bombCount = Math.min(2, Math.floor(lvl/3));
+    for(let i=0;i<bombCount;i++){
+      let r = Math.floor(Math.random()*grid.length);
+      let c = Math.floor(Math.random()*cols);
+      if(grid[r] && grid[r][c] === BRICK_NORMAL) grid[r][c] = BRICK_BOMB;
+    }
+  }
+  if(lvl >= 4) {
+    // Add steel bricks
+    let steelCount = Math.min(3, Math.floor(lvl/4));
+    for(let i=0;i<steelCount;i++){
+      let r = Math.floor(Math.random()*grid.length);
+      let c = Math.floor(Math.random()*cols);
+      if(grid[r] && grid[r][c] === BRICK_NORMAL) grid[r][c] = BRICK_STEEL;
+    }
+  }
+
+  return grid;
+}
+
 function initBricks(){
-bricks=[];
-for(let r=0;r<ROWS;r++){
-bricks[r]=[];
-for(let c=0;c<COLS;c++){
-bricks[r][c]={x:BRICK_LEFT+c*(BRICK_W+BRICK_PAD),y:BRICK_TOP+r*(BRICK_H+BRICK_PAD),alive:true,color:COLORS[(r+c)%COLORS.length]};
-}
-}
+  bricks=[];
+  const grid = getLevelPattern(level);
+  const rows = grid.length;
+
+  for(let r=0;r<rows;r++){
+    bricks[r]=[];
+    for(let c=0;c<COLS;c++){
+      const btype = grid[r] ? grid[r][c] : BRICK_NORMAL;
+      if(btype === -1) {
+        bricks[r][c]={alive:false};
+        continue;
+      }
+      let color, hp;
+      switch(btype) {
+        case BRICK_GOLD:
+          color = '#FFD700'; hp = 3; break;
+        case BRICK_BOMB:
+          color = '#FF4444'; hp = 1; break;
+        case BRICK_STEEL:
+          color = '#888888'; hp = 999; break;
+        default:
+          color = COLORS[(r+c)%COLORS.length]; hp = 1; break;
+      }
+      bricks[r][c]={
+        x:BRICK_LEFT+c*(BRICK_W+BRICK_PAD),
+        y:BRICK_TOP+r*(BRICK_H+BRICK_PAD),
+        alive:true, color:color, type:btype, hp:hp, maxHp:hp
+      };
+    }
+  }
 }
 
 function resetBall(){
-let speedMult=1+level*0.15;
-ball={x:W/2,y:H-60,dx:3*speedMult*(Math.random()>0.5?1:-1),dy:-4*speedMult,r:BALL_R};
+  let speedMult = 1 + level * 0.1;
+  if (activePowerups.slow && Date.now() < activePowerups.slow) speedMult *= 0.6;
+  const b = {x:W/2, y:H-60, dx:3*speedMult*(Math.random()>0.5?1:-1), dy:-4*speedMult, r:BALL_R, pierce:false};
+  if (activePowerups.pierce && Date.now() < activePowerups.pierce) b.pierce = true;
+  balls = [b];
+}
+
+function getPaddleW() {
+  let w = BASE_PADDLE_W + paddleUpgrades.wider * 15;
+  if (activePowerups.expand && Date.now() < activePowerups.expand) w += 40;
+  return Math.min(w, 200);
+}
+
+function isBossLevel() { return level % 5 === 0 && level > 0; }
+
+function initBoss() {
+  boss = {
+    x: W/2 - 60,
+    y: 30,
+    w: 120,
+    h: 30,
+    hp: 10 + level * 2,
+    maxHp: 10 + level * 2,
+    dx: 2,
+    shootTimer: 0,
+    shootInterval: 90 - level * 3,
+  };
+  bossProjectiles = [];
 }
 
 function startGame(){
-document.getElementById('startScreen').style.display='none';
-document.getElementById('gameOverScreen').style.display='none';
-document.getElementById('gameArea').style.display='block';
-canvas=document.getElementById('canvas');
-ctx=canvas.getContext('2d');
-loadHS();
-score=0;lives=3;level=1;gameRunning=true;
-paddle={x:W/2-PADDLE_W/2,y:H-30,w:PADDLE_W,h:PADDLE_H};
-initBricks();
-resetBall();
-updateUI();
-if(animId)cancelAnimationFrame(animId);
-loop();
+  document.getElementById('startScreen').style.display='none';
+  document.getElementById('gameOverScreen').style.display='none';
+  document.getElementById('upgradeScreen').style.display='none';
+  document.getElementById('gameArea').style.display='block';
+  canvas=document.getElementById('canvas');
+  ctx=canvas.getContext('2d');
+  loadHS();
+  score=0;lives=3;level=1;gameRunning=true;
+  paddleUpgrades = {wider:0, magnetic:0, laser:0};
+  activePowerups = {};
+  paddle={x:W/2-BASE_PADDLE_W/2, y:H-30, w:BASE_PADDLE_W, h:PADDLE_H};
+  powerups=[]; particles=[]; lasers=[];
+  boss = null; bossProjectiles = [];
+
+  if (isBossLevel()) {
+    initBoss();
+    bricks = [];
+  } else {
+    initBricks();
+  }
+  resetBall();
+  updateUI();
+  if(animId)cancelAnimationFrame(animId);
+  loop();
+}
+
+function nextLevel() {
+  level++;
+  activePowerups = {};
+  powerups = [];
+  lasers = [];
+  bossProjectiles = [];
+  boss = null;
+
+  // Show upgrade screen between levels
+  gameRunning = false;
+  document.getElementById('upgradeLevelText').textContent = `레벨 ${level} 준비! 업그레이드를 선택하세요`;
+  document.getElementById('upgradeScreen').style.display = 'flex';
+}
+
+function chooseUpgrade(type) {
+  paddleUpgrades[type]++;
+  document.getElementById('upgradeScreen').style.display = 'none';
+  gameRunning = true;
+
+  if (isBossLevel()) {
+    initBoss();
+    bricks = [];
+  } else {
+    initBricks();
+  }
+  resetBall();
+  updateUI();
+  loop();
 }
 
 function updateUI(){
-document.getElementById('scoreDisplay').textContent=score;
-document.getElementById('bestDisplay').textContent=highScore;
-document.getElementById('livesDisplay').textContent=lives;
+  document.getElementById('scoreDisplay').textContent=score;
+  document.getElementById('bestDisplay').textContent=highScore;
+  document.getElementById('livesDisplay').textContent=lives;
+  document.getElementById('levelDisplay').textContent=level;
+}
+
+function spawnPowerup(x, y) {
+  if (Math.random() > 0.15) return; // 15% chance
+  const type = POWERUP_TYPES[Math.floor(Math.random() * POWERUP_TYPES.length)];
+  powerups.push({x:x, y:y, w:24, h:24, dy:2, ...type});
+}
+
+function activatePowerup(pu) {
+  switch(pu.type) {
+    case 'multiball':
+      // Add 2 extra balls
+      const base = balls[0] || {x:W/2, y:H-60, dx:3, dy:-4, r:BALL_R};
+      for(let i=0;i<2;i++){
+        balls.push({
+          x: base.x, y: base.y,
+          dx: base.dx + (Math.random()-0.5)*4,
+          dy: base.dy - Math.random()*2,
+          r: BALL_R, pierce: base.pierce
+        });
+      }
+      break;
+    case 'expand':
+      activePowerups.expand = Date.now() + 10000;
+      break;
+    case 'laser':
+      activePowerups.laser = Date.now() + 8000;
+      break;
+    case 'pierce':
+      activePowerups.pierce = Date.now() + 8000;
+      balls.forEach(b => b.pierce = true);
+      break;
+    case 'slow':
+      activePowerups.slow = Date.now() + 6000;
+      balls.forEach(b => { b.dx *= 0.6; b.dy *= 0.6; });
+      break;
+  }
+  // popup
+  for(let i=0;i<8;i++){
+    const a = Math.random()*Math.PI*2;
+    particles.push({
+      x:pu.x+12, y:pu.y+12, vx:Math.cos(a)*4, vy:Math.sin(a)*4,
+      color:pu.color, life:20, maxLife:20, size:3
+    });
+  }
+}
+
+function shootLaser() {
+  if (!activePowerups.laser || Date.now() > activePowerups.laser) {
+    if (paddleUpgrades.laser <= 0) return;
+  }
+  const pw = getPaddleW();
+  lasers.push({x: paddle.x + pw/2 - 2, y: paddle.y - 10, w: 4, h: 10, dy: -8});
+}
+
+function explodeBrick(r, c) {
+  // Explode neighbors
+  for (let dr = -1; dr <= 1; dr++) {
+    for (let dc = -1; dc <= 1; dc++) {
+      const nr = r + dr, nc = c + dc;
+      if (nr >= 0 && nr < bricks.length && nc >= 0 && nc < COLS && bricks[nr][nc].alive && bricks[nr][nc].type !== BRICK_STEEL) {
+        damageBrick(nr, nc, 999);
+      }
+    }
+  }
+}
+
+function damageBrick(r, c, dmg) {
+  const b = bricks[r][c];
+  if (!b.alive || b.type === BRICK_STEEL) return;
+  b.hp -= dmg;
+  if (b.hp <= 0) {
+    b.alive = false;
+    let pts = b.type === BRICK_GOLD ? 5 : 1;
+    score += pts;
+
+    // particles
+    for(let i=0;i<6;i++){
+      const a = Math.random()*Math.PI*2;
+      particles.push({
+        x:b.x+BRICK_W/2, y:b.y+BRICK_H/2, vx:Math.cos(a)*4, vy:Math.sin(a)*4,
+        color:b.color, life:20, maxLife:20, size:3
+      });
+    }
+
+    if (b.type === BRICK_BOMB) explodeBrick(r, c);
+    spawnPowerup(b.x + BRICK_W/2, b.y + BRICK_H/2);
+    updateUI();
+  }
 }
 
 function draw(){
-ctx.clearRect(0,0,W,H);
-// bricks
-for(let r=0;r<ROWS;r++){
-for(let c=0;c<COLS;c++){
-const b=bricks[r][c];
-if(!b.alive)continue;
-ctx.fillStyle=b.color;
-ctx.beginPath();
-ctx.roundRect(b.x,b.y,BRICK_W,BRICK_H,4);
-ctx.fill();
-// shine
-ctx.fillStyle='rgba(255,255,255,0.25)';
-ctx.beginPath();
-ctx.roundRect(b.x+2,b.y+2,BRICK_W-4,BRICK_H/2-2,2);
-ctx.fill();
-}
-}
-// paddle
-const grd=ctx.createLinearGradient(paddle.x,paddle.y,paddle.x,paddle.y+paddle.h);
-grd.addColorStop(0,'#a78bfa');grd.addColorStop(1,'#60a5fa');
-ctx.fillStyle=grd;
-ctx.beginPath();ctx.roundRect(paddle.x,paddle.y,paddle.w,paddle.h,6);ctx.fill();
-// ball with cute face
-ctx.fillStyle='#ffd43b';
-ctx.beginPath();ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2);ctx.fill();
-// eyes
-ctx.fillStyle='#0f0f1e';
-ctx.beginPath();ctx.arc(ball.x-3,ball.y-2,1.5,0,Math.PI*2);ctx.fill();
-ctx.beginPath();ctx.arc(ball.x+3,ball.y-2,1.5,0,Math.PI*2);ctx.fill();
-// smile
-ctx.strokeStyle='#0f0f1e';ctx.lineWidth=1;
-ctx.beginPath();ctx.arc(ball.x,ball.y,3.5,0.2,Math.PI-0.2);ctx.stroke();
-// blush
-ctx.fillStyle='rgba(255,150,150,0.5)';
-ctx.beginPath();ctx.arc(ball.x-6,ball.y+1,2,0,Math.PI*2);ctx.fill();
-ctx.beginPath();ctx.arc(ball.x+6,ball.y+1,2,0,Math.PI*2);ctx.fill();
+  ctx.clearRect(0,0,W,H);
+
+  // Background
+  ctx.fillStyle = '#0a0a1e';
+  ctx.fillRect(0, 0, W, H);
+
+  // Level indicator
+  ctx.fillStyle = '#555';
+  ctx.font = '12px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(`Stage ${level}`, W/2, 15);
+  ctx.textAlign = 'left';
+
+  // Active powerup indicators
+  let puY = 25;
+  ctx.font = '11px sans-serif';
+  if (activePowerups.expand && Date.now() < activePowerups.expand) {
+    ctx.fillStyle = '#44ff44';
+    const rem = Math.ceil((activePowerups.expand - Date.now())/1000);
+    ctx.fillText(`🟢확장 ${rem}s`, 10, puY); puY += 14;
+  }
+  if (activePowerups.laser && Date.now() < activePowerups.laser) {
+    ctx.fillStyle = '#4444ff';
+    const rem = Math.ceil((activePowerups.laser - Date.now())/1000);
+    ctx.fillText(`🔵레이저 ${rem}s`, 10, puY); puY += 14;
+  }
+  if (activePowerups.pierce && Date.now() < activePowerups.pierce) {
+    ctx.fillStyle = '#ffff44';
+    const rem = Math.ceil((activePowerups.pierce - Date.now())/1000);
+    ctx.fillText(`🟡관통 ${rem}s`, 10, puY); puY += 14;
+  }
+  if (activePowerups.slow && Date.now() < activePowerups.slow) {
+    ctx.fillStyle = '#ff8800';
+    const rem = Math.ceil((activePowerups.slow - Date.now())/1000);
+    ctx.fillText(`⚡느림 ${rem}s`, 10, puY);
+  }
+
+  // Bricks
+  for(let r=0;r<bricks.length;r++){
+    for(let c=0;c<COLS;c++){
+      const b=bricks[r][c];
+      if(!b || !b.alive)continue;
+
+      ctx.fillStyle=b.color;
+      ctx.beginPath();
+      ctx.roundRect(b.x,b.y,BRICK_W,BRICK_H,4);
+      ctx.fill();
+
+      // Special brick decorations
+      if(b.type === BRICK_GOLD) {
+        // Gold shimmer
+        ctx.fillStyle = 'rgba(255,255,255,0.3)';
+        ctx.beginPath(); ctx.roundRect(b.x+2,b.y+2,BRICK_W-4,BRICK_H/2-2,2); ctx.fill();
+        ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillStyle = '#000';
+        ctx.fillText(`💎${b.hp}`, b.x+BRICK_W/2, b.y+BRICK_H-4);
+        ctx.textAlign = 'left';
+        // Glow
+        ctx.shadowColor = '#FFD700';
+        ctx.shadowBlur = 6;
+        ctx.strokeStyle = '#FFD700';
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.roundRect(b.x,b.y,BRICK_W,BRICK_H,4); ctx.stroke();
+        ctx.shadowBlur = 0;
+      } else if(b.type === BRICK_BOMB) {
+        ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText('💣', b.x+BRICK_W/2, b.y+BRICK_H-4);
+        ctx.textAlign = 'left';
+      } else if(b.type === BRICK_STEEL) {
+        ctx.fillStyle = 'rgba(255,255,255,0.1)';
+        ctx.beginPath(); ctx.roundRect(b.x+2,b.y+2,BRICK_W-4,BRICK_H/2-2,2); ctx.fill();
+        ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillStyle = '#fff';
+        ctx.fillText('🔒', b.x+BRICK_W/2, b.y+BRICK_H-4);
+        ctx.textAlign = 'left';
+        ctx.strokeStyle = '#aaa'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.roundRect(b.x,b.y,BRICK_W,BRICK_H,4); ctx.stroke();
+      } else {
+        // Normal shine
+        ctx.fillStyle='rgba(255,255,255,0.25)';
+        ctx.beginPath(); ctx.roundRect(b.x+2,b.y+2,BRICK_W-4,BRICK_H/2-2,2); ctx.fill();
+      }
+    }
+  }
+
+  // Boss
+  if(boss) {
+    // Boss HP bar
+    const hpRatio = boss.hp / boss.maxHp;
+    ctx.fillStyle = '#333';
+    ctx.fillRect(boss.x, boss.y - 8, boss.w, 5);
+    ctx.fillStyle = hpRatio > 0.5 ? '#44ff44' : hpRatio > 0.25 ? '#ffaa00' : '#ff4444';
+    ctx.fillRect(boss.x, boss.y - 8, boss.w * hpRatio, 5);
+
+    // Boss body
+    const grd = ctx.createLinearGradient(boss.x, boss.y, boss.x, boss.y+boss.h);
+    grd.addColorStop(0, '#ff4444'); grd.addColorStop(1, '#880000');
+    ctx.fillStyle = grd;
+    ctx.beginPath(); ctx.roundRect(boss.x, boss.y, boss.w, boss.h, 8); ctx.fill();
+
+    // Boss face
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(boss.x+30, boss.y+12, 5, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(boss.x+boss.w-30, boss.y+12, 5, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#000';
+    ctx.beginPath(); ctx.arc(boss.x+30, boss.y+12, 2.5, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(boss.x+boss.w-30, boss.y+12, 2.5, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(boss.x+boss.w/2, boss.y+20, 8, 0.1*Math.PI, 0.9*Math.PI); ctx.stroke();
+
+    // Boss label
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(`BOSS Lv.${level}`, boss.x+boss.w/2, boss.y+boss.h+15);
+    ctx.textAlign = 'left';
+
+    // Boss projectiles
+    bossProjectiles.forEach(p => {
+      ctx.fillStyle = '#ff4444';
+      ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#ffaaaa';
+      ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI*2); ctx.fill();
+    });
+  }
+
+  // Powerups
+  powerups.forEach(pu => {
+    ctx.fillStyle = pu.color + '40';
+    ctx.beginPath(); ctx.arc(pu.x+12, pu.y+12, 16, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = pu.color;
+    ctx.beginPath(); ctx.arc(pu.x+12, pu.y+12, 12, 0, Math.PI*2); ctx.fill();
+    ctx.font = '14px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(pu.emoji, pu.x+12, pu.y+17);
+    ctx.textAlign = 'left';
+  });
+
+  // Lasers
+  lasers.forEach(l => {
+    ctx.fillStyle = '#4488ff';
+    ctx.shadowColor = '#4488ff';
+    ctx.shadowBlur = 6;
+    ctx.fillRect(l.x, l.y, l.w, l.h);
+    ctx.shadowBlur = 0;
+  });
+
+  // Paddle
+  const pw = getPaddleW();
+  paddle.w = pw;
+  const grd=ctx.createLinearGradient(paddle.x,paddle.y,paddle.x,paddle.y+paddle.h);
+  grd.addColorStop(0,'#a78bfa');grd.addColorStop(1,'#60a5fa');
+  ctx.fillStyle=grd;
+  ctx.beginPath();ctx.roundRect(paddle.x,paddle.y,pw,paddle.h,6);ctx.fill();
+
+  // Paddle upgrades visual
+  if (paddleUpgrades.magnetic > 0) {
+    ctx.fillStyle = 'rgba(255,100,100,0.3)';
+    ctx.beginPath(); ctx.arc(paddle.x + pw/2, paddle.y, 20, Math.PI, 0); ctx.fill();
+  }
+  if (paddleUpgrades.laser > 0 || (activePowerups.laser && Date.now() < activePowerups.laser)) {
+    ctx.fillStyle = '#4488ff';
+    ctx.fillRect(paddle.x + pw/2 - 2, paddle.y - 4, 4, 4);
+  }
+
+  // Balls
+  balls.forEach(ball => {
+    const isPiercing = ball.pierce || (activePowerups.pierce && Date.now() < activePowerups.pierce);
+
+    if (isPiercing) {
+      ctx.fillStyle = '#ffff44';
+      ctx.shadowColor = '#ffff00';
+      ctx.shadowBlur = 10;
+    } else {
+      ctx.fillStyle='#ffd43b';
+    }
+    ctx.beginPath();ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2);ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // Face
+    ctx.fillStyle='#0f0f1e';
+    ctx.beginPath();ctx.arc(ball.x-3,ball.y-2,1.5,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(ball.x+3,ball.y-2,1.5,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='#0f0f1e';ctx.lineWidth=1;
+    ctx.beginPath();ctx.arc(ball.x,ball.y,3.5,0.2,Math.PI-0.2);ctx.stroke();
+    ctx.fillStyle='rgba(255,150,150,0.5)';
+    ctx.beginPath();ctx.arc(ball.x-6,ball.y+1,2,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(ball.x+6,ball.y+1,2,0,Math.PI*2);ctx.fill();
+  });
+
+  // Particles
+  particles.forEach(p => {
+    const a = p.life / p.maxLife;
+    ctx.globalAlpha = a;
+    ctx.fillStyle = p.color;
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.size * a, 0, Math.PI*2); ctx.fill();
+  });
+  ctx.globalAlpha = 1;
 }
 
 function update(){
-if(!gameRunning)return;
-// paddle movement
-if(keys['ArrowLeft'])paddle.x-=7;
-if(keys['ArrowRight'])paddle.x+=7;
-paddle.x=Math.max(0,Math.min(W-paddle.w,paddle.x));
+  if(!gameRunning)return;
 
-ball.x+=ball.dx;ball.y+=ball.dy;
-// wall bounce
-if(ball.x-ball.r<0){ball.x=ball.r;ball.dx=-ball.dx}
-if(ball.x+ball.r>W){ball.x=W-ball.r;ball.dx=-ball.dx}
-if(ball.y-ball.r<0){ball.y=ball.r;ball.dy=-ball.dy}
-// paddle
-if(ball.dy>0&&ball.y+ball.r>=paddle.y&&ball.y+ball.r<=paddle.y+paddle.h&&ball.x>=paddle.x&&ball.x<=paddle.x+paddle.w){
-ball.dy=-ball.dy;
-ball.dx+=((ball.x-(paddle.x+paddle.w/2))/paddle.w)*3;
-ball.dx=Math.max(-8,Math.min(8,ball.dx));
-ball.y=paddle.y-ball.r;
-}
-// bricks
-for(let r=0;r<ROWS;r++){
-for(let c=0;c<COLS;c++){
-const b=bricks[r][c];
-if(!b.alive)continue;
-if(ball.x+ball.r>b.x&&ball.x-ball.r<b.x+BRICK_W&&ball.y+ball.r>b.y&&ball.y-ball.r<b.y+BRICK_H){
-b.alive=false;score++;ball.dy=-ball.dy;updateUI();
-}
-}
-}
-// bottom
-if(ball.y+ball.r>H){
-lives--;updateUI();
-if(lives<=0){endGame();}else{resetBall();}
-}
-// check win
-let allDead=true;
-for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)if(bricks[r][c].alive)allDead=false;
-if(allDead){level++;initBricks();resetBall();}
+  // Paddle movement
+  const pw = getPaddleW();
+  if(keys['ArrowLeft'])paddle.x-=7;
+  if(keys['ArrowRight'])paddle.x+=7;
+  paddle.x=Math.max(0,Math.min(W-pw,paddle.x));
+
+  // Check powerup expiry
+  if (activePowerups.pierce && Date.now() > activePowerups.pierce) {
+    balls.forEach(b => b.pierce = false);
+    delete activePowerups.pierce;
+  }
+
+  // Update balls
+  const ballsToRemove = [];
+  balls.forEach((ball, bi) => {
+    const speedMult = (activePowerups.slow && Date.now() < activePowerups.slow) ? 0.6 : 1;
+    ball.x += ball.dx * speedMult;
+    ball.y += ball.dy * speedMult;
+
+    // Wall bounce
+    if(ball.x-ball.r<0){ball.x=ball.r;ball.dx=-ball.dx}
+    if(ball.x+ball.r>W){ball.x=W-ball.r;ball.dx=-ball.dx}
+    if(ball.y-ball.r<0){ball.y=ball.r;ball.dy=-ball.dy}
+
+    // Paddle
+    if(ball.dy>0 && ball.y+ball.r>=paddle.y && ball.y+ball.r<=paddle.y+paddle.h && ball.x>=paddle.x && ball.x<=paddle.x+pw){
+      ball.dy=-Math.abs(ball.dy);
+      ball.dx+=((ball.x-(paddle.x+pw/2))/pw)*3;
+      ball.dx=Math.max(-8,Math.min(8,ball.dx));
+      ball.y=paddle.y-ball.r;
+    }
+
+    // Bricks
+    const isPiercing = ball.pierce || (activePowerups.pierce && Date.now() < activePowerups.pierce);
+    for(let r=0;r<bricks.length;r++){
+      for(let c=0;c<COLS;c++){
+        const b=bricks[r][c];
+        if(!b || !b.alive)continue;
+        if(ball.x+ball.r>b.x && ball.x-ball.r<b.x+BRICK_W && ball.y+ball.r>b.y && ball.y-ball.r<b.y+BRICK_H){
+          if (b.type !== BRICK_STEEL) {
+            damageBrick(r, c, 1);
+          }
+          if (!isPiercing) {
+            ball.dy=-ball.dy;
+          }
+        }
+      }
+    }
+
+    // Boss collision
+    if(boss && ball.y-ball.r < boss.y+boss.h && ball.y+ball.r > boss.y && ball.x > boss.x && ball.x < boss.x+boss.w) {
+      ball.dy = Math.abs(ball.dy);
+      boss.hp--;
+      score += 2;
+      updateUI();
+      // particles
+      for(let i=0;i<5;i++){
+        const a = Math.random()*Math.PI*2;
+        particles.push({x:ball.x,y:ball.y,vx:Math.cos(a)*3,vy:Math.sin(a)*3,color:'#ff4444',life:15,maxLife:15,size:3});
+      }
+      if(boss.hp <= 0) {
+        // Boss defeated!
+        score += 50;
+        for(let i=0;i<30;i++){
+          const a = Math.random()*Math.PI*2;
+          particles.push({x:boss.x+boss.w/2,y:boss.y+boss.h/2,vx:Math.cos(a)*6,vy:Math.sin(a)*6,color:COLORS[i%COLORS.length],life:30,maxLife:30,size:4});
+        }
+        boss = null;
+        updateUI();
+        nextLevel();
+        return;
+      }
+    }
+
+    // Bottom
+    if(ball.y+ball.r>H){
+      ballsToRemove.push(bi);
+    }
+  });
+
+  // Remove dead balls
+  for(let i = ballsToRemove.length-1; i >= 0; i--) {
+    balls.splice(ballsToRemove[i], 1);
+  }
+
+  if(balls.length === 0) {
+    lives--;updateUI();
+    if(lives<=0){endGame();}else{resetBall();}
+  }
+
+  // Update powerups
+  powerups.forEach(pu => { pu.y += pu.dy; });
+  // Check powerup-paddle collision
+  powerups = powerups.filter(pu => {
+    if(pu.y + pu.h >= paddle.y && pu.y <= paddle.y + paddle.h && pu.x + pu.w >= paddle.x && pu.x <= paddle.x + pw) {
+      activatePowerup(pu);
+      return false;
+    }
+    if(pu.y > H) return false;
+    return true;
+  });
+
+  // Update lasers
+  lasers.forEach(l => { l.y += l.dy; });
+  lasers = lasers.filter(l => {
+    if(l.y < 0) return false;
+    // Check laser-brick collision
+    for(let r=0;r<bricks.length;r++){
+      for(let c=0;c<COLS;c++){
+        const b=bricks[r][c];
+        if(!b || !b.alive)continue;
+        if(l.x+l.w>b.x && l.x<b.x+BRICK_W && l.y<b.y+BRICK_H && l.y+l.h>b.y){
+          if (b.type !== BRICK_STEEL) damageBrick(r, c, 1);
+          return false;
+        }
+      }
+    }
+    // Laser-boss collision
+    if(boss && l.y < boss.y+boss.h && l.y+l.h > boss.y && l.x+l.w > boss.x && l.x < boss.x+boss.w) {
+      boss.hp--;
+      score += 1;
+      updateUI();
+      if(boss.hp <= 0) {
+        score += 50;
+        for(let i=0;i<30;i++){
+          const a = Math.random()*Math.PI*2;
+          particles.push({x:boss.x+boss.w/2,y:boss.y+boss.h/2,vx:Math.cos(a)*6,vy:Math.sin(a)*6,color:COLORS[i%COLORS.length],life:30,maxLife:30,size:4});
+        }
+        boss = null;
+        updateUI();
+        nextLevel();
+      }
+      return false;
+    }
+    return true;
+  });
+
+  // Boss AI
+  if(boss) {
+    boss.x += boss.dx;
+    if(boss.x <= 0 || boss.x + boss.w >= W) boss.dx = -boss.dx;
+
+    boss.shootTimer++;
+    if(boss.shootTimer >= Math.max(30, boss.shootInterval)) {
+      boss.shootTimer = 0;
+      bossProjectiles.push({
+        x: boss.x + boss.w/2,
+        y: boss.y + boss.h,
+        dx: (Math.random()-0.5)*3,
+        dy: 3 + Math.random()*2
+      });
+    }
+  }
+
+  // Boss projectiles
+  bossProjectiles.forEach(p => { p.x += p.dx; p.y += p.dy; });
+  bossProjectiles = bossProjectiles.filter(p => {
+    if(p.y > H) return false;
+    // Hit paddle?
+    if(p.y + 5 >= paddle.y && p.y - 5 <= paddle.y + paddle.h && p.x >= paddle.x && p.x <= paddle.x + pw) {
+      lives--;
+      updateUI();
+      if(lives <= 0) { endGame(); }
+      return false;
+    }
+    return true;
+  });
+
+  // Particles
+  particles.forEach(p => { p.x += p.vx; p.y += p.vy; p.vy += 0.1; p.life--; });
+  particles = particles.filter(p => p.life > 0);
+
+  // Auto-shoot laser if have upgrade
+  if ((paddleUpgrades.laser > 0 || (activePowerups.laser && Date.now() < activePowerups.laser)) && Math.random() < 0.05) {
+    shootLaser();
+  }
+
+  // Check win (all breakable bricks dead)
+  if(!boss) {
+    let allDead=true;
+    for(let r=0;r<bricks.length;r++)
+      for(let c=0;c<COLS;c++)
+        if(bricks[r][c] && bricks[r][c].alive && bricks[r][c].type !== BRICK_STEEL) allDead=false;
+    if(allDead) nextLevel();
+  }
 }
 
 function loop(){
-if(!gameRunning){draw();return;}
-update();draw();
-animId=requestAnimationFrame(loop);
+  if(!gameRunning){return;}
+  update();draw();
+  animId=requestAnimationFrame(loop);
 }
 
 function endGame(){
-gameRunning=false;
-cancelAnimationFrame(animId);
-saveHS();
-document.getElementById('gameArea').style.display='none';
-const s=document.getElementById('gameOverScreen');
-s.style.display='flex';
-document.getElementById('resultEmoji').textContent=score>20?'🎉':'😢';
-document.getElementById('resultTitle').textContent='게임 오버!';
-document.getElementById('resultScore').textContent=`점수: ${score}점`;
-document.getElementById('resultHighScore').textContent=`최고 기록: ${highScore}점`;
+  gameRunning=false;
+  cancelAnimationFrame(animId);
+  saveHS();
+  document.getElementById('gameArea').style.display='none';
+  const s=document.getElementById('gameOverScreen');
+  s.style.display='flex';
+  document.getElementById('resultEmoji').textContent=score>20?'🎉':'😢';
+  document.getElementById('resultTitle').textContent='게임 오버!';
+  document.getElementById('resultScore').textContent=`점수: ${score}점`;
+  document.getElementById('resultLevel').textContent=`도달 레벨: ${level}`;
+  document.getElementById('resultHighScore').textContent=`최고 기록: ${highScore}점`;
 }
 
-document.addEventListener('keydown',e=>{keys[e.key]=true;if(['ArrowLeft','ArrowRight'].includes(e.key))e.preventDefault()});
+document.addEventListener('keydown',e=>{
+  keys[e.key]=true;
+  if(['ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault();
+  if(e.key === ' ' && gameRunning) shootLaser();
+});
 document.addEventListener('keyup',e=>{keys[e.key]=false});
 document.addEventListener('mousemove',e=>{
-if(!canvas||!gameRunning)return;
-const rect=canvas.getBoundingClientRect();
-const mx=(e.clientX-rect.left)*(W/rect.width);
-paddle.x=mx-paddle.w/2;
-paddle.x=Math.max(0,Math.min(W-paddle.w,paddle.x));
+  if(!canvas||!gameRunning)return;
+  const rect=canvas.getBoundingClientRect();
+  const mx=(e.clientX-rect.left)*(W/rect.width);
+  paddle.x=mx-getPaddleW()/2;
+  paddle.x=Math.max(0,Math.min(W-getPaddleW(),paddle.x));
 });
 document.addEventListener('touchmove',e=>{
-if(!canvas||!gameRunning)return;
-e.preventDefault();
-const rect=canvas.getBoundingClientRect();
-const mx=(e.touches[0].clientX-rect.left)*(W/rect.width);
-paddle.x=mx-paddle.w/2;
-paddle.x=Math.max(0,Math.min(W-paddle.w,paddle.x));
+  if(!canvas||!gameRunning)return;
+  e.preventDefault();
+  const rect=canvas.getBoundingClientRect();
+  const mx=(e.touches[0].clientX-rect.left)*(W/rect.width);
+  paddle.x=mx-getPaddleW()/2;
+  paddle.x=Math.max(0,Math.min(W-getPaddleW(),paddle.x));
 },{passive:false});
 
 loadHS();

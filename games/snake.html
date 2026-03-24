@@ -9,12 +9,45 @@
 body { background: #1a1a2e; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
 canvas { border-radius: 12px; box-shadow: 0 0 40px rgba(100,200,150,0.15); }
 canvas{max-width:100%!important;height:auto!important;display:block;margin:0 auto}body{overflow-x:hidden}
+.menu-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,15,30,0.97);display:flex;align-items:center;justify-content:center;z-index:100;flex-direction:column}
+.menu-box{background:#1a1a2e;border-radius:20px;padding:30px;text-align:center;max-width:420px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.6)}
+.menu-box h2{font-size:1.6em;color:#7EC8A0;margin-bottom:15px}
+.menu-box p{color:#aaa;font-size:0.9em;margin:6px 0}
+.opt-group{margin:12px 0}
+.opt-group label{display:block;color:#ccc;font-size:0.85em;margin-bottom:6px;text-align:left}
+.opt-btn{padding:8px 14px;border:2px solid #333;border-radius:10px;background:#16213e;color:#ccc;cursor:pointer;margin:3px;font-size:0.85em;transition:all 0.2s}
+.opt-btn.active{border-color:#7EC8A0;color:#7EC8A0;background:#1a2e3e}
+.opt-btn:hover{border-color:#7EC8A0}
+.start-btn{padding:12px 32px;border:none;border-radius:12px;font-size:1em;cursor:pointer;background:linear-gradient(135deg,#7EC8A0,#5BA87E);color:#fff;font-weight:bold;margin-top:15px;transition:transform 0.2s}
+.start-btn:hover{transform:scale(1.05)}
 </style>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 </head>
 <body>
 <a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
 <script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
+
+<div id="menuScreen" class="menu-overlay">
+<div class="menu-box">
+<h2>🐍 뱀 키우기</h2>
+<p>방향키 또는 WASD로 조작</p>
+<div class="opt-group">
+<label>맵 테마</label>
+<button class="opt-btn active" onclick="selectMap(0,this)">🟢 클래식</button>
+<button class="opt-btn" onclick="selectMap(1,this)">🏙️ 도시</button>
+<button class="opt-btn" onclick="selectMap(2,this)">🌌 우주</button>
+</div>
+<div class="opt-group">
+<label>난이도</label>
+<button class="opt-btn" onclick="selectDiff(0,this)">쉬움</button>
+<button class="opt-btn active" onclick="selectDiff(1,this)">보통</button>
+<button class="opt-btn" onclick="selectDiff(2,this)">어려움</button>
+</div>
+<button class="start-btn" onclick="startGame()">게임 시작!</button>
+<div id="menuHS" style="color:#FFD700;font-size:0.85em;margin-top:10px"></div>
+</div>
+</div>
+
 <canvas id="c"></canvas>
 <script>
 const canvas = document.getElementById('c');
@@ -22,91 +55,263 @@ const ctx = canvas.getContext('2d');
 
 const GRID = 20, COLS = 20, ROWS = 20, CELL = 28;
 const W = COLS * CELL, H = ROWS * CELL;
-const HUD = 50;
+const HUD = 60;
 canvas.width = W; canvas.height = H + HUD;
 
 let snake, dir, nextDir, food, score, gameOver, started, speed, speedTimer;
 let particles = [], pops = [], frame = 0;
 let highScore = parseInt(localStorage.getItem('snake_hs') || '0');
+let lives = 1;
+let obstacles = [];
+let selectedMap = 0; // 0=classic, 1=city, 2=space
+let selectedDiff = 1; // 0=easy, 1=normal, 2=hard
+
+// Special food buffs
+let activeBuffs = {}; // {speedUp: endFrame, doubleScore: endFrame, wallPass: endFrame}
 
 const SNAKE_COLOR = '#7EC8A0';
 const SNAKE_DARK = '#5BA87E';
-const FOOD_TYPES = [
-  { emoji: '🍎', color: '#FF8A8A', points: 10 },
-  { emoji: '⭐', color: '#FFD700', points: 20 },
-  { emoji: '💖', color: '#FF69B4', points: 15 },
-  { emoji: '🍊', color: '#FFA500', points: 10 },
+
+const NORMAL_FOOD = [
+  { emoji: '🍎', color: '#FF8A8A', points: 10, type: 'normal' },
+  { emoji: '🍊', color: '#FFA500', points: 10, type: 'normal' },
+  { emoji: '💖', color: '#FF69B4', points: 15, type: 'normal' },
 ];
+const SPECIAL_FOOD = [
+  { emoji: '⭐', color: '#FFD700', points: 5, type: 'speedUp', desc: '속도업 5초' },
+  { emoji: '🔵', color: '#4488FF', points: 10, type: 'doubleScore', desc: '점수2배 10초' },
+  { emoji: '🟡', color: '#FFFF44', points: 5, type: 'wallPass', desc: '벽통과 8초' },
+  { emoji: '❤️', color: '#FF4466', points: 0, type: 'extraLife', desc: '생명+1' },
+  { emoji: '💣', color: '#444444', points: 0, type: 'bomb', desc: '폭탄! -3' },
+];
+
+// City map obstacles
+const CITY_OBSTACLES = [
+  {x:3,y:3},{x:4,y:3},{x:3,y:4},{x:4,y:4},
+  {x:15,y:3},{x:16,y:3},{x:15,y:4},{x:16,y:4},
+  {x:3,y:15},{x:4,y:15},{x:3,y:16},{x:4,y:16},
+  {x:15,y:15},{x:16,y:15},{x:15,y:16},{x:16,y:16},
+  {x:9,y:9},{x:10,y:9},{x:9,y:10},{x:10,y:10},
+  {x:7,y:2},{x:12,y:2},{x:7,y:17},{x:12,y:17},
+  {x:2,y:7},{x:2,y:12},{x:17,y:7},{x:17,y:12},
+];
+
+const HARD_EXTRA_OBSTACLES = [
+  {x:5,y:9},{x:14,y:9},{x:9,y:5},{x:9,y:14},
+  {x:6,y:6},{x:13,y:6},{x:6,y:13},{x:13,y:13},
+];
+
+const DIFF_SPEEDS = [200, 150, 100];
+const DIFF_NAMES = ['쉬움','보통','어려움'];
+
+// Menu
+function selectMap(i, el) {
+  selectedMap = i;
+  el.parentElement.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+function selectDiff(i, el) {
+  selectedDiff = i;
+  el.parentElement.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+document.getElementById('menuHS').textContent = highScore > 0 ? '최고 점수: ' + highScore : '';
+
+function startGame() {
+  document.getElementById('menuScreen').style.display = 'none';
+  started = true;
+  init();
+}
 
 function init() {
   const cx = Math.floor(COLS / 2), cy = Math.floor(ROWS / 2);
   snake = [{x:cx,y:cy},{x:cx-1,y:cy},{x:cx-2,y:cy}];
   dir = {x:1,y:0}; nextDir = {x:1,y:0};
   score = 0; gameOver = false;
-  speed = 150; speedTimer = 0;
+  speed = DIFF_SPEEDS[selectedDiff]; speedTimer = 0;
+  lives = selectedDiff === 0 ? 2 : 1;
   particles = []; pops = [];
+  activeBuffs = {};
+
+  // Setup obstacles
+  obstacles = [];
+  if (selectedMap === 1) {
+    obstacles = [...CITY_OBSTACLES];
+    if (selectedDiff === 2) obstacles = obstacles.concat(HARD_EXTRA_OBSTACLES);
+  }
+  if (selectedMap === 0 && selectedDiff === 2) {
+    // Add some obstacles on hard classic too
+    obstacles = [{x:5,y:5},{x:14,y:5},{x:5,y:14},{x:14,y:14}];
+  }
+
+  // Make sure snake doesn't start on obstacle
+  obstacles = obstacles.filter(o => !snake.some(s => s.x === o.x && s.y === o.y));
+
   spawnFood();
+}
+
+function isOccupied(x, y) {
+  if (snake.some(s => s.x === x && s.y === y)) return true;
+  if (obstacles.some(o => o.x === x && o.y === y)) return true;
+  if (food && food.x === x && food.y === y) return true;
+  return false;
 }
 
 function spawnFood() {
   let pos;
+  let tries = 0;
   do {
     pos = {x: Math.floor(Math.random()*COLS), y: Math.floor(Math.random()*ROWS)};
-  } while (snake.some(s => s.x === pos.x && s.y === pos.y));
-  const type = FOOD_TYPES[Math.floor(Math.random() * FOOD_TYPES.length)];
+    tries++;
+  } while (isOccupied(pos.x, pos.y) && tries < 500);
+
+  // 20% chance special food
+  let type;
+  if (Math.random() < 0.2) {
+    type = SPECIAL_FOOD[Math.floor(Math.random() * SPECIAL_FOOD.length)];
+  } else {
+    type = NORMAL_FOOD[Math.floor(Math.random() * NORMAL_FOOD.length)];
+  }
   food = {...pos, ...type, bounce: 0, spawnAnim: 15};
+}
+
+function getSpeedLevel() {
+  return Math.max(1, Math.floor((DIFF_SPEEDS[selectedDiff] - speed) / 12) + 1);
 }
 
 function update() {
   if (gameOver || !started) return;
 
   dir = nextDir;
-  const head = {x: snake[0].x + dir.x, y: snake[0].y + dir.y};
+  let head = {x: snake[0].x + dir.x, y: snake[0].y + dir.y};
 
-  // wall collision
-  if (head.x < 0 || head.x >= COLS || head.y < 0 || head.y >= ROWS) { die(); return; }
-  // self collision
+  // Wall handling
+  const wallPass = activeBuffs.wallPass && frame < activeBuffs.wallPass;
+
+  if (selectedMap === 2) {
+    // Space: wrap around
+    if (head.x < 0) head.x = COLS - 1;
+    if (head.x >= COLS) head.x = 0;
+    if (head.y < 0) head.y = ROWS - 1;
+    if (head.y >= ROWS) head.y = 0;
+  } else if (wallPass) {
+    // Wall pass buff
+    if (head.x < 0) head.x = COLS - 1;
+    if (head.x >= COLS) head.x = 0;
+    if (head.y < 0) head.y = ROWS - 1;
+    if (head.y >= ROWS) head.y = 0;
+  } else {
+    if (head.x < 0 || head.x >= COLS || head.y < 0 || head.y >= ROWS) { die(); return; }
+  }
+
+  // Obstacle collision (skip if wallPass on non-city, but city obstacles always kill unless wallPass)
+  if (!wallPass && obstacles.some(o => o.x === head.x && o.y === head.y)) { die(); return; }
+  if (wallPass && selectedMap === 1 && obstacles.some(o => o.x === head.x && o.y === head.y)) {
+    // With wallPass, skip through obstacles on city
+    // actually let them pass through
+  }
+
+  // Self collision
   if (snake.some(s => s.x === head.x && s.y === head.y)) { die(); return; }
 
   snake.unshift(head);
 
   if (head.x === food.x && head.y === food.y) {
-    score += food.points;
-    // particles
-    for (let i = 0; i < 12; i++) {
-      const a = Math.random() * Math.PI * 2;
-      particles.push({
-        x: food.x * CELL + CELL/2, y: HUD + food.y * CELL + CELL/2,
-        vx: Math.cos(a)*3*(1+Math.random()), vy: Math.sin(a)*3*(1+Math.random()),
-        color: food.color, life: 25+Math.random()*15, maxLife: 40, size: 3+Math.random()*3
-      });
+    let pts = food.points;
+    if (activeBuffs.doubleScore && frame < activeBuffs.doubleScore) pts *= 2;
+    score += pts;
+
+    // Handle special food types
+    switch(food.type) {
+      case 'speedUp':
+        activeBuffs.speedUp = frame + 300; // ~5 sec at 60fps
+        speed = Math.max(40, speed - 30);
+        pops.push({x: food.x*CELL+CELL/2, y: HUD+food.y*CELL, text: '⭐속도업!', life: 50, maxLife: 50, color: '#FFD700'});
+        break;
+      case 'doubleScore':
+        activeBuffs.doubleScore = frame + 600; // ~10 sec
+        pops.push({x: food.x*CELL+CELL/2, y: HUD+food.y*CELL, text: '🔵점수2배!', life: 50, maxLife: 50, color: '#4488FF'});
+        break;
+      case 'wallPass':
+        activeBuffs.wallPass = frame + 480; // ~8 sec
+        pops.push({x: food.x*CELL+CELL/2, y: HUD+food.y*CELL, text: '🟡벽통과!', life: 50, maxLife: 50, color: '#FFFF44'});
+        break;
+      case 'extraLife':
+        lives++;
+        pops.push({x: food.x*CELL+CELL/2, y: HUD+food.y*CELL, text: '❤️생명+1!', life: 50, maxLife: 50, color: '#FF4466'});
+        break;
+      case 'bomb':
+        // Lose 3 length
+        for (let i = 0; i < 3 && snake.length > 2; i++) {
+          const removed = snake.pop();
+          // explosion particles
+          for (let j = 0; j < 6; j++) {
+            const a = Math.random() * Math.PI * 2;
+            particles.push({
+              x: removed.x*CELL+CELL/2, y: HUD+removed.y*CELL+CELL/2,
+              vx: Math.cos(a)*4, vy: Math.sin(a)*4,
+              color: '#FF4400', life: 20, maxLife: 20, size: 4
+            });
+          }
+        }
+        pops.push({x: food.x*CELL+CELL/2, y: HUD+food.y*CELL, text: '💣폭탄! -3', life: 50, maxLife: 50, color: '#FF0000'});
+        break;
+      default:
+        // Normal food
+        for (let i = 0; i < 12; i++) {
+          const a = Math.random() * Math.PI * 2;
+          particles.push({
+            x: food.x * CELL + CELL/2, y: HUD + food.y * CELL + CELL/2,
+            vx: Math.cos(a)*3*(1+Math.random()), vy: Math.sin(a)*3*(1+Math.random()),
+            color: food.color, life: 25+Math.random()*15, maxLife: 40, size: 3+Math.random()*3
+          });
+        }
+        if (pts > 0) pops.push({x: food.x*CELL+CELL/2, y: HUD+food.y*CELL, text: `+${pts}`, life: 35, maxLife: 35, color: food.color});
     }
-    pops.push({x: food.x*CELL+CELL/2, y: HUD+food.y*CELL, text: `+${food.points}`, life: 35, maxLife: 35, color: food.color});
+
     spawnFood();
-    if (speed > 60) speed -= 3;
+    if (food.type !== 'speedUp' && speed > 60) speed -= 2;
   } else {
     snake.pop();
+  }
+
+  // Check buff expiry
+  if (activeBuffs.speedUp && frame >= activeBuffs.speedUp) {
+    speed = Math.min(speed + 30, DIFF_SPEEDS[selectedDiff]);
+    delete activeBuffs.speedUp;
   }
 }
 
 function die() {
+  lives--;
+  if (lives > 0) {
+    // Respawn
+    pops.push({x: W/2, y: H/2, text: '생명 -1!', life: 60, maxLife: 60, color: '#FF4466'});
+    const cx = Math.floor(COLS / 2), cy = Math.floor(ROWS / 2);
+    snake = [{x:cx,y:cy},{x:cx-1,y:cy},{x:cx-2,y:cy}];
+    dir = {x:1,y:0}; nextDir = {x:1,y:0};
+    return;
+  }
+
   gameOver = true;
   if (score > highScore) { highScore = score; localStorage.setItem('snake_hs', highScore); }
   _hub('snake',score);
-  // scatter segments outward from head
+
+  // Rainbow death animation - scatter segments
   const hx = snake[0].x, hy = snake[0].y;
+  const rainbowColors = ['#FF0000','#FF7700','#FFFF00','#00FF00','#0088FF','#8800FF','#FF00FF','#FF4488','#44FFFF','#FFAA00'];
   for (let si = 0; si < snake.length; si++) {
     const s = snake[si];
     const angle = Math.atan2(s.y - hy, s.x - hx) + (Math.random()-0.5)*0.8;
-    const speed = 2 + Math.random()*4;
-    for (let i = 0; i < 4; i++) {
-      const t = si / snake.length;
+    const spd = 3 + Math.random()*5;
+    for (let i = 0; i < 6; i++) {
       particles.push({
         x: s.x*CELL+CELL/2, y: HUD+s.y*CELL+CELL/2,
-        vx: Math.cos(angle+i)*speed + (Math.random()-0.5)*2,
-        vy: Math.sin(angle+i)*speed + (Math.random()-0.5)*2,
-        color: `rgb(${126+t*40},${200-t*30},${160-t*20})`,
-        life: 35+Math.random()*15, maxLife: 50, size: 4+Math.random()*3
+        vx: Math.cos(angle+i*0.5)*spd + (Math.random()-0.5)*3,
+        vy: Math.sin(angle+i*0.5)*spd + (Math.random()-0.5)*3,
+        color: rainbowColors[(si + i) % rainbowColors.length],
+        life: 40+Math.random()*20, maxLife: 60, size: 5+Math.random()*4
       });
     }
   }
@@ -114,8 +319,14 @@ function die() {
 
 document.addEventListener('keydown', e => {
   if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) e.preventDefault();
-  if (!started) { started = true; init(); return; }
-  if (gameOver) { if (e.key === ' ' || e.key === 'r' || e.key === 'R') { init(); started = true; } return; }
+  if (!started) return;
+  if (gameOver) {
+    if (e.key === ' ' || e.key === 'r' || e.key === 'R') {
+      document.getElementById('menuScreen').style.display = 'flex';
+      gameOver = false; started = false;
+    }
+    return;
+  }
   switch(e.key) {
     case 'ArrowUp': case 'w': case 'W': if (dir.y===0) nextDir={x:0,y:-1}; break;
     case 'ArrowDown': case 's': case 'S': if (dir.y===0) nextDir={x:0,y:1}; break;
@@ -125,63 +336,106 @@ document.addEventListener('keydown', e => {
 });
 
 function drawGrid() {
-  ctx.fillStyle = '#16213e';
-  ctx.fillRect(0, HUD, W, H);
-  ctx.strokeStyle = 'rgba(255,255,255,0.03)';
-  for (let x = 0; x <= COLS; x++) {
-    ctx.beginPath(); ctx.moveTo(x*CELL, HUD); ctx.lineTo(x*CELL, HUD+H); ctx.stroke();
-  }
-  for (let y = 0; y <= ROWS; y++) {
-    ctx.beginPath(); ctx.moveTo(0, HUD+y*CELL); ctx.lineTo(W, HUD+y*CELL); ctx.stroke();
+  if (selectedMap === 2) {
+    // Space theme
+    ctx.fillStyle = '#0a0a20';
+    ctx.fillRect(0, HUD, W, H);
+    // Stars
+    const starSeed = 42;
+    for (let i = 0; i < 60; i++) {
+      const sx = ((i * 137 + starSeed) % W);
+      const sy = HUD + ((i * 251 + starSeed) % H);
+      const twinkle = 0.3 + Math.sin(frame * 0.05 + i) * 0.3;
+      ctx.fillStyle = `rgba(255,255,255,${twinkle})`;
+      ctx.beginPath(); ctx.arc(sx, sy, 1 + (i % 3) * 0.5, 0, Math.PI*2); ctx.fill();
+    }
+    // No grid lines in space
+  } else if (selectedMap === 1) {
+    // City theme
+    ctx.fillStyle = '#1a1a30';
+    ctx.fillRect(0, HUD, W, H);
+    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+    for (let x = 0; x <= COLS; x++) {
+      ctx.beginPath(); ctx.moveTo(x*CELL, HUD); ctx.lineTo(x*CELL, HUD+H); ctx.stroke();
+    }
+    for (let y = 0; y <= ROWS; y++) {
+      ctx.beginPath(); ctx.moveTo(0, HUD+y*CELL); ctx.lineTo(W, HUD+y*CELL); ctx.stroke();
+    }
+  } else {
+    // Classic
+    ctx.fillStyle = '#16213e';
+    ctx.fillRect(0, HUD, W, H);
+    ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+    for (let x = 0; x <= COLS; x++) {
+      ctx.beginPath(); ctx.moveTo(x*CELL, HUD); ctx.lineTo(x*CELL, HUD+H); ctx.stroke();
+    }
+    for (let y = 0; y <= ROWS; y++) {
+      ctx.beginPath(); ctx.moveTo(0, HUD+y*CELL); ctx.lineTo(W, HUD+y*CELL); ctx.stroke();
+    }
   }
 }
 
+function drawObstacles() {
+  obstacles.forEach(o => {
+    const cx = o.x * CELL, cy = HUD + o.y * CELL;
+    if (selectedMap === 1) {
+      // City buildings
+      ctx.fillStyle = '#334';
+      ctx.fillRect(cx+2, cy+2, CELL-4, CELL-4);
+      ctx.fillStyle = '#556';
+      ctx.fillRect(cx+3, cy+3, CELL-6, CELL-6);
+      // Window lights
+      ctx.fillStyle = '#FFD700';
+      ctx.globalAlpha = 0.4 + Math.sin(frame*0.03 + o.x*7 + o.y*13)*0.2;
+      ctx.fillRect(cx+6, cy+6, 4, 4);
+      ctx.fillRect(cx+CELL-10, cy+6, 4, 4);
+      ctx.fillRect(cx+6, cy+CELL-10, 4, 4);
+      ctx.fillRect(cx+CELL-10, cy+CELL-10, 4, 4);
+      ctx.globalAlpha = 1;
+    } else {
+      // Generic obstacle
+      ctx.fillStyle = '#555';
+      ctx.fillRect(cx+2, cy+2, CELL-4, CELL-4);
+      ctx.fillStyle = '#666';
+      ctx.fillRect(cx+3, cy+3, CELL-6, 3);
+    }
+  });
+}
+
 function drawSnake() {
-  // body segments (back to front)
   for (let i = snake.length - 1; i >= 0; i--) {
     const s = snake[i];
     const cx = s.x * CELL + CELL/2, cy = HUD + s.y * CELL + CELL/2;
     const r = CELL/2 - 2;
 
     if (i === 0) {
-      // head - bigger
       ctx.fillStyle = SNAKE_COLOR;
       ctx.beginPath(); ctx.arc(cx, cy, r+1, 0, Math.PI*2); ctx.fill();
       ctx.strokeStyle = SNAKE_DARK;
       ctx.lineWidth = 1;
       ctx.beginPath(); ctx.arc(cx, cy, r+1, 0, Math.PI*2); ctx.stroke();
-
-      // eyes
       const ex = dir.x * 4, ey = dir.y * 4;
-      // white
       ctx.fillStyle = '#fff';
       ctx.beginPath(); ctx.arc(cx-4+ex, cy-3+ey, 5, 0, Math.PI*2); ctx.fill();
       ctx.beginPath(); ctx.arc(cx+4+ex, cy-3+ey, 5, 0, Math.PI*2); ctx.fill();
-      // pupils
       ctx.fillStyle = '#222';
       ctx.beginPath(); ctx.arc(cx-4+ex+dir.x*2, cy-3+ey+dir.y*2, 2.5, 0, Math.PI*2); ctx.fill();
       ctx.beginPath(); ctx.arc(cx+4+ex+dir.x*2, cy-3+ey+dir.y*2, 2.5, 0, Math.PI*2); ctx.fill();
-      // highlight
       ctx.fillStyle = '#fff';
       ctx.beginPath(); ctx.arc(cx-3+ex, cy-4+ey, 1.2, 0, Math.PI*2); ctx.fill();
       ctx.beginPath(); ctx.arc(cx+5+ex, cy-4+ey, 1.2, 0, Math.PI*2); ctx.fill();
-      // cheeks
       ctx.fillStyle = 'rgba(255,150,150,0.4)';
       ctx.beginPath(); ctx.ellipse(cx-8, cy+2, 3, 2, 0, 0, Math.PI*2); ctx.fill();
       ctx.beginPath(); ctx.ellipse(cx+8, cy+2, 3, 2, 0, 0, Math.PI*2); ctx.fill();
-      // mouth
-      ctx.strokeStyle = '#4a7a5a';
-      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = '#4a7a5a'; ctx.lineWidth = 1.5;
       ctx.beginPath(); ctx.arc(cx+ex, cy+3+ey, 3, 0.15*Math.PI, 0.85*Math.PI); ctx.stroke();
     } else {
-      // body - gradient fade
       const t = i / snake.length;
       const gr = Math.floor(126 + t * 40);
       const gg = Math.floor(200 - t * 30);
       const gb = Math.floor(160 - t * 20);
       ctx.fillStyle = `rgb(${gr},${gg},${gb})`;
       ctx.beginPath(); ctx.arc(cx, cy, r - t*2, 0, Math.PI*2); ctx.fill();
-      // shine
       ctx.fillStyle = 'rgba(255,255,255,0.15)';
       ctx.beginPath(); ctx.arc(cx-2, cy-2, r/3, 0, Math.PI*2); ctx.fill();
     }
@@ -201,26 +455,37 @@ function drawFood() {
   ctx.scale(spawnScale, spawnScale);
   ctx.translate(-cx, -cy);
 
-  // glow (pulsing)
   const glowPulse = 4 + Math.sin(frame * 0.15) * 3;
+
+  // Special food gets extra glow
+  if (food.type && food.type !== 'normal') {
+    ctx.fillStyle = food.color + '40';
+    ctx.beginPath(); ctx.arc(cx, cy, CELL/2 + glowPulse + 3, 0, Math.PI*2); ctx.fill();
+  }
+
   ctx.fillStyle = food.color + '30';
   ctx.beginPath(); ctx.arc(cx, cy, CELL/2 + glowPulse, 0, Math.PI*2); ctx.fill();
 
-  // food circle
   ctx.fillStyle = food.color;
   ctx.beginPath(); ctx.arc(cx, cy, CELL/2 - 2, 0, Math.PI*2); ctx.fill();
 
-  // face
-  ctx.fillStyle = '#fff';
-  ctx.beginPath(); ctx.arc(cx-3, cy-2, 2.5, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.arc(cx+3, cy-2, 2.5, 0, Math.PI*2); ctx.fill();
-  ctx.fillStyle = '#333';
-  ctx.beginPath(); ctx.arc(cx-3, cy-1.5, 1.2, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.arc(cx+3, cy-1.5, 1.2, 0, Math.PI*2); ctx.fill();
-  ctx.strokeStyle = '#555'; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.arc(cx, cy+3, 2, 0.1*Math.PI, 0.9*Math.PI); ctx.stroke();
+  // Draw emoji for special food
+  if (food.type && food.type !== 'normal') {
+    ctx.font = '16px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(food.emoji, cx, cy + 5);
+    ctx.textAlign = 'left';
+  } else {
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(cx-3, cy-2, 2.5, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx+3, cy-2, 2.5, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#333';
+    ctx.beginPath(); ctx.arc(cx-3, cy-1.5, 1.2, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx+3, cy-1.5, 1.2, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#555'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(cx, cy+3, 2, 0.1*Math.PI, 0.9*Math.PI); ctx.stroke();
+  }
 
-  // shine
   ctx.fillStyle = 'rgba(255,255,255,0.4)';
   ctx.beginPath(); ctx.arc(cx-3, cy-5, 3, 0, Math.PI*2); ctx.fill();
 
@@ -234,17 +499,54 @@ function drawHUD() {
   ctx.fillRect(0, HUD-1, W, 1);
 
   ctx.fillStyle = '#fff';
-  ctx.font = 'bold 20px sans-serif';
+  ctx.font = 'bold 18px sans-serif';
   ctx.textAlign = 'left';
-  ctx.fillText(`점수: ${score}`, 12, 33);
+  ctx.fillText(`점수: ${score}`, 12, 24);
+
+  ctx.fillStyle = '#aaa';
+  ctx.font = '12px sans-serif';
+  ctx.fillText(`길이: ${snake ? snake.length : 3}`, 12, 44);
+
+  ctx.fillText(`속도: Lv.${getSpeedLevel()}`, 100, 44);
+
+  // Lives
+  ctx.fillStyle = '#FF4466';
+  ctx.font = '13px sans-serif';
+  ctx.fillText(`❤️ x${lives}`, 190, 44);
+
+  // Map name
+  const mapNames = ['🟢클래식','🏙️도시','🌌우주'];
+  ctx.fillStyle = '#888';
+  ctx.font = '11px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(`${mapNames[selectedMap]} | ${DIFF_NAMES[selectedDiff]}`, W/2, 55);
 
   ctx.fillStyle = '#FFD700';
   ctx.font = '14px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText(`최고: ${highScore}`, W - 12, 22);
+  ctx.fillText(`최고: ${highScore}`, W - 12, 24);
 
-  ctx.fillStyle = '#888';
-  ctx.fillText(`길이: ${snake ? snake.length : 3}`, W - 12, 42);
+  // Active buffs display
+  let buffY = 44;
+  ctx.font = '11px sans-serif';
+  if (activeBuffs.speedUp && frame < activeBuffs.speedUp) {
+    const rem = Math.ceil((activeBuffs.speedUp - frame) / 60);
+    ctx.fillStyle = '#FFD700';
+    ctx.fillText(`⭐속도업 ${rem}s`, W - 12, buffY);
+    buffY += 13;
+  }
+  if (activeBuffs.doubleScore && frame < activeBuffs.doubleScore) {
+    const rem = Math.ceil((activeBuffs.doubleScore - frame) / 60);
+    ctx.fillStyle = '#4488FF';
+    ctx.fillText(`🔵x2 ${rem}s`, W - 12, buffY);
+    buffY += 13;
+  }
+  if (activeBuffs.wallPass && frame < activeBuffs.wallPass) {
+    const rem = Math.ceil((activeBuffs.wallPass - frame) / 60);
+    ctx.fillStyle = '#FFFF44';
+    ctx.fillText(`🟡벽통과 ${rem}s`, W - 12, buffY);
+  }
+
   ctx.textAlign = 'left';
 }
 
@@ -278,53 +580,16 @@ function updateParticles() {
   pops = pops.filter(p => p.life > 0);
 }
 
-function drawStart() {
-  ctx.fillStyle = '#1a1a2e';
-  ctx.fillRect(0, 0, W, H + HUD);
-
-  ctx.textAlign = 'center';
-  ctx.fillStyle = SNAKE_COLOR;
-  ctx.font = 'bold 40px sans-serif';
-  ctx.fillText('뱀 키우기', W/2, 180);
-
-  // cute snake illustration
-  const sx = W/2 - 60;
-  const sy = 230;
-  const segs = [{x:0,y:0},{x:20,y:0},{x:40,y:-5},{x:55,y:-15},{x:65,y:-30},{x:60,y:-45}];
-  segs.forEach((s, i) => {
-    const r = i === segs.length-1 ? 12 : 9 - i*0.5;
-    ctx.fillStyle = i === segs.length-1 ? SNAKE_COLOR : `rgb(${126+i*8},${200-i*5},${160-i*5})`;
-    ctx.beginPath(); ctx.arc(sx+s.x, sy+s.y, r, 0, Math.PI*2); ctx.fill();
-  });
-  // head face
-  const hx = sx+60, hy = sy-45;
-  ctx.fillStyle = '#fff';
-  ctx.beginPath(); ctx.arc(hx-4, hy-2, 4, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.arc(hx+4, hy-2, 4, 0, Math.PI*2); ctx.fill();
-  ctx.fillStyle = '#222';
-  ctx.beginPath(); ctx.arc(hx-3, hy-1, 2, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.arc(hx+5, hy-1, 2, 0, Math.PI*2); ctx.fill();
-  ctx.fillStyle = 'rgba(255,150,150,0.5)';
-  ctx.beginPath(); ctx.ellipse(hx-9, hy+3, 3, 2, 0, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(hx+9, hy+3, 3, 2, 0, 0, Math.PI*2); ctx.fill();
-
-  ctx.fillStyle = '#888';
-  ctx.font = '16px sans-serif';
-  ctx.fillText('방향키 또는 WASD로 조작', W/2, 310);
-
-  const t = Date.now()/1000;
-  ctx.globalAlpha = 0.5 + Math.sin(t*2)*0.5;
-  ctx.fillStyle = SNAKE_COLOR;
-  ctx.font = '18px sans-serif';
-  ctx.fillText('아무 키나 눌러 시작하세요', W/2, 370);
-  ctx.globalAlpha = 1;
-
-  if (highScore > 0) {
-    ctx.fillStyle = '#FFD700';
-    ctx.font = '15px sans-serif';
-    ctx.fillText(`최고 점수: ${highScore}`, W/2, 420);
+function drawSpaceBorder() {
+  if (selectedMap === 2) {
+    // Glowing border to show wrap-around
+    const pulse = 0.3 + Math.sin(frame * 0.05) * 0.15;
+    ctx.strokeStyle = `rgba(100,100,255,${pulse})`;
+    ctx.lineWidth = 2;
+    ctx.setLineDash([6,6]);
+    ctx.strokeRect(1, HUD+1, W-2, H-2);
+    ctx.setLineDash([]);
   }
-  ctx.textAlign = 'left';
 }
 
 function drawGameOver() {
@@ -344,11 +609,10 @@ function drawGameOver() {
   ctx.font = '16px sans-serif';
   ctx.fillText(`뱀 길이: ${snake.length}칸`, W/2, 295);
 
-  // stats box
   ctx.fillStyle = 'rgba(255,255,255,0.05)';
   ctx.beginPath(); ctx.roundRect(W/2-90, 308, 180, 35, 8); ctx.fill();
   ctx.fillStyle = '#999'; ctx.font = '13px sans-serif';
-  ctx.fillText(`속도: ${Math.max(1, Math.floor((150-speed)/15)+1)}단계`, W/2, 330);
+  ctx.fillText(`속도: Lv.${getSpeedLevel()}`, W/2, 330);
 
   if (score >= highScore && score > 0) {
     const pulse = 0.8 + Math.sin(Date.now()/200)*0.2;
@@ -364,7 +628,7 @@ function drawGameOver() {
   ctx.globalAlpha = 0.5+Math.sin(t*2)*0.5;
   ctx.fillStyle = SNAKE_COLOR;
   ctx.font = '18px sans-serif';
-  ctx.fillText('스페이스바로 다시 시작', W/2, 420);
+  ctx.fillText('스페이스바로 메뉴로', W/2, 420);
   ctx.globalAlpha = 1;
   ctx.textAlign = 'left';
 }
@@ -373,7 +637,12 @@ let lastMove = 0;
 function gameLoop(time) {
   frame++;
 
-  if (!started) { drawStart(); requestAnimationFrame(gameLoop); return; }
+  if (!started) {
+    ctx.fillStyle = '#1a1a2e';
+    ctx.fillRect(0, 0, W, H + HUD);
+    requestAnimationFrame(gameLoop);
+    return;
+  }
 
   if (!gameOver && time - lastMove > speed) {
     update();
@@ -386,6 +655,8 @@ function gameLoop(time) {
   ctx.fillRect(0, 0, W, H+HUD);
 
   drawGrid();
+  drawObstacles();
+  drawSpaceBorder();
   drawFood();
   drawSnake();
   drawParticles();
@@ -402,8 +673,11 @@ canvas.addEventListener('touchstart', e => {
   e.preventDefault();
   touchStartX = e.touches[0].clientX;
   touchStartY = e.touches[0].clientY;
-  if (!started) { started = true; init(); return; }
-  if (gameOver) { init(); started = true; }
+  if (!started) return;
+  if (gameOver) {
+    document.getElementById('menuScreen').style.display = 'flex';
+    gameOver = false; started = false;
+  }
 }, {passive: false});
 canvas.addEventListener('touchend', e => {
   if (!touchStartX || gameOver || !started) return;
