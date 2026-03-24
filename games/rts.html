@@ -19,6 +19,24 @@ canvas{display:block;border-radius:0 0 8px 8px;}
 #overlay h2{font-size:26px;color:#5af;margin-bottom:10px;}
 .btn{background:linear-gradient(135deg,#4a8af5,#3060c0);border:none;color:#fff;padding:14px 40px;border-radius:12px;font-size:18px;font-weight:bold;cursor:pointer;font-family:inherit;min-height:44px;touch-action:manipulation;}
 .btn:active{transform:scale(0.95);}
+#roundModal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,15,30,0.92);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(4px);animation:fadeIn .3s}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes bounceIn{from{transform:scale(0.5);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes starPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
+.round-box{background:#1a1a2e;border-radius:20px;padding:30px 40px;text-align:center;border:2px solid #5a8aba;box-shadow:0 0 40px rgba(90,138,186,0.3);animation:bounceIn .4s;max-width:350px;width:90%}
+.round-emoji{font-size:60px;margin-bottom:10px;animation:starPulse 1s infinite}
+.round-title{font-size:26px;font-weight:bold;color:#FFD700;margin-bottom:5px}
+.round-sub{color:#aaa;font-size:14px;margin-bottom:15px}
+.round-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:15px 0}
+.round-stat{background:#252545;padding:10px;border-radius:10px}
+.round-stat .val{font-size:20px;font-weight:bold;color:#5af}
+.round-stat .lbl{font-size:11px;color:#888;margin-top:2px}
+.round-btns{display:flex;gap:10px;justify-content:center;margin-top:15px}
+.round-btns button{padding:12px 24px;border:none;border-radius:12px;font-size:16px;font-weight:bold;cursor:pointer;min-height:44px;touch-action:manipulation}
+.btn-next{background:linear-gradient(135deg,#FFD700,#FFA000);color:#000}
+.btn-next:hover{box-shadow:0 4px 15px rgba(255,215,0,0.4)}
+.btn-quit{background:#333;color:#aaa}
+.btn-quit:hover{background:#444}
 #hud{width:100%;max-width:500px;display:none;padding:6px 10px;background:#1a1a2e;font-size:13px;display:none;justify-content:space-between;border-radius:8px 8px 0 0;}
 #hud span{color:#ffd700;}
 </style>
@@ -36,6 +54,24 @@ canvas{display:block;border-radius:0 0 8px 8px;}
   <button class="ubtn" onclick="spawnUnit('sword')">⚔️ 검사<br><span class="cost">30골드</span></button>
   <button class="ubtn" onclick="spawnUnit('archer')">🏹 궁수<br><span class="cost">50골드</span></button>
   <button class="ubtn" onclick="spawnUnit('knight')">🛡️ 기사<br><span class="cost">100골드</span></button>
+</div>
+
+<div id="roundModal">
+<div class="round-box">
+<div class="round-emoji" id="rmEmoji">🎉</div>
+<div class="round-title" id="rmTitle">라운드 클리어!</div>
+<div class="round-sub" id="rmSub"></div>
+<div class="round-stats">
+<div class="round-stat"><div class="val" id="rmRound">1</div><div class="lbl">클리어 라운드</div></div>
+<div class="round-stat"><div class="val" id="rmGold">0</div><div class="lbl">보유 골드</div></div>
+<div class="round-stat"><div class="val" id="rmUnits">0</div><div class="lbl">생존 유닛</div></div>
+<div class="round-stat"><div class="val" id="rmHP">0%</div><div class="lbl">기지 체력</div></div>
+</div>
+<div class="round-btns">
+<button class="btn-quit" onclick="showEnd()">그만하기</button>
+<button class="btn-next" onclick="document.getElementById('roundModal').style.display='none';startRound()">⚔️ 다음 라운드</button>
+</div>
+</div>
 </div>
 
 <div id="overlay">
@@ -198,12 +234,16 @@ function update(){
     round++;
     _hub('rts',roundsWon);
     setTimeout(()=>{
-      if(confirm('🎉 라운드 '+roundsWon+' 승리! 다음 라운드 진행?')){
-        startRound();
-      } else {
-        showEnd();
-      }
-    },300);
+      const m=document.getElementById('roundModal');
+      m.style.display='flex';
+      document.getElementById('rmEmoji').textContent=roundsWon>=5?'👑':roundsWon>=3?'⭐':'🎉';
+      document.getElementById('rmTitle').textContent='라운드 '+roundsWon+' 클리어!';
+      document.getElementById('rmSub').textContent='다음 라운드는 더 강한 적이 기다립니다...';
+      document.getElementById('rmRound').textContent=roundsWon;
+      document.getElementById('rmGold').textContent=Math.floor(gold);
+      document.getElementById('rmUnits').textContent=units.filter(u=>u.team==='player').length;
+      document.getElementById('rmHP').textContent=Math.round(playerBase.hp/playerBase.maxHp*100)+'%';
+    },500);
   }
   if(playerBase.hp<=0){
     gameRunning=false;
