@@ -101,7 +101,7 @@ let enemies=[],gems=[],particles=[],weaponProjectiles=[];
 let camX=0,camY=0;
 let joyActive=false,joyX=0,joyY=0,joyStartX=0,joyStartY=0,joyCurX=0,joyCurY=0;
 let orbAngle=0,lightningTimer=0;
-let animFrame,timerInterval;
+let animFrame,timerInterval,frame=0;
 let levelFlash=0;
 let damageNums=[];
 
@@ -278,6 +278,7 @@ canvas.addEventListener('pointercancel',()=>{joyActive=false;joyX=0;joyY=0;});
 let spawnTimer=0;
 function update(){
   if(state!=='playing'||paused)return;
+  frame++;
   // move player
   player.x+=joyX*player.speed;
   player.y+=joyY*player.speed;
@@ -314,7 +315,7 @@ function update(){
   }
   function findNearest(range){
     let best=null,bd=Infinity;
-    enemies.forEach(e=>{const d=Math.hypot(e.x-player.x,e.y-player.y);if(d<bd&&d<range){bd=d;best=e;}});
+    enemies.forEach(e=>{if(e.dead)return;const d=Math.hypot(e.x-player.x,e.y-player.y);if(d<bd&&d<range){bd=d;best=e;}});
     return{e:best,d:bd};
   }
 
@@ -671,7 +672,7 @@ function draw(){
 }
 
 function gameLoop(){
-  update();draw();
+  try{update();draw();}catch(err){console.error('Game error:',err);}
   if(state==='playing')animFrame=requestAnimationFrame(gameLoop);
 }
 </script>
