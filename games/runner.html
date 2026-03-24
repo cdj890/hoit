@@ -58,8 +58,11 @@ function spawnObstacle(){
   {w:20,h:28,color:'#d63031',emoji:'🪨'},
   {w:30,h:24,color:'#6c5ce7',emoji:'📦'},
  ];
+ if(score>30){types.push({w:18,h:50,color:'#fdcb6e',emoji:'🗼'});}
+ if(score>60){types.push({w:36,h:18,color:'#00b894',emoji:'🐊'});}
  let t=types[Math.floor(Math.random()*types.length)];
- obstacles.push({x:W+20,y:GROUND-t.h,w:t.w,h:t.h,color:t.color,emoji:t.emoji});
+ const isMoving=score>50&&Math.random()<0.2;
+ obstacles.push({x:W+20,y:GROUND-t.h,w:t.w,h:t.h,color:t.color,emoji:t.emoji,vy:isMoving?-1.5:0,baseY:GROUND-t.h,moving:isMoving});
 }
 
 function drawChar(x,y){
@@ -136,7 +139,7 @@ function update(){
  if(py>=GROUND){py=GROUND;vy=0;jumping=false;}
  // obstacles
  if(frame%Math.max(30,80-Math.floor(frame/100))===0)spawnObstacle();
- obstacles.forEach(o=>o.x-=speed);
+ obstacles.forEach(o=>{o.x-=speed;if(o.moving){o.y+=o.vy;if(o.y<o.baseY-30||o.y>o.baseY)o.vy*=-1;}});
  obstacles=obstacles.filter(o=>o.x+o.w>-20);
  // collision
  obstacles.forEach(o=>{

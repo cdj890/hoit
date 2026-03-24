@@ -53,15 +53,16 @@ function makePlat(x, y, w, type) {
 }
 
 function spawnPlat(y) {
-  const w = 40 + (Math.random()*50)|0;
-  const x = 22 + Math.random()*(W-w-44);
   const df = Math.min(maxDepth/5000, 1);
+  const baseW = 40 + (Math.random()*50)|0;
+  const w = Math.max(30, baseW*(1-df*0.45)|0);
+  const x = 22 + Math.random()*(W-w-44);
   const r = Math.random();
   let type = PLAT_NORMAL;
-  if (r < 0.05+df*0.08) type = PLAT_SPIKE;
-  else if (r < 0.15+df*0.1) type = PLAT_CRUMBLE;
-  else if (r < 0.30+df*0.1) type = PLAT_MOVING;
-  return makePlat(x, y, Math.max(40, w*(1-df*0.25)|0), type);
+  if (r < 0.08+df*0.15) type = PLAT_SPIKE;
+  else if (r < 0.20+df*0.18) type = PLAT_CRUMBLE;
+  else if (r < 0.35+df*0.18) type = PLAT_MOVING;
+  return makePlat(x, y, w, type);
 }
 
 document.addEventListener('keydown', e => {

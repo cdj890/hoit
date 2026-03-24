@@ -40,40 +40,53 @@ canvas{max-width:100%!important;height:auto!important;display:block;margin:0 aut
 </div>
 <h1>🃏 기억력 게임</h1>
 <div class="sub">카드를 뒤집어 같은 쌍을 찾으세요!</div>
-<div id="info"><span>이동: <span id="moves">0</span></span><span>쌍: <span id="pairs">0</span>/8</span><span>⏱ <span id="timer">0</span>초</span></div>
+<div id="info"><span>이동: <span id="moves">0</span></span><span>쌍: <span id="pairs">0/8</span></span><span>⏱ <span id="timer">0</span>초</span></div>
 <div id="board"></div>
 <div id="hi"></div>
 </div>
 
 <script>
-const EMOJIS=['🐱','🐶','🐰','🦊','🐻','🐼','🐸','🦄'];
+const ALL_EMOJIS=['🐱','🐶','🐰','🦊','🐻','🐼','🐸','🦄','🐯','🐨','🐵','🦁','🐮','🐷','🐔','🦋','🐢','🐙'];
 let cards,flipped,matched,moves,pairsFound,seconds,timerID,locked;
+let gridSize=4,level=1,totalScore=0;
 
 function shuffle(arr){for(let i=arr.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
 
 function startGame(){
  document.getElementById('overlay').style.display='none';
+ const numPairs=Math.floor(gridSize*gridSize/2);
+ const EMOJIS=ALL_EMOJIS.slice(0,numPairs);
  let deck=shuffle([...EMOJIS,...EMOJIS]);
+ if(gridSize%2===1)deck.push('⭐');
  cards=deck;flipped=[];matched=new Set();moves=0;pairsFound=0;seconds=0;locked=false;
  clearInterval(timerID);
  timerID=setInterval(()=>{seconds++;document.getElementById('timer').textContent=seconds;},1000);
  document.getElementById('moves').textContent='0';
- document.getElementById('pairs').textContent='0';
+ document.getElementById('pairs').textContent=`0/${numPairs}`;
  document.getElementById('timer').textContent='0';
+ const board=document.getElementById('board');
+ board.style.gridTemplateColumns=`repeat(${gridSize},1fr)`;
+ board.style.width=(gridSize*80)+'px';
+ const cardSize=Math.max(48,72-(gridSize-4)*10);
+ document.querySelectorAll('.card').forEach(c=>{c.style.width=cardSize+'px';c.style.height=cardSize+'px';});
  render();
 }
 
 function render(){
  const b=document.getElementById('board');b.innerHTML='';
+ const cardSize=Math.max(48,72-(gridSize-4)*10);
+ const fontSize=Math.max(18,30-(gridSize-4)*5);
  cards.forEach((emoji,i)=>{
   let d=document.createElement('div');
   d.className='card';
-  if(matched.has(i)){
+  d.style.width=cardSize+'px';d.style.height=cardSize+'px';d.style.fontSize=fontSize+'px';
+  if(emoji==='⭐'&&gridSize%2===1&&i===cards.length-1){d.className+=' card-matched';d.textContent='⭐';d.style.pointerEvents='none';matched.add(i);}
+  else if(matched.has(i)){
    d.className+=' card-matched';d.textContent=emoji;
   }else if(flipped.includes(i)){
    d.className+=' card-front';d.textContent=emoji;
   }else{
-   d.className+=' card-back';d.innerHTML='<span style="font-size:20px">?</span>';
+   d.className+=' card-back';d.innerHTML='<span style="font-size:'+Math.max(14,20-(gridSize-4)*3)+'px">?</span>';
   }
   d.addEventListener('click',()=>flipCard(i));
   b.appendChild(d);
@@ -89,9 +102,10 @@ function flipCard(i){
   let[a,b]=flipped;
   if(cards[a]===cards[b]){
    matched.add(a);matched.add(b);pairsFound++;
-   document.getElementById('pairs').textContent=pairsFound;
+   const numPairs=Math.floor(gridSize*gridSize/2);
+   document.getElementById('pairs').textContent=pairsFound+'/'+numPairs;
    flipped=[];locked=false;render();
-   if(pairsFound===8)gameWon();
+   if(pairsFound>=numPairs)gameWon();
   }else{
    setTimeout(()=>{flipped=[];locked=false;render();},700);
   }
@@ -100,15 +114,21 @@ function flipCard(i){
 
 function gameWon(){
  clearInterval(timerID);
- let score=Math.max(0,8*1000-moves*10-seconds*5);
+ const numPairs=Math.floor(gridSize*gridSize/2);
+ let roundScore=Math.max(0,numPairs*1000-moves*10-seconds*5);
+ totalScore+=roundScore;
  let hi=parseInt(localStorage.getItem('memory_hi')||'0');
- if(score>hi){hi=score;localStorage.setItem('memory_hi',hi);}
+ if(totalScore>hi){hi=totalScore;localStorage.setItem('memory_hi',hi);}
  document.getElementById('hi').textContent='최고 점수: '+hi;
- _hub('memory',score);
+ _hub('memory',totalScore);
+ const canAdvance=gridSize<6;
  setTimeout(()=>{
   let ov=document.getElementById('overlay');ov.style.display='flex';
-  ov.innerHTML=`<h2>🎉 완벽해요!</h2><p>이동: ${moves}회 | 시간: ${seconds}초</p><p style="font-size:20px;color:#ffeaa7;margin:4px 0">점수: ${score}</p><p style="font-size:13px;color:#b2bec3">최고 점수: ${hi}</p><button class="btn" onclick="startGame()">다시 하기</button>`;
+  ov.innerHTML=`<h2>🎉 레벨 ${level} 클리어!</h2><p>${gridSize}x${gridSize} 완료! | 이동: ${moves}회 | 시간: ${seconds}초</p><p style="font-size:20px;color:#ffeaa7;margin:4px 0">라운드 점수: ${roundScore}</p><p style="font-size:16px;color:#7FF;margin:2px 0">총 점수: ${totalScore}</p><p style="font-size:13px;color:#b2bec3">최고 점수: ${hi}</p>${canAdvance?`<button class="btn" onclick="nextLevel()">다음 레벨 (${gridSize+1}x${gridSize+1})</button><br>`:''}<button class="btn" style="background:#636e72;margin-top:8px" onclick="gridSize=4;level=1;totalScore=0;startGame()">처음부터</button>`;
  },500);
+}
+function nextLevel(){
+ level++;gridSize=Math.min(6,gridSize+1);startGame();
 }
 </script>
 </body>

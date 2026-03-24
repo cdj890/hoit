@@ -25,11 +25,12 @@ canvas.width = W; canvas.height = H;
 const GRAVITY = 0.35;
 const FLAP = -6.5;
 const PIPE_W = 55;
-const GAP = 170;
-const PIPE_SPEED = 2.2;
+const BASE_GAP = 170;
+const BASE_PIPE_SPEED = 2.2;
 const GROUND_H = 60;
 
 let bird, pipes, score, gameOver, started, frame;
+let gameSpeed, currentGap;
 let particles = [];
 let highScore = parseInt(localStorage.getItem('flappy_hs') || '0');
 let groundX = 0;
@@ -39,6 +40,7 @@ function init() {
   bird = {x: 80, y: H/2 - 30, vy: 0, rotation: 0, wingFrame: 0};
   pipes = [];
   score = 0; gameOver = false; frame = 0;
+  gameSpeed = BASE_PIPE_SPEED; currentGap = BASE_GAP;
   particles = []; flashAlpha = 0;
 }
 
@@ -80,30 +82,35 @@ function update() {
   if (bird.y + 15 > H - GROUND_H) { die(); return; }
   if (bird.y < -10) { bird.y = -10; bird.vy = 0; }
 
+  // difficulty scaling
+  gameSpeed = BASE_PIPE_SPEED + score * 0.08;
+  currentGap = Math.max(120, BASE_GAP - score * 2);
+
   // pipes
   if (frame % 100 === 0 || pipes.length === 0) {
-    const minY = 80, maxY = H - GROUND_H - GAP - 80;
+    const minY = 80, maxY = H - GROUND_H - currentGap - 80;
     const topH = minY + Math.random() * (maxY - minY);
-    pipes.push({x: W + 20, topH: topH, scored: false});
+    pipes.push({x: W + 20, topH: topH, gap: currentGap, scored: false});
   }
 
   pipes.forEach(p => {
-    p.x -= PIPE_SPEED;
+    p.x -= gameSpeed;
     // scoring
     if (!p.scored && p.x + PIPE_W < bird.x) {
       score++;
       p.scored = true;
     }
-    // collision
+    // collision (use pipe's own gap for fairness)
+    const pGap = p.gap || currentGap;
     const bx = bird.x - 12, by = bird.y - 12, bw = 24, bh = 24;
     if (bx + bw > p.x && bx < p.x + PIPE_W) {
-      if (by < p.topH || by + bh > p.topH + GAP) { die(); }
+      if (by < p.topH || by + bh > p.topH + pGap) { die(); }
     }
   });
   pipes = pipes.filter(p => p.x > -PIPE_W - 10);
 
   // ground scroll
-  groundX -= PIPE_SPEED;
+  groundX -= gameSpeed;
   if (groundX <= -40) groundX += 40;
 
   // trail particles
@@ -170,7 +177,8 @@ function drawGround() {
 
 function drawPipe(p) {
   const topH = p.topH;
-  const botY = topH + GAP;
+  const pGap = p.gap || currentGap;
+  const botY = topH + pGap;
   const botH = H - GROUND_H - botY;
 
   // pipe body (hedge style)

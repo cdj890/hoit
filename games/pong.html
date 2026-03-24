@@ -37,7 +37,7 @@ canvas{max-width:100%!important;height:auto!important;display:block;margin:0 aut
 <script>
 const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
 const W=500,H=400,PW=14,PH=70,BR=10,WIN_SCORE=10;
-let playerY,aiY,ballX,ballY,bvx,bvy,pScore,aScore,running,animID,totalWins,mouseY=H/2;
+let playerY,aiY,ballX,ballY,bvx,bvy,pScore,aScore,running,animID,totalWins,mouseY=H/2,rallyCount;
 
 totalWins=parseInt(localStorage.getItem('pong_wins')||'0');
 updateStats();
@@ -52,7 +52,7 @@ function reset(){
 
 function startGame(){
  document.getElementById('overlay').style.display='none';
- pScore=0;aScore=0;running=true;
+ pScore=0;aScore=0;running=true;rallyCount=0;
  if(animID)cancelAnimationFrame(animID);
  reset();loop();
 }
@@ -100,9 +100,9 @@ function update(){
  // player follows mouse
  playerY+=(mouseY-PH/2-playerY)*0.15;
  playerY=Math.max(0,Math.min(H-PH,playerY));
- // AI
+ // AI - gets smarter as player scores more
  let aiTarget=ballY-PH/2;
- let aiSpeed=3.5;
+ let aiSpeed=3.5+pScore*0.25;
  if(aiY<aiTarget-aiSpeed)aiY+=aiSpeed;
  else if(aiY>aiTarget+aiSpeed)aiY-=aiSpeed;
  aiY=Math.max(0,Math.min(H-PH,aiY));
@@ -112,12 +112,16 @@ function update(){
  if(ballY+BR>H){ballY=H-BR;bvy=-bvy;}
  // paddle collision
  if(ballX-BR<10+PW&&ballY>playerY&&ballY<playerY+PH&&bvx<0){
-  bvx=-bvx*1.05;bvy+=(ballY-(playerY+PH/2))*0.15;ballX=10+PW+BR;
-  if(Math.abs(bvx)>12)bvx=12*(bvx>0?1:-1);
+  rallyCount++;
+  let speedBoost=1.05+rallyCount*0.005;
+  bvx=-bvx*speedBoost;bvy+=(ballY-(playerY+PH/2))*0.15;ballX=10+PW+BR;
+  if(Math.abs(bvx)>14)bvx=14*(bvx>0?1:-1);
  }
  if(ballX+BR>W-10-PW&&ballY>aiY&&ballY<aiY+PH&&bvx>0){
-  bvx=-bvx*1.05;bvy+=(ballY-(aiY+PH/2))*0.15;ballX=W-10-PW-BR;
-  if(Math.abs(bvx)>12)bvx=12*(bvx>0?1:-1);
+  rallyCount++;
+  let speedBoost=1.05+rallyCount*0.005;
+  bvx=-bvx*speedBoost;bvy+=(ballY-(aiY+PH/2))*0.15;ballX=W-10-PW-BR;
+  if(Math.abs(bvx)>14)bvx=14*(bvx>0?1:-1);
  }
  // scoring
  if(ballX<-BR){aScore++;afterPoint();}
@@ -125,6 +129,7 @@ function update(){
 }
 
 function afterPoint(){
+ rallyCount=0;
  if(pScore>=WIN_SCORE||aScore>=WIN_SCORE){
   running=false;
   let won=pScore>=WIN_SCORE;

@@ -9,7 +9,7 @@ const c=document.getElementById('c'),x=c.getContext('2d');
 const W=Math.min(window.innerWidth,420),H=Math.min(window.innerHeight,700);
 c.width=W;c.height=H;
 
-const FRUITS=['🍎','🍊','🍋','🍇','🍓','🍑','🥝','🍌'];
+const FRUITS=['🍎','🍊','🍋','🍇','🍓','🍑','🥝','🍌'];const BOMB='💣';
 let state='menu',score=0,timeLeft=45,basket={x:W/2,w:60},fruits=[],timer,spawnT=0,frame=0;
 let hs=parseInt(localStorage.getItem('catch_hs')||'0');
 
@@ -24,13 +24,14 @@ function startGame(){clearInterval(timer);state='playing';score=0;timeLeft=45;fr
 function update(){
   if(state!=='playing')return;frame++;
   if(frame%(Math.max(10,30-score/3)|0)===0){
-    fruits.push({x:20+Math.random()*(W-40),y:-20,speed:2+Math.random()*2+score*0.02,emoji:FRUITS[Math.random()*FRUITS.length|0]});
+    const isBomb=score>15&&Math.random()<0.25;
+    fruits.push({x:20+Math.random()*(W-40),y:-20,speed:2+Math.random()*2+score*0.02,emoji:isBomb?BOMB:FRUITS[Math.random()*FRUITS.length|0],bomb:isBomb});
   }
   fruits.forEach(f=>{f.y+=f.speed;});
   // catch check
   fruits=fruits.filter(f=>{
     if(f.y>H)return false;
-    if(f.y>H-60&&f.y<H-20&&Math.abs(f.x-basket.x)<35){score++;return false;}
+    if(f.y>H-60&&f.y<H-20&&Math.abs(f.x-basket.x)<35){if(f.bomb){score=Math.max(0,score-3);}else{score++;}return false;}
     return true;
   });
 }

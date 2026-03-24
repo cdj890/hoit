@@ -106,10 +106,11 @@ const word=document.getElementById('colorWord');
 word.textContent=wordColor.name;
 word.style.color=displayColor.hex;
 
-// Build 4 choices including the correct answer (displayColor)
+// Build choices - more options at higher scores for distraction
+const numChoices=score>=15?6:score>=8?5:4;
 let options=[displayColor];
 const others=COLORS.filter(c=>c.name!==displayColor.name);
-const picked=pick(others,3);
+const picked=pick(others,numChoices-1);
 options=shuffle([...options,...picked]);
 
 const choicesDiv=document.getElementById('choices');
@@ -140,7 +141,8 @@ word.classList.add('shake');
 setTimeout(()=>word.classList.remove('shake'),300);
 }
 document.getElementById('scoreDisplay').textContent=score;
-setTimeout(()=>{fb.textContent='';nextRound()},300);
+const delay=Math.max(80,300-score*15);
+setTimeout(()=>{fb.textContent='';nextRound()},delay);
 }
 
 function startGame(){

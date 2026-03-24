@@ -67,8 +67,12 @@ canvas{max-width:100%!important;height:auto!important;display:block;margin:0 aut
 </div>
 
 <script>
-const KO_WORDS=['사과','바나나','컴퓨터','학교','음악','사랑','하늘','바다','별','구름','나비','꽃','눈','비','달','고양이','강아지','토끼','기린','피아노','기타','축구','야구','자전거','비행기','로봇','수박','딸기','포도','레몬','커피','우유','빵','치즈','피자','햄버거','라면','김밥','떡볶이','만두','치킨','초콜릿','아이스크림','케이크','쿠키'];
-const EN_WORDS=['apple','banana','code','dream','energy','fire','game','happy','ice','jump','king','love','moon','night','ocean','piano','queen','rain','star','tree','unity','voice','water','xenon','yoga','zero','cloud','dance','earth','frog','grape','heart','island','jazz','kite','light','magic','noble','orbit','pearl'];
+const KO_WORDS_EASY=['사과','바나나','학교','음악','사랑','하늘','바다','별','구름','나비','꽃','눈','비','달','커피','우유','빵','피자','라면','김밥','만두','치킨','쿠키'];
+const KO_WORDS_HARD=['컴퓨터','고양이','강아지','토끼','기린','피아노','축구','야구','자전거','비행기','로봇','수박','딸기','포도','레몬','치즈','햄버거','떡볶이','초콜릿','아이스크림','케이크','프로그래밍','인공지능','소프트웨어','대한민국','도서관'];
+const EN_WORDS_EASY=['apple','code','dream','fire','game','happy','ice','jump','king','love','moon','rain','star','tree','zero','cloud','dance','frog','kite','light'];
+const EN_WORDS_HARD=['banana','energy','piano','queen','ocean','unity','voice','water','xenon','yoga','earth','grape','heart','island','magic','noble','orbit','pearl','butterfly','algorithm','developer','keyboard','challenge','paragraph'];
+const KO_WORDS=[...KO_WORDS_EASY,...KO_WORDS_HARD];
+const EN_WORDS=[...EN_WORDS_EASY,...EN_WORDS_HARD];
 
 const W=480,H=420;
 let canvas,ctx,words,score,highScore,lives,animId,gameRunning,spawnTimer,speed,inputEl;
@@ -80,9 +84,13 @@ function randItem(a){return a[Math.floor(Math.random()*a.length)]}
 
 function spawnWord(){
 const isKo=Math.random()<0.5;
-const text=isKo?randItem(KO_WORDS):randItem(EN_WORDS);
+const useHard=score>=10&&Math.random()<Math.min(0.8,score*0.04);
+let text;
+if(isKo){text=useHard?randItem(KO_WORDS_HARD):randItem(KO_WORDS_EASY);}
+else{text=useHard?randItem(EN_WORDS_HARD):randItem(EN_WORDS_EASY);}
 const x=30+Math.random()*(W-100);
-words.push({text,x,y:-10,speed:0.4+speed,color:isKo?'#34d399':'#60a5fa'});
+const fallSpeed=0.4+speed+score*0.015;
+words.push({text,x,y:-10,speed:fallSpeed,color:isKo?'#34d399':'#60a5fa'});
 }
 
 function startGame(){

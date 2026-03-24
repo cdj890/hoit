@@ -31,7 +31,8 @@ function render(){
 
 function start(e){e.preventDefault();clearInterval(timer);clearInterval(spawnTimer);state='playing';score=0;timeLeft=30;moles=[0,0,0,0,0,0,0,0,0];render();
   timer=setInterval(()=>{timeLeft--;if(timeLeft<=0){clearInterval(timer);clearInterval(spawnTimer);state='done';render();}else render();},1000);
-  spawnTimer=setInterval(()=>{moles=moles.map(m=>m===1?0:0);const count=1+Math.floor((30-timeLeft)/10);for(let i=0;i<count;i++){const r=Math.floor(Math.random()*9);moles[r]=1;}render();},800);
+  function spawnMoles(){moles=moles.map(m=>m===1?0:0);const count=1+Math.floor((30-timeLeft)/10);for(let i=0;i<count;i++){const r=Math.floor(Math.random()*9);moles[r]=1;}render();const interval=Math.max(400,800-score*20);clearInterval(spawnTimer);spawnTimer=setInterval(spawnMoles,interval);}
+  spawnTimer=setInterval(spawnMoles,800);
 }
 
 function hit(i,e){e.preventDefault();if(state!=='playing'||moles[i]!==1)return;moles[i]=2;score++;render();setTimeout(()=>{if(moles[i]===2)moles[i]=0;},200);}

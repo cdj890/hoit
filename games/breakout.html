@@ -63,7 +63,7 @@ const PADDLE_W=80,PADDLE_H=12;
 const BALL_R=8;
 const COLORS=['#ff6b6b','#ffa502','#ffd43b','#69db7c','#74c0fc','#b197fc','#ff8787','#66d9e8'];
 
-let canvas,ctx,score,highScore,lives,bricks,ball,paddle,animId,keys={},gameRunning;
+let canvas,ctx,score,highScore,lives,bricks,ball,paddle,animId,keys={},gameRunning,level;
 
 function loadHS(){highScore=parseInt(localStorage.getItem('breakout_high')||'0')}
 function saveHS(){if(score>highScore){highScore=score;localStorage.setItem('breakout_high',String(highScore))}_hub('breakout',score)}
@@ -79,7 +79,8 @@ bricks[r][c]={x:BRICK_LEFT+c*(BRICK_W+BRICK_PAD),y:BRICK_TOP+r*(BRICK_H+BRICK_PA
 }
 
 function resetBall(){
-ball={x:W/2,y:H-60,dx:3*(Math.random()>0.5?1:-1),dy:-4,r:BALL_R};
+let speedMult=1+level*0.15;
+ball={x:W/2,y:H-60,dx:3*speedMult*(Math.random()>0.5?1:-1),dy:-4*speedMult,r:BALL_R};
 }
 
 function startGame(){
@@ -89,7 +90,7 @@ document.getElementById('gameArea').style.display='block';
 canvas=document.getElementById('canvas');
 ctx=canvas.getContext('2d');
 loadHS();
-score=0;lives=3;gameRunning=true;
+score=0;lives=3;level=1;gameRunning=true;
 paddle={x:W/2-PADDLE_W/2,y:H-30,w:PADDLE_W,h:PADDLE_H};
 initBricks();
 resetBall();
@@ -180,7 +181,7 @@ if(lives<=0){endGame();}else{resetBall();}
 // check win
 let allDead=true;
 for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)if(bricks[r][c].alive)allDead=false;
-if(allDead){initBricks();resetBall();}
+if(allDead){level++;initBricks();resetBall();}
 }
 
 function loop(){
