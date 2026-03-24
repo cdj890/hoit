@@ -1,0 +1,43 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>삽입 정렬 시각화</title><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding-top:50px}
+canvas{max-width:100%;border-radius:12px;margin:10px 0}
+.controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:10px 0}
+.controls button{background:#2a2a4a;border:2px solid #444;color:#fff;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px}
+.controls button:hover{border-color:#7B68EE}
+.info{color:#aaa;font-size:14px;text-align:center;margin:8px 0}</style></head><body><a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<h1 style="font-size:24px;margin-bottom:5px">삽입 정렬 시각화</h1>
+<p class="info" id="status">배열을 생성하고 시작하세요</p>
+<canvas id="c"></canvas>
+<div class="controls">
+<button onclick="reset()">새 배열</button>
+<button onclick="startSort()" id="startBtn">정렬 시작</button>
+<button onclick="speedUp()">⏩ 빠르게</button>
+</div>
+<p class="info">비교: <span id="comp">0</span>회 | 교환: <span id="swap">0</span>회</p>
+<script>
+const c=document.getElementById('c'),ctx=c.getContext('2d');
+const W=Math.min(window.innerWidth-20,500);c.width=W;c.height=250;
+let arr=[],sorting=false,comparisons=0,swaps=0,speed=50,highlight=[-1,-1];
+
+function reset(){sorting=false;arr=[];comparisons=0;swaps=0;
+for(let i=0;i<30;i++)arr.push(Math.random()*200+20|0);
+highlight=[-1,-1];draw();updStats();document.getElementById('status').textContent='준비 완료!';document.getElementById('startBtn').textContent='정렬 시작';}
+
+function draw(){ctx.fillStyle='#0f0f1e';ctx.fillRect(0,0,W,250);
+const bw=W/arr.length-2;
+arr.forEach((v,i)=>{
+ctx.fillStyle=i===highlight[0]?'#FF6B6B':i===highlight[1]?'#4FC3F7':'#7B68EE';
+ctx.beginPath();ctx.roundRect(i*(bw+2)+1,250-v,bw,v,3);ctx.fill();});}
+
+function updStats(){document.getElementById('comp').textContent=comparisons;document.getElementById('swap').textContent=swaps;}
+
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+function speedUp(){speed=Math.max(5,speed-15);}
+
+async function startSort(){
+if(sorting)return;sorting=true;document.getElementById('startBtn').textContent='정렬 중...';document.getElementById('status').textContent='삽입 정렬 진행 중...';
+for(let i=1;i<arr.length;i++){let key=arr[i],j=i-1;while(j>=0&&arr[j]>key){highlight=[j,j+1];comparisons++;arr[j+1]=arr[j];swaps++;j--;draw();updStats();await sleep(speed);}arr[j+1]=key;draw();await sleep(speed);}
+highlight=[-1,-1];draw();sorting=false;document.getElementById('status').textContent='정렬 완료! ✅';document.getElementById('startBtn').textContent='정렬 시작';}
+
+reset();
+</script></body></html>

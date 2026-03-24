@@ -1,0 +1,37 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>디버깅 퀴즈</title><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center}
+.wrap{max-width:500px;width:100%;padding:20px;text-align:center}
+.progress{background:#1a1a2e;border-radius:10px;height:8px;margin-bottom:15px;overflow:hidden}.progress-fill{background:linear-gradient(90deg,#7B68EE,#FF6B6B);height:100%;border-radius:10px;transition:width .3s}
+.q-card{background:#1a1a2e;border-radius:16px;padding:22px;border:1px solid #2a2a4a;margin-bottom:12px}
+.q-text{font-size:17px;margin-bottom:16px;line-height:1.5}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{background:#252545;border:2px solid #333;border-radius:12px;padding:13px;cursor:pointer;font-size:14px;transition:all .2s;text-align:left}
+.opt:hover{border-color:#7B68EE}
+.opt.correct{border-color:#4CAF50;background:#1a3a1a}
+.opt.wrong{border-color:#F44336;background:#3a1a1a}
+.explain{color:#aaa;font-size:13px;margin-top:10px;padding:10px;background:#252545;border-radius:8px;text-align:left;display:none}
+.btn{background:#7B68EE;border:none;color:#fff;padding:12px 30px;border-radius:10px;font-size:16px;cursor:pointer;margin-top:15px;font-weight:bold}</style></head><body><a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<div class="wrap" id="app"></div>
+<script>
+function _shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
+const Q=_shuf([{"q": "for(var i=0;i<3;i++){setTimeout(()=>console.log(i),0)} 출력은?", "o": ["0,1,2", "3,3,3", "0,0,0", "undefined"], "a": 1, "e": "var는 함수 스코프라 클로저가 마지막 값 3을 참조합니다. let을 쓰면 0,1,2가 됩니다."}, {"q": "[] + [] 의 결과는?", "o": ["'[][]'", "0", "''", "NaN"], "a": 2, "e": "빈 배열은 문자열로 변환 시 빈 문자열이 되어, \"\" + \"\" = \"\"입니다."}, {"q": "0.1 + 0.2 === 0.3은?", "o": ["true", "false", "NaN", "TypeError"], "a": 1, "e": "부동소수점 오차로 0.1+0.2는 0.30000000000000004입니다."}, {"q": "typeof typeof 1은?", "o": ["'number'", "'string'", "1", "undefined"], "a": 1, "e": "typeof 1은 \"number\"(문자열), typeof \"number\"는 \"string\"입니다."}, {"q": "true + true + true 의 결과는?", "o": ["true", "3", "\"truetruetrue\"", "NaN"], "a": 1, "e": "true는 숫자로 1이므로 1+1+1=3입니다."}, {"q": "\"5\" - 3 의 결과는?", "o": ["2", "\"53\"", "NaN", "23"], "a": 0, "e": "- 연산자는 문자열을 숫자로 변환합니다. 5-3=2"}, {"q": "null == undefined는?", "o": ["true", "false", "TypeError", "null"], "a": 0, "e": "== 비교에서 null과 undefined는 서로 같다고 판단합니다."}, {"q": "Math.max()의 결과는?", "o": ["0", "Infinity", "-Infinity", "NaN"], "a": 2, "e": "인자 없이 호출하면 -Infinity를 반환합니다."}, {"q": "[1,2,3].map(parseInt)의 결과는?", "o": ["[1,2,3]", "[1,NaN,NaN]", "[1,1,1]", "에러"], "a": 1, "e": "parseInt는 두 번째 인자로 진법을 받아서 map의 index가 진법으로 전달됩니다."}, {"q": "!!\"false\"의 결과는?", "o": ["false", "true", "\"false\"", "0"], "a": 1, "e": "\"false\"는 비어있지 않은 문자열이므로 truthy입니다. !!로 boolean 변환하면 true."}]);
+let cur=0,score=0,answered=false;
+function render(){
+const app=document.getElementById('app');
+if(cur>=Q.length){const grade=score>=9?'S':score>=7?'A':score>=5?'B':score>=3?'C':'D';
+const emoji2=score>=9?'🏆':score>=7?'👏':score>=5?'👍':score>=3?'😅':'💪';
+app.innerHTML=`<div style="font-size:50px">${emoji2}</div><h1 style="margin:10px 0">${score}/${Q.length}</h1><div style="font-size:40px;color:#FFD700;font-weight:bold;margin:10px 0">등급: ${grade}</div><p style="color:#aaa">${score>=7?'대단해요!':score>=5?'잘했어요!':'다음엔 더 잘할 수 있어요!'}</p><button class="btn" onclick="cur=0;score=0;_shuf(Q);render()">다시 하기</button>`;return;}
+const q=Q[cur],pct=(cur/Q.length*100)|0;
+app.innerHTML=`<div class="progress"><div class="progress-fill" style="width:${pct}%"></div></div>
+<div class="q-card"><div style="color:#888;font-size:13px;margin-bottom:8px">🐛 ${cur+1}/${Q.length}</div>
+<div class="q-text">${q.q}</div>
+<div class="opts">${q.o.map((o,i)=>`<div class="opt" id="opt${i}" onclick="answer(${i})">${o}</div>`).join('')}</div>
+<div class="explain" id="explain">${q.e||''}</div></div>`;answered=false;}
+function answer(i){if(answered)return;answered=true;const q=Q[cur];
+document.getElementById('opt'+i).classList.add(i===q.a?'correct':'wrong');
+if(i!==q.a)document.getElementById('opt'+q.a).classList.add('correct');
+if(i===q.a)score++;
+const el=document.getElementById('explain');if(q.e){el.style.display='block';}
+setTimeout(()=>{cur++;render();},1500);}
+render();
+</script></body></html>

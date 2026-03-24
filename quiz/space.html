@@ -1,0 +1,37 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>우주 퀴즈</title><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center}
+.wrap{max-width:500px;width:100%;padding:20px;text-align:center}
+.progress{background:#1a1a2e;border-radius:10px;height:8px;margin-bottom:15px;overflow:hidden}.progress-fill{background:linear-gradient(90deg,#7B68EE,#FF6B6B);height:100%;border-radius:10px;transition:width .3s}
+.q-card{background:#1a1a2e;border-radius:16px;padding:22px;border:1px solid #2a2a4a;margin-bottom:12px}
+.q-text{font-size:17px;margin-bottom:16px;line-height:1.5}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{background:#252545;border:2px solid #333;border-radius:12px;padding:13px;cursor:pointer;font-size:14px;transition:all .2s;text-align:left}
+.opt:hover{border-color:#7B68EE}
+.opt.correct{border-color:#4CAF50;background:#1a3a1a}
+.opt.wrong{border-color:#F44336;background:#3a1a1a}
+.explain{color:#aaa;font-size:13px;margin-top:10px;padding:10px;background:#252545;border-radius:8px;text-align:left;display:none}
+.btn{background:#7B68EE;border:none;color:#fff;padding:12px 30px;border-radius:10px;font-size:16px;cursor:pointer;margin-top:15px;font-weight:bold}</style></head><body><a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<div class="wrap" id="app"></div>
+<script>
+function _shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
+const Q=_shuf([{"q": "태양계에서 가장 큰 행성은?", "o": ["토성", "목성", "해왕성", "천왕성"], "a": 1, "e": "목성은 태양계에서 가장 큰 행성으로 지구의 약 11배 크기입니다."}, {"q": "달까지의 평균 거리는 약?", "o": ["38만km", "150만km", "3만km", "1000만km"], "a": 0, "e": "지구에서 달까지 약 384,400km입니다."}, {"q": "태양은 어떤 종류의 별인가?", "o": ["적색거성", "백색왜성", "황색왜성", "청색초거성"], "a": 2, "e": "태양은 G형 주계열성(황색왜성)으로 분류됩니다."}, {"q": "빛이 태양에서 지구까지 오는 시간은?", "o": ["약 8분", "약 1시간", "약 1초", "약 1일"], "a": 0, "e": "빛의 속도로 약 8분 20초 걸립니다."}, {"q": "화성의 별명은?", "o": ["푸른 행성", "붉은 행성", "고리 행성", "거대한 행성"], "a": 1, "e": "화성은 표면의 산화철 때문에 붉게 보여 \"붉은 행성\"이라 불립니다."}, {"q": "국제우주정거장(ISS)의 궤도 높이는 약?", "o": ["100km", "400km", "1000km", "10000km"], "a": 1, "e": "ISS는 약 400km 상공에서 지구를 공전합니다."}, {"q": "태양계 행성 중 고리가 가장 뚜렷한 것은?", "o": ["목성", "토성", "천왕성", "해왕성"], "a": 1, "e": "토성의 고리는 얼음과 암석 조각으로 이루어져 있습니다."}, {"q": "1광년은 약 몇 km?", "o": ["약 9.5조 km", "약 1억 km", "약 100만 km", "약 1000조 km"], "a": 0, "e": "1광년은 빛이 1년간 이동하는 거리로 약 9.46조 km입니다."}, {"q": "지구의 자전 주기는?", "o": ["약 12시간", "약 24시간", "약 365일", "약 28일"], "a": 1, "e": "지구는 약 23시간 56분에 한 바퀴 자전합니다."}, {"q": "인류 최초로 달에 착륙한 사람은?", "o": ["버즈 올드린", "닐 암스트롱", "존 글렌", "유리 가가린"], "a": 1, "e": "1969년 아폴로 11호의 닐 암스트롱이 최초로 달에 발을 디뎠습니다."}]);
+let cur=0,score=0,answered=false;
+function render(){
+const app=document.getElementById('app');
+if(cur>=Q.length){const grade=score>=9?'S':score>=7?'A':score>=5?'B':score>=3?'C':'D';
+const emoji2=score>=9?'🏆':score>=7?'👏':score>=5?'👍':score>=3?'😅':'💪';
+app.innerHTML=`<div style="font-size:50px">${emoji2}</div><h1 style="margin:10px 0">${score}/${Q.length}</h1><div style="font-size:40px;color:#FFD700;font-weight:bold;margin:10px 0">등급: ${grade}</div><p style="color:#aaa">${score>=7?'대단해요!':score>=5?'잘했어요!':'다음엔 더 잘할 수 있어요!'}</p><button class="btn" onclick="cur=0;score=0;_shuf(Q);render()">다시 하기</button>`;return;}
+const q=Q[cur],pct=(cur/Q.length*100)|0;
+app.innerHTML=`<div class="progress"><div class="progress-fill" style="width:${pct}%"></div></div>
+<div class="q-card"><div style="color:#888;font-size:13px;margin-bottom:8px">🚀 ${cur+1}/${Q.length}</div>
+<div class="q-text">${q.q}</div>
+<div class="opts">${q.o.map((o,i)=>`<div class="opt" id="opt${i}" onclick="answer(${i})">${o}</div>`).join('')}</div>
+<div class="explain" id="explain">${q.e||''}</div></div>`;answered=false;}
+function answer(i){if(answered)return;answered=true;const q=Q[cur];
+document.getElementById('opt'+i).classList.add(i===q.a?'correct':'wrong');
+if(i!==q.a)document.getElementById('opt'+q.a).classList.add('correct');
+if(i===q.a)score++;
+const el=document.getElementById('explain');if(q.e){el.style.display='block';}
+setTimeout(()=>{cur++;render();},1500);}
+render();
+</script></body></html>

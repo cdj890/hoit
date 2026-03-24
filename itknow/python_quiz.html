@@ -1,0 +1,37 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Python 퀴즈</title><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center}
+.wrap{max-width:500px;width:100%;padding:20px;text-align:center}
+.progress{background:#1a1a2e;border-radius:10px;height:8px;margin-bottom:15px;overflow:hidden}.progress-fill{background:linear-gradient(90deg,#7B68EE,#FF6B6B);height:100%;border-radius:10px;transition:width .3s}
+.q-card{background:#1a1a2e;border-radius:16px;padding:22px;border:1px solid #2a2a4a;margin-bottom:12px}
+.q-text{font-size:17px;margin-bottom:16px;line-height:1.5}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{background:#252545;border:2px solid #333;border-radius:12px;padding:13px;cursor:pointer;font-size:14px;transition:all .2s;text-align:left}
+.opt:hover{border-color:#7B68EE}
+.opt.correct{border-color:#4CAF50;background:#1a3a1a}
+.opt.wrong{border-color:#F44336;background:#3a1a1a}
+.explain{color:#aaa;font-size:13px;margin-top:10px;padding:10px;background:#252545;border-radius:8px;text-align:left;display:none}
+.btn{background:#7B68EE;border:none;color:#fff;padding:12px 30px;border-radius:10px;font-size:16px;cursor:pointer;margin-top:15px;font-weight:bold}</style></head><body><a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<div class="wrap" id="app"></div>
+<script>
+function _shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
+const Q=_shuf([{"q": "Python에서 리스트와 튜플의 차이는?", "o": ["없다", "튜플은 불변", "리스트가 더 빠르다", "튜플은 정렬 가능"], "a": 1, "e": "튜플(tuple)은 생성 후 변경할 수 없는 불변(immutable) 자료형입니다."}, {"q": "print(type([])) 의 결과는?", "o": ["<class 'list'>", "<class 'array'>", "<class 'tuple'>", "list"], "a": 0, "e": "[]는 빈 리스트이며, type()은 클래스 타입을 반환합니다."}, {"q": "Python의 GIL이란?", "o": ["글로벌 변수", "전역 인터프리터 락", "그래픽 라이브러리", "가비지 컬렉터"], "a": 1, "e": "Global Interpreter Lock으로 멀티스레드 시 한 번에 하나의 스레드만 실행됩니다."}, {"q": "list comprehension 문법은?", "o": ["[x for x in range(10)]", "list(range(10)).comp()", "for x in range(10): list.add(x)", "range(10).toList()"], "a": 0, "e": "[표현식 for 변수 in 반복가능] 형태의 리스트 생성 문법입니다."}, {"q": "Python 3에서 나누기 / 의 결과 타입은?", "o": ["항상 int", "항상 float", "피연산자에 따라", "항상 str"], "a": 1, "e": "Python 3에서 /는 항상 float를 반환합니다. 정수 나누기는 //를 사용합니다."}, {"q": "딕셔너리에서 존재하지 않는 키 접근 시?", "o": ["None 반환", "0 반환", "KeyError", "IndexError"], "a": 2, "e": "dict[key]로 없는 키에 접근하면 KeyError가 발생합니다. .get()을 사용하면 None을 반환합니다."}, {"q": "*args의 의미는?", "o": ["필수 인자", "가변 위치 인자", "키워드 인자", "기본값 인자"], "a": 1, "e": "*args는 여러 개의 위치 인자를 튜플로 받습니다."}, {"q": "Python의 들여쓰기 규칙은?", "o": ["선택사항", "2칸 권장", "4칸 권장", "탭만 사용"], "a": 2, "e": "PEP 8에서 4칸 스페이스를 권장합니다."}, {"q": "lambda란?", "o": ["반복문", "익명 함수", "클래스", "모듈"], "a": 1, "e": "lambda는 이름 없는 간단한 함수를 만드는 키워드입니다."}, {"q": "pip란?", "o": ["Python 인터프리터", "패키지 관리자", "코드 포맷터", "테스트 도구"], "a": 1, "e": "pip는 Python 패키지를 설치하고 관리하는 도구입니다."}]);
+let cur=0,score=0,answered=false;
+function render(){
+const app=document.getElementById('app');
+if(cur>=Q.length){const grade=score>=9?'S':score>=7?'A':score>=5?'B':score>=3?'C':'D';
+const emoji2=score>=9?'🏆':score>=7?'👏':score>=5?'👍':score>=3?'😅':'💪';
+app.innerHTML=`<div style="font-size:50px">${emoji2}</div><h1 style="margin:10px 0">${score}/${Q.length}</h1><div style="font-size:40px;color:#FFD700;font-weight:bold;margin:10px 0">등급: ${grade}</div><p style="color:#aaa">${score>=7?'대단해요!':score>=5?'잘했어요!':'다음엔 더 잘할 수 있어요!'}</p><button class="btn" onclick="cur=0;score=0;_shuf(Q);render()">다시 하기</button>`;return;}
+const q=Q[cur],pct=(cur/Q.length*100)|0;
+app.innerHTML=`<div class="progress"><div class="progress-fill" style="width:${pct}%"></div></div>
+<div class="q-card"><div style="color:#888;font-size:13px;margin-bottom:8px">🐍 ${cur+1}/${Q.length}</div>
+<div class="q-text">${q.q}</div>
+<div class="opts">${q.o.map((o,i)=>`<div class="opt" id="opt${i}" onclick="answer(${i})">${o}</div>`).join('')}</div>
+<div class="explain" id="explain">${q.e||''}</div></div>`;answered=false;}
+function answer(i){if(answered)return;answered=true;const q=Q[cur];
+document.getElementById('opt'+i).classList.add(i===q.a?'correct':'wrong');
+if(i!==q.a)document.getElementById('opt'+q.a).classList.add('correct');
+if(i===q.a)score++;
+const el=document.getElementById('explain');if(q.e){el.style.display='block';}
+setTimeout(()=>{cur++;render();},1500);}
+render();
+</script></body></html>

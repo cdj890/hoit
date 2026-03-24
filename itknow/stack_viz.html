@@ -1,0 +1,20 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>스택</title><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;min-height:100vh}
+.wrap{max-width:500px;margin:0 auto;padding:50px 16px 30px;text-align:center}
+.viz{background:#1a1a2e;border-radius:16px;padding:20px;margin:15px 0;border:1px solid #2a2a4a;min-height:150px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:flex-end}
+.item{background:#7B68EE;color:#fff;padding:10px 16px;border-radius:10px;font-size:16px;font-weight:bold;transition:all .3s;animation:popIn .3s}
+@keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.controls{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px 0}
+.controls input{background:#1a1a2e;border:2px solid #333;color:#fff;padding:8px 12px;border-radius:8px;width:100px;font-size:14px;text-align:center}
+.controls button{background:#7B68EE;border:none;color:#fff;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:bold}
+.controls button:hover{opacity:0.85}
+.log{color:#888;font-size:12px;margin-top:10px;max-height:100px;overflow-y:auto}</style></head><body><a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<div class="wrap"><h1 style="font-size:24px;margin-bottom:5px">📚 스택</h1><p style="color:#888;font-size:14px;margin-bottom:15px">LIFO - 후입선출 자료구조</p>
+
+<div class="viz" id="viz" style="flex-direction:column-reverse"></div>
+<div class="controls"><input id="val" placeholder="값 입력"><button onclick="push()">Push</button><button onclick="pop()" style="background:#EF5350">Pop</button></div>
+<div class="log" id="log"></div>
+<script>let stack=[];function push(){const v=document.getElementById('val').value;if(!v)return;stack.push(v);document.getElementById('val').value='';render();log('Push: '+v);}
+function pop(){if(!stack.length)return log('스택이 비어있습니다!');const v=stack.pop();render();log('Pop: '+v);}
+function render(){document.getElementById('viz').innerHTML=stack.map((v,i)=>`<div class="item" style="background:hsl(${i*40},60%,55%)">${v}${i===stack.length-1?' ← TOP':''}</div>`).join('')||'<p style="color:#555">비어있음</p>';}
+function log(m){document.getElementById('log').innerHTML=m+'<br>'+document.getElementById('log').innerHTML;}render();</script></div></body></html>

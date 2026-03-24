@@ -1,0 +1,37 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>동물 퀴즈</title><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center}
+.wrap{max-width:500px;width:100%;padding:20px;text-align:center}
+.progress{background:#1a1a2e;border-radius:10px;height:8px;margin-bottom:15px;overflow:hidden}.progress-fill{background:linear-gradient(90deg,#7B68EE,#FF6B6B);height:100%;border-radius:10px;transition:width .3s}
+.q-card{background:#1a1a2e;border-radius:16px;padding:22px;border:1px solid #2a2a4a;margin-bottom:12px}
+.q-text{font-size:17px;margin-bottom:16px;line-height:1.5}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{background:#252545;border:2px solid #333;border-radius:12px;padding:13px;cursor:pointer;font-size:14px;transition:all .2s;text-align:left}
+.opt:hover{border-color:#7B68EE}
+.opt.correct{border-color:#4CAF50;background:#1a3a1a}
+.opt.wrong{border-color:#F44336;background:#3a1a1a}
+.explain{color:#aaa;font-size:13px;margin-top:10px;padding:10px;background:#252545;border-radius:8px;text-align:left;display:none}
+.btn{background:#7B68EE;border:none;color:#fff;padding:12px 30px;border-radius:10px;font-size:16px;cursor:pointer;margin-top:15px;font-weight:bold}</style></head><body><a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<div class="wrap" id="app"></div>
+<script>
+function _shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
+const Q=_shuf([{"q": "동물 퀴즈 문제 1번", "o": ["보기 1", "보기 2", "보기 3", "보기 4"], "a": 0, "e": "정답 해설입니다."}, {"q": "동물 퀴즈 문제 2번", "o": ["보기 1", "보기 2", "보기 3", "보기 4"], "a": 0, "e": "정답 해설입니다."}, {"q": "동물 퀴즈 문제 3번", "o": ["보기 1", "보기 2", "보기 3", "보기 4"], "a": 0, "e": "정답 해설입니다."}, {"q": "동물 퀴즈 문제 4번", "o": ["보기 1", "보기 2", "보기 3", "보기 4"], "a": 0, "e": "정답 해설입니다."}, {"q": "동물 퀴즈 문제 5번", "o": ["보기 1", "보기 2", "보기 3", "보기 4"], "a": 0, "e": "정답 해설입니다."}, {"q": "동물 퀴즈 문제 6번", "o": ["보기 1", "보기 2", "보기 3", "보기 4"], "a": 0, "e": "정답 해설입니다."}, {"q": "동물 퀴즈 문제 7번", "o": ["보기 1", "보기 2", "보기 3", "보기 4"], "a": 0, "e": "정답 해설입니다."}, {"q": "동물 퀴즈 문제 8번", "o": ["보기 1", "보기 2", "보기 3", "보기 4"], "a": 0, "e": "정답 해설입니다."}, {"q": "동물 퀴즈 문제 9번", "o": ["보기 1", "보기 2", "보기 3", "보기 4"], "a": 0, "e": "정답 해설입니다."}, {"q": "동물 퀴즈 문제 10번", "o": ["보기 1", "보기 2", "보기 3", "보기 4"], "a": 0, "e": "정답 해설입니다."}]);
+let cur=0,score=0,answered=false;
+function render(){
+const app=document.getElementById('app');
+if(cur>=Q.length){const grade=score>=9?'S':score>=7?'A':score>=5?'B':score>=3?'C':'D';
+const emoji2=score>=9?'🏆':score>=7?'👏':score>=5?'👍':score>=3?'😅':'💪';
+app.innerHTML=`<div style="font-size:50px">${emoji2}</div><h1 style="margin:10px 0">${score}/${Q.length}</h1><div style="font-size:40px;color:#FFD700;font-weight:bold;margin:10px 0">등급: ${grade}</div><p style="color:#aaa">${score>=7?'대단해요!':score>=5?'잘했어요!':'다음엔 더 잘할 수 있어요!'}</p><button class="btn" onclick="cur=0;score=0;_shuf(Q);render()">다시 하기</button>`;return;}
+const q=Q[cur],pct=(cur/Q.length*100)|0;
+app.innerHTML=`<div class="progress"><div class="progress-fill" style="width:${pct}%"></div></div>
+<div class="q-card"><div style="color:#888;font-size:13px;margin-bottom:8px">🦁 ${cur+1}/${Q.length}</div>
+<div class="q-text">${q.q}</div>
+<div class="opts">${q.o.map((o,i)=>`<div class="opt" id="opt${i}" onclick="answer(${i})">${o}</div>`).join('')}</div>
+<div class="explain" id="explain">${q.e||''}</div></div>`;answered=false;}
+function answer(i){if(answered)return;answered=true;const q=Q[cur];
+document.getElementById('opt'+i).classList.add(i===q.a?'correct':'wrong');
+if(i!==q.a)document.getElementById('opt'+q.a).classList.add('correct');
+if(i===q.a)score++;
+const el=document.getElementById('explain');if(q.e){el.style.display='block';}
+setTimeout(()=>{cur++;render();},1500);}
+render();
+</script></body></html>

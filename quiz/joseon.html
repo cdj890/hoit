@@ -1,0 +1,37 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>조선시대 퀴즈</title><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center}
+.wrap{max-width:500px;width:100%;padding:20px;text-align:center}
+.progress{background:#1a1a2e;border-radius:10px;height:8px;margin-bottom:15px;overflow:hidden}.progress-fill{background:linear-gradient(90deg,#7B68EE,#FF6B6B);height:100%;border-radius:10px;transition:width .3s}
+.q-card{background:#1a1a2e;border-radius:16px;padding:22px;border:1px solid #2a2a4a;margin-bottom:12px}
+.q-text{font-size:17px;margin-bottom:16px;line-height:1.5}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{background:#252545;border:2px solid #333;border-radius:12px;padding:13px;cursor:pointer;font-size:14px;transition:all .2s;text-align:left}
+.opt:hover{border-color:#7B68EE}
+.opt.correct{border-color:#4CAF50;background:#1a3a1a}
+.opt.wrong{border-color:#F44336;background:#3a1a1a}
+.explain{color:#aaa;font-size:13px;margin-top:10px;padding:10px;background:#252545;border-radius:8px;text-align:left;display:none}
+.btn{background:#7B68EE;border:none;color:#fff;padding:12px 30px;border-radius:10px;font-size:16px;cursor:pointer;margin-top:15px;font-weight:bold}</style></head><body><a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<div class="wrap" id="app"></div>
+<script>
+function _shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
+const Q=_shuf([{"q": "조선을 건국한 사람은?", "o": ["이성계", "이방원", "세종대왕", "정도전"], "a": 0, "e": "1392년 이성계가 조선을 건국했습니다."}, {"q": "한글을 창제한 왕은?", "o": ["태종", "세종", "성종", "선조"], "a": 1, "e": "세종대왕이 1443년 훈민정음을 창제했습니다."}, {"q": "임진왜란이 일어난 해는?", "o": ["1492년", "1592년", "1692년", "1392년"], "a": 1, "e": "1592년 일본의 도요토미 히데요시가 조선을 침략했습니다."}, {"q": "거북선을 만든 장수는?", "o": ["권율", "이순신", "김시민", "곽재우"], "a": 1, "e": "이순신 장군이 거북선(판옥선)을 활용해 일본 수군을 격파했습니다."}, {"q": "조선의 수도는?", "o": ["개경", "평양", "한양", "부여"], "a": 2, "e": "한양(현재 서울)이 조선의 수도였습니다."}, {"q": "조선시대 과거시험의 종류가 아닌 것은?", "o": ["문과", "무과", "잡과", "기과"], "a": 3, "e": "조선의 과거시험은 문과, 무과, 잡과(기술직)로 나뉘었습니다."}, {"q": "조선의 마지막 왕은?", "o": ["고종", "순종", "영조", "정조"], "a": 1, "e": "순종이 조선(대한제국)의 마지막 황제입니다."}, {"q": "경복궁을 세운 왕은?", "o": ["태조", "태종", "세조", "성종"], "a": 0, "e": "태조 이성계가 1395년 경복궁을 건설했습니다."}, {"q": "조선의 신분제도가 아닌 것은?", "o": ["양반", "중인", "상민", "귀족"], "a": 3, "e": "조선은 양반, 중인, 상민, 천민의 4신분 체제였습니다."}, {"q": "훈민정음의 자음 기본자 수는?", "o": ["5개", "10개", "14개", "28개"], "a": 0, "e": "ㄱ, ㄴ, ㅁ, ㅅ, ㅇ 5개가 기본자이며 나머지는 가획으로 만들었습니다."}]);
+let cur=0,score=0,answered=false;
+function render(){
+const app=document.getElementById('app');
+if(cur>=Q.length){const grade=score>=9?'S':score>=7?'A':score>=5?'B':score>=3?'C':'D';
+const emoji2=score>=9?'🏆':score>=7?'👏':score>=5?'👍':score>=3?'😅':'💪';
+app.innerHTML=`<div style="font-size:50px">${emoji2}</div><h1 style="margin:10px 0">${score}/${Q.length}</h1><div style="font-size:40px;color:#FFD700;font-weight:bold;margin:10px 0">등급: ${grade}</div><p style="color:#aaa">${score>=7?'대단해요!':score>=5?'잘했어요!':'다음엔 더 잘할 수 있어요!'}</p><button class="btn" onclick="cur=0;score=0;_shuf(Q);render()">다시 하기</button>`;return;}
+const q=Q[cur],pct=(cur/Q.length*100)|0;
+app.innerHTML=`<div class="progress"><div class="progress-fill" style="width:${pct}%"></div></div>
+<div class="q-card"><div style="color:#888;font-size:13px;margin-bottom:8px">🏯 ${cur+1}/${Q.length}</div>
+<div class="q-text">${q.q}</div>
+<div class="opts">${q.o.map((o,i)=>`<div class="opt" id="opt${i}" onclick="answer(${i})">${o}</div>`).join('')}</div>
+<div class="explain" id="explain">${q.e||''}</div></div>`;answered=false;}
+function answer(i){if(answered)return;answered=true;const q=Q[cur];
+document.getElementById('opt'+i).classList.add(i===q.a?'correct':'wrong');
+if(i!==q.a)document.getElementById('opt'+q.a).classList.add('correct');
+if(i===q.a)score++;
+const el=document.getElementById('explain');if(q.e){el.style.display='block';}
+setTimeout(()=>{cur++;render();},1500);}
+render();
+</script></body></html>
