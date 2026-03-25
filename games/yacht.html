@@ -33,6 +33,14 @@ body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;
 #scores td.preview{color:#ffd700;opacity:.6}
 #scores .total{background:#2a2a4a;font-weight:bold;color:#ffd700}
 #msg{text-align:center;font-size:14px;color:#ffd700;min-height:22px;margin-top:6px}
+#help{width:100%;margin-top:10px}
+#helpToggle{background:none;border:1px solid #3a3a5a;color:#aaa;border-radius:8px;padding:8px 16px;font-size:13px;font-family:inherit;cursor:pointer;width:100%}
+#helpToggle:hover{background:#1a1a3e}
+#helpContent{display:none;background:#1a1a2e;border:1px solid #2a2a4a;border-radius:8px;padding:12px;margin-top:6px;font-size:12px;line-height:1.7;color:#ccc}
+#helpContent.show{display:block}
+#helpContent h4{color:#ffd700;margin:8px 0 4px;font-size:13px}
+#helpContent h4:first-child{margin-top:0}
+#helpContent ul{padding-left:18px}
 </style>
 </head>
 <body>
@@ -44,6 +52,43 @@ body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;
 <button id="rollBtn" onclick="rollDice()">🎲 주사위 굴리기</button>
 <div id="msg"></div>
 <table id="scores"></table>
+<div id="help">
+<button id="helpToggle" onclick="document.getElementById('helpContent').classList.toggle('show')">📖 게임 방법 보기</button>
+<div id="helpContent">
+<h4>🎯 게임 목표</h4>
+5개의 주사위를 굴려 높은 점수를 얻으세요! AI와 번갈아 진행합니다.
+
+<h4>🎲 진행 방식</h4>
+<ul>
+<li>매 턴 최대 <b>3번</b> 주사위를 굴릴 수 있습니다</li>
+<li>주사위를 <b>탭하면 고정</b> — 고정된 주사위는 다음 굴리기에서 유지됩니다</li>
+<li>굴리기가 끝나면 <b>점수판에서 카테고리를 선택</b>하세요</li>
+<li>한번 선택한 카테고리는 다시 사용할 수 없습니다</li>
+</ul>
+
+<h4>📊 상단 (숫자 합계)</h4>
+<ul>
+<li><b>에이스~식스</b>: 해당 숫자의 주사위 합계</li>
+<li>상단 합계가 <b>63점 이상</b>이면 보너스 <b>+35점!</b></li>
+</ul>
+
+<h4>📊 하단 (조합)</h4>
+<ul>
+<li><b>찬스</b>: 주사위 전체 합계</li>
+<li><b>포커</b>: 같은 숫자 4개 이상 → 전체 합계</li>
+<li><b>풀하우스</b>: 같은 숫자 3개 + 2개 → 전체 합계</li>
+<li><b>스몰 스트레이트</b>: 연속 4개 (예: 1-2-3-4) → 15점</li>
+<li><b>라지 스트레이트</b>: 연속 5개 (예: 2-3-4-5-6) → 30점</li>
+<li><b>야추!</b>: 같은 숫자 5개 → <b>50점!</b></li>
+</ul>
+
+<h4>💡 팁</h4>
+<ul>
+<li>상단 보너스(63점)를 노리려면 각 숫자에서 3개 이상을 모으세요</li>
+<li>조합이 안 되면 0점짜리 카테고리에 버리는 전략도 중요합니다</li>
+</ul>
+</div>
+</div>
 </div>
 <script>
 const CATS=[
@@ -246,12 +291,20 @@ function endGame(){
 }
 
 function init(){
-  // Remove only restart buttons, not rollBtn
-  document.querySelectorAll('#game > button:not(#rollBtn)').forEach(b=>b.remove());
   scores=[{},{}];turnCount=0;gameOver=false;currentPlayer=0;
   rollsLeft=3;held=[false,false,false,false,false];dice=[0,0,0,0,0];
   document.getElementById('msg').textContent='';
-  document.getElementById('rollBtn').disabled=false;
+  // Ensure rollBtn exists
+  let rb=document.getElementById('rollBtn');
+  if(!rb){
+    rb=document.createElement('button');rb.id='rollBtn';
+    rb.textContent='🎲 주사위 굴리기';rb.onclick=rollDice;
+    rb.style.cssText='background:#4a6fa5;color:#fff;border:none;border-radius:12px;padding:12px 32px;font-size:17px;font-weight:bold;font-family:inherit;cursor:pointer;min-height:44px;margin:8px 0';
+    document.getElementById('rollInfo').after(rb);
+  }
+  rb.disabled=false;
+  // Remove any extra restart buttons
+  document.querySelectorAll('#game > button:not(#rollBtn)').forEach(b=>b.remove());
   renderDice();renderScores();
 }
 init();
