@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>타자 속도 측정</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:70px 16px 30px}
+h1{font-size:1.5rem;margin-bottom:12px}
+.lang-sel{display:flex;gap:10px;margin-bottom:16px}
+.lang-sel button{background:#1e1e3a;color:#ccc;border:2px solid #333;padding:8px 18px;border-radius:10px;font-size:.9rem;cursor:pointer;min-height:44px;touch-action:manipulation}
+.lang-sel button.sel{border-color:#00e5ff;color:#00e5ff}
+.text-display{width:100%;max-width:600px;background:#1a1a2e;border-radius:12px;padding:20px;font-size:1.15rem;line-height:1.8;margin-bottom:16px;min-height:80px;letter-spacing:.5px}
+.text-display .correct{color:#00c853}
+.text-display .wrong{color:#ff4081;text-decoration:underline}
+.text-display .current{background:#00e5ff33;border-bottom:2px solid #00e5ff}
+.text-display .pending{color:#666}
+textarea{width:100%;max-width:600px;padding:16px;border-radius:12px;border:2px solid #333;background:#1e1e3a;color:#fff;font-size:1.1rem;resize:none;height:80px;font-family:inherit;line-height:1.6}
+textarea:focus{outline:none;border-color:#00e5ff}
+.stats{display:flex;gap:16px;margin:20px 0;flex-wrap:wrap;justify-content:center}
+.stat{background:#1a1a2e;border-radius:12px;padding:16px 20px;text-align:center;min-width:90px}
+.stat .num{font-size:1.8rem;font-weight:bold;color:#00e5ff}
+.stat .label{font-size:.75rem;color:#aaa;margin-top:2px}
+.timer{font-size:1.2rem;color:#aaa;margin-bottom:8px}
+.start-btn{padding:14px 40px;background:#00e5ff;color:#0f0f1e;border:none;border-radius:12px;font-size:1.1rem;font-weight:bold;cursor:pointer;min-height:50px;touch-action:manipulation;margin-top:10px}
+.accuracy-bar{width:100%;max-width:600px;height:8px;background:#333;border-radius:4px;margin:8px 0}
+.accuracy-fill{height:100%;background:#00c853;border-radius:4px;transition:width .3s}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+
+<h1>타자 속도 측정</h1>
+<div class="lang-sel">
+<button class="sel" onclick="setLang('ko',this)">한글</button>
+<button onclick="setLang('en',this)">영문</button>
+</div>
+<div class="timer" id="timer">시작하려면 아래에 타이핑하세요</div>
+<div class="text-display" id="textDisplay"></div>
+<textarea id="typeArea" placeholder="여기에 타이핑하세요..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+<div class="accuracy-bar"><div class="accuracy-fill" id="accFill" style="width:100%"></div></div>
+<div class="stats">
+<div class="stat"><div class="num" id="wpmVal">0</div><div class="label">WPM</div></div>
+<div class="stat"><div class="num" id="cpmVal">0</div><div class="label">CPM</div></div>
+<div class="stat"><div class="num" id="accVal">100%</div><div class="label">정확도</div></div>
+<div class="stat"><div class="num" id="timeVal">0</div><div class="label">초</div></div>
+</div>
+<button class="start-btn" onclick="resetTest()">새 문장</button>
+
+<script>
+const sentences={
+ko:[
+'오늘 하루도 열심히 살아보자 화이팅',
+'맑은 하늘 아래 산책하는 것은 기분이 좋다',
+'프로그래밍은 논리적 사고를 필요로 한다',
+'가을 하늘은 높고 푸르며 바람이 선선하다',
+'좋은 습관은 하루아침에 만들어지지 않는다',
+'꾸준한 노력은 반드시 좋은 결과를 가져온다',
+'새로운 도전을 두려워하지 말자',
+'작은 변화가 큰 차이를 만든다',
+'매일 조금씩 성장하는 내가 되자',
+'시간은 금이다 낭비하지 말자',
+'독서는 마음의 양식이다',
+'건강이 가장 큰 재산이다',
+'실패는 성공의 어머니이다',
+'오늘 할 일을 내일로 미루지 마라',
+'배움에는 끝이 없다',
+'웃는 얼굴에 복이 온다',
+'하나를 알면 열을 안다',
+'어려울 때 친구가 진정한 친구다',
+'천 리 길도 한 걸음부터 시작된다',
+'행복은 멀리 있지 않다 가까이에 있다',
+],
+en:[
+'The quick brown fox jumps over the lazy dog',
+'Practice makes perfect when you try every day',
+'A journey of a thousand miles begins with a single step',
+'To be or not to be that is the question',
+'All that glitters is not gold remember that',
+'The early bird catches the worm every morning',
+'Actions speak louder than words always remember',
+'Knowledge is power and reading is the key',
+'Life is what happens when you are busy making plans',
+'Every moment is a fresh beginning for everyone',
+'Success is not final failure is not fatal',
+'The only way to do great work is to love it',
+'Believe you can and you are halfway there',
+'In the middle of difficulty lies opportunity',
+'The best time to plant a tree was twenty years ago',
+'It does not matter how slowly you go as long as you do not stop',
+'Happiness is not something ready made it comes from actions',
+'The future belongs to those who believe in their dreams',
+'Be the change that you wish to see in the world',
+'Stay hungry stay foolish and keep learning new things',
+]
+};
+let lang='ko',targetText='',startTime=null,ended=false;
+
+function setLang(l,btn){lang=l;document.querySelectorAll('.lang-sel button').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');resetTest()}
+
+function resetTest(){
+targetText=sentences[lang][Math.floor(Math.random()*sentences[lang].length)];
+document.getElementById('typeArea').value='';
+document.getElementById('typeArea').disabled=false;
+startTime=null;ended=false;
+renderText('');
+document.getElementById('timer').textContent='시작하려면 아래에 타이핑하세요';
+document.getElementById('wpmVal').textContent='0';
+document.getElementById('cpmVal').textContent='0';
+document.getElementById('accVal').textContent='100%';
+document.getElementById('timeVal').textContent='0';
+document.getElementById('accFill').style.width='100%';
+document.getElementById('typeArea').focus();
+}
+
+function renderText(typed){
+const disp=document.getElementById('textDisplay');
+let html='';
+for(let i=0;i<targetText.length;i++){
+if(i<typed.length){
+if(typed[i]===targetText[i])html+=`<span class="correct">${targetText[i]}</span>`;
+else html+=`<span class="wrong">${targetText[i]}</span>`;
+}else if(i===typed.length){
+html+=`<span class="current">${targetText[i]}</span>`;
+}else{
+html+=`<span class="pending">${targetText[i]}</span>`;
+}
+}
+disp.innerHTML=html;
+}
+
+function updateStats(typed){
+if(!startTime)return;
+const elapsed=(Date.now()-startTime)/1000;
+const chars=typed.length;
+let correctChars=0;
+for(let i=0;i<typed.length;i++){if(typed[i]===targetText[i])correctChars++}
+const accuracy=chars>0?Math.round(correctChars/chars*100):100;
+const cpm=Math.round(chars/(elapsed/60));
+const wpm=lang==='en'?Math.round((typed.split(' ').length)/(elapsed/60)):Math.round(cpm/5);
+
+document.getElementById('wpmVal').textContent=wpm;
+document.getElementById('cpmVal').textContent=cpm;
+document.getElementById('accVal').textContent=accuracy+'%';
+document.getElementById('timeVal').textContent=Math.round(elapsed);
+document.getElementById('accFill').style.width=accuracy+'%';
+document.getElementById('accFill').style.background=accuracy>90?'#00c853':accuracy>70?'#ffab00':'#ff4081';
+}
+
+let timerInterval;
+document.getElementById('typeArea').addEventListener('input',function(){
+if(ended)return;
+const typed=this.value;
+if(!startTime&&typed.length>0){
+startTime=Date.now();
+timerInterval=setInterval(()=>{if(!ended)updateStats(document.getElementById('typeArea').value)},500);
+}
+renderText(typed);
+updateStats(typed);
+if(typed.length>=targetText.length){
+ended=true;clearInterval(timerInterval);
+updateStats(typed);
+document.getElementById('timer').textContent='완료!';
+this.disabled=true;
+}
+});
+
+resetTest();
+</script>
+</body>
+</html>

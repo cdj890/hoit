@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>드럼 패드</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:70px 12px 30px}
+h1{font-size:1.5rem;margin-bottom:20px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;max-width:360px}
+.pad{aspect-ratio:1;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;user-select:none;font-size:2.5rem;border:2px solid #333;transition:transform .05s,box-shadow .05s}
+.pad span{font-size:.85rem;margin-top:6px;color:#ccc}
+.pad.hit{transform:scale(.92);box-shadow:0 0 30px rgba(255,255,255,.3)}
+.pad:nth-child(1){background:#c62828}.pad:nth-child(2){background:#ad1457}.pad:nth-child(3){background:#6a1b9a}
+.pad:nth-child(4){background:#283593}.pad:nth-child(5){background:#00695c}.pad:nth-child(6){background:#558b2f}
+.pad:nth-child(7){background:#e65100}.pad:nth-child(8){background:#4e342e}.pad:nth-child(9){background:#37474f}
+.tip{color:#666;font-size:.8rem;margin-top:20px}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+
+<h1>드럼 패드</h1>
+<div class="grid" id="grid"></div>
+<p class="tip">패드를 터치하거나 클릭하세요</p>
+
+<script>
+let audioCtx;
+const pads=[
+{name:'킥',emoji:'🥁',play:c=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(150,c.currentTime);o.frequency.exponentialRampToValueAtTime(30,c.currentTime+.15);g.gain.setValueAtTime(.8,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.3);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.3)}},
+{name:'스네어',emoji:'🪘',play:c=>{const n=c.createBufferSource(),buf=c.createBuffer(1,c.sampleRate*.15,c.sampleRate),d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,2);n.buffer=buf;const g=c.createGain();g.gain.value=.6;n.connect(g);g.connect(c.destination);n.start()}},
+{name:'하이햇',emoji:'🎵',play:c=>{const n=c.createBufferSource(),buf=c.createBuffer(1,c.sampleRate*.05,c.sampleRate),d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,3);n.buffer=buf;const hp=c.createBiquadFilter();hp.type='highpass';hp.frequency.value=7000;const g=c.createGain();g.gain.value=.3;n.connect(hp);hp.connect(g);g.connect(c.destination);n.start()}},
+{name:'하이탐',emoji:'🔔',play:c=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=300;g.gain.setValueAtTime(.5,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.2);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.2)}},
+{name:'미드탐',emoji:'🎶',play:c=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=200;g.gain.setValueAtTime(.5,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.25);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.25)}},
+{name:'로우탐',emoji:'🎼',play:c=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=120;g.gain.setValueAtTime(.5,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.3);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.3)}},
+{name:'크래시',emoji:'💥',play:c=>{const n=c.createBufferSource(),buf=c.createBuffer(1,c.sampleRate*.4,c.sampleRate),d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,1.5);n.buffer=buf;const bp=c.createBiquadFilter();bp.type='bandpass';bp.frequency.value=5000;bp.Q.value=.5;const g=c.createGain();g.gain.value=.4;n.connect(bp);bp.connect(g);g.connect(c.destination);n.start()}},
+{name:'림샷',emoji:'🥢',play:c=>{const o=c.createOscillator(),g=c.createGain();o.type='triangle';o.frequency.value=800;g.gain.setValueAtTime(.4,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.08);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.08)}},
+{name:'카우벨',emoji:'🔔',play:c=>{const o=c.createOscillator(),g=c.createGain();o.type='square';o.frequency.value=560;g.gain.setValueAtTime(.3,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.15);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.15)}},
+];
+const grid=document.getElementById('grid');
+pads.forEach(p=>{
+const d=document.createElement('div');d.className='pad';
+d.innerHTML=p.emoji+'<span>'+p.name+'</span>';
+d.onpointerdown=e=>{
+e.preventDefault();
+if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+p.play(audioCtx);d.classList.add('hit');setTimeout(()=>d.classList.remove('hit'),100);
+};
+grid.appendChild(d);
+});
+</script>
+</body>
+</html>

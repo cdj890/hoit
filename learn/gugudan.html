@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>구구단 연습</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:70px 16px 30px}
+h1{font-size:1.5rem;margin-bottom:12px}
+.modes{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;justify-content:center}
+.modes button{background:#1e1e3a;color:#ccc;border:2px solid #333;padding:8px 16px;border-radius:10px;font-size:.9rem;cursor:pointer;min-height:44px;touch-action:manipulation}
+.modes button.sel{border-color:#00e5ff;color:#00e5ff}
+.dan-sel{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:16px}
+.dan-sel button{background:#1e1e3a;color:#ccc;border:2px solid #333;width:44px;height:44px;border-radius:10px;font-size:1rem;cursor:pointer;touch-action:manipulation}
+.dan-sel button.sel{border-color:#ff4081;color:#ff4081}
+.question{font-size:2.8rem;font-weight:bold;margin:20px 0;color:#00e5ff}
+.answer-wrap{display:flex;gap:10px;align-items:center;margin-bottom:16px}
+.answer-wrap input{width:100px;padding:14px;border-radius:10px;border:2px solid #333;background:#1e1e3a;color:#fff;font-size:1.5rem;text-align:center}
+.answer-wrap button{padding:14px 24px;background:#00e5ff;color:#0f0f1e;border:none;border-radius:10px;font-size:1.1rem;font-weight:bold;cursor:pointer;min-height:50px;touch-action:manipulation}
+.feedback{font-size:1.2rem;min-height:30px;margin:8px 0}
+.feedback.correct{color:#00c853}
+.feedback.wrong{color:#ff4081}
+.stats{display:flex;gap:20px;margin:16px 0;font-size:1rem}
+.stat{text-align:center}
+.stat .num{font-size:1.8rem;font-weight:bold;color:#00e5ff}
+.stat .label{font-size:.75rem;color:#aaa}
+.timer-bar{width:100%;max-width:400px;height:8px;background:#333;border-radius:4px;margin:10px 0;display:none}
+.timer-fill{height:100%;background:#ff4081;border-radius:4px;transition:width 1s linear}
+.wrong-list{width:100%;max-width:440px;margin-top:16px}
+.wrong-list h3{font-size:1rem;color:#aaa;margin-bottom:8px}
+.wrong-item{display:inline-block;background:#1a1a2e;padding:6px 12px;border-radius:8px;margin:3px;font-size:.85rem;color:#ff4081}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+
+<h1>구구단 연습</h1>
+<div class="modes">
+<button class="sel" id="modeNormal" onclick="setMode('normal')">일반 모드</button>
+<button id="modeTimer" onclick="setMode('timer')">타이머 (60초)</button>
+</div>
+<div class="dan-sel" id="danSel"></div>
+<div class="timer-bar" id="timerBar"><div class="timer-fill" id="timerFill" style="width:100%"></div></div>
+<div class="question" id="question">2 x 3 = ?</div>
+<div class="answer-wrap">
+<input type="number" id="ansIn" inputmode="numeric" autocomplete="off">
+<button onclick="checkAnswer()">확인</button>
+</div>
+<div class="feedback" id="feedback"></div>
+<div class="stats">
+<div class="stat"><div class="num" id="correctN">0</div><div class="label">정답</div></div>
+<div class="stat"><div class="num" id="wrongN">0</div><div class="label">오답</div></div>
+<div class="stat"><div class="num" id="totalN">0</div><div class="label">총 문제</div></div>
+</div>
+<div class="wrong-list" id="wrongList"></div>
+
+<script>
+let mode='normal',selectedDans=new Set([2,3,4,5,6,7,8,9]),a,b,correct=0,wrong=0,total=0,wrongs=[],timerInterval,timeLeft=60;
+const danSel=document.getElementById('danSel');
+for(let d=2;d<=9;d++){
+const btn=document.createElement('button');btn.textContent=d+'단';btn.classList.add('sel');
+btn.onclick=()=>{if(selectedDans.has(d)){if(selectedDans.size>1){selectedDans.delete(d);btn.classList.remove('sel')}}else{selectedDans.add(d);btn.classList.add('sel')}newQ()};
+danSel.appendChild(btn);
+}
+function setMode(m){mode=m;document.getElementById('modeNormal').className=m==='normal'?'sel':'';document.getElementById('modeTimer').className=m==='timer'?'sel':'';
+document.getElementById('timerBar').style.display=m==='timer'?'block':'none';
+correct=0;wrong=0;total=0;wrongs=[];updateStats();
+if(m==='timer'){timeLeft=60;document.getElementById('timerFill').style.width='100%';clearInterval(timerInterval);timerInterval=setInterval(()=>{timeLeft--;document.getElementById('timerFill').style.width=(timeLeft/60*100)+'%';if(timeLeft<=0){clearInterval(timerInterval);document.getElementById('feedback').textContent=`시간 종료! ${correct}개 정답`;document.getElementById('feedback').className='feedback correct'}},1000)}
+newQ();
+}
+function newQ(){
+const dans=[...selectedDans];a=dans[Math.floor(Math.random()*dans.length)];b=Math.floor(Math.random()*9)+1;
+document.getElementById('question').textContent=`${a} x ${b} = ?`;
+document.getElementById('ansIn').value='';document.getElementById('ansIn').focus();
+document.getElementById('feedback').textContent='';document.getElementById('feedback').className='feedback';
+}
+function checkAnswer(){
+if(mode==='timer'&&timeLeft<=0)return;
+const ans=parseInt(document.getElementById('ansIn').value);
+const fb=document.getElementById('feedback');
+total++;
+if(ans===a*b){correct++;fb.textContent='정답!';fb.className='feedback correct';setTimeout(newQ,500)}
+else{wrong++;fb.textContent=`오답! ${a} x ${b} = ${a*b}`;fb.className='feedback wrong';wrongs.push(`${a}x${b}=${a*b}`);setTimeout(newQ,1200)}
+updateStats();
+}
+function updateStats(){
+document.getElementById('correctN').textContent=correct;
+document.getElementById('wrongN').textContent=wrong;
+document.getElementById('totalN').textContent=total;
+const wl=document.getElementById('wrongList');
+wl.innerHTML=wrongs.length?'<h3>오답 복습</h3>'+wrongs.map(w=>`<span class="wrong-item">${w}</span>`).join(''):'';
+}
+document.getElementById('ansIn').addEventListener('keydown',e=>{if(e.key==='Enter')checkAnswer()});
+newQ();
+</script>
+</body>
+</html>

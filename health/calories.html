@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>칼로리 계산기</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;min-height:100vh;padding:70px 16px 30px;display:flex;flex-direction:column;align-items:center}
+h1{font-size:1.5rem;margin-bottom:16px}
+.search-wrap{width:100%;max-width:440px;position:relative;margin-bottom:12px}
+.search-wrap input{width:100%;padding:12px 16px;border-radius:10px;border:2px solid #333;background:#1e1e3a;color:#fff;font-size:1rem}
+.results{position:absolute;top:100%;left:0;right:0;background:#1a1a2e;border-radius:0 0 10px 10px;max-height:200px;overflow-y:auto;z-index:10;border:1px solid #333;display:none}
+.results div{padding:10px 16px;cursor:pointer;font-size:.9rem;border-bottom:1px solid #222;touch-action:manipulation}
+.results div:hover,.results div:active{background:#2a2a4e}
+.goal-wrap{width:100%;max-width:440px;margin:10px 0;display:flex;align-items:center;gap:10px}
+.goal-wrap label{font-size:.9rem;color:#aaa;white-space:nowrap}
+.goal-wrap input{flex:1;padding:8px;border-radius:8px;border:1px solid #333;background:#1e1e3a;color:#fff;font-size:1rem;text-align:center}
+.gauge{width:100%;max-width:440px;height:30px;background:#1e1e3a;border-radius:15px;overflow:hidden;margin:12px 0}
+.gauge-fill{height:100%;border-radius:15px;transition:width .3s;background:linear-gradient(90deg,#00e5ff,#00c853)}
+.gauge-fill.over{background:linear-gradient(90deg,#ff4081,#ff1744)}
+.total{font-size:2rem;font-weight:bold;color:#00e5ff;margin:8px 0}
+.log{width:100%;max-width:440px;margin-top:12px}
+.log-item{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#1a1a2e;border-radius:8px;margin-bottom:6px;font-size:.9rem}
+.log-item .del{color:#ff4081;cursor:pointer;padding:4px 10px;touch-action:manipulation;font-size:1.1rem}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+
+<h1>칼로리 계산기</h1>
+<div class="goal-wrap"><label>목표 (kcal)</label><input type="number" id="goalIn" value="2000"></div>
+<div class="search-wrap">
+<input type="text" id="searchIn" placeholder="음식 검색..." autocomplete="off">
+<div class="results" id="results"></div>
+</div>
+<div class="total" id="totalDisp">0 kcal</div>
+<div class="gauge"><div class="gauge-fill" id="gaugeFill" style="width:0%"></div></div>
+<div class="log" id="log"></div>
+
+<script>
+const foods=[
+['밥 1공기',300],['김치찌개',150],['된장찌개',120],['불고기',400],['삼겹살 1인분',550],
+['치킨 1조각',250],['피자 1조각',300],['햄버거',500],['라면',500],['비빔밥',550],
+['김밥 1줄',400],['떡볶이 1인분',450],['만두 5개',300],['잡채',250],['갈비탕',350],
+['냉면',450],['짜장면',600],['짬뽕',500],['탕수육 1인분',700],['볶음밥',500],
+['샌드위치',350],['샐러드',150],['계란 1개',80],['우유 1잔',120],['두부 반모',100],
+['고구마 1개',130],['바나나 1개',90],['사과 1개',80],['귤 1개',40],['딸기 10개',50],
+['요거트 1개',100],['치즈 1장',60],['아메리카노',5],['카페라떼',150],['콜라 1캔',140],
+['맥주 1캔',150],['소주 1잔',60],['와인 1잔',120],['주스 1잔',110],['떡 1개',120],
+['쿠키 1개',80],['케이크 1조각',350],['초콜릿 1개',50],['아이스크림',200],['과자 1봉',400],
+['식빵 1장',80],['토스트',250],['죽 1그릇',200],['오므라이스',550],['카레라이스',600]
+];
+let log=[];
+const searchIn=document.getElementById('searchIn'),resultsEl=document.getElementById('results');
+
+searchIn.oninput=()=>{
+const q=searchIn.value.trim();
+if(!q){resultsEl.style.display='none';return}
+const filtered=foods.filter(f=>f[0].includes(q));
+resultsEl.innerHTML='';
+filtered.forEach(f=>{
+const d=document.createElement('div');
+d.textContent=`${f[0]} - ${f[1]} kcal`;
+d.onclick=()=>{addFood(f[0],f[1]);searchIn.value='';resultsEl.style.display='none'};
+resultsEl.appendChild(d);
+});
+resultsEl.style.display=filtered.length?'block':'none';
+};
+
+function addFood(name,cal){log.push({name,cal});render()}
+function removeFood(i){log.splice(i,1);render()}
+
+function render(){
+const total=log.reduce((s,f)=>s+f.cal,0);
+const goal=parseInt(document.getElementById('goalIn').value)||2000;
+document.getElementById('totalDisp').textContent=total+' kcal';
+const pct=Math.min((total/goal)*100,100);
+const fill=document.getElementById('gaugeFill');
+fill.style.width=pct+'%';
+fill.className='gauge-fill'+(total>goal?' over':'');
+const logEl=document.getElementById('log');logEl.innerHTML='';
+log.forEach((f,i)=>{
+const d=document.createElement('div');d.className='log-item';
+d.innerHTML=`<span>${f.name} - ${f.cal} kcal</span><span class="del" onclick="removeFood(${i})">✕</span>`;
+logEl.appendChild(d);
+});
+}
+document.getElementById('goalIn').oninput=render;
+</script>
+</body>
+</html>

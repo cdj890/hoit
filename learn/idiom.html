@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>사자성어 퀴즈</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:70px 16px 30px}
+h1{font-size:1.5rem;margin-bottom:12px}
+.modes{display:flex;gap:10px;margin-bottom:16px}
+.modes button{background:#1e1e3a;color:#ccc;border:2px solid #333;padding:8px 18px;border-radius:10px;font-size:.9rem;cursor:pointer;min-height:44px;touch-action:manipulation}
+.modes button.sel{border-color:#00e5ff;color:#00e5ff}
+.progress{font-size:.9rem;color:#aaa;margin-bottom:12px}
+.score{font-size:1rem;color:#00e5ff;margin-bottom:16px}
+.card{width:100%;max-width:440px;background:#1a1a2e;border-radius:16px;padding:24px;text-align:center;margin-bottom:16px}
+.hanja{font-size:2.5rem;font-weight:bold;color:#00e5ff;margin-bottom:8px;letter-spacing:4px}
+.reading{font-size:1.1rem;color:#aaa;margin-bottom:12px}
+.q-text{font-size:1rem;color:#ccc;margin-bottom:16px}
+.options{display:flex;flex-direction:column;gap:10px;width:100%;max-width:440px}
+.opt-btn{padding:14px 20px;background:#1e1e3a;border:2px solid #333;border-radius:12px;color:#fff;font-size:1rem;cursor:pointer;text-align:left;min-height:44px;touch-action:manipulation;transition:all .2s}
+.opt-btn.correct{border-color:#00c853;background:#00c85322;color:#00c853}
+.opt-btn.wrong{border-color:#ff4081;background:#ff408122;color:#ff4081}
+.opt-btn:disabled{cursor:default}
+.explain{width:100%;max-width:440px;background:#1a2a3a;border-radius:12px;padding:16px;margin-top:12px;font-size:.9rem;line-height:1.6;display:none}
+.next-btn{margin-top:16px;padding:14px 40px;background:#00e5ff;color:#0f0f1e;border:none;border-radius:12px;font-size:1.1rem;font-weight:bold;cursor:pointer;min-height:50px;touch-action:manipulation;display:none}
+.result{width:100%;max-width:440px;text-align:center;display:none}
+.result .big{font-size:3rem;font-weight:bold;color:#00e5ff;margin:20px 0}
+.restart-btn{padding:14px 40px;background:#00e5ff;color:#0f0f1e;border:none;border-radius:12px;font-size:1.1rem;font-weight:bold;cursor:pointer;min-height:50px;touch-action:manipulation;margin-top:16px}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+
+<h1>사자성어 퀴즈</h1>
+<div class="modes">
+<button class="sel" id="modeM" onclick="setMode('meaning')">뜻 맞추기</button>
+<button id="modeH" onclick="setMode('hanja')">한자 맞추기</button>
+</div>
+<div class="progress" id="prog">1 / 10</div>
+<div class="score" id="score">점수: 0</div>
+
+<div class="card" id="card">
+<div class="hanja" id="hanja"></div>
+<div class="reading" id="reading"></div>
+<div class="q-text" id="qtext"></div>
+</div>
+<div class="options" id="options"></div>
+<div class="explain" id="explain"></div>
+<button class="next-btn" id="nextBtn" onclick="nextQ()">다음 문제</button>
+
+<div class="result" id="result">
+<div class="big" id="finalScore"></div>
+<p>10문제 중 정답</p>
+<button class="restart-btn" onclick="startQuiz()">다시 도전</button>
+</div>
+
+<script>
+const data=[
+['一石二鳥','일석이조','한 가지 일로 두 가지 이익을 얻음','돌 하나로 새 두 마리를 잡는다는 뜻'],
+['四面楚歌','사면초가','사방이 적에게 둘러싸여 고립됨','항우가 사방에서 초나라 노래를 듣고 절망한 고사'],
+['臥薪嘗膽','와신상담','원수를 갚으려고 온갖 고생을 참음','월왕 구천이 복수를 위해 장작 위에 눕고 쓸개를 핥은 고사'],
+['塞翁之馬','새옹지마','인생의 길흉화복은 변화가 많아 예측할 수 없음','변방 노인의 말 이야기'],
+['溫故知新','온고지신','옛것을 익혀 새것을 앎','공자의 가르침에서 유래'],
+['自業自得','자업자득','자기가 저지른 일의 결과를 자기가 받음','스스로 한 업의 결과를 스스로 얻는다'],
+['以心傳心','이심전심','마음에서 마음으로 전함','말없이도 마음이 통한다는 뜻'],
+['朝三暮四','조삼모사','간사한 꾀로 남을 속임','아침에 세 개 저녁에 네 개를 준다는 고사'],
+['畵龍點睛','화룡점정','가장 중요한 부분을 완성함','용을 그리고 눈동자를 찍자 날아갔다는 고사'],
+['百聞不如一見','백문불여일견','백 번 듣는 것이 한 번 보는 것만 못함','직접 보는 것이 중요하다는 뜻'],
+['漁夫之利','어부지리','둘이 싸우는 사이에 제3자가 이득을 취함','방새와 조개가 싸우는 틈에 어부가 이익을 얻은 고사'],
+['五十步百步','오십보백보','본질적으로는 같음','50보 도망친 자가 100보 도망친 자를 비웃는 고사'],
+['有備無患','유비무환','미리 준비하면 근심이 없음','준비가 되어 있으면 걱정할 것이 없다'],
+['他山之石','타산지석','다른 사람의 하찮은 언행도 자신의 수양에 도움이 됨','다른 산의 돌도 옥을 가는 데 쓸 수 있다'],
+['錦上添花','금상첨화','좋은 것 위에 더 좋은 것을 더함','비단 위에 꽃을 더한다는 뜻'],
+['大器晩成','대기만성','큰 인물은 늦게 이루어짐','큰 그릇은 오래 걸려야 완성된다'],
+['呉越同舟','오월동주','서로 적대적인 사람들이 같은 어려움에 처함','오나라와 월나라 사람이 같은 배를 탄 고사'],
+['竹馬故友','죽마고우','어릴 때부터 같이 놀며 자란 친구','대나무 말을 타고 놀던 옛 친구'],
+['刻骨難忘','각골난망','은혜가 뼈에 새겨져 잊기 어려움','뼈에 새긴 것처럼 잊을 수 없다'],
+['百折不屈','백절불굴','백 번 꺾여도 굽히지 않음','어떤 어려움에도 굴하지 않는다'],
+['同病相憐','동병상련','같은 병을 앓는 사람끼리 서로 불쌍히 여김','같은 처지의 사람끼리 동정한다'],
+['落花流水','낙화유수','떨어지는 꽃과 흐르는 물처럼 쇠퇴해감','세력이 약해져 회복할 수 없는 상태'],
+['無所不爲','무소불위','못하는 것이 없음','하지 못하는 바가 없다'],
+['十匙一飯','십시일반','여러 사람이 조금씩 도와 한 사람을 도움','열 사람이 한 술씩 보태면 한 그릇이 된다'],
+['三顧草廬','삼고초려','인재를 맞이하기 위해 여러 번 찾아감','유비가 제갈량을 세 번 찾아간 고사'],
+['明鏡止水','명경지수','맑은 거울과 고요한 물처럼 깨끗한 마음','잡념이 없는 맑은 마음 상태'],
+['前代未聞','전대미문','이전에 들어본 적이 없음','전에 없던 매우 드문 일'],
+['捲土重來','권토중래','한 번 실패한 후 힘을 되찾아 다시 옴','흙먼지를 일으키며 다시 온다'],
+['群鷄一鶴','군계일학','많은 사람 중에 뛰어난 한 사람','닭 무리 속의 한 마리 학'],
+['結草報恩','결초보은','죽어서라도 은혜를 갚음','풀을 묶어서라도 은혜에 보답한다'],
+['苦盡甘來','고진감래','고생 끝에 즐거움이 옴','쓴 것이 다하면 단 것이 온다'],
+['九死一生','구사일생','거의 죽을 뻔하다 겨우 살아남','아홉 번 죽을 뻔하고 한 번 삶'],
+['同床異夢','동상이몽','같은 처지에 있으면서 다른 생각을 함','같은 잠자리에서 다른 꿈을 꾼다'],
+['馬耳東風','마이동풍','남의 말을 귀담아듣지 않음','말의 귀에 동풍이 분다'],
+['附和雷同','부화뇌동','주관 없이 남의 의견에 따라감','우레소리에 맞추어 함께 울린다'],
+['四通五達','사통오달','교통이 사방으로 통함','사방팔방으로 길이 통한다'],
+['先見之明','선견지명','앞일을 미리 내다보는 밝은 식견','미리 앞을 내다보는 지혜'],
+['愚公移山','우공이산','어떤 일이든 꾸준히 노력하면 이룰 수 있음','우공이 산을 옮기려 한 고사'],
+['日就月將','일취월장','날로 달로 발전함','날마다 이루고 달마다 나아간다'],
+['切磋琢磨','절차탁마','학문이나 덕행을 갈고 닦음','자르고 쪼고 쪼고 갈아서 빛낸다'],
+['指鹿爲馬','지록위마','윗사람을 속여 권세를 마음대로 함','사슴을 가리키며 말이라 한 고사'],
+['天方地軸','천방지축','몹시 급하여 어찌할 바를 모르는 모양','하늘 방향 땅 축이 뒤바뀐다'],
+['泰山北斗','태산북두','학문이나 덕망이 높아 우러러보는 사람','태산과 북두칠성처럼 우러러본다'],
+['八方美人','팔방미인','여러 방면에 능한 사람','어느 방향에서 봐도 아름다운 사람'],
+['風前燈火','풍전등화','매우 위태로운 처지','바람 앞의 등불처럼 위험하다'],
+['虎視眈眈','호시탐탐','기회를 노려 형세를 살핌','호랑이가 눈을 부릅뜨고 노려본다'],
+['畫蛇添足','화사첨족','쓸데없는 것을 더하여 도리어 잘못됨','뱀을 그리고 발을 더한 고사'],
+['黃金萬能','황금만능','돈이면 무엇이든 할 수 있다는 생각','황금은 만능이라는 뜻'],
+['興盡悲來','흥진비래','즐거운 일이 다하면 슬픈 일이 옴','흥이 다하면 슬픔이 온다'],
+['螳螂拒轍','당랑거철','자기 힘을 모르고 강적에게 대듦','사마귀가 수레바퀴를 막으려 한 고사'],
+['走馬看山','주마간산','대충 훑어보고 지나감','말을 달리며 산을 구경한다'],
+['進退兩難','진퇴양난','이러지도 저러지도 못하는 어려운 처지','나아가기도 물러나기도 어렵다'],
+['天衣無縫','천의무봉','사물이 완벽하여 흠잡을 데가 없음','하늘의 옷에는 바느질 자국이 없다'],
+['靑出於藍','청출어람','제자가 스승보다 나음','푸른색이 쪽에서 나왔으나 쪽보다 푸르다'],
+['醉生夢死','취생몽사','술에 취하고 꿈속에서 죽듯이 헛되이 살아감','취해서 살고 꿈꾸며 죽는다'],
+['破竹之勢','파죽지세','거침없이 적을 무찌르는 기세','대나무를 쪼개는 기세'],
+['孤軍奮鬪','고군분투','도움 없이 혼자서 열심히 싸움','외로운 군대가 힘써 싸운다'],
+['無我之境','무아지경','자기를 잊을 만큼 어떤 일에 몰두함','나를 잊은 경지'],
+['背水之陣','배수지진','목숨을 걸고 싸움','물을 등지고 진을 친다는 뜻'],
+['見物生心','견물생심','물건을 보면 욕심이 생김','물건을 보고 마음이 생긴다'],
+['雪上加霜','설상가상','불행 위에 불행이 겹침','눈 위에 서리가 더해진다'],
+['一擧兩得','일거양득','하나의 행동으로 두 가지 이득을 얻음','한 번 들어 두 가지를 얻는다'],
+['一片丹心','일편단심','한결같은 충성스러운 마음','한 조각의 붉은 마음'],
+['因果應報','인과응보','원인에 따른 결과가 반드시 따름','원인과 결과에 따라 갚음이 있다'],
+['七顚八起','칠전팔기','여러 번 실패해도 굴하지 않고 다시 일어남','일곱 번 넘어지고 여덟 번 일어난다'],
+['太平聖代','태평성대','잘 다스려져 평화로운 세상','태평하고 성스러운 시대'],
+['易地思之','역지사지','상대방의 처지에서 생각함','처지를 바꾸어 생각한다'],
+['不問曲直','불문곡직','옳고 그름을 따지지 않음','굽음과 바름을 묻지 않는다'],
+['不撓不屈','불요불굴','어떤 어려움에도 굽히지 않음','흔들리지도 굽히지도 않는다'],
+['刮目相對','괄목상대','남의 학식이나 재주가 크게 발전함','눈을 비비고 다시 본다'],
+['如履薄氷','여리박빙','매우 위험한 상황에 처함','얇은 얼음 위를 걷는 것과 같다'],
+['弱肉強食','약육강식','강한 자가 약한 자를 먹어치움','약한 고기를 강한 자가 먹는다'],
+['多多益善','다다익선','많으면 많을수록 좋음','많고 많을수록 더욱 좋다'],
+['無念無想','무념무상','아무런 잡념이 없는 상태','생각도 없고 상상도 없다'],
+['莫上莫下','막상막하','실력이 서로 비슷함','위도 아래도 없다'],
+['暗中模索','암중모색','어둠 속에서 더듬어 찾음','어둠 속에서 모색한다'],
+['口蜜腹劍','구밀복검','겉으로는 친절하나 속에 해칠 마음이 있음','입에는 꿀 배에는 칼'],
+['龍頭蛇尾','용두사미','처음은 좋으나 끝이 보잘것없음','용의 머리에 뱀의 꼬리'],
+['中言不信','중언부신','여러번 말해도 믿지 않음','거듭된 말을 믿지 않는다'],
+['萬事休矣','만사휴의','모든 일이 끝났음','만 가지 일이 다 쉬었다'],
+['天長地久','천장지구','영원히 변하지 않음','하늘처럼 길고 땅처럼 오래됨'],
+['言中有骨','언중유골','말 속에 날카로운 뜻이 있음','말 속에 뼈가 있다'],
+['速戰速決','속전속결','빠르게 싸워 빠르게 끝냄','빨리 싸우고 빨리 결판낸다'],
+['千載一遇','천재일우','천 년에 한 번 만나는 좋은 기회','천 년에 한 번 만남'],
+['坐井觀天','좌정관천','식견이 매우 좁음','우물 안에 앉아 하늘을 본다'],
+['杯盤狼藉','배반낭자','술자리가 매우 어지러움','잔과 접시가 어지럽게 널려있다'],
+['門前成市','문전성시','찾아오는 사람이 많아 문 앞이 시장 같음','문 앞이 시장을 이룬다'],
+['面從腹背','면종복배','겉으로 따르면서 속으로 배반함','앞에서는 따르고 뒤에서는 등진다'],
+['每事不成','매사불성','하는 일마다 안됨','매번 일이 이루어지지 않는다'],
+['千辛萬苦','천신만고','온갖 어렵고 괴로운 일','천 가지 매운 것과 만 가지 쓴 것'],
+['夢寐不忘','몽매불망','자나 깨나 잊지 못함','꿈에서도 잊지 못한다'],
+['無爲徒食','무위도식','하는 일 없이 먹기만 함','하는 일 없이 헛되이 먹는다'],
+['不可思議','불가사의','상식으로는 생각할 수 없이 이상함','생각하고 의논할 수 없다'],
+['半信半疑','반신반의','반은 믿고 반은 의심함','반은 믿고 반은 의심하다'],
+['朝令暮改','조령모개','법령을 자주 바꿈','아침에 명령하고 저녁에 고친다']
+];
+
+let mode='meaning',quiz=[],qIdx=0,score=0;
+function setMode(m){mode=m;document.getElementById('modeM').className=m==='meaning'?'sel':'';document.getElementById('modeH').className=m==='hanja'?'sel':'';startQuiz()}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function startQuiz(){
+quiz=shuffle([...data]).slice(0,10);qIdx=0;score=0;
+document.getElementById('result').style.display='none';
+document.getElementById('card').style.display='block';
+document.getElementById('options').style.display='flex';
+showQ();
+}
+function showQ(){
+if(qIdx>=10){showResult();return}
+const q=quiz[qIdx];
+document.getElementById('prog').textContent=`${qIdx+1} / 10`;
+document.getElementById('score').textContent=`점수: ${score}`;
+document.getElementById('nextBtn').style.display='none';
+document.getElementById('explain').style.display='none';
+if(mode==='meaning'){
+document.getElementById('hanja').textContent=q[0];
+document.getElementById('reading').textContent=q[1];
+document.getElementById('qtext').textContent='이 사자성어의 뜻은?';
+const opts=shuffle([q[2],...shuffle(data.filter(d=>d!==q)).slice(0,3).map(d=>d[2])]);
+renderOpts(opts,q[2],q[3]);
+}else{
+document.getElementById('hanja').textContent='?';
+document.getElementById('reading').textContent=q[1];
+document.getElementById('qtext').textContent=q[2];
+const opts=shuffle([q[0],...shuffle(data.filter(d=>d!==q)).slice(0,3).map(d=>d[0])]);
+renderOpts(opts,q[0],q[3]);
+}
+}
+function renderOpts(opts,answer,explain){
+const el=document.getElementById('options');el.innerHTML='';
+opts.forEach(o=>{
+const b=document.createElement('button');b.className='opt-btn';b.textContent=o;
+b.onclick=()=>{
+document.querySelectorAll('.opt-btn').forEach(x=>{x.disabled=true;if(x.textContent===answer)x.classList.add('correct')});
+if(o===answer){score++}else{b.classList.add('wrong')}
+document.getElementById('score').textContent=`점수: ${score}`;
+document.getElementById('explain').textContent='💡 '+explain;
+document.getElementById('explain').style.display='block';
+document.getElementById('nextBtn').style.display='inline-block';
+};
+el.appendChild(b);
+});
+}
+function nextQ(){qIdx++;showQ()}
+function showResult(){
+document.getElementById('card').style.display='none';
+document.getElementById('options').style.display='none';
+document.getElementById('nextBtn').style.display='none';
+document.getElementById('explain').style.display='none';
+const r=document.getElementById('result');r.style.display='block';
+document.getElementById('finalScore').textContent=score+' / 10';
+}
+startQuiz();
+</script>
+</body>
+</html>

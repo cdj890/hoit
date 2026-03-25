@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>속담 퀴즈</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:70px 16px 30px}
+h1{font-size:1.5rem;margin-bottom:12px}
+.progress{font-size:.9rem;color:#aaa;margin-bottom:8px}
+.score{font-size:1rem;color:#00e5ff;margin-bottom:16px}
+.card{width:100%;max-width:440px;background:#1a1a2e;border-radius:16px;padding:28px 24px;text-align:center;margin-bottom:16px}
+.proverb{font-size:1.4rem;line-height:1.8;color:#fff;margin-bottom:4px}
+.blank{color:#ff4081;font-weight:bold;border-bottom:3px solid #ff4081;padding:0 4px}
+.hint{font-size:.85rem;color:#666;margin-top:8px}
+.options{display:flex;flex-direction:column;gap:10px;width:100%;max-width:440px}
+.opt-btn{padding:14px 20px;background:#1e1e3a;border:2px solid #333;border-radius:12px;color:#fff;font-size:1rem;cursor:pointer;text-align:center;min-height:44px;touch-action:manipulation;transition:all .2s}
+.opt-btn.correct{border-color:#00c853;background:#00c85322;color:#00c853}
+.opt-btn.wrong{border-color:#ff4081;background:#ff408122;color:#ff4081}
+.opt-btn:disabled{cursor:default}
+.meaning{width:100%;max-width:440px;background:#1a2a3a;border-radius:12px;padding:14px;margin-top:12px;font-size:.9rem;color:#aaa;line-height:1.5;display:none}
+.next-btn{margin-top:16px;padding:14px 40px;background:#00e5ff;color:#0f0f1e;border:none;border-radius:12px;font-size:1.1rem;font-weight:bold;cursor:pointer;min-height:50px;touch-action:manipulation;display:none}
+.result{width:100%;max-width:440px;text-align:center;display:none}
+.result .big{font-size:3rem;font-weight:bold;color:#00e5ff;margin:20px 0}
+.restart-btn{padding:14px 40px;background:#00e5ff;color:#0f0f1e;border:none;border-radius:12px;font-size:1.1rem;font-weight:bold;cursor:pointer;min-height:50px;touch-action:manipulation;margin-top:16px}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+
+<h1>속담 퀴즈</h1>
+<div class="progress" id="prog">1 / 10</div>
+<div class="score" id="score">점수: 0</div>
+<div class="card" id="card"><div class="proverb" id="proverb"></div><div class="hint">빈칸에 알맞은 말은?</div></div>
+<div class="options" id="options"></div>
+<div class="meaning" id="meaning"></div>
+<button class="next-btn" id="nextBtn" onclick="nextQ()">다음 문제</button>
+<div class="result" id="result"><div class="big" id="finalScore"></div><p>10문제 중 정답</p><button class="restart-btn" onclick="startQuiz()">다시 도전</button></div>
+
+<script>
+const proverbs=[
+['___도 제 말 하면 온다','호랑이','이야기하던 당사자가 나타남'],
+['낮말은 새가 듣고 ___은 쥐가 듣는다','밤말','어디서든 말조심해야 함'],
+['___에 가야 떡을 먹는다','떡집','무엇이든 제자리에 가야 얻을 수 있음'],
+['___이 열 번 찍어 안 넘어가는 나무 없다','도끼','꾸준히 노력하면 안 되는 일이 없음'],
+['하늘이 무너져도 솟아날 ___이 있다','구멍','아무리 어려워도 해결 방법이 있음'],
+['___보고 놀란 가슴 솥뚜껑 보고 놀란다','소나무','한번 놀라면 비슷한 것에도 놀라게 됨'],
+['가는 ___이 고와야 오는 말이 곱다','말','내가 남에게 잘해야 남도 잘해준다'],
+['___도 밟으면 꿈틀한다','지렁이','아무리 약한 사람도 괴롭히면 반항한다'],
+['___이 많으면 배가 산으로 간다','사공','지시하는 사람이 많으면 일이 잘 안됨'],
+['빈 ___이 요란하다','수레','실속 없는 사람이 겉으로 떠들어댐'],
+['서당 ___에 풍월을 읊는다','개 삼 년','오래 있으면 자연히 배우게 됨'],
+['___도 구르는 재주가 있다','쥐','아무리 보잘것없어도 한 가지 재주는 있음'],
+['___을 잡으려면 ___굴에 들어가야 한다','호랑이, 호랑이','위험을 감수해야 큰 일을 이룰 수 있음'],
+['세 살 ___이 여든까지 간다','버릇','어릴 때 습관이 평생 간다'],
+['___도 한 때다','꽃','좋은 시절은 영원하지 않다'],
+['아니 땐 ___에 연기 날까','굴뚝','원인 없는 결과는 없다'],
+['원숭이도 ___에서 떨어진다','나무','아무리 잘하는 사람도 실수할 수 있다'],
+['티끌 모아 ___','태산','작은 것도 모이면 큰 것이 됨'],
+['___가 지나가야 봄이 온다','겨울','어려운 시기를 견뎌야 좋은 때가 옴'],
+['소 잃고 ___간 고친다','외양간','일이 벌어진 후에 대비해도 소용없음'],
+['___도 두들겨 보고 건너라','돌다리','아무리 확실해도 조심해야 함'],
+['꿩 먹고 ___ 먹고','알','한 가지로 두 가지 이득을 봄'],
+['빛 좋은 ___','개살구','겉만 번지르르하고 실속이 없음'],
+['___도 들으면 좋다','칭찬','좋은 말은 누구나 듣기 좋다'],
+['공든 ___이 무너지랴','탑','정성들여 한 일은 쉽게 무너지지 않음'],
+['등잔 ___이 어둡다','밑','가까운 일을 잘 모른다'],
+['갈수록 ___','태산','갈수록 어려워짐'],
+['까마귀 날자 ___가 떨어진다','배','우연의 일치로 억울한 일을 당함'],
+['눈에 ___이 없다','넣어도 아프지 않을 것','매우 예쁘고 사랑스러움'],
+['금강산도 ___','식후경','먹고 나서야 다른 것을 즐길 수 있음'],
+['뱁새가 ___을 따라가면 가랑이가 찢어진다','황새','분수에 맞지 않게 따라하면 해로움'],
+['서 말 ___도 꿰어야 보배','구슬','아무리 좋아도 쓸모 있게 해야 가치가 있음'],
+['장님 ___만지기','코끼리','전체를 보지 못하고 일부만 봄'],
+['백지장도 맞들면 ___','낫다','협력하면 쉬운 일도 더 쉬워짐'],
+['___에 경읽기','쇠귀','아무리 말해도 알아듣지 못함'],
+['발 없는 ___이 천리 간다','말','소문은 빠르게 퍼진다'],
+['우물 안 ___','개구리','세상을 모르고 자기만 아는 사람'],
+['___가 지면 단풍이 든다','서리','원인이 있으면 결과가 있다'],
+['___은 돌아가도 소는 곧장 간다','말','같은 목적이라도 방법은 다를 수 있음'],
+['하나를 보면 ___을 안다','열','일부를 보면 전체를 짐작할 수 있음'],
+['바늘 도둑이 ___ 도둑 된다','소','작은 잘못이 큰 잘못으로 커짐'],
+['누워서 ___ 먹기','떡','매우 쉬운 일'],
+['뛰는 놈 위에 ___놈 있다','나는','잘하는 사람 위에 더 잘하는 사람이 있음'],
+['제 ___에 제가 넘어간다','꾀','자기 꾀에 자기가 당함'],
+['웃는 ___에 침 뱉으랴','낯','좋게 대하는 사람에게 나쁘게 할 수 없음'],
+['남의 떡이 ___보인다','커','남의 것이 더 좋아보임'],
+['아는 길도 ___가며 가라','물어','잘 아는 것도 확인해야 함'],
+['고래 싸움에 ___등 터진다','새우','강한 자들의 다툼에 약한 자가 피해봄'],
+['칼로 ___베기','물','쉽게 끊어지지 않는 관계'],
+['목마른 놈이 ___판다','우물','급한 사람이 먼저 나서서 함'],
+['바람 앞의 ___','등불','매우 위태로운 처지'],
+['올라갈 나무는 ___부터 본다','쳐다','할 수 있는지 먼저 판단해야 함'],
+['자라 보고 놀란 가슴 ___보고 놀란다','솥뚜껑','한번 놀라면 비슷한 것에도 놀람'],
+['언 발에 ___누기','오줌','임시방편으로 해결해도 곧 다시 문제됨'],
+['구슬이 ___이라도 꿰어야 보배','서 말','아무리 좋은 것도 쓸모있게 해야 가치 있음'],
+['___뛰고 간 데 ___뛰어 봐야','사슴, 노루','남의 발자취를 따라해도 소용없음'],
+['못 먹는 ___에 침 뱉기','감','자기가 가질 수 없으면 남도 못 갖게 함'],
+['씹어야 ___이 난다','맛','직접 경험해야 진가를 알 수 있음'],
+['옷이 ___이다','날개','옷을 잘 입으면 달라 보인다'],
+['___ 한 마리가 온 웅덩이를 흐린다','미꾸라지','한 사람의 잘못이 전체를 망침'],
+['콩 심은 데 ___나고 팥 심은 데 팥 난다','콩','원인에 따라 결과가 나옴'],
+['지성이면 ___','감천','정성을 다하면 하늘이 돕는다'],
+['아는 것이 ___이다','힘','지식이 곧 힘이다'],
+['피는 ___보다 진하다','물','가족의 정은 다른 어떤 것보다 강하다'],
+['일찍 일어나는 ___가 벌레를 잡는다','새','부지런하면 좋은 결과를 얻음'],
+['돌다리도 ___보고 건너라','두드려','확실한 것도 확인하고 행동해야 함'],
+['배보다 ___가 더 크다','배꼽','부수적인 것이 본래 것보다 큼'],
+['가랑비에 ___젖는다','옷','사소한 것도 반복되면 큰 영향을 미침'],
+['닭 잡는 데 ___칼','소','사소한 일에 큰 수단을 쓸 필요 없음'],
+['구더기 무서워 ___못 담그랴','장','사소한 장애 때문에 큰일을 포기하지 않음'],
+['급할수록 ___','돌아가라','급할수록 차분히 해야 함'],
+['낫 놓고 ___자도 모른다','기역','아주 무식한 사람을 비유'],
+['먹고 죽은 ___가 때깔이 곱다','귀신','먹는 것이 중요하다'],
+['하늘의 ___따기','별','매우 어려운 일'],
+['엎친 데 ___','덮친 격','불행이 겹침'],
+['젊어서 ___은 사서도 한다','고생','젊은 시절의 고생은 귀중한 경험이 됨'],
+['되로 주고 ___로 받는다','말','작게 주고 크게 돌려받음'],
+['중이 제 ___못 깎는다','머리','자기 일은 자기가 못함'],
+['사촌이 ___을 사면 배가 아프다','땅','가까운 사람이 잘되면 시기함'],
+['고생 끝에 ___이 온다','낙','어려운 시기가 지나면 좋은 때가 옴'],
+['천 리 길도 ___부터','한 걸음','큰 일도 작은 시작부터'],
+['눈 가리고 ___','아웅','얕은 속임수로 남을 속이려 함'],
+['꼬리가 ___면 밟힌다','길','나쁜 짓은 오래 하면 들키게 됨'],
+['뿌린 대로 ___','거둔다','한 만큼 결과를 얻음'],
+['자다가 ___벼락','남의','느닷없이 당하는 화'],
+['세월이 ___','약','시간이 지나면 해결됨'],
+['발등에 ___이 떨어지다','불','일이 급박해짐'],
+['말이 ___이 된다','씨','말한 것이 현실이 됨'],
+['열 길 ___속은 알아도 한 길 사람 속은 모른다','물','사람의 마음은 알기 어려움'],
+['눈 위에 ___','서리','불행 위에 불행이 겹침'],
+['호미로 막을 것을 ___로 막는다','가래','초기에 해결하지 않아 큰 힘이 듦'],
+['못된 ___가 선산을 뒤판다','송아지','못된 자식이 집안을 망침'],
+['약방에 ___','감초','빠지지 않고 꼭 끼는 것'],
+['제비 한 마리가 ___을 만들지 않는다','봄','한 가지 일로 전체를 판단할 수 없음'],
+['가는 날이 ___날','장','우연히 좋은 때를 만남'],
+['말 한마디에 천 냥 ___를 갚는다','빚','말의 힘이 크다'],
+['물에 빠지면 ___라도 잡는다','지푸라기','급하면 무엇이든 의지함'],
+['___아래 ___이 떨어진다','감나무, 감','가만히 있어도 좋은 일이 생기길 바람'],
+['우는 아이에게 ___하나 더 준다','떡','요구하는 사람이 더 얻음'],
+['입에 쓴 ___이 몸에 좋다','약','듣기 싫은 충고가 도움이 됨']
+];
+
+let quiz=[],qIdx=0,score=0;
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function startQuiz(){
+quiz=shuffle([...proverbs]).slice(0,10);qIdx=0;score=0;
+document.getElementById('result').style.display='none';
+document.getElementById('card').style.display='block';
+document.getElementById('options').style.display='flex';
+showQ();
+}
+function showQ(){
+if(qIdx>=10){showResult();return}
+const q=quiz[qIdx];
+document.getElementById('prog').textContent=`${qIdx+1} / 10`;
+document.getElementById('score').textContent=`점수: ${score}`;
+document.getElementById('nextBtn').style.display='none';
+document.getElementById('meaning').style.display='none';
+document.getElementById('proverb').innerHTML=q[0].replace('___','<span class="blank">???</span>');
+const wrongAnswers=shuffle(proverbs.filter(p=>p!==q)).slice(0,3).map(p=>p[1]);
+const opts=shuffle([q[1],...wrongAnswers]);
+const el=document.getElementById('options');el.innerHTML='';
+opts.forEach(o=>{
+const b=document.createElement('button');b.className='opt-btn';b.textContent=o;
+b.onclick=()=>{
+document.querySelectorAll('.opt-btn').forEach(x=>{x.disabled=true;if(x.textContent===q[1])x.classList.add('correct')});
+if(o===q[1]){score++}else{b.classList.add('wrong')}
+document.getElementById('score').textContent=`점수: ${score}`;
+document.getElementById('proverb').innerHTML=q[0].replace('___',`<span class="blank" style="color:#00e5ff;border-color:#00e5ff">${q[1]}</span>`);
+document.getElementById('meaning').textContent='💡 '+q[2];
+document.getElementById('meaning').style.display='block';
+document.getElementById('nextBtn').style.display='inline-block';
+};
+el.appendChild(b);
+});
+}
+function nextQ(){qIdx++;showQ()}
+function showResult(){
+document.getElementById('card').style.display='none';
+document.getElementById('options').style.display='none';
+document.getElementById('nextBtn').style.display='none';
+document.getElementById('meaning').style.display='none';
+document.getElementById('result').style.display='block';
+document.getElementById('finalScore').textContent=score+' / 10';
+}
+startQuiz();
+</script>
+</body>
+</html>

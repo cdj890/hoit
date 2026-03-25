@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>운동 타이머</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:70px 16px 30px}
+h1{font-size:1.5rem;margin-bottom:16px}
+.modes{display:flex;gap:10px;margin-bottom:20px}
+.modes button{background:#1e1e3a;color:#ccc;border:2px solid #333;padding:10px 20px;border-radius:10px;font-size:.95rem;cursor:pointer;min-height:44px;touch-action:manipulation}
+.modes button.sel{border-color:#00e5ff;color:#00e5ff}
+.circle-wrap{position:relative;width:220px;height:220px;margin:20px 0}
+.circle-wrap svg{transform:rotate(-90deg)}
+.circle-bg{fill:none;stroke:#1e1e3a;stroke-width:12}
+.circle-prog{fill:none;stroke-width:12;stroke-linecap:round;transition:stroke-dashoffset .3s}
+.circle-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.time-big{font-size:3rem;font-weight:bold}
+.phase{font-size:1.1rem;margin-top:4px}
+.phase.work{color:#00e5ff}
+.phase.rest{color:#ff4081}
+.round-info{font-size:1rem;color:#aaa;margin:10px 0}
+.settings{display:flex;flex-direction:column;gap:10px;align-items:center;margin:10px 0}
+.settings label{font-size:.9rem;color:#aaa}
+.settings input{background:#1e1e3a;border:1px solid #333;color:#fff;padding:8px 12px;border-radius:8px;width:80px;text-align:center;font-size:1rem}
+.ctrl-btn{padding:14px 40px;font-size:1.2rem;border:none;border-radius:14px;cursor:pointer;font-weight:bold;min-height:50px;touch-action:manipulation;margin:5px}
+.ctrl-btn.start{background:#00e5ff;color:#0f0f1e}
+.ctrl-btn.stop{background:#ff4081;color:#fff}
+.ctrl-btn.reset{background:#333;color:#ccc}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+
+<h1>운동 타이머</h1>
+<div class="modes">
+<button class="sel" onclick="setMode('hiit',this)">HIIT</button>
+<button onclick="setMode('tabata',this)">타바타</button>
+</div>
+<div class="settings">
+<label>라운드 수: <input type="number" id="roundsIn" value="8" min="1" max="30"></label>
+<label>운동(초): <input type="number" id="workIn" value="30" min="5" max="300"></label>
+<label>휴식(초): <input type="number" id="restIn" value="10" min="5" max="120"></label>
+</div>
+
+<div class="circle-wrap">
+<svg width="220" height="220"><circle class="circle-bg" cx="110" cy="110" r="100"/><circle class="circle-prog" id="prog" cx="110" cy="110" r="100" stroke="#00e5ff"/></svg>
+<div class="circle-text"><div class="time-big" id="timeDisp">30</div><div class="phase work" id="phaseDisp">준비</div></div>
+</div>
+<div class="round-info" id="roundDisp">라운드 0/8</div>
+<div>
+<button class="ctrl-btn start" id="startBtn" onclick="toggleTimer()">시작</button>
+<button class="ctrl-btn reset" onclick="resetTimer()">리셋</button>
+</div>
+
+<script>
+const circ=2*Math.PI*100;
+document.getElementById('prog').style.strokeDasharray=circ;
+document.getElementById('prog').style.strokeDashoffset=circ;
+
+let mode='hiit',workSec=30,restSec=10,totalRounds=8;
+let running=false,timer=null,currentRound=1,isWork=true,timeLeft=0;
+
+function setMode(m,btn){
+mode=m;document.querySelectorAll('.modes button').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');
+if(m==='tabata'){document.getElementById('workIn').value=20;document.getElementById('restIn').value=10;document.getElementById('roundsIn').value=8}
+else{document.getElementById('workIn').value=30;document.getElementById('restIn').value=10;document.getElementById('roundsIn').value=8}
+resetTimer();
+}
+
+function updateCircle(pct){
+const off=circ*(1-pct);
+document.getElementById('prog').style.strokeDashoffset=off;
+document.getElementById('prog').style.stroke=isWork?'#00e5ff':'#ff4081';
+}
+
+function updateDisplay(){
+document.getElementById('timeDisp').textContent=timeLeft;
+document.getElementById('phaseDisp').textContent=isWork?'운동':'휴식';
+document.getElementById('phaseDisp').className='phase '+(isWork?'work':'rest');
+document.getElementById('roundDisp').textContent=`라운드 ${currentRound}/${totalRounds}`;
+const total=isWork?workSec:restSec;
+updateCircle(timeLeft/total);
+}
+
+function tick(){
+if(timeLeft<=0){
+if(isWork){isWork=false;timeLeft=restSec}
+else{isWork=true;currentRound++;if(currentRound>totalRounds){running=false;clearInterval(timer);document.getElementById('startBtn').textContent='시작';document.getElementById('startBtn').className='ctrl-btn start';document.getElementById('phaseDisp').textContent='완료!';document.getElementById('phaseDisp').className='phase work';return}timeLeft=workSec}
+}else{timeLeft--}
+updateDisplay();
+}
+
+function toggleTimer(){
+if(running){running=false;clearInterval(timer);document.getElementById('startBtn').textContent='시작';document.getElementById('startBtn').className='ctrl-btn start';return}
+workSec=parseInt(document.getElementById('workIn').value)||30;
+restSec=parseInt(document.getElementById('restIn').value)||10;
+totalRounds=parseInt(document.getElementById('roundsIn').value)||8;
+if(!timeLeft){timeLeft=workSec;isWork=true;currentRound=1}
+running=true;document.getElementById('startBtn').textContent='정지';document.getElementById('startBtn').className='ctrl-btn stop';
+updateDisplay();timer=setInterval(tick,1000);
+}
+
+function resetTimer(){
+running=false;clearInterval(timer);
+workSec=parseInt(document.getElementById('workIn').value)||30;
+restSec=parseInt(document.getElementById('restIn').value)||10;
+totalRounds=parseInt(document.getElementById('roundsIn').value)||8;
+currentRound=1;isWork=true;timeLeft=workSec;
+document.getElementById('startBtn').textContent='시작';document.getElementById('startBtn').className='ctrl-btn start';
+updateDisplay();updateCircle(1);
+}
+resetTimer();
+</script>
+</body>
+</html>

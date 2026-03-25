@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>스트레칭 가이드</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:70px 16px 30px}
+h1{font-size:1.5rem;margin-bottom:16px}
+.progress{width:100%;max-width:440px;display:flex;gap:4px;margin-bottom:16px}
+.progress .dot{flex:1;height:6px;border-radius:3px;background:#333}
+.progress .dot.done{background:#00e5ff}
+.progress .dot.cur{background:#ff4081}
+.card{background:#1a1a2e;border-radius:16px;padding:30px 24px;width:100%;max-width:440px;text-align:center}
+.emoji{font-size:4rem;margin-bottom:12px}
+.stretch-name{font-size:1.4rem;font-weight:bold;margin-bottom:8px;color:#00e5ff}
+.stretch-desc{font-size:.95rem;color:#bbb;line-height:1.5;margin-bottom:20px}
+.timer-circle{position:relative;width:140px;height:140px;margin:0 auto 16px}
+.timer-circle svg{transform:rotate(-90deg)}
+.timer-bg{fill:none;stroke:#222;stroke-width:8}
+.timer-prog{fill:none;stroke:#00e5ff;stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset 1s linear}
+.timer-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:2.4rem;font-weight:bold}
+.nav-btns{display:flex;gap:10px;margin-top:16px;justify-content:center}
+.nav-btns button{padding:12px 28px;border:none;border-radius:10px;font-size:1rem;font-weight:bold;cursor:pointer;min-height:44px;touch-action:manipulation}
+.btn-start{background:#00e5ff;color:#0f0f1e}
+.btn-skip{background:#333;color:#ccc}
+.btn-next{background:#00e5ff;color:#0f0f1e}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+
+<h1>스트레칭 가이드</h1>
+<div class="progress" id="progress"></div>
+<div class="card">
+<div class="emoji" id="emoji"></div>
+<div class="stretch-name" id="sname"></div>
+<div class="stretch-desc" id="sdesc"></div>
+<div class="timer-circle">
+<svg width="140" height="140"><circle class="timer-bg" cx="70" cy="70" r="60"/><circle class="timer-prog" id="tprog" cx="70" cy="70" r="60"/></svg>
+<div class="timer-text" id="ttext">30</div>
+</div>
+<div class="nav-btns">
+<button class="btn-skip" onclick="skip()">건너뛰기</button>
+<button class="btn-start" id="actionBtn" onclick="startTimer()">시작</button>
+</div>
+</div>
+
+<script>
+const stretches=[
+{name:'목 좌우 스트레칭',emoji:'🧘',desc:'머리를 천천히 오른쪽으로 기울여 10초, 왼쪽으로 10초 유지합니다.',part:'목'},
+{name:'목 앞뒤 스트레칭',emoji:'🙆',desc:'턱을 가슴 쪽으로 당기고 10초, 하늘을 보며 10초 유지합니다.',part:'목'},
+{name:'어깨 돌리기',emoji:'💪',desc:'양 어깨를 큰 원을 그리며 앞으로 15초, 뒤로 15초 돌립니다.',part:'어깨'},
+{name:'팔 교차 스트레칭',emoji:'🤗',desc:'오른팔을 왼쪽으로 당겨 15초, 반대쪽도 15초 유지합니다.',part:'어깨'},
+{name:'고양이-소 스트레칭',emoji:'🐱',desc:'네발 자세에서 등을 둥글게 말았다가 아래로 내립니다. 천천히 반복합니다.',part:'허리'},
+{name:'허리 비틀기',emoji:'🔄',desc:'앉은 자세에서 상체를 오른쪽으로 비틀어 15초, 왼쪽으로 15초 유지합니다.',part:'허리'},
+{name:'햄스트링 스트레칭',emoji:'🦵',desc:'한쪽 다리를 앞으로 뻗고 상체를 앞으로 숙여 15초씩 유지합니다.',part:'다리'},
+{name:'쿼드 스트레칭',emoji:'🏃',desc:'한 발로 서서 반대쪽 발을 뒤로 잡아당겨 허벅지 앞쪽을 늘립니다.',part:'다리'},
+{name:'종아리 스트레칭',emoji:'🦶',desc:'벽에 손을 짚고 한 발을 뒤로 빼서 종아리를 늘립니다. 15초씩.',part:'다리'},
+{name:'전신 기지개',emoji:'🌟',desc:'양팔을 하늘 위로 뻗고 발끝으로 서서 전신을 최대한 늘립니다.',part:'전신'}
+];
+const TOTAL_TIME=30,circ=2*Math.PI*60;
+let cur=0,timeLeft=TOTAL_TIME,timer=null,running=false;
+document.getElementById('tprog').style.strokeDasharray=circ;
+
+function renderProgress(){
+const p=document.getElementById('progress');p.innerHTML='';
+stretches.forEach((_,i)=>{const d=document.createElement('div');d.className='dot'+(i<cur?' done':'')+(i===cur?' cur':'');p.appendChild(d)});
+}
+function showCurrent(){
+const s=stretches[cur];
+document.getElementById('emoji').textContent=s.emoji;
+document.getElementById('sname').textContent=s.name;
+document.getElementById('sdesc').textContent=s.desc;
+timeLeft=TOTAL_TIME;updateTimerDisplay();renderProgress();
+document.getElementById('actionBtn').textContent='시작';
+document.getElementById('actionBtn').className='btn-start';
+document.getElementById('actionBtn').onclick=startTimer;
+running=false;clearInterval(timer);
+}
+function updateTimerDisplay(){
+document.getElementById('ttext').textContent=timeLeft;
+const pct=timeLeft/TOTAL_TIME;
+document.getElementById('tprog').style.strokeDashoffset=circ*(1-pct);
+}
+function startTimer(){
+if(running)return;running=true;
+document.getElementById('actionBtn').textContent='진행 중...';
+timer=setInterval(()=>{
+timeLeft--;updateTimerDisplay();
+if(timeLeft<=0){clearInterval(timer);running=false;next()}
+},1000);
+}
+function next(){if(cur<stretches.length-1){cur++;showCurrent()}else{document.getElementById('sname').textContent='완료!';document.getElementById('sdesc').textContent='모든 스트레칭을 마쳤습니다.';document.getElementById('emoji').textContent='🎉';renderProgress()}}
+function skip(){clearInterval(timer);running=false;next()}
+showCurrent();
+</script>
+</body>
+</html>

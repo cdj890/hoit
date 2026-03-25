@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>영어 단어장</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:70px 16px 30px}
+h1{font-size:1.5rem;margin-bottom:12px}
+.levels{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;justify-content:center}
+.levels button{background:#1e1e3a;color:#ccc;border:2px solid #333;padding:8px 18px;border-radius:10px;font-size:.9rem;cursor:pointer;min-height:44px;touch-action:manipulation}
+.levels button.sel{border-color:#00e5ff;color:#00e5ff}
+.progress-bar{width:100%;max-width:440px;height:8px;background:#333;border-radius:4px;margin-bottom:8px}
+.progress-fill{height:100%;background:#00e5ff;border-radius:4px;transition:width .3s}
+.progress-text{font-size:.8rem;color:#aaa;margin-bottom:16px}
+.card{width:100%;max-width:440px;min-height:240px;background:#1a1a2e;border-radius:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;perspective:600px;margin-bottom:16px}
+.card-inner{text-align:center;transition:transform .4s;transform-style:preserve-3d;width:100%;height:100%;min-height:240px;position:relative}
+.card-inner.flipped{transform:rotateY(180deg)}
+.card-front,.card-back{position:absolute;top:0;left:0;width:100%;height:100%;backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;border-radius:16px}
+.card-front{background:#1a1a2e}
+.card-back{background:#1a2a3a;transform:rotateY(180deg)}
+.word{font-size:2.2rem;font-weight:bold;color:#00e5ff}
+.meaning{font-size:1.6rem;color:#ff4081}
+.hint{font-size:.85rem;color:#666;margin-top:8px}
+.btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.btns button{padding:12px 24px;border:none;border-radius:10px;font-size:1rem;font-weight:bold;cursor:pointer;min-height:44px;touch-action:manipulation}
+.btn-know{background:#00c853;color:#fff}
+.btn-dont{background:#ff4081;color:#fff}
+.btn-next{background:#333;color:#ccc}
+.stats{font-size:.85rem;color:#aaa;margin-top:16px}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+
+<h1>영어 단어장</h1>
+<div class="levels">
+<button class="sel" onclick="setLevel('초급',this)">초급</button>
+<button onclick="setLevel('중급',this)">중급</button>
+<button onclick="setLevel('고급',this)">고급</button>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
+<div class="progress-text" id="progText">0 / 0</div>
+
+<div class="card" onclick="flipCard()">
+<div class="card-inner" id="cardInner">
+<div class="card-front"><div class="word" id="wordEl"></div><div class="hint">탭하여 뜻 확인</div></div>
+<div class="card-back"><div class="meaning" id="meanEl"></div></div>
+</div>
+</div>
+
+<div class="btns">
+<button class="btn-dont" onclick="markDont()">모르겠어요</button>
+<button class="btn-know" onclick="markKnow()">알고 있어요</button>
+</div>
+<div class="stats" id="stats"></div>
+
+<script>
+const allWords={
+'초급':[
+['apple','사과'],['book','책'],['cat','고양이'],['dog','개'],['eat','먹다'],['fish','물고기'],['good','좋은'],['happy','행복한'],['ice','얼음'],['jump','뛰다'],
+['king','왕'],['love','사랑'],['moon','달'],['name','이름'],['open','열다'],['play','놀다'],['queen','여왕'],['rain','비'],['sun','태양'],['time','시간'],
+['under','아래에'],['very','매우'],['water','물'],['box','상자'],['year','해'],['zero','영'],['baby','아기'],['city','도시'],['door','문'],['egg','달걀'],
+['face','얼굴'],['game','게임'],['hand','손'],['idea','생각'],['job','직업'],['key','열쇠'],['late','늦은'],['milk','우유'],['new','새로운'],['old','오래된'],
+['park','공원'],['quiet','조용한'],['road','길'],['school','학교'],['tree','나무'],['use','사용하다'],['voice','목소리'],['walk','걷다'],['yellow','노란'],['zoo','동물원'],
+['air','공기'],['bird','새'],['cloud','구름'],['dance','춤추다'],['earth','지구'],['flower','꽃'],['green','초록'],['home','집'],['island','섬'],['juice','주스'],
+['kind','친절한'],['light','빛'],['music','음악'],['night','밤'],['orange','오렌지'],['pen','펜'],['river','강'],['star','별'],['train','기차'],['umbrella','우산'],
+['village','마을'],['wind','바람'],['exam','시험'],['young','젊은'],['zone','지역'],['black','검은'],['chair','의자'],['drive','운전하다'],['end','끝'],['friend','친구'],
+['girl','소녀'],['horse','말'],['inside','안쪽'],['joke','농담'],['kitchen','주방'],['learn','배우다'],['movie','영화'],['number','숫자'],['office','사무실'],['picture','그림'],
+['ring','반지'],['smile','미소'],['table','탁자'],['uncle','삼촌'],['visit','방문하다'],['week','주'],['x-ray','엑스레이'],['yard','마당'],['zip','지퍼'],['age','나이'],
+['brother','형제'],['color','색'],['day','날'],['enjoy','즐기다'],['family','가족'],['garden','정원'],['hello','안녕'],['internet','인터넷'],['jacket','재킷'],['lake','호수'],
+['market','시장'],['north','북쪽'],['ocean','바다'],['price','가격'],['rest','쉬다'],['snow','눈(날씨)'],['ticket','표'],['uniform','유니폼'],['winter','겨울'],['spring','봄'],
+['summer','여름'],['autumn','가을'],['morning','아침'],['evening','저녁'],['dinner','저녁식사'],['lunch','점심'],['breakfast','아침식사'],['clean','깨끗한'],['dirty','더러운'],['fast','빠른'],
+['slow','느린'],['big','큰'],['small','작은'],['long','긴'],['short','짧은'],['heavy','무거운'],['strong','강한'],['weak','약한'],['rich','부유한'],['poor','가난한'],
+['hot','뜨거운'],['cold','추운'],['easy','쉬운'],['hard','어려운'],['safe','안전한'],['brave','용감한'],['busy','바쁜'],['free','자유로운'],['hungry','배고픈'],['tired','피곤한'],
+['angry','화난'],['afraid','두려운'],['ready','준비된'],['sorry','미안한'],['sure','확실한'],['true','진실의'],['real','진짜의'],['possible','가능한'],['same','같은'],['different','다른']
+],
+'중급':[
+['abandon','버리다'],['benefit','이익'],['capable','유능한'],['demand','요구하다'],['evidence','증거'],['frequent','빈번한'],['generate','생성하다'],['harvest','수확'],['impact','영향'],['justify','정당화하다'],
+['knowledge','지식'],['landscape','풍경'],['manage','관리하다'],['negotiate','협상하다'],['opportunity','기회'],['permanent','영구적인'],['quality','품질'],['recognize','인식하다'],['strategy','전략'],['tension','긴장'],
+['unique','독특한'],['valuable','가치있는'],['witness','목격하다'],['achieve','달성하다'],['balance','균형'],['campaign','캠페인'],['decline','감소하다'],['establish','설립하다'],['forecast','예측'],['guarantee','보장하다'],
+['ignore','무시하다'],['journal','일지'],['launch','출시하다'],['manufacture','제조하다'],['neutral','중립적인'],['obstacle','장애물'],['perspective','관점'],['relevant','관련있는'],['sufficient','충분한'],['transform','변환하다'],
+['ultimate','궁극적인'],['vulnerable','취약한'],['adequate','적절한'],['boundary','경계'],['collapse','붕괴하다'],['dispute','분쟁'],['encounter','마주치다'],['fundamental','근본적인'],['heritage','유산'],['implement','실행하다'],
+['legitimate','합법적인'],['maintain','유지하다'],['numerous','다수의'],['participate','참여하다'],['restrict','제한하다'],['significant','중요한'],['temporary','임시의'],['urban','도시의'],['virtual','가상의'],['welfare','복지'],
+['ambition','야망'],['conflict','갈등'],['domestic','국내의'],['eliminate','제거하다'],['flexible','유연한'],['grateful','감사하는'],['hypothesis','가설'],['initial','초기의'],['luxury','사치'],['modest','겸손한'],
+['obvious','명백한'],['precise','정확한'],['reluctant','꺼리는'],['severe','심각한'],['tradition','전통'],['utilize','활용하다'],['vast','광대한'],['accomplish','성취하다'],['burden','부담'],['compromise','타협'],
+['desire','욕구'],['elaborate','정교한'],['fiction','소설'],['gradual','점진적인'],['horizon','지평선'],['inferior','열등한'],['mutual','상호의'],['occupy','점령하다'],['priority','우선순위'],['resolve','해결하다'],
+['superior','우수한'],['thorough','철저한'],['venture','모험'],['absorb','흡수하다'],['circumstance','상황'],['demonstrate','보여주다'],['enthusiasm','열정'],['flourish','번성하다'],['imply','암시하다'],['legitimate','정당한'],
+['overlook','간과하다'],['prospect','전망'],['reluctance','꺼림'],['sincere','진실된'],['territory','영토'],['vivid','생생한'],['whereby','그것에 의해'],['accumulate','축적하다'],['consensus','합의'],['dignity','존엄'],
+['explore','탐험하다'],['feasible','실현가능한'],['incentive','동기부여'],['mere','단순한'],['notion','개념'],['prominent','저명한'],['remedy','치료법'],['sustain','유지하다'],['trait','특성'],['undergo','겪다'],
+['verbal','언어의'],['appetite','식욕'],['capable','능력있는'],['dimension','차원'],['embrace','포용하다'],['fragment','조각'],['genuine','진짜의'],['inevitable','불가피한'],['migration','이주'],['paradox','역설'],
+['revise','수정하다'],['speculate','추측하다'],['tolerance','관용'],['utilize','이용하다'],['welfare','복지'],['abstain','자제하다'],['chronic','만성의'],['devote','헌신하다'],['endure','견디다'],['fascinate','매혹하다'],
+['impulse','충동'],['monopoly','독점'],['nurture','양육하다'],['prevail','우세하다'],['reinforce','강화하다'],['surrender','항복하다'],['triumph','승리'],['variable','변수'],['aesthetic','미적인'],['compensate','보상하다'],
+['discourse','담화'],['exploit','활용하다'],['indigenous','토착의'],['medieval','중세의'],['oppress','억압하다'],['propaganda','선전'],['skeptical','회의적인'],['transcend','초월하다'],['unanimous','만장일치의'],['yield','산출하다']
+],
+'고급':[
+['aberration','일탈'],['benevolent','자비로운'],['clandestine','은밀한'],['delineate','묘사하다'],['ephemeral','일시적인'],['formidable','강력한'],['gregarious','사교적인'],['harbinger','전조'],['iconoclast','인습타파자'],['juxtapose','병치하다'],
+['labyrinth','미로'],['magnanimous','관대한'],['nefarious','사악한'],['obfuscate','혼란시키다'],['paradigm','패러다임'],['quintessential','전형적인'],['recalcitrant','반항적인'],['sycophant','아첨꾼'],['tenacious','끈질긴'],['ubiquitous','어디에나 있는'],
+['venerate','존경하다'],['whimsical','변덕스러운'],['acrimonious','신랄한'],['belligerent','호전적인'],['capitulate','항복하다'],['dichotomy','이분법'],['eloquent','웅변의'],['frivolous','경솔한'],['hackneyed','진부한'],['impervious','영향받지않는'],
+['jeopardize','위험에빠뜨리다'],['kinetic','운동의'],['lethargic','무기력한'],['meticulous','꼼꼼한'],['nihilistic','허무주의의'],['ostentatious','과시하는'],['pragmatic','실용적인'],['querulous','불평하는'],['resilient','회복력있는'],['sanguine','낙관적인'],
+['tantalize','감질나게하다'],['utilitarian','공리주의적'],['vindictive','복수심있는'],['ambivalent','양면적인'],['cacophony','불협화음'],['dearth','부족'],['enigmatic','수수께끼같은'],['facetious','농담하는'],['garrulous','수다스러운'],['hegemony','패권'],
+['idiosyncratic','독특한'],['judiciously','현명하게'],['kaleidoscope','만화경'],['lucid','명쾌한'],['misanthrope','인간혐오자'],['nonchalant','무관심한'],['opulent','호화로운'],['pernicious','해로운'],['quagmire','수렁'],['repudiate','부인하다'],
+['sardonic','냉소적인'],['truculent','호전적인'],['unctuous','아첨하는'],['verbose','장황한'],['zealous','열성적인'],['aesthetic','심미적인'],['bifurcate','이분하다'],['conundrum','난제'],['diatribe','통렬한비난'],['esoteric','난해한'],
+['fastidious','까다로운'],['gratuitous','불필요한'],['hubris','오만'],['immutable','불변의'],['jurisprudence','법학'],['kowtow','굽실거리다'],['litigious','소송의'],['maverick','독립적인사람'],['nascent','초기의'],['obsequious','아첨하는'],
+['perspicacious','통찰력있는'],['recapitulate','요약하다'],['soliloquy','독백'],['trepidation','공포'],['unequivocal','분명한'],['vicissitude','변천'],['wanton','제멋대로의'],['xenophobia','외국인혐오'],['pedagogy','교육학'],['anomaly','변칙'],
+['bureaucracy','관료제'],['catharsis','카타르시스'],['demagogue','선동가'],['egregious','극악한'],['fallacious','잘못된'],['germane','관련있는'],['hyperbole','과장'],['incontrovertible','논쟁의여지없는'],['leverage','영향력'],['nomenclature','명명법'],
+['panacea','만병통치약'],['rhetoric','수사학'],['stoic','금욕적인'],['tangential','접선의'],['usurp','빼앗다'],['vestige','흔적'],['acumen','통찰력'],['bourgeois','중산층의'],['cogent','설득력있는'],['dubious','의심스러운'],
+['exacerbate','악화시키다'],['flippant','경솔한'],['histrionic','연극적인'],['incorrigible','교정불가의'],['languid','나른한'],['morose','우울한'],['nondescript','특징없는'],['perfunctory','형식적인'],['recondite','난해한'],['surreptitious','은밀한'],
+['transient','일시적인'],['vacillate','동요하다'],['aplomb','침착'],['congenial','마음맞는'],['debacle','대실패'],['extricate','구해내다'],['impetuous','충동적인'],['laconic','간결한'],['myopic','근시안적인'],['prodigal','낭비하는'],
+['rapacious','탐욕스러운'],['subterfuge','구실'],['temerity','무모함'],['vituperative','독설의'],['auspicious','길조의'],['convoluted','복잡한'],['ebullient','열광하는'],['ineffable','말로표현못할'],['obdurate','완고한'],['placate','달래다'],
+['sycophantic','아첨하는'],['truculent','사나운'],['verisimilitude','사실성'],['accolade','칭찬'],['disparage','폄하하다'],['filibuster','의사진행방해'],['ignominious','불명예스러운'],['malevolent','악의있는'],['palliate','완화하다'],['ruminate','숙고하다']
+]
+};
+let level='초급',words=[],idx=0,known=new Set(),flipped=false;
+function setLevel(lv,btn){level=lv;document.querySelectorAll('.levels button').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');startDeck()}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function startDeck(){words=shuffle([...allWords[level]]);idx=0;known=new Set();showCard()}
+function showCard(){
+if(idx>=words.length){document.getElementById('wordEl').textContent='완료!';document.getElementById('meanEl').textContent='모든 단어를 학습했습니다';flipped=false;document.getElementById('cardInner').classList.remove('flipped');updateProg();return}
+flipped=false;document.getElementById('cardInner').classList.remove('flipped');
+document.getElementById('wordEl').textContent=words[idx][0];
+document.getElementById('meanEl').textContent=words[idx][1];
+updateProg();
+}
+function flipCard(){flipped=!flipped;document.getElementById('cardInner').classList.toggle('flipped')}
+function markKnow(){known.add(idx);idx++;showCard()}
+function markDont(){idx++;showCard()}
+function updateProg(){
+const total=words.length;
+document.getElementById('progFill').style.width=(idx/total*100)+'%';
+document.getElementById('progText').textContent=`${idx} / ${total}`;
+document.getElementById('stats').textContent=`아는 단어: ${known.size} | 모르는 단어: ${idx-known.size}`;
+}
+startDeck();
+</script>
+</body>
+</html>

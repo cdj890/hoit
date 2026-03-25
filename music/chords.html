@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>기타 코드표</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;min-height:100vh;padding:70px 12px 30px;display:flex;flex-direction:column;align-items:center}
+h1{font-size:1.5rem;margin-bottom:16px}
+.chord-btns{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:500px;margin-bottom:20px}
+.chord-btns button{background:#1e1e3a;color:#ccc;border:2px solid #333;padding:8px 14px;border-radius:8px;font-size:.9rem;cursor:pointer;min-width:44px;min-height:44px;touch-action:manipulation}
+.chord-btns button.sel{border-color:#00e5ff;color:#00e5ff;background:#1a2a3a}
+.chord-name{font-size:2rem;color:#00e5ff;margin:10px 0}
+canvas{border-radius:8px;background:#1a1a2e}
+.info{color:#aaa;font-size:.85rem;margin-top:10px;text-align:center}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+
+<h1>기타 코드표</h1>
+<div class="chord-btns" id="btns"></div>
+<div class="chord-name" id="chordName">C</div>
+<canvas id="cv" width="240" height="280"></canvas>
+<div class="info" id="info"></div>
+
+<script>
+const chords={
+'C':{frets:[0,3,2,0,1,0],fingers:[0,3,2,0,1,0],mute:[]},
+'D':{frets:[-1,-1,0,2,3,2],fingers:[0,0,0,1,3,2],mute:[0,1]},
+'E':{frets:[0,2,2,1,0,0],fingers:[0,2,3,1,0,0],mute:[]},
+'F':{frets:[1,1,2,3,3,1],fingers:[1,1,2,3,4,1],mute:[]},
+'G':{frets:[3,2,0,0,0,3],fingers:[2,1,0,0,0,3],mute:[]},
+'A':{frets:[-1,0,2,2,2,0],fingers:[0,0,1,2,3,0],mute:[0]},
+'B':{frets:[-1,2,4,4,4,2],fingers:[0,1,2,3,4,1],mute:[0]},
+'Cm':{frets:[-1,3,5,5,4,3],fingers:[0,1,3,4,2,1],mute:[0]},
+'Dm':{frets:[-1,-1,0,2,3,1],fingers:[0,0,0,2,3,1],mute:[0,1]},
+'Em':{frets:[0,2,2,0,0,0],fingers:[0,2,3,0,0,0],mute:[]},
+'Fm':{frets:[1,1,3,3,2,1],fingers:[1,1,3,4,2,1],mute:[]},
+'Gm':{frets:[3,1,0,0,3,3],fingers:[2,1,0,0,3,4],mute:[]},
+'Am':{frets:[-1,0,2,2,1,0],fingers:[0,0,2,3,1,0],mute:[0]},
+'Bm':{frets:[-1,2,4,4,3,2],fingers:[0,1,3,4,2,1],mute:[0]},
+'C7':{frets:[0,3,2,3,1,0],fingers:[0,3,2,4,1,0],mute:[]},
+'D7':{frets:[-1,-1,0,2,1,2],fingers:[0,0,0,2,1,3],mute:[0,1]},
+'E7':{frets:[0,2,0,1,0,0],fingers:[0,2,0,1,0,0],mute:[]},
+'G7':{frets:[3,2,0,0,0,1],fingers:[3,2,0,0,0,1],mute:[]},
+'A7':{frets:[-1,0,2,0,2,0],fingers:[0,0,2,0,3,0],mute:[0]},
+'B7':{frets:[-1,2,1,2,0,2],fingers:[0,2,1,3,0,4],mute:[0]},
+};
+const names=Object.keys(chords);
+const btnsEl=document.getElementById('btns'),cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+let sel='C';
+names.forEach(n=>{const b=document.createElement('button');b.textContent=n;if(n===sel)b.classList.add('sel');b.onclick=()=>{sel=n;document.querySelectorAll('.chord-btns button').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');draw()};btnsEl.appendChild(b)});
+function draw(){
+const c=chords[sel];document.getElementById('chordName').textContent=sel;
+ctx.clearRect(0,0,240,280);
+const ox=40,oy=40,sw=32,fh=40,strings=6,frets=5;
+ctx.strokeStyle='#555';ctx.lineWidth=1;
+for(let i=0;i<=frets;i++){ctx.beginPath();ctx.moveTo(ox,oy+i*fh);ctx.lineTo(ox+(strings-1)*sw,oy+i*fh);ctx.stroke()}
+for(let i=0;i<strings;i++){ctx.beginPath();ctx.moveTo(ox+i*sw,oy);ctx.lineTo(ox+i*sw,oy+frets*fh);ctx.stroke()}
+ctx.strokeStyle='#fff';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(ox,oy);ctx.lineTo(ox+(strings-1)*sw,oy);ctx.stroke();
+const strNames=['E','A','D','G','B','e'];
+ctx.fillStyle='#666';ctx.font='12px sans-serif';ctx.textAlign='center';
+for(let i=0;i<strings;i++)ctx.fillText(strNames[i],ox+i*sw,oy+frets*fh+18);
+c.frets.forEach((f,i)=>{
+if(f===-1){ctx.fillStyle='#ff4081';ctx.font='16px sans-serif';ctx.fillText('X',ox+i*sw,oy-12)}
+else if(f===0){ctx.strokeStyle='#00e5ff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(ox+i*sw,oy-12,6,0,Math.PI*2);ctx.stroke()}
+else{ctx.fillStyle='#00e5ff';ctx.beginPath();ctx.arc(ox+i*sw,oy+(f-0.5)*fh,10,0,Math.PI*2);ctx.fill();ctx.fillStyle='#0f0f1e';ctx.font='bold 12px sans-serif';ctx.fillText(c.fingers[i],ox+i*sw,oy+(f-0.5)*fh+4)}
+});
+}
+draw();
+</script>
+</body>
+</html>

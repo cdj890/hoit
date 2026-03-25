@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>피아노 건반</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:70px 8px 30px;overflow-x:hidden}
+h1{font-size:1.5rem;margin-bottom:20px}
+.piano{display:flex;position:relative;margin:20px auto;max-width:100%;overflow-x:auto;padding-bottom:10px}
+.key{position:relative;cursor:pointer;touch-action:manipulation;user-select:none;display:flex;align-items:flex-end;justify-content:center;padding-bottom:10px;font-size:11px;font-weight:bold;transition:background .05s}
+.white{width:44px;height:180px;background:#f5f5f5;border:1px solid #999;border-radius:0 0 6px 6px;color:#333;z-index:1}
+.white.active{background:#00e5ff}
+.black{width:30px;height:110px;background:#222;border:1px solid #000;border-radius:0 0 4px 4px;color:#aaa;margin-left:-15px;margin-right:-15px;z-index:2;font-size:9px}
+.black.active{background:#ff4081}
+.note-display{font-size:2rem;color:#00e5ff;margin:20px 0;min-height:40px}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+
+<h1>피아노 건반</h1>
+<div class="note-display" id="noteDisp"></div>
+<div class="piano" id="piano"></div>
+
+<script>
+const noteNames=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const whiteNotes=['C','D','E','F','G','A','B'];
+const blackMap={'C':'C#','D':'D#','F':'F#','G':'G#','A':'A#'};
+let audioCtx;
+function getFreq(note,octave){const idx=noteNames.indexOf(note);return 440*Math.pow(2,(octave-4)+(idx-9)/12)}
+function playNote(note,octave){
+if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+const freq=getFreq(note,octave);
+const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+o.type='sine';o.frequency.value=freq;
+o.connect(g);g.connect(audioCtx.destination);
+g.gain.value=0.3;
+o.start();g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+1.2);
+o.stop(audioCtx.currentTime+1.2);
+document.getElementById('noteDisp').textContent=note+octave;
+}
+const piano=document.getElementById('piano');
+[4,5].forEach(oct=>{
+whiteNotes.forEach(n=>{
+const w=document.createElement('div');w.className='key white';w.textContent=n+oct;
+w.onpointerdown=e=>{e.preventDefault();w.classList.add('active');playNote(n,oct)};
+w.onpointerup=()=>w.classList.remove('active');
+w.onpointerleave=()=>w.classList.remove('active');
+piano.appendChild(w);
+if(blackMap[n]){
+const b=document.createElement('div');b.className='key black';b.textContent=blackMap[n]+oct;
+b.onpointerdown=e=>{e.preventDefault();b.classList.add('active');playNote(blackMap[n],oct)};
+b.onpointerup=()=>b.classList.remove('active');
+b.onpointerleave=()=>b.classList.remove('active');
+piano.appendChild(b);
+}
+});
+});
+</script>
+</body>
+</html>

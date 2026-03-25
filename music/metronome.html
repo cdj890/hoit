@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>메트로놈</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:70px 16px 30px}
+h1{font-size:1.6rem;margin-bottom:24px}
+.bpm-display{font-size:4rem;font-weight:bold;color:#00e5ff;margin:10px 0}
+.bpm-label{font-size:1rem;color:#aaa;margin-bottom:16px}
+input[type=range]{-webkit-appearance:none;width:90%;max-width:400px;height:8px;background:#333;border-radius:4px;outline:none;margin:10px 0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:#00e5ff;border-radius:50%;cursor:pointer}
+.beats{display:flex;gap:14px;margin:30px 0}
+.beat-dot{width:30px;height:30px;border-radius:50%;background:#333;transition:background .05s,transform .05s}
+.beat-dot.active{background:#00e5ff;transform:scale(1.4);box-shadow:0 0 16px #00e5ff}
+.beat-dot.accent{background:#ff4081;box-shadow:0 0 16px #ff4081}
+.time-sig{display:flex;gap:10px;margin:20px 0;flex-wrap:wrap;justify-content:center}
+.time-sig button{background:#1e1e3a;color:#ccc;border:2px solid #333;padding:10px 20px;border-radius:10px;font-size:1rem;cursor:pointer;min-width:60px;min-height:44px;touch-action:manipulation}
+.time-sig button.sel{border-color:#00e5ff;color:#00e5ff}
+.start-btn{margin-top:20px;padding:16px 50px;font-size:1.3rem;border:none;border-radius:14px;cursor:pointer;font-weight:bold;min-height:54px;touch-action:manipulation;transition:background .2s}
+.start-btn.stopped{background:#00e5ff;color:#0f0f1e}
+.start-btn.playing{background:#ff4081;color:#fff}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+
+<h1>메트로놈</h1>
+<div class="bpm-display" id="bpmVal">120</div>
+<div class="bpm-label">BPM</div>
+<input type="range" id="bpmSlider" min="40" max="220" value="120">
+<div class="time-sig" id="timeSigs"></div>
+<div class="beats" id="beats"></div>
+<button class="start-btn stopped" id="startBtn">시작</button>
+
+<script>
+const bpmSlider=document.getElementById('bpmSlider'),bpmVal=document.getElementById('bpmVal'),beatsEl=document.getElementById('beats'),startBtn=document.getElementById('startBtn'),timeSigsEl=document.getElementById('timeSigs');
+let audioCtx,playing=false,timerId=null,currentBeat=0,beatsPerMeasure=4;
+const sigs=[{label:'2/4',val:2},{label:'3/4',val:3},{label:'4/4',val:4}];
+sigs.forEach(s=>{const b=document.createElement('button');b.textContent=s.label;if(s.val===4)b.classList.add('sel');b.onclick=()=>{beatsPerMeasure=s.val;document.querySelectorAll('.time-sig button').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');currentBeat=0;renderDots();};timeSigsEl.appendChild(b)});
+function renderDots(){beatsEl.innerHTML='';for(let i=0;i<beatsPerMeasure;i++){const d=document.createElement('div');d.className='beat-dot';beatsEl.appendChild(d)}}
+renderDots();
+bpmSlider.oninput=()=>{bpmVal.textContent=bpmSlider.value;if(playing){stopMetronome();startMetronome()}};
+function playClick(accent){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);o.frequency.value=accent?1000:800;g.gain.value=accent?0.6:0.3;o.start(audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.05);o.stop(audioCtx.currentTime+0.05)}
+function tick(){const dots=beatsEl.children;for(let i=0;i<dots.length;i++)dots[i].classList.remove('active','accent');const isAccent=currentBeat===0;dots[currentBeat].classList.add('active');if(isAccent)dots[currentBeat].classList.add('accent');playClick(isAccent);currentBeat=(currentBeat+1)%beatsPerMeasure}
+function startMetronome(){playing=true;startBtn.textContent='정지';startBtn.className='start-btn playing';currentBeat=0;tick();const interval=60000/parseInt(bpmSlider.value);timerId=setInterval(tick,interval)}
+function stopMetronome(){playing=false;startBtn.textContent='시작';startBtn.className='start-btn stopped';clearInterval(timerId);timerId=null;document.querySelectorAll('.beat-dot').forEach(d=>{d.classList.remove('active','accent')})}
+startBtn.onclick=()=>{if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();playing?stopMetronome():startMetronome()};
+</script>
+</body>
+</html>

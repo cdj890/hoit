@@ -276,6 +276,9 @@ footer{text-align:center;padding:30px 20px;color:#444;font-size:12px;border-top:
   <div class="tab" onclick="switchTab('itknow')"><span class="tab-icon">💻</span><span class="tab-label">IT</span><span class="badge badge-itknow" id="it-count"></span></div>
   <div class="tab" onclick="switchTab('quiz')"><span class="tab-icon">📚</span><span class="tab-label">퀴즈</span><span class="badge badge-quiz" id="qz-count"></span></div>
   <div class="tab" onclick="switchTab('tools')"><span class="tab-icon">🛠️</span><span class="tab-label">도구</span><span class="badge badge-tools" id="tl-count"></span></div>
+  <div class="tab" onclick="switchTab('music')"><span class="tab-icon">🎵</span><span class="tab-label">음악</span><span class="badge badge-tools" id="mu-count"></span></div>
+  <div class="tab" onclick="switchTab('health')"><span class="tab-icon">🏋️</span><span class="tab-label">건강</span><span class="badge badge-quiz" id="ht-count"></span></div>
+  <div class="tab" onclick="switchTab('learn')"><span class="tab-icon">🎓</span><span class="tab-label">학습</span><span class="badge badge-itknow" id="ln-count"></span></div>
 </div>
 
 <div class="search-bar">
@@ -592,6 +595,30 @@ const TOOLS=[
   {file:'tools/noise.html',title:'백색소음',desc:'빗소리/파도/바람 생성',emoji:'🔊',bg:'linear-gradient(135deg,#263238,#455A64)'},
 ];
 
+const MUSIC=[
+  {file:'music/metronome.html',title:'메트로놈',desc:'BPM 조절 비트 클릭',emoji:'🎵',bg:'linear-gradient(135deg,#E65100,#FF9800)'},
+  {file:'music/piano.html',title:'피아노',desc:'2옥타브 건반 연주',emoji:'🎹',bg:'linear-gradient(135deg,#1a1a2e,#333)'},
+  {file:'music/chords.html',title:'기타 코드표',desc:'코드 다이어그램 20종',emoji:'🎸',bg:'linear-gradient(135deg,#5D4037,#8D6E63)'},
+  {file:'music/tuner.html',title:'음 주파수표',desc:'A4=440Hz 기준 전체 음계',emoji:'🎼',bg:'linear-gradient(135deg,#283593,#5C6BC0)'},
+  {file:'music/drums.html',title:'드럼 패드',desc:'9개 패드 비트 만들기',emoji:'🥁',bg:'linear-gradient(135deg,#880E4F,#AD1457)'},
+];
+
+const HEALTH=[
+  {file:'health/workout.html',title:'운동 타이머',desc:'HIIT/타바타 인터벌',emoji:'🏋️',bg:'linear-gradient(135deg,#C62828,#EF5350)'},
+  {file:'health/calories.html',title:'칼로리 계산',desc:'음식별 칼로리 합산',emoji:'🍎',bg:'linear-gradient(135deg,#2E7D32,#66BB6A)'},
+  {file:'health/stretch.html',title:'스트레칭 가이드',desc:'부위별 10종 타이머',emoji:'🧘',bg:'linear-gradient(135deg,#4527A0,#7C4DFF)'},
+  {file:'health/water.html',title:'물 마시기',desc:'하루 8잔 트래커',emoji:'💧',bg:'linear-gradient(135deg,#0277BD,#29B6F6)'},
+  {file:'health/sleep.html',title:'수면 계산기',desc:'수면 사이클 최적 기상',emoji:'😴',bg:'linear-gradient(135deg,#1A237E,#3949AB)'},
+];
+
+const LEARN=[
+  {file:'learn/english.html',title:'영어 단어장',desc:'500단어 플래시카드',emoji:'🔤',bg:'linear-gradient(135deg,#00695C,#26A69A)'},
+  {file:'learn/gugudan.html',title:'구구단 연습',desc:'랜덤 문제 + 타이머',emoji:'✖️',bg:'linear-gradient(135deg,#F57F17,#FDD835)'},
+  {file:'learn/idiom.html',title:'사자성어 퀴즈',desc:'100개 사자성어',emoji:'📜',bg:'linear-gradient(135deg,#4E342E,#795548)'},
+  {file:'learn/proverb.html',title:'속담 퀴즈',desc:'빈칸 채우기 100선',emoji:'💬',bg:'linear-gradient(135deg,#37474F,#607D8B)'},
+  {file:'learn/typing_practice.html',title:'타자 속도 측정',desc:'WPM/CPM 측정',emoji:'⌨️',bg:'linear-gradient(135deg,#455A64,#78909C)'},
+];
+
 // Nick
 function renderNick(){
   const bar=document.getElementById('nick-bar');
@@ -662,8 +689,8 @@ function switchTab(tab){
     const badges=t.querySelector('.badge');
     t.className='tab';
   });
-  const tabs={game:0,test:1,destiny:2,itknow:3,quiz:4,tools:5};
-  const cls=['active-game','active-test','active-destiny','active-game','active-test','active-destiny','active-game'];
+  const tabs={game:0,test:1,destiny:2,itknow:3,quiz:4,tools:5,music:6,health:7,learn:8};
+  const cls=['active-game','active-test','active-destiny','active-game','active-test','active-destiny','active-game','active-test','active-destiny'];
   const idx=tabs[tab]||0;
   document.querySelectorAll('.tab')[idx]?.classList.add(cls[idx]);
   document.getElementById('lb-section').style.display=tab==='game'?'block':'none';
@@ -687,7 +714,7 @@ const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
 function renderGrid(){
   const grid=document.getElementById('grid');
   grid.innerHTML='';
-  const TAB_MAP={game:GAMES,test:TESTS,destiny:DESTINY,itknow:ITKNOW,quiz:QUIZ,tools:TOOLS};
+  const TAB_MAP={game:GAMES,test:TESTS,destiny:DESTINY,itknow:ITKNOW,quiz:QUIZ,tools:TOOLS,music:MUSIC,health:HEALTH,learn:LEARN};
   let items=TAB_MAP[currentTab]||GAMES;
   const scores=getScores();
 
@@ -1059,6 +1086,9 @@ document.getElementById('dest-count').textContent=DESTINY.length;
 document.getElementById('it-count').textContent=ITKNOW.length;
 document.getElementById('qz-count').textContent=QUIZ.length;
 document.getElementById('tl-count').textContent=TOOLS.length;
+document.getElementById('mu-count').textContent=MUSIC.length;
+document.getElementById('ht-count').textContent=HEALTH.length;
+document.getElementById('ln-count').textContent=LEARN.length;
 switchTab('game');
 renderFooter();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
