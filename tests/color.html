@@ -17,6 +17,21 @@
 .section p{color:#ccc;font-size:13px;line-height:1.6}
 .btn{background:#7B68EE;border:none;color:#fff;padding:12px 30px;border-radius:10px;font-size:15px;cursor:pointer;margin-top:18px;font-weight:bold;width:100%}
 a.back{position:fixed;top:8px;left:8px;z-index:99;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent}a.back:hover{background:rgba(0,0,0,0.85)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.08)}100%{transform:scale(1)}}
+.color-btn.selected{border-color:#fff!important;animation:pulse .4s ease}
+.result{animation:fadeIn .5s ease}
+.share-btn{background:linear-gradient(135deg,#7B68EE,#9B59B6);border:none;color:#fff;padding:12px 30px;border-radius:10px;font-size:15px;cursor:pointer;margin-top:10px;font-weight:bold;width:100%;transition:opacity .2s}
+.share-btn:hover{opacity:.85}
+.recommend{margin-top:16px;text-align:center}
+.recommend a{display:inline-block;margin:4px 6px;padding:8px 14px;background:#252545;color:#9B59B6;border-radius:8px;text-decoration:none;font-size:13px;transition:background .2s}
+.recommend a:hover{background:#353565}
+.combo-section{margin:12px 0;padding:13px;background:#252545;border-radius:10px;text-align:center}
+.combo-section h3{font-size:14px;margin-bottom:8px}
+.combo-colors{display:flex;justify-content:center;gap:8px;margin:8px 0}
+.combo-swatch{width:40px;height:40px;border-radius:50%;border:2px solid #fff3}
+.lucky-color{background:linear-gradient(135deg,#252545,#1a1a2e);border:1px solid #353565;border-radius:10px;padding:13px;margin:12px 0;text-align:center}
+.interior-tip{background:#252545;border-radius:10px;padding:13px;margin:12px 0;text-align:left;font-size:13px;line-height:1.6;color:#ccc}
 </style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 </head><body>
 <a class="back" href="../index.html">← 뒤로</a>
@@ -25,47 +40,82 @@ a.back{position:fixed;top:8px;left:8px;z-index:99;background:rgba(0,0,0,0.75);co
 const COLORS=[
   {name:'빨강',bg:'#E74C3C',emoji:'🔥',psych:'열정적이고 에너지가 넘치는 당신!',
     detail:'강한 의지와 리더십을 가지고 있어요. 도전을 즐기고 목표 지향적입니다. 가끔 충동적일 수 있지만 그만큼 행동력이 있어요.',
-    love:'열정적이고 로맨틱! 직접적인 표현을 좋아해요.',stress:'운동이나 활동적인 취미로 해소',lucky:'주황색과의 조합이 행운을 가져다줘요'},
+    love:'열정적이고 로맨틱! 직접적인 표현을 좋아해요.',stress:'운동이나 활동적인 취미로 해소',lucky:'주황색과의 조합이 행운을 가져다줘요',
+    harmony:['#FF8C00','#FFD700','#FF6347'],interiorTip:'인테리어: 레드 포인트 쿠션, 따뜻한 조명. 패션: 레드 자켓이나 스카프로 에너지 UP!',comboWith:{1:'열정+신뢰의 조합. 강한 추진력에 차분함이 더해져 완벽한 밸런스!',2:'열정+조화. 에너지를 자연스럽게 발산하는 편안한 리더!',3:'열정+밝음. 주변을 이끌며 동시에 즐겁게 만드는 타입!',4:'열정+직관. 강렬하면서도 깊이 있는 매력의 소유자!',5:'열정+사랑. 로맨틱하고 열정적인 연인 타입!'}},
   {name:'파랑',bg:'#3498DB',emoji:'🌊',psych:'차분하고 신뢰감 있는 당신!',
     detail:'냉정하고 분석적인 사고를 하며, 다른 사람에게 신뢰감을 줘요. 평화를 사랑하고 안정적인 환경을 선호합니다.',
-    love:'진지하고 깊은 관계를 추구해요. 시간이 걸리지만 한번 빠지면 깊어요.',stress:'물가나 자연에서 힐링',lucky:'하늘색과 흰색이 당신의 행운색'},
+    love:'진지하고 깊은 관계를 추구해요. 시간이 걸리지만 한번 빠지면 깊어요.',stress:'물가나 자연에서 힐링',lucky:'하늘색과 흰색이 당신의 행운색',
+    harmony:['#87CEEB','#FFFFFF','#5DADE2'],interiorTip:'인테리어: 블루 톤 침구와 해양 소품. 패션: 블루 셔츠나 데님으로 신뢰감 있는 룩!',comboWith:{0:'신뢰+열정. 차분한 분석력에 행동력이 더해진 균형형!',2:'신뢰+조화. 평화롭고 안정적인 관계의 달인!',3:'신뢰+밝음. 밝으면서도 깊이 있는 매력!',4:'신뢰+직관. 논리와 직관이 공존하는 지혜로운 타입!',5:'신뢰+사랑. 깊고 따뜻한 관계를 만드는 사람!'}},
   {name:'초록',bg:'#2ECC71',emoji:'🌿',psych:'조화롭고 치유하는 힘이 있는 당신!',
     detail:'자연을 사랑하고 균형 잡힌 성격이에요. 다른 사람을 배려하며 치유하는 능력이 있어요. 성장과 발전을 중시합니다.',
-    love:'안정적이고 편안한 관계를 원해요. 상대방을 편하게 해주는 능력이 있어요.',stress:'자연 속 산책이나 식물 가꾸기',lucky:'갈색과 베이지가 당신의 행운색'},
+    love:'안정적이고 편안한 관계를 원해요. 상대방을 편하게 해주는 능력이 있어요.',stress:'자연 속 산책이나 식물 가꾸기',lucky:'갈색과 베이지가 당신의 행운색',
+    harmony:['#8B4513','#F5DEB3','#90EE90'],interiorTip:'인테리어: 플랜테리어와 우드 가구. 패션: 올리브, 카키 톤으로 자연스러운 무드!',comboWith:{0:'조화+열정. 자연스러운 리더십과 따뜻한 에너지!',1:'조화+신뢰. 안정적이면서 편안한 관계의 마스터!',3:'조화+밝음. 밝고 따뜻한 치유의 에너지!',4:'조화+직관. 깊은 통찰력과 배려심의 조화!',5:'조화+사랑. 자연스럽고 편안한 사랑의 달인!'}},
   {name:'노랑',bg:'#F1C40F',emoji:'☀️',psych:'밝고 창의적인 당신!',
     detail:'긍정적이고 낙천적인 성격! 창의력이 뛰어나고 주변을 밝게 만들어요. 호기심이 많고 새로운 것을 배우는 걸 좋아합니다.',
-    love:'유쾌하고 재미있는 관계를 원해요. 함께 웃을 수 있는 사람이 최고!',stress:'재미있는 활동이나 친구와의 수다',lucky:'금색과 주황색이 당신에게 행운'},
+    love:'유쾌하고 재미있는 관계를 원해요. 함께 웃을 수 있는 사람이 최고!',stress:'재미있는 활동이나 친구와의 수다',lucky:'금색과 주황색이 당신에게 행운',
+    harmony:['#FFD700','#FF8C00','#FFFACD'],interiorTip:'인테리어: 옐로 포인트 벽지와 밝은 조명. 패션: 옐로 카디건이나 밝은 액세서리!',comboWith:{0:'밝음+열정. 넘치는 에너지와 긍정의 아이콘!',1:'밝음+신뢰. 밝으면서도 신뢰감 있는 매력!',2:'밝음+조화. 자연스럽게 주변을 밝히는 힐러!',4:'밝음+직관. 창의적이면서 깊이 있는 사고의 소유자!',5:'밝음+사랑. 달콤하고 밝은 에너지의 로맨티스트!'}},
   {name:'보라',bg:'#9B59B6',emoji:'🔮',psych:'신비롭고 직관적인 당신!',
     detail:'예술적 감각이 뛰어나고 직관력이 강해요. 독특한 세계관을 가지고 있으며, 영적인 것에 관심이 많을 수 있어요.',
-    love:'깊고 신비로운 관계를 원해요. 정신적 교감을 중요하게 생각합니다.',stress:'명상, 예술 활동, 음악 감상',lucky:'남색과 은색이 당신의 행운색'},
+    love:'깊고 신비로운 관계를 원해요. 정신적 교감을 중요하게 생각합니다.',stress:'명상, 예술 활동, 음악 감상',lucky:'남색과 은색이 당신의 행운색',
+    harmony:['#191970','#C0C0C0','#BA55D3'],interiorTip:'인테리어: 보라 톤 커튼과 무드등. 패션: 라벤더 톤이나 딥퍼플 아이템으로 신비로운 매력!',comboWith:{0:'직관+열정. 강렬하면서도 깊이 있는 카리스마!',1:'직관+신뢰. 분석적이면서 직관적인 지혜의 타입!',2:'직관+조화. 자연과 영성이 만나는 깊은 존재!',3:'직관+밝음. 밝고 창의적인 예술가 타입!',5:'직관+사랑. 깊은 정신적 교감의 로맨티스트!'}},
   {name:'분홍',bg:'#E91E86',emoji:'💖',psych:'사랑스럽고 공감력 높은 당신!',
     detail:'따뜻하고 사랑이 넘치는 성격! 다른 사람의 감정을 잘 읽고 공감해요. 로맨틱하고 아름다운 것을 사랑합니다.',
-    love:'달콤하고 로맨틱한 관계를 꿈꿔요. 작은 것에도 감동받아요.',stress:'예쁜 카페나 쇼핑으로 기분 전환',lucky:'라벤더와 흰색이 당신의 행운색'},
+    love:'달콤하고 로맨틱한 관계를 꿈꿔요. 작은 것에도 감동받아요.',stress:'예쁜 카페나 쇼핑으로 기분 전환',lucky:'라벤더와 흰색이 당신의 행운색',
+    harmony:['#E6E6FA','#FFFFFF','#FF69B4'],interiorTip:'인테리어: 핑크 소품과 플라워 데코. 패션: 핑크/로즈 톤 원피스나 블라우스로 러블리 무드!',comboWith:{0:'사랑+열정. 뜨겁고 로맨틱한 연인 타입!',1:'사랑+신뢰. 깊고 따뜻한 관계의 마스터!',2:'사랑+조화. 자연스럽고 편안한 사랑의 표현!',3:'사랑+밝음. 달콤하고 밝은 분위기 메이커!',4:'사랑+직관. 깊은 교감과 따뜻한 사랑의 조화!'}},
 ];
 
+let firstColor=-1;
 function showColors(){
+  const prev=localStorage.getItem('hoit_color');
+  const prevText=prev?'<p style="color:#666;font-size:12px;margin-bottom:5px">이전 결과: '+JSON.parse(prev).type+' | 다시 해볼까요?</p>':'';
   document.getElementById('app').innerHTML=`
     <h1>🎨 색깔 심리 테스트</h1>
     <p class="sub">지금 가장 끌리는 색깔을 직감적으로 선택하세요!</p>
+    ${prevText}
     <p style="color:#666;font-size:12px;margin-bottom:15px">너무 오래 생각하지 말고 본능적으로!</p>
     <div class="colors">
-      ${COLORS.map((c,i)=>`<div class="color-btn" style="background:${c.bg}" onclick="showResult(${i})">${c.emoji}<br>${c.name}</div>`).join('')}
+      ${COLORS.map((c,i)=>`<div class="color-btn" style="background:${c.bg}" onclick="pickFirst(${i})">${c.emoji}<br>${c.name}</div>`).join('')}
+    </div>`;
+}
+function pickFirst(i){
+  firstColor=i;
+  document.querySelectorAll('.color-btn')[i].classList.add('selected');
+  setTimeout(()=>showSecondPick(i),400);
+}
+function showSecondPick(first){
+  document.getElementById('app').innerHTML=`
+    <h1>🎨 두 번째 색깔 선택</h1>
+    <p class="sub">첫 번째: ${COLORS[first].emoji} ${COLORS[first].name}</p>
+    <p style="color:#666;font-size:12px;margin-bottom:15px">두 번째로 끌리는 색을 골라주세요 (더 깊은 분석!)</p>
+    <div class="colors">
+      ${COLORS.map((c,i)=>i===first?`<div class="color-btn" style="background:${c.bg};opacity:0.3">${c.emoji}<br>${c.name}</div>`:`<div class="color-btn" style="background:${c.bg}" onclick="showResult(${first},${i})">${c.emoji}<br>${c.name}</div>`).join('')}
     </div>`;
 }
 
-function showResult(i){
+function showResult(i,j){
   const c=COLORS[i];
+  const today=new Date();const seed=today.getFullYear()*10000+today.getMonth()*100+today.getDate();
+  const luckyIdx=seed%COLORS.length;const luckyC=COLORS[luckyIdx];
+  const comboText=(j!==undefined&&c.comboWith[j])?c.comboWith[j]:'';
+  const secondC=j!==undefined?COLORS[j]:null;
+  localStorage.setItem('hoit_color',JSON.stringify({type:c.name+'을 선택한 당신',name:c.name,date:new Date().toISOString()}));
   document.getElementById('app').innerHTML=`
     <div class="result">
       <div class="r-color" style="background:${c.bg}">${c.emoji}</div>
       <h2 style="text-align:center;color:${c.bg}">${c.name}을 선택한 당신</h2>
       <p style="text-align:center;color:#aaa;margin:8px 0 15px">${c.psych}</p>
+      ${secondC?`<div class="combo-section"><h3 style="color:${secondC.bg}">🎨 ${c.name} + ${secondC.name} 조합 분석</h3><div class="combo-colors"><div class="combo-swatch" style="background:${c.bg}"></div><div class="combo-swatch" style="background:${secondC.bg}"></div></div><p style="color:#ccc;font-size:13px">${comboText}</p></div>`:''}
       <div class="section"><h3 style="color:#FFD700">🧠 심리 분석</h3><p>${c.detail}</p></div>
       <div class="section"><h3 style="color:#FF69B4">💕 연애 스타일</h3><p>${c.love}</p></div>
       <div class="section"><h3 style="color:#7FFFD4">🧘 스트레스 해소법</h3><p>${c.stress}</p></div>
-      <div class="section"><h3 style="color:#FFD700">🍀 행운</h3><p>${c.lucky}</p></div>
-      <button class="btn" onclick="showColors()">다시 선택하기</button>
+      <div class="lucky-color"><h3 style="color:#FFD700;font-size:14px;margin-bottom:6px">🍀 오늘의 행운 컬러</h3><div class="combo-swatch" style="background:${luckyC.bg};margin:8px auto;width:50px;height:50px"></div><p style="color:#ccc;font-size:13px">${luckyC.emoji} ${luckyC.name} - ${c.lucky}</p></div>
+      <div class="combo-section"><h3 style="color:#9B59B6">🎨 컬러 하모니</h3><div class="combo-colors">${c.harmony.map(h=>`<div class="combo-swatch" style="background:${h}"></div>`).join('')}</div><p style="color:#ccc;font-size:13px">이 색들과 함께하면 당신의 매력이 배가됩니다</p></div>
+      <div class="interior-tip"><h3 style="color:#FF8C00;font-size:14px;margin-bottom:6px">🏠 인테리어/패션 추천</h3>${c.interiorTip}</div>
+      <button class="share-btn" onclick="copyResult()">결과 복사</button>
+      <button class="btn" onclick="firstColor=-1;showColors()">다시 선택하기</button>
+      <div class="recommend"><span style="color:#888;font-size:12px">다른 테스트 추천</span><br><a href="firstimp.html">첫인상</a><a href="empathy.html">공감 능력</a><a href="food.html">음식 성격</a></div>
     </div>`;
 }
+function copyResult(){const d=JSON.parse(localStorage.getItem('hoit_color'));navigator.clipboard.writeText('[hoit.me] 색깔 심리: '+d.name+' - https://hoit.me/tests/color.html').then(()=>{const b=document.querySelector('.share-btn');b.textContent='복사 완료!';setTimeout(()=>b.textContent='결과 복사',1500);});}
 showColors();
 </script></body></html>

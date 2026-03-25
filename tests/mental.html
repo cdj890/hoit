@@ -23,6 +23,25 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 .meter{height:20px;background:#2a2a3e;border-radius:10px;margin:16px 0;overflow:hidden}
 .meter-fill{height:100%;border-radius:10px;transition:width 1s}
 .score-label{font-size:1.2em;color:#dfe6e9;margin:8px 0}
+@keyframes slideIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes hpAnim{from{width:0}to{width:var(--hp)}}
+.q-slide{animation:slideIn .35s ease}
+.btn.selected{background:#dfe6e9;color:#1a1a2e;font-weight:bold;pointer-events:none;animation:pulse .3s ease}
+.btn.selected::after{content:' \2713';font-weight:bold}
+.result-card{border:2px solid transparent;background:linear-gradient(#1a1a2e,#1a1a2e) padding-box,linear-gradient(135deg,#636e72,#dfe6e9) border-box;border-radius:16px;padding:20px;margin:16px 0;animation:fadeIn .6s ease}
+.share-btn{background:linear-gradient(135deg,#636e72,#b2bec3);color:#fff;font-weight:bold;border:none;padding:12px;border-radius:10px;width:100%;cursor:pointer;font-size:1em;margin:8px 0;transition:opacity .2s}
+.share-btn:hover{opacity:.85}
+.recommend{margin-top:16px;text-align:center}
+.recommend a{display:inline-block;margin:4px 6px;padding:8px 14px;background:#2a2a3e;color:#dfe6e9;border-radius:8px;text-decoration:none;font-size:.85em;transition:background .2s}
+.recommend a:hover{background:#3a3a5e}
+.hp-bar{background:#2a2a3e;border-radius:12px;height:30px;margin:16px 0;position:relative;overflow:hidden}
+.hp-fill{height:100%;border-radius:12px;animation:hpAnim 1.5s ease forwards;display:flex;align-items:center;justify-content:center;font-size:.85em;font-weight:bold;color:#fff}
+.hp-label{position:absolute;left:0;top:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:.85em;font-weight:bold;color:#fff;z-index:1}
+.badge-level{display:inline-block;padding:8px 20px;border-radius:20px;font-weight:bold;font-size:1.1em;margin:12px 0;animation:fadeIn .6s ease}
+.stress-sim{background:#2a2a3e;border-radius:10px;padding:14px;margin:12px 0;text-align:left;font-size:.85em;line-height:1.8;color:#ddd}
+.resilience-tip{background:linear-gradient(135deg,#636e7222,#dfe6e922);border-radius:10px;padding:14px;margin:12px 0;text-align:left;font-size:.9em;line-height:1.6;color:#ddd}
 </style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 </head><body>
 <a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
@@ -41,11 +60,17 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 <div id="result" class="hidden">
 <div class="emoji" id="rEmoji"></div>
 <div class="score-label" id="rScore"></div>
+<div class="hp-bar"><div class="hp-fill" id="hpFill"></div><div class="hp-label" id="hpLabel"></div></div>
+<div class="badge-level" id="rBadge"></div>
 <div class="meter"><div class="meter-fill" id="meterFill"></div></div>
 <div class="result-type" id="rType"></div>
 <div class="result-desc" id="rDesc"></div>
+<div class="stress-sim" id="rStress"></div>
 <div class="tips" id="rTips"></div>
+<div class="resilience-tip" id="rResilience"></div>
+<button class="share-btn" onclick="copyResult()">결과 복사</button>
 <button class="btn start-btn" onclick="location.reload()">다시 하기</button>
+<div class="recommend"><span style="color:#888;font-size:.85em">다른 테스트 추천</span><br><a href="empathy.html">공감 능력</a><a href="focus.html">집중력</a><a href="leader.html">리더십</a></div>
 </div>
 </div>
 <script>function _shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
@@ -63,7 +88,7 @@ const questions=[
 ];
 let cur=0,total=0;
 function startQuiz(){_shuf(questions);document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();}
-function showQ(){if(!window._qs){_shuf(questions);window._qs=1;}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=()=>pick(a[1]);o.appendChild(b);});}
+function showQ(){if(!window._qs){_shuf(questions);window._qs=1;}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';document.getElementById('quiz').classList.add('q-slide');setTimeout(()=>document.getElementById('quiz').classList.remove('q-slide'),350);q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=function(){this.classList.add('selected');setTimeout(()=>pick(a[1]),350)};o.appendChild(b);});}
 function pick(v){total+=v;cur++;if(cur<questions.length)showQ();else showResult();}
 function showResult(){const score=Math.min(100,Math.round(total/40*100));
 document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');
@@ -74,5 +99,17 @@ if(score>=80){emoji='🏔️';type='강철 멘탈';desc='당신의 멘탈은 강
 else if(score>=60){emoji='🔩';type='단단한 멘탈';desc='꽤 강한 멘탈의 소유자! 대부분의 상황에서 잘 버텨내며, 회복력도 좋은 편이에요.';tips='<strong>💡 강화 팁:</strong><br>• 규칙적인 운동으로 스트레스 관리<br>• 긍정적 자기대화 연습하기<br>• 실패를 성장의 기회로 재해석하기';color='#74b9ff';}
 else if(score>=40){emoji='🪨';type='보통 멘탈';desc='평균적인 멘탈 강도입니다. 일상적인 스트레스는 잘 견디지만, 큰 충격에는 흔들릴 수 있어요.';tips='<strong>💡 강화 팁:</strong><br>• 하루 10분 명상/호흡 연습<br>• 감정 일기 쓰기<br>• 작은 성공 경험 쌓기<br>• 신뢰할 수 있는 사람과 대화하기';color='#fdcb6e';}
 else{emoji='🫧';type='유리 멘탈';desc='섬세하고 감수성이 풍부한 당신! 쉽게 상처받을 수 있지만, 그만큼 세상을 깊이 느끼는 사람이에요.';tips='<strong>💡 강화 팁:</strong><br>• 전문 상담을 통한 마음 케어 추천<br>• SNS 디톡스로 비교심 줄이기<br>• 자기 긍정 확언 매일 3가지<br>• 충분한 수면과 규칙적 생활<br>• 나를 위한 작은 보상 주기';color='#ff7675';}
-fill.style.background=color;document.getElementById('rEmoji').textContent=emoji;document.getElementById('rType').textContent=type;document.getElementById('rDesc').textContent=desc;document.getElementById('rTips').innerHTML=tips;}
+fill.style.background=color;document.getElementById('rEmoji').textContent=emoji;document.getElementById('rType').textContent=type;document.getElementById('rDesc').textContent=desc;document.getElementById('rTips').innerHTML=tips;
+const hpEl=document.getElementById('hpFill');hpEl.style.setProperty('--hp',score+'%');hpEl.style.background=color;
+document.getElementById('hpLabel').textContent='HP '+score+'/100';
+let badge,badgeColor;
+if(score>=90){badge='다이아';badgeColor='#00cec9';}else if(score>=75){badge='강철';badgeColor='#b2bec3';}else if(score>=60){badge='돌';badgeColor='#636e72';}else if(score>=45){badge='나무';badgeColor='#00b894';}else if(score>=30){badge='종이';badgeColor='#fdcb6e';}else{badge='유리';badgeColor='#ff7675';}
+document.getElementById('rBadge').textContent=badge+' 멘탈';document.getElementById('rBadge').style.background=badgeColor;document.getElementById('rBadge').style.color=score>=60?'#1a1a2e':'#fff';
+const stressScenarios=[{s:'발표 중 마이크 고장',v:score>=60?'침착하게 대처':'패닉 가능성 높음'},{s:'갑작스런 이사 통보',v:score>=50?'적응 가능':'큰 스트레스'},{s:'프로젝트 마감 D-1',v:score>=70?'집중력 발휘':'압박감에 위축'}];
+document.getElementById('rStress').innerHTML='<strong>🎭 스트레스 시뮬레이션</strong><br>'+stressScenarios.map(x=>'• '+x.s+' → <span style="color:'+color+'">'+x.v+'</span>').join('<br>');
+const resilienceTips=score>=60?'<strong>🏋️ 회복력 강화 훈련</strong><br>• 고강도 인터벌 운동으로 스트레스 내성 강화<br>• 불편한 상황에 의도적으로 노출 (콜드샤워 등)<br>• 감사 일기 작성으로 긍정 회로 강화':'<strong>🏋️ 회복력 강화 훈련</strong><br>• 하루 10분 명상으로 마음 근육 키우기<br>• 매일 작은 성공 경험 기록하기<br>• 규칙적인 수면/운동 루틴 만들기<br>• 신뢰할 수 있는 사람과 주 1회 대화';
+document.getElementById('rResilience').innerHTML=resilienceTips;
+localStorage.setItem('hoit_mental',JSON.stringify({type:type,score:score,badge:badge,date:new Date().toISOString()}));}
+function copyResult(){const d=JSON.parse(localStorage.getItem('hoit_mental'));navigator.clipboard.writeText('[hoit.me] 멘탈 강도: '+d.type+' ('+d.badge+' 멘탈, '+d.score+'점) - https://hoit.me/tests/mental.html').then(()=>{const b=document.querySelector('.share-btn');b.textContent='복사 완료!';setTimeout(()=>b.textContent='결과 복사',1500);});}
+(function(){const prev=localStorage.getItem('hoit_mental');if(prev){const d=JSON.parse(prev);document.querySelector('.sub').textContent='이전 결과: '+d.badge+' 멘탈 ('+d.score+'점) | 다시 해볼까요?';}})();
 </script></body></html>

@@ -20,6 +20,25 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 .result-desc{color:#bbb;line-height:1.7;margin-bottom:10px;font-size:.95em}
 .traits{background:#2a2a3e;border-radius:10px;padding:14px;margin:12px 0;text-align:left;font-size:.9em;line-height:1.8;color:#ddd}
 .hidden{display:none}
+@keyframes slideIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.q-slide{animation:slideIn .35s ease}
+.btn.selected{background:#dfe6e9;color:#1a1a2e;font-weight:bold;pointer-events:none;animation:pulse .3s ease}
+.btn.selected::after{content:' \2713';font-weight:bold}
+.result-card{border:2px solid transparent;background:linear-gradient(#1a1a2e,#1a1a2e) padding-box,linear-gradient(135deg,#dfe6e9,#b2bec3) border-box;border-radius:16px;padding:20px;margin:16px 0;animation:fadeIn .6s ease}
+.share-btn{background:linear-gradient(135deg,#dfe6e9,#b2bec3);color:#1a1a2e;font-weight:bold;border:none;padding:12px;border-radius:10px;width:100%;cursor:pointer;font-size:1em;margin:8px 0;transition:opacity .2s}
+.share-btn:hover{opacity:.85}
+.recommend{margin-top:16px;text-align:center}
+.recommend a{display:inline-block;margin:4px 6px;padding:8px 14px;background:#2a2a3e;color:#dfe6e9;border-radius:8px;text-decoration:none;font-size:.85em;transition:background .2s}
+.recommend a:hover{background:#3a3a5e}
+.profile-card{background:linear-gradient(135deg,#2a2a3e,#1a1a2e);border:2px solid;border-radius:16px;padding:20px;margin:16px 0;text-align:center;animation:fadeIn .6s ease}
+.profile-card .pc-emoji{font-size:3em;margin-bottom:8px}
+.profile-card .pc-name{font-size:1em;color:#888;margin:4px 0}
+.profile-card .pc-type{font-size:1.2em;font-weight:bold;margin:4px 0}
+.profile-card .pc-style{font-size:.85em;color:#aaa;margin-top:8px}
+.fashion-tip{background:#2a2a3e;border-radius:10px;padding:14px;margin:12px 0;text-align:left;font-size:.9em;line-height:1.8;color:#ddd}
+.interview-tip{background:linear-gradient(135deg,#dfe6e922,#b2bec322);border-radius:10px;padding:14px;margin:12px 0;text-align:center;font-size:.9em;line-height:1.6}
 </style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 </head><body>
 <a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
@@ -39,8 +58,13 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 <div class="emoji" id="rEmoji"></div>
 <div class="result-type" id="rType"></div>
 <div class="result-desc" id="rDesc"></div>
+<div class="profile-card" id="rProfile"></div>
 <div class="traits" id="rTraits"></div>
+<div class="fashion-tip" id="rFashion"></div>
+<div class="interview-tip" id="rInterview"></div>
+<button class="share-btn" onclick="copyResult()">결과 복사</button>
 <button class="btn start-btn" onclick="location.reload()">다시 하기</button>
+<div class="recommend"><span style="color:#888;font-size:.85em">다른 테스트 추천</span><br><a href="empathy.html">공감 능력</a><a href="insider.html">인싸/아싸</a><a href="color.html">색깔 심리</a></div>
 </div>
 </div>
 <script>function _shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
@@ -54,14 +78,19 @@ const questions=[
 {q:"목소리 톤은?",a:[["부드럽고 따뜻한","warm"],["또렷하고 힘있는","char"],["낮고 차분한","myst"],["밝고 경쾌한","fun"],["또박또박 정확한","intel"]]},
 {q:"눈빛은?",a:[["따스한 눈빛","warm"],["강렬한 눈빛","char"],["깊고 신비로운 눈빛","myst"],["반짝이는 눈빛","fun"],["지적인 눈빛","intel"]]}
 ];
-const types={warm:{e:"☀️",n:"따뜻한 첫인상",d:"당신을 처음 만난 사람들은 편안함과 따뜻함을 느낍니다. 자연스러운 미소와 부드러운 분위기가 상대방의 긴장을 풀어줘요.",t:"<strong>첫인상 키워드:</strong> 포근한, 친근한, 믿음직한<br><strong>매력 포인트:</strong> 누구든 편하게 만드는 분위기<br><strong>어울리는 컬러:</strong> 베이지, 파스텔"},
-char:{e:"👑",n:"카리스마 첫인상",d:"강렬한 존재감으로 사람들의 시선을 사로잡습니다. 자신감 있는 태도와 깔끔한 외모가 인상적이에요.",t:"<strong>첫인상 키워드:</strong> 강렬한, 세련된, 자신감<br><strong>매력 포인트:</strong> 리더십이 느껴지는 아우라<br><strong>어울리는 컬러:</strong> 블랙, 네이비"},
-myst:{e:"🌙",n:"신비로운 첫인상",d:"깊이 있고 알 수 없는 매력을 풍깁니다. 조용하지만 강한 존재감으로 사람들의 호기심을 자극해요.",t:"<strong>첫인상 키워드:</strong> 신비로운, 깊은, 독특한<br><strong>매력 포인트:</strong> 알수록 빠져드는 매력<br><strong>어울리는 컬러:</strong> 다크퍼플, 와인"},
-fun:{e:"🎪",n:"유쾌한 첫인상",d:"밝은 에너지로 주변을 환하게 만드는 당신! 첫 만남에서도 금방 웃음꽃을 피울 수 있어요.",t:"<strong>첫인상 키워드:</strong> 밝은, 재밌는, 에너지틱<br><strong>매력 포인트:</strong> 자연스러운 유머감각<br><strong>어울리는 컬러:</strong> 옐로, 오렌지"},
-intel:{e:"📖",n:"지적인 첫인상",d:"차분하고 정돈된 느낌으로 신뢰감을 줍니다. 말 한마디에 깊이가 느껴지는 지적인 매력이 있어요.",t:"<strong>첫인상 키워드:</strong> 똑똑한, 차분한, 신뢰감<br><strong>매력 포인트:</strong> 깊이 있는 대화 능력<br><strong>어울리는 컬러:</strong> 그레이, 카키"}};
+const types={warm:{e:"☀️",n:"따뜻한 첫인상",d:"당신을 처음 만난 사람들은 편안함과 따뜻함을 느낍니다. 자연스러운 미소와 부드러운 분위기가 상대방의 긴장을 풀어줘요.",t:"<strong>첫인상 키워드:</strong> 포근한, 친근한, 믿음직한<br><strong>매력 포인트:</strong> 누구든 편하게 만드는 분위기<br><strong>어울리는 컬러:</strong> 베이지, 파스텔",color:"#F5CBA7",style:"내추럴 웜톤",fashion:"<strong>👔 패션/컬러 추천</strong><br>• 베이지, 크림, 파스텔 톤의 니트나 카디건<br>• 부드러운 소재의 옷이 당신의 매력을 극대화<br>• 액세서리는 골드 계열 추천",interview:"면접 팁: 자연스러운 미소와 따뜻한 인사로 시작하세요. 상대방 이야기에 공감하며 경청하는 모습이 큰 강점이 됩니다."},
+char:{e:"👑",n:"카리스마 첫인상",d:"강렬한 존재감으로 사람들의 시선을 사로잡습니다. 자신감 있는 태도와 깔끔한 외모가 인상적이에요.",t:"<strong>첫인상 키워드:</strong> 강렬한, 세련된, 자신감<br><strong>매력 포인트:</strong> 리더십이 느껴지는 아우라<br><strong>어울리는 컬러:</strong> 블랙, 네이비",color:"#2C3E50",style:"모던 다크톤",fashion:"<strong>👔 패션/컬러 추천</strong><br>• 블랙, 네이비, 차콜 컬러의 깔끔한 정장/셔츠<br>• 심플하지만 고급스러운 시계나 가방<br>• 직선적 라인의 세련된 디자인",interview:"면접 팁: 확신에 찬 목소리와 명확한 답변이 당신의 무기입니다. 눈 맞춤을 유지하되, 경청하는 자세도 보여주세요."},
+myst:{e:"🌙",n:"신비로운 첫인상",d:"깊이 있고 알 수 없는 매력을 풍깁니다. 조용하지만 강한 존재감으로 사람들의 호기심을 자극해요.",t:"<strong>첫인상 키워드:</strong> 신비로운, 깊은, 독특한<br><strong>매력 포인트:</strong> 알수록 빠져드는 매력<br><strong>어울리는 컬러:</strong> 다크퍼플, 와인",color:"#6C3483",style:"미스테리어스",fashion:"<strong>👔 패션/컬러 추천</strong><br>• 다크퍼플, 와인, 딥그린의 유니크한 아이템<br>• 레이어드 스타일로 깊이감 연출<br>• 독특한 액세서리로 포인트",interview:"면접 팁: 생각의 깊이를 보여주는 답변을 준비하세요. 첫 인사에서 따뜻한 미소를 더하면 신비로움에 친근함이 더해집니다."},
+fun:{e:"🎪",n:"유쾌한 첫인상",d:"밝은 에너지로 주변을 환하게 만드는 당신! 첫 만남에서도 금방 웃음꽃을 피울 수 있어요.",t:"<strong>첫인상 키워드:</strong> 밝은, 재밌는, 에너지틱<br><strong>매력 포인트:</strong> 자연스러운 유머감각<br><strong>어울리는 컬러:</strong> 옐로, 오렌지",color:"#F39C12",style:"비비드 브라이트",fashion:"<strong>👔 패션/컬러 추천</strong><br>• 옐로, 오렌지, 코랄 등 밝은 색상<br>• 캐주얼하면서도 깔끔한 스타일<br>• 재미있는 패턴이나 그래픽 포인트",interview:"면접 팁: 밝은 에너지를 자연스럽게 전달하되, 진지한 모습도 보여주세요. 팀워크 경험을 강조하면 좋습니다."},
+intel:{e:"📖",n:"지적인 첫인상",d:"차분하고 정돈된 느낌으로 신뢰감을 줍니다. 말 한마디에 깊이가 느껴지는 지적인 매력이 있어요.",t:"<strong>첫인상 키워드:</strong> 똑똑한, 차분한, 신뢰감<br><strong>매력 포인트:</strong> 깊이 있는 대화 능력<br><strong>어울리는 컬러:</strong> 그레이, 카키",color:"#7F8C8D",style:"클래식 뉴트럴",fashion:"<strong>👔 패션/컬러 추천</strong><br>• 그레이, 카키, 네이비의 깔끔한 스타일<br>• 안경이나 시계 등 지적 이미지 소품<br>• 단정한 헤어와 미니멀 코디",interview:"면접 팁: 데이터와 논리를 바탕으로 답변하세요. 차분한 톤이 강점이지만, 열정도 표현하면 인상 점수 UP!"}};
 let cur=0,scores={};
 function startQuiz(){_shuf(questions);document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();}
-function showQ(){if(!window._qs){_shuf(questions);window._qs=1;}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=()=>pick(a[1]);o.appendChild(b);});}
+function showQ(){if(!window._qs){_shuf(questions);window._qs=1;}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';document.getElementById('quiz').classList.add('q-slide');setTimeout(()=>document.getElementById('quiz').classList.remove('q-slide'),350);q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=function(){this.classList.add('selected');setTimeout(()=>pick(a[1]),350)};o.appendChild(b);});}
 function pick(t){scores[t]=(scores[t]||0)+1;cur++;if(cur<questions.length)showQ();else showResult();}
-function showResult(){const top=Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];const r=types[top];document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');document.getElementById('rEmoji').textContent=r.e;document.getElementById('rType').textContent=r.n;document.getElementById('rDesc').textContent=r.d;document.getElementById('rTraits').innerHTML=r.t;}
+function showResult(){const top=Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];const r=types[top];document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');document.getElementById('rEmoji').textContent=r.e;document.getElementById('rType').textContent=r.n;document.getElementById('rDesc').textContent=r.d;
+const pc=document.getElementById('rProfile');pc.style.borderColor=r.color;pc.innerHTML='<div class="pc-emoji">'+r.e+'</div><div class="pc-name">MY PROFILE CARD</div><div class="pc-type" style="color:'+r.color+'">'+r.n+'</div><div class="pc-style">스타일: '+r.style+' | 컬러: <span style="display:inline-block;width:12px;height:12px;background:'+r.color+';border-radius:50%;vertical-align:middle"></span></div>';
+document.getElementById('rTraits').innerHTML=r.t;document.getElementById('rFashion').innerHTML=r.fashion;document.getElementById('rInterview').innerHTML='💼 <strong>면접 팁</strong><br>'+r.interview;
+localStorage.setItem('hoit_firstimp',JSON.stringify({type:r.n,style:r.style,date:new Date().toISOString()}));}
+function copyResult(){const d=JSON.parse(localStorage.getItem('hoit_firstimp'));navigator.clipboard.writeText('[hoit.me] 첫인상: '+d.type+' ('+d.style+') - https://hoit.me/tests/firstimp.html').then(()=>{const b=document.querySelector('.share-btn');b.textContent='복사 완료!';setTimeout(()=>b.textContent='결과 복사',1500);});}
+(function(){const prev=localStorage.getItem('hoit_firstimp');if(prev){const d=JSON.parse(prev);document.querySelector('.sub').textContent='이전 결과: '+d.type+' | 다시 해볼까요?';}})();
 </script></body></html>
