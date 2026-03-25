@@ -235,7 +235,20 @@ function moveHorse(player,horseIdx){
     }
   }
 
+  // 업기: 같은 팀 말이 같은 위치에 있으면 합치기
+  if(horse.pos>=0){
+    for(let i=0;i<4;i++){
+      const ally=players[player].horses[i];
+      if(i!==horseIdx&&!ally.done&&ally.pos===horse.pos){
+        ally.stacked=horseIdx; // 이 말은 horseIdx에 업힘
+        horse.stackedWith=horse.stackedWith||[];
+        if(!horse.stackedWith.includes(i))horse.stackedWith.push(i);
+      }
+    }
+  }
+
   // Capture check
+  let captured=false;
   if(horse.pos>=0){
     const enemy=1-player;
     for(let i=0;i<4;i++){
@@ -244,10 +257,19 @@ function moveHorse(player,horseIdx){
         players[enemy].horses[i].routeIdx=-1;
         players[enemy].horses[i].route=getStandardRoute();
         players[enemy].horses[i].routeType='standard';
+        // 업힌 말도 같이 잡힘
+        if(players[enemy].horses[i].stackedWith){
+          players[enemy].horses[i].stackedWith.forEach(si=>{
+            const sh=players[enemy].horses[si];
+            if(sh&&!sh.done){sh.pos=-1;sh.routeIdx=-1;sh.route=getStandardRoute();sh.routeType='standard';delete sh.stacked;}
+          });
+          delete players[enemy].horses[i].stackedWith;
+        }
+        captured=true;
       }
     }
   }
-  return true;
+  return captured?'captured':'moved';
 }
 
 function checkWin(player){
@@ -293,14 +315,14 @@ function handleClick(x,y){
     }
   }
   if(clicked>=0){
-    moveHorse(0,clicked);
-    const extraTurn=(yutVal===4||yutVal===5);
+    const result=moveHorse(0,clicked);
+    const extraTurn=(yutVal===4||yutVal===5)||result==='captured';
     draw();updateUI();
     if(!gameActive)return;
     if(extraTurn){
       phase='throw';yutVal=0;
       document.getElementById('throwBtn').textContent='윷 던지기 (한 번 더!)';
-      document.getElementById('yutResult').textContent='윷/모! 한 번 더!';
+      document.getElementById('yutResult').textContent=result==='captured'?'잡기! 한 번 더!':'윷/모! 한 번 더!';
     }else{
       phase='throw';yutVal=0;turn=1;
       updateUI();
@@ -344,14 +366,15 @@ function aiTurn(){
       if(testPos===-2)score+=100; // finish
       if(score>bestScore){bestScore=score;bestH=hi;}
     }
-    moveHorse(1,bestH);
+    var aiResult=moveHorse(1,bestH);
   }
 
   draw();updateUI();
   if(!gameActive)return;
 
-  const extraTurn=(val===4||val===5);
+  const extraTurn=(val===4||val===5)||aiResult==='captured';
   if(extraTurn){
+    document.getElementById('yutResult').textContent=aiResult==='captured'?'AI: 잡기! 한 번 더!':'AI: 윷/모! 한 번 더!';
     setTimeout(aiTurn,700);
   }else{
     turn=0;phase='throw';yutVal=0;
