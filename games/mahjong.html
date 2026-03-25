@@ -19,11 +19,11 @@ body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;
 #btnRow{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:100;display:flex;gap:10px}
 #btnRow button{background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);padding:12px 20px;border-radius:10px;font-size:14px;cursor:pointer;min-width:70px;min-height:44px}
 #btnRow button:active{background:rgba(255,255,255,0.3)}
-.tile{position:absolute;width:44px;height:58px;border-radius:6px;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:bold;border:2px solid rgba(255,255,255,0.2)}
-.tile.free{border-color:rgba(255,215,0,0.5);cursor:pointer}
-.tile.free:hover,.tile.free:active{transform:scale(1.08);box-shadow:0 0 12px rgba(255,215,0,0.5)}
-.tile.selected{border-color:#ffd700;box-shadow:0 0 16px rgba(255,215,0,0.8);transform:scale(1.1)}
-.tile.blocked{opacity:0.7;cursor:default}
+.tile{position:absolute;width:44px;height:58px;border-radius:6px;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:bold;border:2px solid rgba(255,255,255,0.3);background:linear-gradient(135deg,#f5f0e0,#e8dcc8);color:#333;box-shadow:1px 2px 4px rgba(0,0,0,0.4)}
+.tile.free{border-color:rgba(255,215,0,0.6);background:linear-gradient(135deg,#fffff0,#f5f0d0);cursor:pointer}
+.tile.free:hover,.tile.free:active{transform:scale(1.08);box-shadow:0 0 12px rgba(255,215,0,0.5),1px 2px 4px rgba(0,0,0,0.4)}
+.tile.selected{border-color:#ffd700;background:linear-gradient(135deg,#fff8dc,#ffe4b5);box-shadow:0 0 16px rgba(255,215,0,0.8);transform:scale(1.1)}
+.tile.blocked{opacity:0.6;cursor:default;background:linear-gradient(135deg,#d0c8b0,#b8b0a0)}
 .tile.hint{animation:hintPulse 0.6s infinite alternate}
 .tile.matched{animation:matchAnim 0.4s forwards}
 @keyframes hintPulse{0%{box-shadow:0 0 8px #0f0}100%{box-shadow:0 0 20px #0f0}}

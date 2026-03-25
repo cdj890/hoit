@@ -69,7 +69,7 @@ const ITEM_TYPES=[
   {emoji:'💛',name:'최대체력+10',color:'#ff0',apply:()=>{player.maxHp+=10;player.hp+=10;}},
   {emoji:'⚡',name:'일시 가속',color:'#4cf',apply:()=>{player.speed+=1;setTimeout(()=>player.speed=Math.max(2.5,player.speed-1),8000);}},
   {emoji:'💣',name:'화면 폭탄',color:'#f80',apply:()=>{enemies.forEach(e=>{e.hp-=50;if(e.hp<=0&&!e.dead){e.dead=true;kills++;gems.push({x:e.x,y:e.y,val:e.xpVal});}});enemies=enemies.filter(e=>!e.dead);screenFlash=10;}},
-  {emoji:'🧲',name:'경험치 흡수',color:'#a5f',apply:()=>{gems.forEach(g=>{xp+=g.val;});gems=[];checkLevelUp();}},
+  {emoji:'🧲',name:'경험치 흡수',color:'#a5f',apply:()=>{gems.forEach(g=>{addXP(g.val);});gems=[];}},
   {emoji:'🛡️',name:'3초 무적',color:'#8af',apply:()=>{playerInvincible=180;}},
 ];
 const ALL_WEAPONS={
