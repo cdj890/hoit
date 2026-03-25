@@ -43,4 +43,4 @@ let html=`<div class="result-box"><div class="sum-display">${a} + ${b} = ${sum}<
 catScores.forEach(c=>{html+=`<p>${c.n}: ${'★'.repeat(Math.round(c.v/20))}${'☆'.repeat(5-Math.round(c.v/20))} ${c.v}점</p>`});
 html+=`<br><p>🔢 행운의 숫자: ${Math.floor(r()*99)+1}</p></div><br><button onclick="document.getElementById('result').style.display='none';document.getElementById('d1').textContent='?';document.getElementById('d2').textContent='?'">다시 하기</button>`;
 const el=document.getElementById('result');el.innerHTML=html;el.style.display='block';el.scrollIntoView({behavior:'smooth'})}
-</script></body></html>
+</script><div style="max-width:440px;margin:16px auto;padding:0 8px"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="auto" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div></body></html>
