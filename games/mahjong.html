@@ -28,7 +28,7 @@ body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;
 .tile.free{border-color:rgba(255,215,0,0.6);background:linear-gradient(135deg,#fffff0,#f5f0d0);cursor:pointer}
 .tile.free:hover,.tile.free:active{transform:scale(1.08);box-shadow:0 0 12px rgba(255,215,0,0.5),1px 2px 4px rgba(0,0,0,0.4)}
 .tile.selected{border-color:#ffd700;background:linear-gradient(135deg,#fff8dc,#ffe4b5);box-shadow:0 0 16px rgba(255,215,0,0.8);transform:scale(1.1)}
-.tile.blocked{opacity:0.6;cursor:default;background:linear-gradient(135deg,#d0c8b0,#b8b0a0)}
+.tile.blocked{cursor:default;filter:brightness(0.5)}
 .tile.hint{animation:hintPulse 0.6s infinite alternate}
 .tile.matched{animation:matchAnim 0.4s forwards}
 @keyframes hintPulse{0%{box-shadow:0 0 8px #0f0}100%{box-shadow:0 0 20px #0f0}}
@@ -227,7 +227,7 @@ let x=(t.col-minC)*(TILE_W+GAP_X)+t.layer*LAYER_OFF_X+10;
 let y=(t.row-minR)*(TILE_H+GAP_Y)+t.layer*LAYER_OFF_Y+10;
 el.style.left=x+'px';el.style.top=y+'px';
 let shade=Math.min(255,180+t.layer*25);
-el.style.background=`linear-gradient(135deg, ${t.bg}, ${t.bg}aa)`;
+el.style.background=`linear-gradient(135deg, ${t.bg}, ${t.bg})`;
 el.style.zIndex=t.layer*100+t.row;
 el.style.boxShadow=`${t.layer*2}px ${t.layer*2}px ${t.layer*4}px rgba(0,0,0,0.5)`;
 el.textContent=t.label;
