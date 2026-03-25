@@ -306,9 +306,9 @@ function draw(){
   const tg=X.createLinearGradient(0,tableY,0,Math.max(H,tableY+60));
   tg.addColorStop(0,'#2a1810');tg.addColorStop(1,'#1a0e08');
   X.fillStyle=tg;
-  X.beginPath();X.roundRect(W/2-TOWER_W/2-20,tableY,TOWER_W+40,Math.max(60,H-tableY+20),6);X.fill();
+  X.fillRect(W/2-TOWER_W/2-20,tableY,TOWER_W+40,Math.max(60,H-tableY+20),6);
   X.fillStyle='rgba(255,255,255,0.04)';
-  X.fillRect(W/2-TOWER_W/2-15,tableY,TOWER_W+30,3);
+  X.fillRect(W/2-TOWER_W/2-15,tableY,TOWER_W+30);
 
   // Screen shake
   let shakeX=0,shakeY=0;
@@ -330,7 +330,7 @@ function draw(){
 
       // Shadow
       X.fillStyle='rgba(0,0,0,0.3)';
-      X.beginPath();X.roundRect(bx+2,by+2,BW,BH,3);X.fill();
+      X.fillRect(bx+2,by+2,BW,BH);
 
       // Block body
       const grad=X.createLinearGradient(bx,by,bx,by+BH);
@@ -338,26 +338,26 @@ function draw(){
       grad.addColorStop(0.4,lighten(b.color,20));
       grad.addColorStop(1,b.color);
       X.fillStyle=grad;
-      X.beginPath();X.roundRect(bx,by,BW,BH,3);X.fill();
+      X.fillRect(bx,by,BW,BH);
 
       // Wood grain
       X.strokeStyle='rgba(0,0,0,0.06)';X.lineWidth=0.5;
       for(let i=4;i<BW-4;i+=5){
-        X.beginPath();X.moveTo(bx+i,by+1);X.lineTo(bx+i+1,by+BH-1);X.stroke();
+        X.beginPath();X.moveTo(bx+i,by+1);X.lineTo(bx+i+1,by+BH-1);
       }
 
       // Top highlight
       X.fillStyle='rgba(255,255,255,0.12)';
-      X.fillRect(bx+2,by+1,BW-4,2);
+      X.fillRect(bx+2,by+1,BW-4);
 
       // Border
       X.strokeStyle='rgba(0,0,0,0.15)';X.lineWidth=1;
-      X.beginPath();X.roundRect(bx,by,BW,BH,3);X.stroke();
+      X.fillRect(bx,by,BW,BH);
 
       // Removable glow
       if(!gameOver&&canRemove(r,c)){
         X.strokeStyle='rgba(255,215,0,0.2)';X.lineWidth=1;
-        X.beginPath();X.roundRect(bx-1,by-1,BW+2,BH+2,4);X.stroke();
+        X.fillRect(bx-1,by-1,BW+2,BH+2);
       }
 
       // Empty slot marker
