@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>한붓그리기</title>
+<meta name="description" content="hoit.me - 한붓그리기 | 무료 웹 게임. 설치 없이 브라우저에서 바로 즐기세요!">
+<meta property="og:title" content="한붓그리기 - hoit">
+<meta property="og:description" content="hoit.me - 한붓그리기 | 무료 웹 게임.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://hoit.me/games/onestroke.html">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#fff;font-family:sans-serif;display:flex;flex-direction:column;align-items:center;min-height:100vh;touch-action:none;user-select:none;overflow:hidden}
+canvas{display:block;border-radius:12px;margin-top:10px}
+#hud{width:100%;max-width:420px;display:flex;justify-content:space-between;align-items:center;padding:8px 16px;font-size:14px}
+.btn{background:#7B68EE;border:none;color:#fff;padding:10px 20px;border-radius:10px;font-size:15px;font-weight:bold;cursor:pointer;touch-action:manipulation;min-height:44px}
+.btn:active{transform:scale(0.95)}
+.btn-reset{background:#EF5350}
+.btn-hint{background:#FF9800}
+#overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,15,30,0.95);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:200;text-align:center;padding:20px}
+#overlay.hidden{display:none}
+#overlay h1{font-size:32px;margin-bottom:10px}
+#overlay p{color:#aaa;font-size:14px;margin-bottom:20px;max-width:350px;line-height:1.6}
+#complete{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:28px;font-weight:bold;color:#FFD700;display:none;z-index:100;text-shadow:0 0 20px rgba(255,215,0,0.5);animation:popIn .4s}
+@keyframes popIn{from{transform:translate(-50%,-50%) scale(0);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
+#controls{display:flex;gap:8px;margin-top:8px}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
+
+<div id="overlay">
+<h1>✏️ 한붓그리기</h1>
+<p>모든 선을 한 번씩만 지나가세요!<br>점을 터치/클릭하여 이동합니다.<br>되돌리기와 힌트 기능이 있어요.</p>
+<button class="btn" onclick="startGame()">시작하기</button>
+</div>
+
+<div id="complete">🎉 클리어!</div>
+
+<div id="hud">
+<span>레벨: <b id="lvl">1</b>/30</span>
+<span>클리어: <b id="cleared">0</b></span>
+</div>
+<canvas id="c"></canvas>
+<div id="controls">
+<button class="btn btn-reset" onclick="resetLevel()">↩ 되돌리기</button>
+<button class="btn btn-hint" onclick="showHint()">💡 힌트</button>
+<button class="btn" onclick="skipLevel()">⏭ 스킵</button>
+</div>
+
+<script>
+const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
+const W=Math.min(window.innerWidth-16,420),H=W;
+canvas.width=W;canvas.height=H;
+
+// Puzzle definitions: {nodes:[[x,y],...], edges:[[a,b],...]}
+// x,y in 0-4 grid coordinates
+const PUZZLES=[
+  // Level 1-5: Easy (3-4 nodes)
+  {nodes:[[1,1],[3,1],[2,3]],edges:[[0,1],[1,2],[2,0]]},
+  {nodes:[[0,0],[2,0],[2,2],[0,2]],edges:[[0,1],[1,2],[2,3],[3,0]]},
+  {nodes:[[1,0],[3,0],[2,2],[0,2]],edges:[[0,1],[1,2],[2,3],[3,0],[0,2]]},
+  {nodes:[[0,0],[4,0],[4,4],[0,4],[2,2]],edges:[[0,1],[1,2],[2,3],[3,0],[0,4],[4,2]]},
+  {nodes:[[1,0],[3,0],[4,2],[2,4],[0,2]],edges:[[0,1],[1,2],[2,3],[3,4],[4,0],[0,2],[2,4]]},
+  // Level 6-10: Medium
+  {nodes:[[0,0],[2,0],[4,0],[0,2],[2,2],[4,2]],edges:[[0,1],[1,2],[0,3],[1,4],[2,5],[3,4],[4,5]]},
+  {nodes:[[0,0],[2,0],[4,0],[1,2],[3,2],[2,4]],edges:[[0,1],[1,2],[0,3],[2,4],[3,4],[3,5],[4,5],[1,3],[1,4]]},
+  {nodes:[[1,0],[3,0],[0,2],[2,2],[4,2],[1,4],[3,4]],edges:[[0,1],[0,2],[0,3],[1,3],[1,4],[2,3],[3,4],[2,5],[3,5],[3,6],[4,6]]},
+  {nodes:[[0,0],[4,0],[0,4],[4,4],[2,2]],edges:[[0,1],[0,2],[1,3],[2,3],[0,4],[1,4],[2,4],[3,4]]},
+  {nodes:[[2,0],[0,1],[4,1],[0,3],[4,3],[2,4]],edges:[[0,1],[0,2],[1,3],[2,4],[3,5],[4,5],[1,2],[3,4],[0,5]]},
+  // Level 11-15: Harder
+  {nodes:[[0,0],[2,0],[4,0],[0,2],[2,2],[4,2],[0,4],[2,4],[4,4]],edges:[[0,1],[1,2],[0,3],[1,4],[2,5],[3,4],[4,5],[3,6],[4,7],[5,8],[6,7],[7,8]]},
+  {nodes:[[1,0],[3,0],[0,1],[2,1],[4,1],[0,3],[2,3],[4,3],[1,4],[3,4]],edges:[[0,1],[0,2],[0,3],[1,3],[1,4],[2,5],[3,6],[4,7],[5,6],[6,7],[5,8],[6,8],[6,9],[7,9]]},
+  {nodes:[[2,0],[0,2],[4,2],[1,3],[3,3],[2,4]],edges:[[0,1],[0,2],[1,3],[2,4],[3,4],[3,5],[4,5],[0,3],[0,4],[1,5],[2,5]]},
+  {nodes:[[0,0],[4,0],[2,1],[0,3],[4,3],[2,4],[1,2],[3,2]],edges:[[0,2],[1,2],[0,6],[1,7],[6,2],[7,2],[6,3],[7,4],[3,5],[4,5],[6,7],[2,5]]},
+  {nodes:[[0,0],[2,0],[4,0],[1,2],[3,2],[0,4],[2,4],[4,4]],edges:[[0,1],[1,2],[0,3],[2,4],[3,4],[3,5],[3,6],[4,6],[4,7],[5,6],[6,7],[1,3],[1,4]]},
+  // Level 16-20: Hard
+  {nodes:[[0,0],[1,0],[2,0],[3,0],[4,0],[0,2],[2,2],[4,2],[0,4],[2,4],[4,4]],edges:[[0,1],[1,2],[2,3],[3,4],[0,5],[2,6],[4,7],[5,6],[6,7],[5,8],[6,9],[7,10],[8,9],[9,10]]},
+  {nodes:[[2,0],[0,1],[4,1],[1,2],[3,2],[0,3],[4,3],[2,4]],edges:[[0,1],[0,2],[1,3],[2,4],[3,4],[1,5],[2,6],[5,7],[6,7],[3,5],[4,6],[0,3],[0,4],[5,3],[6,4]]},
+  {nodes:[[0,0],[2,0],[4,0],[0,2],[2,2],[4,2],[1,4],[3,4]],edges:[[0,1],[1,2],[0,3],[1,4],[2,5],[3,4],[4,5],[3,6],[4,6],[4,7],[5,7],[6,7]]},
+  {nodes:[[1,0],[3,0],[0,1],[4,1],[0,3],[4,3],[1,4],[3,4],[2,2]],edges:[[0,1],[0,2],[1,3],[2,4],[3,5],[4,6],[5,7],[6,7],[0,8],[1,8],[2,8],[3,8],[4,8],[5,8],[6,8],[7,8]]},
+  {nodes:[[0,0],[4,0],[2,1],[0,2],[4,2],[2,3],[0,4],[4,4]],edges:[[0,2],[1,2],[2,3],[2,4],[3,5],[4,5],[5,6],[5,7],[0,3],[1,4],[3,6],[4,7],[2,5]]},
+  // Level 21-25: Very Hard
+  {nodes:[[0,0],[2,0],[4,0],[1,1],[3,1],[0,2],[2,2],[4,2],[1,3],[3,3],[0,4],[2,4],[4,4]],edges:[[0,1],[1,2],[0,3],[1,3],[1,4],[2,4],[3,5],[3,6],[4,6],[4,7],[5,8],[6,8],[6,9],[7,9],[8,10],[8,11],[9,11],[9,12],[10,11],[11,12]]},
+  {nodes:[[2,0],[0,1],[4,1],[1,2],[2,2],[3,2],[0,3],[4,3],[2,4]],edges:[[0,1],[0,2],[1,3],[2,5],[3,4],[4,5],[1,6],[2,7],[6,8],[7,8],[3,6],[5,7],[4,8],[0,4],[3,8],[5,8]]},
+  {nodes:[[0,0],[1,0],[2,0],[3,0],[4,0],[0,2],[1,2],[2,2],[3,2],[4,2],[0,4],[1,4],[2,4],[3,4],[4,4]],edges:[[0,1],[1,2],[2,3],[3,4],[5,6],[6,7],[7,8],[8,9],[10,11],[11,12],[12,13],[13,14],[0,5],[1,6],[2,7],[3,8],[4,9],[5,10],[6,11],[7,12],[8,13],[9,14]]},
+  {nodes:[[2,0],[0,1],[4,1],[1,2],[3,2],[2,3],[0,4],[4,4]],edges:[[0,1],[0,2],[1,3],[2,4],[3,5],[4,5],[5,6],[5,7],[1,5],[2,5],[3,6],[4,7],[0,3],[0,4]]},
+  {nodes:[[0,0],[4,0],[2,1],[0,2],[2,2],[4,2],[0,4],[2,4],[4,4]],edges:[[0,2],[1,2],[0,3],[1,5],[2,4],[3,4],[4,5],[3,6],[4,7],[5,8],[6,7],[7,8],[2,3],[2,5],[4,6],[4,8]]},
+  // Level 26-30: Expert
+  {nodes:[[0,0],[2,0],[4,0],[0,2],[2,2],[4,2],[0,4],[2,4],[4,4],[1,1],[3,1],[1,3],[3,3]],edges:[[0,9],[9,1],[1,10],[10,2],[0,3],[2,5],[3,11],[11,4],[4,12],[12,5],[3,6],[5,8],[6,11],[11,7],[7,12],[12,8],[9,4],[10,4],[11,7],[12,7],[6,7],[7,8]]},
+  {nodes:[[1,0],[3,0],[0,1],[2,1],[4,1],[0,3],[2,3],[4,3],[1,4],[3,4]],edges:[[0,1],[0,2],[0,3],[1,3],[1,4],[2,3],[3,4],[2,5],[3,6],[4,7],[5,6],[6,7],[5,8],[6,8],[6,9],[7,9],[8,9]]},
+  {nodes:[[2,0],[0,1],[4,1],[1,2],[2,2],[3,2],[0,4],[2,4],[4,4]],edges:[[0,1],[0,2],[1,3],[2,5],[3,4],[4,5],[3,6],[4,7],[5,8],[6,7],[7,8],[1,4],[2,4],[0,4],[4,6],[4,8]]},
+  {nodes:[[0,0],[2,0],[4,0],[1,1],[3,1],[0,2],[2,2],[4,2],[1,3],[3,3],[2,4]],edges:[[0,1],[1,2],[0,3],[1,3],[1,4],[2,4],[3,5],[3,6],[4,6],[4,7],[5,8],[6,8],[6,9],[7,9],[8,10],[9,10],[5,6],[6,7]]},
+  {nodes:[[0,0],[4,0],[2,2],[0,4],[4,4],[1,1],[3,1],[1,3],[3,3]],edges:[[0,5],[5,2],[2,6],[6,1],[0,7],[7,2],[2,8],[8,4],[3,7],[7,5],[5,6],[6,8],[8,3],[7,3],[8,4],[0,2],[1,2],[3,2],[4,2]]},
+];
+
+let level=0,totalCleared=0,path=[],usedEdges=new Set(),puzzle,nodePositions=[],dragging=false;
+let hintPath=null,hintStep=0,hintTimer=null;
+
+function getPuzzle(){return PUZZLES[level%PUZZLES.length];}
+
+function nodeScreenPos(idx){
+  const n=puzzle.nodes[idx];
+  const pad=50,area=W-pad*2;
+  return{x:pad+n[0]/4*area, y:pad+n[1]/4*area};
+}
+
+function edgeKey(a,b){return Math.min(a,b)+'-'+Math.max(a,b);}
+
+function startGame(){
+  document.getElementById('overlay').classList.add('hidden');
+  level=parseInt(localStorage.getItem('onestroke_level')||'0');
+  totalCleared=parseInt(localStorage.getItem('onestroke_cleared')||'0');
+  loadLevel();
+}
+
+function loadLevel(){
+  puzzle=getPuzzle();
+  path=[];usedEdges=new Set();hintPath=null;hintStep=0;
+  if(hintTimer){clearInterval(hintTimer);hintTimer=null;}
+  document.getElementById('lvl').textContent=(level%PUZZLES.length)+1;
+  document.getElementById('cleared').textContent=totalCleared;
+  document.getElementById('complete').style.display='none';
+  draw();
+}
+
+function resetLevel(){
+  if(path.length>1){
+    path.pop();
+    usedEdges=new Set();
+    for(let i=1;i<path.length;i++)usedEdges.add(edgeKey(path[i-1],path[i]));
+  }else{
+    path=[];usedEdges=new Set();
+  }
+  draw();
+}
+
+function skipLevel(){
+  level++;localStorage.setItem('onestroke_level',level);
+  loadLevel();
+}
+
+function showHint(){
+  // Find solution using DFS
+  hintPath=findSolution();
+  if(!hintPath){alert('힌트를 찾을 수 없습니다');return;}
+  hintStep=0;
+  if(hintTimer)clearInterval(hintTimer);
+  hintTimer=setInterval(()=>{
+    hintStep++;
+    if(hintStep>=hintPath.length){clearInterval(hintTimer);hintTimer=null;hintStep=0;}
+    draw();
+  },500);
+  draw();
+}
+
+function findSolution(){
+  const edges=puzzle.edges;
+  const adj={};
+  puzzle.nodes.forEach((_,i)=>{adj[i]=[];});
+  edges.forEach(([a,b])=>{adj[a].push({to:b,idx:edgeKey(a,b)});adj[b].push({to:a,idx:edgeKey(a,b)});});
+
+  // Try starting from each node
+  for(let start=0;start<puzzle.nodes.length;start++){
+    const result=dfs(start,new Set(),[start],adj,edges.length);
+    if(result)return result;
+  }
+  return null;
+}
+
+function dfs(node,used,currentPath,adj,totalEdges){
+  if(used.size===totalEdges)return [...currentPath];
+  for(const{to,idx}of adj[node]){
+    if(used.has(idx))continue;
+    used.add(idx);
+    currentPath.push(to);
+    const result=dfs(to,used,currentPath,adj,totalEdges);
+    if(result)return result;
+    currentPath.pop();
+    used.delete(idx);
+  }
+  return null;
+}
+
+function findNodeAt(x,y){
+  for(let i=0;i<puzzle.nodes.length;i++){
+    const p=nodeScreenPos(i);
+    if(Math.hypot(x-p.x,y-p.y)<25)return i;
+  }
+  return -1;
+}
+
+function hasEdge(a,b){
+  return puzzle.edges.some(([x,y])=>(x===a&&y===b)||(x===b&&y===a));
+}
+
+function handleTap(x,y){
+  const idx=findNodeAt(x,y);
+  if(idx<0)return;
+
+  if(path.length===0){
+    path.push(idx);
+  }else{
+    const last=path[path.length-1];
+    if(idx===last)return;
+    const key=edgeKey(last,idx);
+    if(!hasEdge(last,idx))return;
+    if(usedEdges.has(key))return;
+    path.push(idx);
+    usedEdges.add(key);
+
+    // Check win
+    if(usedEdges.size===puzzle.edges.length){
+      totalCleared++;
+      localStorage.setItem('onestroke_cleared',totalCleared);
+      _hub('onestroke',totalCleared);
+      document.getElementById('complete').style.display='block';
+      document.getElementById('cleared').textContent=totalCleared;
+      setTimeout(()=>{
+        level++;localStorage.setItem('onestroke_level',level);
+        loadLevel();
+      },1200);
+    }
+  }
+  draw();
+}
+
+canvas.addEventListener('click',e=>{
+  const r=canvas.getBoundingClientRect();
+  handleTap(e.clientX-r.left,e.clientY-r.top);
+});
+canvas.addEventListener('touchstart',e=>{
+  e.preventDefault();
+  const t=e.touches[0];const r=canvas.getBoundingClientRect();
+  handleTap(t.clientX-r.left,t.clientY-r.top);
+},{passive:false});
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+
+  // Background
+  ctx.fillStyle='#0f0f1e';ctx.fillRect(0,0,W,H);
+
+  // Draw all edges (unvisited = grey, visited = colored)
+  puzzle.edges.forEach(([a,b])=>{
+    const pa=nodeScreenPos(a),pb=nodeScreenPos(b);
+    const key=edgeKey(a,b);
+    const visited=usedEdges.has(key);
+
+    ctx.strokeStyle=visited?'#7B68EE':'rgba(255,255,255,0.15)';
+    ctx.lineWidth=visited?4:2;
+    ctx.beginPath();ctx.moveTo(pa.x,pa.y);ctx.lineTo(pb.x,pb.y);ctx.stroke();
+
+    if(visited){
+      // Glow
+      ctx.strokeStyle='rgba(123,104,238,0.3)';ctx.lineWidth=8;
+      ctx.beginPath();ctx.moveTo(pa.x,pa.y);ctx.lineTo(pb.x,pb.y);ctx.stroke();
+    }
+  });
+
+  // Draw hint path
+  if(hintPath&&hintStep>0){
+    ctx.setLineDash([6,4]);
+    ctx.strokeStyle='rgba(255,215,0,0.5)';ctx.lineWidth=3;
+    ctx.beginPath();
+    const p0=nodeScreenPos(hintPath[0]);
+    ctx.moveTo(p0.x,p0.y);
+    for(let i=1;i<=Math.min(hintStep,hintPath.length-1);i++){
+      const p=nodeScreenPos(hintPath[i]);
+      ctx.lineTo(p.x,p.y);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // Draw path (player's route)
+  if(path.length>1){
+    ctx.strokeStyle='#FFD700';ctx.lineWidth=3;
+    ctx.beginPath();
+    const p0=nodeScreenPos(path[0]);ctx.moveTo(p0.x,p0.y);
+    for(let i=1;i<path.length;i++){
+      const p=nodeScreenPos(path[i]);ctx.lineTo(p.x,p.y);
+    }
+    ctx.stroke();
+  }
+
+  // Draw nodes
+  puzzle.nodes.forEach((_,i)=>{
+    const p=nodeScreenPos(i);
+    const isStart=path.length>0&&path[0]===i;
+    const isCurrent=path.length>0&&path[path.length-1]===i;
+    const isInPath=path.includes(i);
+
+    // Node glow
+    if(isCurrent){
+      ctx.fillStyle='rgba(255,215,0,0.2)';
+      ctx.beginPath();ctx.arc(p.x,p.y,22,0,Math.PI*2);ctx.fill();
+    }
+
+    // Node circle
+    ctx.fillStyle=isCurrent?'#FFD700':isStart?'#4CAF50':isInPath?'#7B68EE':'#fff';
+    ctx.beginPath();ctx.arc(p.x,p.y,12,0,Math.PI*2);ctx.fill();
+
+    // Node border
+    ctx.strokeStyle=isCurrent?'#FFA000':'rgba(255,255,255,0.3)';
+    ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(p.x,p.y,12,0,Math.PI*2);ctx.stroke();
+
+    // Inner highlight
+    ctx.fillStyle='rgba(255,255,255,0.3)';
+    ctx.beginPath();ctx.arc(p.x-3,p.y-3,4,0,Math.PI*2);ctx.fill();
+
+    // Reachable indicator (from current node)
+    if(path.length>0&&!isCurrent){
+      const last=path[path.length-1];
+      const key=edgeKey(last,i);
+      if(hasEdge(last,i)&&!usedEdges.has(key)){
+        ctx.strokeStyle='rgba(255,215,0,0.5)';ctx.lineWidth=2;ctx.setLineDash([3,3]);
+        ctx.beginPath();ctx.arc(p.x,p.y,16,0,Math.PI*2);ctx.stroke();
+        ctx.setLineDash([]);
+      }
+    }
+  });
+
+  // Progress indicator
+  const total=puzzle.edges.length;
+  const done=usedEdges.size;
+  ctx.fillStyle='rgba(255,255,255,0.1)';
+  ctx.fillRect(20,H-25,W-40,6);
+  ctx.fillStyle=done===total?'#4CAF50':'#7B68EE';
+  ctx.fillRect(20,H-25,(W-40)*(done/total),6);
+  ctx.fillStyle='#aaa';ctx.font='11px sans-serif';ctx.textAlign='center';
+  ctx.fillText(done+'/'+total+' 선분',W/2,H-10);
+  ctx.textAlign='left';
+}
+
+loadLevel();
+</script>
+</body>
+</html>
