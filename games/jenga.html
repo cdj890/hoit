@@ -77,23 +77,40 @@ class Block{
   }
   draw(){
     if(this.removed&&!this.beingDragged)return;
-    let x=this.beingDragged?dragX-this.dragOffX:this.x;
-    let y=this.beingDragged?dragY-this.dragOffY:this.y;
-    let w,h;
-    if(this.horizontal){w=BW*scale*0.9;h=BH*scale*0.9}
-    else{w=BH*scale*0.9;h=BW*scale*0.9}
-    const sx=this.horizontal?this.x*scale*0.9+W*0.05:this.x*scale*0.9+W*0.05;
-    const sy=this.horizontal?this.y*scale*0.9:this.y*scale*0.9;
-    let dx=this.beingDragged?dragX-this.dragOffX:x;
-    let dy=this.beingDragged?dragY-this.dragOffY:y;
+    let dx=this.beingDragged?dragX-this.dragOffX:this.x;
+    let dy=this.beingDragged?dragY-this.dragOffY:this.y;
+    let rw=BW,rh=BH;
     ctx.save();
-    ctx.fillStyle=this.highlight?'#ffcc00':this.color;
-    if(this.beingDragged){ctx.globalAlpha=0.8;ctx.fillStyle='#ffcc00'}
-    let rw,rh;
-    if(this.horizontal){rw=BW;rh=BH}else{rw=BH;rh=BW}
-    ctx.fillRect(dx,dy,rw,rh);
-    ctx.strokeStyle='rgba(0,0,0,0.3)';ctx.lineWidth=1;
-    ctx.strokeRect(dx,dy,rw,rh);
+    // Shadow
+    ctx.fillStyle='rgba(0,0,0,0.25)';
+    ctx.beginPath();ctx.roundRect(dx+2,dy+2,rw,rh,2);ctx.fill();
+    // Block body with wood gradient
+    const grad=ctx.createLinearGradient(dx,dy,dx,dy+rh);
+    const baseColor=this.highlight?'#ffdd44':this.beingDragged?'#ffcc00':this.color;
+    grad.addColorStop(0,baseColor);
+    grad.addColorStop(0.5,this.highlight?'#ffee88':this.color);
+    grad.addColorStop(1,baseColor);
+    ctx.fillStyle=grad;
+    if(this.beingDragged)ctx.globalAlpha=0.85;
+    ctx.beginPath();ctx.roundRect(dx,dy,rw,rh,2);ctx.fill();
+    // Wood grain lines
+    ctx.strokeStyle='rgba(0,0,0,0.08)';ctx.lineWidth=0.5;
+    for(let i=3;i<rw-3;i+=6){
+      ctx.beginPath();ctx.moveTo(dx+i,dy+1);ctx.lineTo(dx+i+2,dy+rh-1);ctx.stroke();
+    }
+    // Top edge highlight
+    ctx.fillStyle='rgba(255,255,255,0.15)';
+    ctx.fillRect(dx+1,dy,rw-2,2);
+    // Border
+    ctx.strokeStyle='rgba(0,0,0,0.2)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.roundRect(dx,dy,rw,rh,2);ctx.stroke();
+    // Selection glow
+    if(this.highlight){
+      ctx.shadowColor='#ffcc00';ctx.shadowBlur=12;
+      ctx.strokeStyle='#ffcc00';ctx.lineWidth=2;
+      ctx.beginPath();ctx.roundRect(dx-1,dy-1,rw+2,rh+2,3);ctx.stroke();
+      ctx.shadowBlur=0;
+    }
     ctx.restore();
   }
   contains(px,py){
@@ -163,30 +180,32 @@ function canRemoveBlock(b){
   return true;
 }
 
-function checkStructuralIntegrity(){
-  // Check if any row in the middle is completely empty → collapse!
+function checkStructuralIntegrity(justRemoved){
   const activeBlocks=blocks.filter(b=>!b.removed);
   if(activeBlocks.length===0)return false;
   const maxRow=Math.max(...activeBlocks.map(b=>b.row));
   const minRow=Math.min(...activeBlocks.map(b=>b.row));
+  // Empty row in middle = instant collapse
   for(let r=minRow;r<=maxRow;r++){
-    const rowCount=activeBlocks.filter(b=>b.row===r).length;
-    if(rowCount===0){
-      return true; // empty row in middle = collapse!
-    }
+    if(activeBlocks.filter(b=>b.row===r).length===0)return true;
   }
-  // Check if too many consecutive rows have only 1 block → unstable
+  // 4+ consecutive single-block rows = collapse
   let singleRowStreak=0;
   for(let r=minRow;r<=maxRow;r++){
-    const rowCount=activeBlocks.filter(b=>b.row===r).length;
-    if(rowCount===1)singleRowStreak++;
+    const cnt=activeBlocks.filter(b=>b.row===r).length;
+    if(cnt===1)singleRowStreak++;
     else singleRowStreak=0;
-    if(singleRowStreak>=3)return true; // 3+ consecutive single-block rows = collapse
+    if(singleRowStreak>=4)return true;
   }
-  // More blocks removed = more instability
-  const totalRemoved=ROWS*COLS-activeBlocks.length;
-  const collapseChance=totalRemoved*0.03;
-  if(Math.random()<collapseChance)return true;
+  // Only check probability when a block was just removed (not every frame)
+  if(justRemoved){
+    const totalRemoved=ROWS*COLS-activeBlocks.length;
+    // Starts at 0%, slowly increases: 0% until 8 removed, then ~2% per extra block
+    if(totalRemoved>8){
+      const chance=(totalRemoved-8)*0.02;
+      if(Math.random()<chance)return true;
+    }
+  }
   return false;
 }
 
@@ -257,14 +276,17 @@ function handleUp(e){
       const rowCounts={};
       activeBlocks.forEach(bl=>{rowCounts[bl.row]=(rowCounts[bl.row]||0)+1;});
       const singleRows=Object.values(rowCounts).filter(c=>c===1).length;
-      const instability=removedCount*0.8+singleRows*1.5+Math.random()*2;
-      towerTiltVel+=(Math.random()-0.5)*instability;
-      // Side block removal causes more tilt
-      if(b.col===0)towerTiltVel+=instability*0.3;
-      else if(b.col===2)towerTiltVel-=instability*0.3;
+      // Gradual instability: gentle at first, increases after 5+ removals
+      const instability=Math.max(0,removedCount-3)*0.4+singleRows*0.8+Math.random();
+      towerTiltVel+=(Math.random()-0.5)*instability*0.6;
+      // Side block removal causes slight tilt direction
+      if(b.col===0)towerTiltVel+=instability*0.15;
+      else if(b.col===2)towerTiltVel-=instability*0.15;
       score++;
       document.getElementById('sc').textContent=score;
       recalcAll();
+      // Structure check after placement
+      if(checkStructuralIntegrity(true))doCollapse();
     }else{
       b.beingDragged=false;
     }
@@ -282,24 +304,25 @@ canvas.addEventListener('touchstart',handleDown,{passive:false});
 canvas.addEventListener('touchmove',handleMove,{passive:false});
 canvas.addEventListener('touchend',handleUp,{passive:false});
 
+function doCollapse(){
+  gameOver=true;
+  document.getElementById('msgText').innerHTML='탑이 무너졌습니다!<br>🧱 '+score+'개 성공!';
+  document.getElementById('msg').style.display='block';
+  _hub('jenga',score);
+  towerTiltVel+=towerTilt>0?8:-8;
+}
 function checkCollapse(){
-  if(Math.abs(towerTilt)>12||checkStructuralIntegrity()){
-    gameOver=true;
-    document.getElementById('msgText').innerHTML='탑이 무너졌습니다!<br>🧱 '+score+'개 성공!';
-    document.getElementById('msg').style.display='block';
-    _hub('jenga',score);
-    // Collapse animation: increase tilt rapidly
-    towerTiltVel+=towerTilt>0?8:-8;
-  }
+  // Only tilt check per frame (structure check is on removal only)
+  if(Math.abs(towerTilt)>14)doCollapse();
 }
 
 function update(){
   if(gameOver)return;
-  towerTiltVel+=(-towerTilt*0.03); // spring force
-  towerTiltVel*=0.94; // damping
-  // Random wobble increases with removed blocks
-  const wobble=Math.min(removedCount*0.5,5);
-  towerTiltVel+=(Math.random()-0.5)*0.15*wobble;
+  towerTiltVel+=(-towerTilt*0.025); // spring force
+  towerTiltVel*=0.95; // damping
+  // Gentle wobble, increases gradually after 5 removals
+  const wobble=Math.max(0,removedCount-4)*0.3;
+  towerTiltVel+=(Math.random()-0.5)*0.08*(1+wobble);
   towerTilt+=towerTiltVel;
   checkCollapse();
   recalcAll();
@@ -307,11 +330,21 @@ function update(){
 
 function draw(){
   ctx.clearRect(0,0,W,H);
-  ctx.fillStyle='#0f0f1e';ctx.fillRect(0,0,W,H);
-  ctx.fillStyle='#1a1a2e';
-  ctx.fillRect(W/2-100,H-50,200,50);
-  ctx.fillStyle='#252540';
-  ctx.fillRect(W/2-90,H-50,180,8);
+  // Background gradient
+  const bgGrad=ctx.createLinearGradient(0,0,0,H);
+  bgGrad.addColorStop(0,'#0a0a18');bgGrad.addColorStop(1,'#151530');
+  ctx.fillStyle=bgGrad;ctx.fillRect(0,0,W,H);
+  // Table surface
+  const tableGrad=ctx.createLinearGradient(0,H-60,0,H);
+  tableGrad.addColorStop(0,'#2a1810');tableGrad.addColorStop(1,'#1a1008');
+  ctx.fillStyle=tableGrad;
+  ctx.beginPath();ctx.roundRect(W/2-120,H-55,240,55,8);ctx.fill();
+  // Table edge highlight
+  ctx.fillStyle='rgba(255,255,255,0.05)';
+  ctx.fillRect(W/2-115,H-55,230,3);
+  // Table shadow
+  ctx.fillStyle='rgba(0,0,0,0.3)';
+  ctx.beginPath();ctx.ellipse(W/2,H-52,100,6,0,0,Math.PI*2);ctx.fill();
   for(const b of blocks){
     b.draw();
   }
