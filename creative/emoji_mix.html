@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>이모지 믹서</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;min-height:100vh;padding:60px 12px 20px}
+h1{text-align:center;font-size:1.4em;margin-bottom:16px}
+.wrap{max-width:500px;margin:0 auto;text-align:center}
+.pick-label{font-size:14px;color:#aaa;margin-bottom:8px}
+.emoji-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-bottom:16px}
+.emoji-grid button{font-size:28px;width:50px;height:50px;background:#1a1a2e;border:2px solid #333;border-radius:10px;cursor:pointer;touch-action:manipulation;display:flex;align-items:center;justify-content:center}
+.emoji-grid button.selected{border-color:#4fc3f7;background:#1e3a5f}
+.selected-display{display:flex;align-items:center;justify-content:center;gap:12px;font-size:48px;margin:20px 0}
+.plus{font-size:32px;color:#4fc3f7}
+.equals{font-size:32px;color:#4fc3f7}
+.result-box{background:#1a1a2e;border:1px solid #333;border-radius:12px;padding:20px;margin:16px 0;min-height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.result-emoji{font-size:64px;margin-bottom:8px}
+.result-desc{font-size:16px;color:#ccc;line-height:1.5}
+.btn{background:#4fc3f7;color:#000;border:none;padding:12px 24px;border-radius:10px;font-size:15px;font-weight:bold;min-height:44px;touch-action:manipulation;cursor:pointer;margin:6px;font-family:inherit}
+.btn.secondary{background:#1a1a2e;color:#fff;border:1px solid #333}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+
+<div class="wrap">
+<h1>이모지 믹서</h1>
+<p class="pick-label">이모지 2개를 선택하세요!</p>
+
+<div class="emoji-grid" id="emojiGrid"></div>
+
+<div class="selected-display">
+<span id="pick1">?</span>
+<span class="plus">+</span>
+<span id="pick2">?</span>
+<span class="equals">=</span>
+<span id="resultEmoji">?</span>
+</div>
+
+<div class="result-box" id="resultBox">
+<div class="result-desc" id="resultDesc">이모지 2개를 선택하면 결과가 나타납니다!</div>
+</div>
+
+<button class="btn" onclick="mixEmojis()">믹스!</button>
+<button class="btn secondary" onclick="randomPick()">랜덤 선택</button>
+<button class="btn secondary" onclick="shareResult()">결과 복사</button>
+</div>
+
+<script>
+const EMOJIS=['😀','😎','🥺','😡','🤖','👻','💀','🔥','❄️','🌈','🦄','🐱','🐶','🐸','🦊','🐼','🍕','🍦','🎮','🎸','💎','🚀','⚡','💖','🌙','☀️','🌊','🍀','🎭','👑'];
+
+const COMBOS={
+'😀+😎':'😏 쿨하게 웃는 얼굴 - 자신감 넘치는 미소!',
+'😀+🥺':'🥹 감동받아 웃는 얼굴 - 행복한 눈물!',
+'😀+😡':'😤 웃으면서 화난 얼굴 - 억지 웃음!',
+'😎+🔥':'🤩 불타는 쿨가이 - 핫하고 멋진!',
+'🥺+💖':'😍 사랑에 빠진 눈 - 순수한 사랑!',
+'😡+🔥':'👹 분노의 불꽃 - 극한의 분노!',
+'🤖+💎':'⚙️ 다이아몬드 로봇 - 최첨단 AI!',
+'👻+💀':'☠️ 유령 해골 - 초자연적 공포!',
+'🐱+🐶':'🐾 캣독 - 최고의 반려동물 콤보!',
+'🐸+👑':'🤴 개구리 왕자 - 마법에 걸린 왕자!',
+'🍕+🍦':'🤤 피자 아이스크림 - 꿈의 디저트!',
+'🎮+🚀':'🕹️ 우주 게이머 - 은하계 최강!',
+'🌈+🦄':'✨ 레인보우 유니콘 - 마법의 존재!',
+'⚡+🌊':'🌪️ 폭풍 - 자연의 힘!',
+'🌙+☀️':'🌅 일출 - 밤과 낮의 만남!',
+'💀+🎭':'🃏 죽음의 가면 - 미스터리한 존재!',
+'🐼+🍀':'🎋 행운의 판다 - 대나무숲의 행운!',
+'🦊+🌙':'🐺 달빛 여우 - 신비로운 밤의 요정!',
+'🎸+🔥':'🤘 불타는 기타 - 록스타의 열정!',
+'👑+💎':'👸 다이아몬드 왕관 - 진정한 로열티!',
+'🚀+⚡':'💫 번개 로켓 - 빛의 속도!',
+'🐱+👻':'🙀 유령 고양이 - 소름끼치는 귀여움!',
+'🐶+🦊':'🐕 폭스 하운드 - 영리한 사냥개!',
+'💖+🌈':'💝 무지개 하트 - 무한한 사랑!',
+'🍕+🔥':'🌶️ 불타는 피자 - 매운맛 폭발!',
+'🎮+🤖':'🕹️ AI 게이머 - 무적의 플레이어!',
+'😀+👻':'😅 웃는 유령 - 유쾌한 귀신!',
+'❄️+🔥':'💨 증기 - 얼음과 불의 만남!',
+'🌊+🌙':'🌌 달빛 바다 - 고요한 밤바다!',
+'☀️+❄️':'🌤️ 겨울 태양 - 차가운 햇살!',
+};
+
+let pick1=null,pick2=null;
+
+function init(){
+const grid=document.getElementById('emojiGrid');
+EMOJIS.forEach(e=>{
+const b=document.createElement('button');
+b.textContent=e;
+b.onclick=()=>selectEmoji(e,b);
+grid.appendChild(b);
+});
+}
+
+function selectEmoji(emoji,btn){
+if(!pick1){
+pick1=emoji;
+document.getElementById('pick1').textContent=emoji;
+btn.classList.add('selected');
+}else if(!pick2&&emoji!==pick1){
+pick2=emoji;
+document.getElementById('pick2').textContent=emoji;
+btn.classList.add('selected');
+}else{
+document.querySelectorAll('.emoji-grid button').forEach(b=>b.classList.remove('selected'));
+pick1=emoji;pick2=null;
+document.getElementById('pick1').textContent=emoji;
+document.getElementById('pick2').textContent='?';
+document.getElementById('resultEmoji').textContent='?';
+document.getElementById('resultDesc').textContent='이모지를 하나 더 선택하세요!';
+btn.classList.add('selected');
+}
+}
+
+function mixEmojis(){
+if(!pick1||!pick2){document.getElementById('resultDesc').textContent='이모지 2개를 선택해주세요!';return}
+const key1=pick1+'+'+pick2;
+const key2=pick2+'+'+pick1;
+let result=COMBOS[key1]||COMBOS[key2];
+if(!result) result=generateRandom(pick1,pick2);
+const emoji=result.split(' ')[0];
+const desc=result.substring(result.indexOf(' ')+1);
+document.getElementById('resultEmoji').textContent=emoji;
+document.getElementById('resultDesc').textContent=desc;
+}
+
+function generateRandom(e1,e2){
+const results=[
+'🎲 신비한 조합 - 세상에 없던 새로운 존재가 탄생했습니다!',
+'✨ 마법의 합체 - 우주가 놀란 놀라운 조합!',
+'🌟 빛나는 혼합 - 예상치 못한 멋진 결과!',
+'💫 환상의 콤보 - 전설 속 존재가 현실로!',
+'🎆 폭발적 조합 - 엄청난 에너지가 느껴집니다!',
+'🔮 예언의 결합 - 운명적인 만남이었습니다!',
+'🌀 소용돌이 믹스 - 차원을 초월한 조합!',
+'💥 대폭발 콤보 - 빅뱅급 새로운 탄생!'
+];
+return results[Math.floor(Math.random()*results.length)];
+}
+
+function randomPick(){
+document.querySelectorAll('.emoji-grid button').forEach(b=>b.classList.remove('selected'));
+const shuffled=[...EMOJIS].sort(()=>Math.random()-0.5);
+pick1=shuffled[0];pick2=shuffled[1];
+document.getElementById('pick1').textContent=pick1;
+document.getElementById('pick2').textContent=pick2;
+const btns=document.querySelectorAll('.emoji-grid button');
+btns.forEach(b=>{if(b.textContent===pick1||b.textContent===pick2)b.classList.add('selected')});
+mixEmojis();
+}
+
+function shareResult(){
+const e1=document.getElementById('pick1').textContent;
+const e2=document.getElementById('pick2').textContent;
+const r=document.getElementById('resultEmoji').textContent;
+const d=document.getElementById('resultDesc').textContent;
+const text=`${e1} + ${e2} = ${r}\n${d}`;
+navigator.clipboard.writeText(text);
+}
+
+init();
+</script>
+</body>
+</html>

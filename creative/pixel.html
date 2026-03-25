@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>픽셀아트 에디터</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;min-height:100vh;padding:60px 10px 20px}
+h1{text-align:center;font-size:1.4em;margin-bottom:12px}
+.controls{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-bottom:12px;padding:0 4px}
+.controls button,.controls select{background:#1a1a2e;color:#fff;border:1px solid #333;padding:10px 16px;border-radius:8px;font-size:14px;min-width:44px;min-height:44px;touch-action:manipulation;cursor:pointer;font-family:inherit}
+.controls button.active{border-color:#4fc3f7;background:#1e3a5f}
+.controls button:hover{background:#2a2a4e}
+.palette{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin-bottom:12px}
+.palette .swatch{width:36px;height:36px;border-radius:6px;border:2px solid transparent;cursor:pointer;min-width:36px;min-height:36px;touch-action:manipulation}
+.palette .swatch.active{border-color:#fff;box-shadow:0 0 6px #fff}
+.canvas-wrap{display:flex;justify-content:center;overflow:auto;margin-bottom:12px}
+#pixelCanvas{border:1px solid #333;touch-action:none;image-rendering:pixelated}
+.export-wrap{text-align:center}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+
+<h1>픽셀아트 에디터</h1>
+
+<div class="controls">
+<select id="gridSize">
+<option value="16">16x16</option>
+<option value="32">32x32</option>
+</select>
+<button id="btnPen" class="active">펜</button>
+<button id="btnEraser">지우개</button>
+<button id="btnFill">채우기</button>
+<button id="btnClear">전체 지우기</button>
+</div>
+
+<div class="palette" id="palette"></div>
+
+<div class="canvas-wrap">
+<canvas id="pixelCanvas"></canvas>
+</div>
+
+<div class="export-wrap">
+<button onclick="exportPNG()" style="background:#4fc3f7;color:#000;border:none;padding:12px 28px;border-radius:10px;font-size:16px;font-weight:bold;min-height:44px;touch-action:manipulation;cursor:pointer">PNG로 저장</button>
+</div>
+
+<script>
+const COLORS=['#000000','#ffffff','#ff0000','#00ff00','#0000ff','#ffff00','#ff00ff','#00ffff','#ff8800','#8800ff','#008800','#880000','#000088','#888888','#ffaacc','#aaddff'];
+const canvas=document.getElementById('pixelCanvas');
+const ctx=canvas.getContext('2d');
+let gridSize=16,cellSize,currentColor=COLORS[0],tool='pen';
+let grid=[];
+let painting=false;
+
+function initPalette(){
+const p=document.getElementById('palette');
+p.innerHTML='';
+COLORS.forEach((c,i)=>{
+const d=document.createElement('div');
+d.className='swatch'+(i===0?' active':'');
+d.style.background=c;
+d.onclick=()=>{
+document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('active'));
+d.classList.add('active');
+currentColor=c;
+};
+p.appendChild(d);
+});
+}
+
+function initGrid(){
+gridSize=parseInt(document.getElementById('gridSize').value);
+const maxW=Math.min(window.innerWidth-20,500);
+cellSize=Math.floor(maxW/gridSize);
+canvas.width=gridSize*cellSize;
+canvas.height=gridSize*cellSize;
+grid=[];
+for(let y=0;y<gridSize;y++){
+grid[y]=[];
+for(let x=0;x<gridSize;x++) grid[y][x]=null;
+}
+draw();
+}
+
+function draw(){
+ctx.fillStyle='#1a1a2e';
+ctx.fillRect(0,0,canvas.width,canvas.height);
+for(let y=0;y<gridSize;y++){
+for(let x=0;x<gridSize;x++){
+if(grid[y][x]){
+ctx.fillStyle=grid[y][x];
+ctx.fillRect(x*cellSize,y*cellSize,cellSize,cellSize);
+}
+ctx.strokeStyle='#2a2a3e';
+ctx.strokeRect(x*cellSize,y*cellSize,cellSize,cellSize);
+}}
+}
+
+function getCell(e){
+const r=canvas.getBoundingClientRect();
+let cx,cy;
+if(e.touches){cx=e.touches[0].clientX;cy=e.touches[0].clientY}
+else{cx=e.clientX;cy=e.clientY}
+const x=Math.floor((cx-r.left)/cellSize);
+const y=Math.floor((cy-r.top)/cellSize);
+if(x>=0&&x<gridSize&&y>=0&&y<gridSize) return{x,y};
+return null;
+}
+
+function paint(e){
+const c=getCell(e);
+if(!c) return;
+if(tool==='pen'){grid[c.y][c.x]=currentColor;draw()}
+else if(tool==='eraser'){grid[c.y][c.x]=null;draw()}
+else if(tool==='fill'){floodFill(c.x,c.y,grid[c.y][c.x],currentColor);draw()}
+}
+
+function floodFill(x,y,target,replacement){
+if(target===replacement) return;
+if(x<0||x>=gridSize||y<0||y>=gridSize) return;
+if(grid[y][x]!==target) return;
+grid[y][x]=replacement;
+floodFill(x+1,y,target,replacement);
+floodFill(x-1,y,target,replacement);
+floodFill(x,y+1,target,replacement);
+floodFill(x,y-1,target,replacement);
+}
+
+canvas.addEventListener('pointerdown',e=>{e.preventDefault();painting=true;paint(e)});
+canvas.addEventListener('pointermove',e=>{e.preventDefault();if(painting&&tool!=='fill')paint(e)});
+canvas.addEventListener('pointerup',()=>painting=false);
+canvas.addEventListener('pointerleave',()=>painting=false);
+
+document.getElementById('btnPen').onclick=()=>{tool='pen';updateToolBtns()};
+document.getElementById('btnEraser').onclick=()=>{tool='eraser';updateToolBtns()};
+document.getElementById('btnFill').onclick=()=>{tool='fill';updateToolBtns()};
+document.getElementById('btnClear').onclick=()=>{grid=[];initGrid()};
+document.getElementById('gridSize').onchange=initGrid;
+
+function updateToolBtns(){
+document.getElementById('btnPen').classList.toggle('active',tool==='pen');
+document.getElementById('btnEraser').classList.toggle('active',tool==='eraser');
+document.getElementById('btnFill').classList.toggle('active',tool==='fill');
+}
+
+function exportPNG(){
+const ec=document.createElement('canvas');
+ec.width=gridSize;ec.height=gridSize;
+const ectx=ec.getContext('2d');
+for(let y=0;y<gridSize;y++)for(let x=0;x<gridSize;x++){
+if(grid[y][x]){ectx.fillStyle=grid[y][x];ectx.fillRect(x,y,1,1)}
+}
+const link=document.createElement('a');
+link.download='pixel_art.png';
+link.href=ec.toDataURL();
+link.click();
+}
+
+initPalette();
+initGrid();
+</script>
+</body>
+</html>

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>아바타 만들기</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;min-height:100vh;padding:60px 12px 20px}
+h1{text-align:center;font-size:1.4em;margin-bottom:14px}
+.wrap{max-width:500px;margin:0 auto}
+.canvas-wrap{display:flex;justify-content:center;margin-bottom:14px}
+canvas{border-radius:12px;border:1px solid #333;background:#1a1a2e}
+.section{margin-bottom:12px}
+.section-title{font-size:13px;color:#aaa;margin-bottom:6px}
+.options{display:flex;flex-wrap:wrap;gap:6px}
+.options button{background:#1a1a2e;color:#fff;border:2px solid #333;padding:8px 14px;border-radius:8px;font-size:13px;min-height:40px;cursor:pointer;touch-action:manipulation;font-family:inherit}
+.options button.active{border-color:#4fc3f7;background:#1e3a5f}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:14px}
+.btn{background:#4fc3f7;color:#000;border:none;padding:12px 20px;border-radius:10px;font-size:15px;font-weight:bold;min-height:44px;touch-action:manipulation;cursor:pointer;font-family:inherit}
+.btn.secondary{background:#1a1a2e;color:#fff;border:1px solid #333}
+.color-options{display:flex;flex-wrap:wrap;gap:6px}
+.color-options button{width:36px;height:36px;border-radius:50%;border:2px solid #333;cursor:pointer;padding:0;min-height:36px}
+.color-options button.active{border-color:#fff;box-shadow:0 0 6px #fff}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+
+<div class="wrap">
+<h1>아바타 만들기</h1>
+
+<div class="canvas-wrap">
+<canvas id="avatarCanvas" width="300" height="300"></canvas>
+</div>
+
+<div class="section">
+<div class="section-title">얼굴형</div>
+<div class="options" id="faceOpts"></div>
+</div>
+<div class="section">
+<div class="section-title">피부색</div>
+<div class="color-options" id="skinOpts"></div>
+</div>
+<div class="section">
+<div class="section-title">눈</div>
+<div class="options" id="eyeOpts"></div>
+</div>
+<div class="section">
+<div class="section-title">입</div>
+<div class="options" id="mouthOpts"></div>
+</div>
+<div class="section">
+<div class="section-title">헤어</div>
+<div class="options" id="hairOpts"></div>
+</div>
+<div class="section">
+<div class="section-title">머리 색상</div>
+<div class="color-options" id="hairColorOpts"></div>
+</div>
+<div class="section">
+<div class="section-title">악세서리</div>
+<div class="options" id="accessoryOpts"></div>
+</div>
+
+<div class="btn-row">
+<button class="btn" onclick="savePNG()">PNG 저장</button>
+<button class="btn secondary" onclick="randomize()">랜덤</button>
+</div>
+</div>
+
+<script>
+const canvas=document.getElementById('avatarCanvas');
+const ctx=canvas.getContext('2d');
+const W=300,H=300;
+
+const FACES=[{name:'둥근형',id:'round'},{name:'타원형',id:'oval'},{name:'각진형',id:'square'},{name:'하트형',id:'heart'}];
+const SKINS=['#fdbcb4','#f1c27d','#e0ac69','#c68642','#8d5524','#ffdbac'];
+const EYES=[{name:'기본',id:'normal'},{name:'큰눈',id:'big'},{name:'윙크',id:'wink'},{name:'졸린눈',id:'sleepy'},{name:'별눈',id:'star'},{name:'하트눈',id:'heart'}];
+const MOUTHS=[{name:'미소',id:'smile'},{name:'활짝',id:'grin'},{name:'무표정',id:'flat'},{name:'놀람',id:'oh'},{name:'혀',id:'tongue'}];
+const HAIRS=[{name:'없음',id:'none'},{name:'짧은머리',id:'short'},{name:'긴머리',id:'long'},{name:'곱슬',id:'curly'},{name:'포니테일',id:'ponytail'},{name:'모히칸',id:'mohawk'}];
+const HAIR_COLORS=['#1a1a1a','#4a2f1b','#8B4513','#d4a017','#c0392b','#2980b9','#8e44ad','#e91e63'];
+const ACCESSORIES=[{name:'없음',id:'none'},{name:'안경',id:'glasses'},{name:'선글라스',id:'sunglasses'},{name:'모자',id:'hat'},{name:'왕관',id:'crown'},{name:'귀걸이',id:'earring'}];
+
+let state={face:'round',skin:'#fdbcb4',eyes:'normal',mouth:'smile',hair:'short',hairColor:'#1a1a1a',accessory:'none'};
+
+function makeButtons(containerId,items,key,isColor){
+const el=document.getElementById(containerId);
+el.innerHTML='';
+items.forEach((item,i)=>{
+const b=document.createElement('button');
+if(isColor){
+b.style.background=item;
+b.className=state[key]===item?'active':'';
+b.onclick=()=>{state[key]=item;makeButtons(containerId,items,key,true);render()};
+}else{
+b.textContent=item.name;
+b.className=state[key]===item.id?'active':'';
+b.onclick=()=>{state[key]=item.id;makeButtons(containerId,items,key,false);render()};
+}
+el.appendChild(b);
+});
+}
+
+function render(){
+ctx.clearRect(0,0,W,H);
+ctx.fillStyle='#1a1a2e';ctx.fillRect(0,0,W,H);
+const cx=150,cy=160;
+// Hair behind
+drawHairBack(cx,cy);
+// Face
+drawFace(cx,cy);
+// Eyes
+drawEyes(cx,cy);
+// Mouth
+drawMouth(cx,cy);
+// Hair front
+drawHairFront(cx,cy);
+// Accessory
+drawAccessory(cx,cy);
+}
+
+function drawFace(cx,cy){
+ctx.fillStyle=state.skin;
+ctx.beginPath();
+if(state.face==='round') ctx.arc(cx,cy,80,0,Math.PI*2);
+else if(state.face==='oval') ctx.ellipse(cx,cy,70,90,0,0,Math.PI*2);
+else if(state.face==='square'){roundRect(cx-70,cy-80,140,160,20);return}
+else if(state.face==='heart'){
+ctx.moveTo(cx,cy+80);
+ctx.bezierCurveTo(cx-100,cy+20,cx-80,cy-80,cx,cy-40);
+ctx.bezierCurveTo(cx+80,cy-80,cx+100,cy+20,cx,cy+80);
+}
+ctx.fill();
+}
+
+function roundRect(x,y,w,h,r){
+ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);
+ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.fill();
+}
+
+function drawEyes(cx,cy){
+const ey=cy-15,lx=cx-25,rx=cx+25;
+ctx.fillStyle='#fff';
+if(state.eyes==='normal'||state.eyes==='wink'){
+ctx.beginPath();ctx.ellipse(lx,ey,12,14,0,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#333';ctx.beginPath();ctx.arc(lx,ey,6,0,Math.PI*2);ctx.fill();
+if(state.eyes==='wink'){ctx.strokeStyle='#333';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(rx-10,ey);ctx.quadraticCurveTo(rx,ey+8,rx+10,ey);ctx.stroke()}
+else{ctx.fillStyle='#fff';ctx.beginPath();ctx.ellipse(rx,ey,12,14,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#333';ctx.beginPath();ctx.arc(rx,ey,6,0,Math.PI*2);ctx.fill()}
+}else if(state.eyes==='big'){
+[lx,rx].forEach(x=>{ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(x,ey,16,0,Math.PI*2);ctx.fill();ctx.fillStyle='#333';ctx.beginPath();ctx.arc(x,ey,8,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(x+4,ey-4,3,0,Math.PI*2);ctx.fill()});
+}else if(state.eyes==='sleepy'){
+ctx.strokeStyle='#333';ctx.lineWidth=3;
+[lx,rx].forEach(x=>{ctx.beginPath();ctx.moveTo(x-10,ey);ctx.quadraticCurveTo(x,ey+6,x+10,ey);ctx.stroke()});
+}else if(state.eyes==='star'){
+[lx,rx].forEach(x=>{drawStar(x,ey,8,'#f1c40f')});
+}else if(state.eyes==='heart'){
+[lx,rx].forEach(x=>{drawHeart(x,ey,14,'#e74c3c')});
+}
+}
+
+function drawStar(x,y,r,color){
+ctx.fillStyle=color;ctx.beginPath();
+for(let i=0;i<5;i++){
+ctx.lineTo(x+r*Math.cos((i*72-90)*Math.PI/180),y+r*Math.sin((i*72-90)*Math.PI/180));
+ctx.lineTo(x+r*0.4*Math.cos((i*72-54)*Math.PI/180),y+r*0.4*Math.sin((i*72-54)*Math.PI/180));
+}ctx.closePath();ctx.fill();
+}
+
+function drawHeart(x,y,s,color){
+ctx.fillStyle=color;ctx.beginPath();
+ctx.moveTo(x,y+s*0.4);
+ctx.bezierCurveTo(x-s*0.5,y-s*0.3,x-s,y+s*0.1,x,y+s*0.6);
+ctx.bezierCurveTo(x+s,y+s*0.1,x+s*0.5,y-s*0.3,x,y+s*0.4);
+ctx.fill();
+}
+
+function drawMouth(cx,cy){
+const my=cy+30;
+ctx.strokeStyle='#333';ctx.lineWidth=3;ctx.fillStyle='#e74c3c';
+if(state.mouth==='smile'){ctx.beginPath();ctx.arc(cx,my-5,20,0.1*Math.PI,0.9*Math.PI);ctx.stroke()}
+else if(state.mouth==='grin'){ctx.beginPath();ctx.arc(cx,my-5,25,0,Math.PI);ctx.fill();ctx.fillStyle='#fff';ctx.fillRect(cx-20,my-5,40,8)}
+else if(state.mouth==='flat'){ctx.beginPath();ctx.moveTo(cx-18,my);ctx.lineTo(cx+18,my);ctx.stroke()}
+else if(state.mouth==='oh'){ctx.fillStyle='#333';ctx.beginPath();ctx.ellipse(cx,my,10,14,0,0,Math.PI*2);ctx.fill()}
+else if(state.mouth==='tongue'){ctx.beginPath();ctx.arc(cx,my-5,20,0.1*Math.PI,0.9*Math.PI);ctx.stroke();ctx.fillStyle='#e74c3c';ctx.beginPath();ctx.ellipse(cx,my+10,8,12,0,0,Math.PI);ctx.fill()}
+}
+
+function drawHairBack(cx,cy){
+if(state.hair==='none') return;
+ctx.fillStyle=state.hairColor;
+if(state.hair==='long'){ctx.beginPath();ctx.ellipse(cx,cy-20,90,100,0,0,Math.PI*2);ctx.fill();ctx.fillRect(cx-85,cy,30,120);ctx.fillRect(cx+55,cy,30,120)}
+else if(state.hair==='ponytail'){ctx.beginPath();ctx.ellipse(cx,cy-30,85,80,0,Math.PI,2*Math.PI);ctx.fill();ctx.fillRect(cx+50,cy-30,20,120);ctx.beginPath();ctx.ellipse(cx+60,cy+80,15,20,0,0,Math.PI*2);ctx.fill()}
+}
+
+function drawHairFront(cx,cy){
+if(state.hair==='none') return;
+ctx.fillStyle=state.hairColor;
+if(state.hair==='short'){ctx.beginPath();ctx.ellipse(cx,cy-50,78,50,0,Math.PI,2*Math.PI);ctx.fill();ctx.fillRect(cx-75,cy-60,150,30)}
+else if(state.hair==='long'){ctx.beginPath();ctx.ellipse(cx,cy-55,80,45,0,Math.PI,2*Math.PI);ctx.fill()}
+else if(state.hair==='curly'){
+for(let i=0;i<10;i++){const a=Math.PI+i*Math.PI/9;const x=cx+85*Math.cos(a);const y=cy-30+70*Math.sin(a);ctx.beginPath();ctx.arc(x,y,22,0,Math.PI*2);ctx.fill()}
+ctx.beginPath();ctx.ellipse(cx,cy-55,75,40,0,Math.PI,2*Math.PI);ctx.fill();
+}else if(state.hair==='ponytail'){ctx.beginPath();ctx.ellipse(cx,cy-55,80,40,0,Math.PI,2*Math.PI);ctx.fill()}
+else if(state.hair==='mohawk'){ctx.fillRect(cx-12,cy-130,24,90);
+for(let i=0;i<5;i++){ctx.beginPath();ctx.arc(cx,cy-130+i*18,16,0,Math.PI*2);ctx.fill()}}
+}
+
+function drawAccessory(cx,cy){
+const ey=cy-15;
+if(state.accessory==='glasses'){
+ctx.strokeStyle='#333';ctx.lineWidth=3;
+ctx.beginPath();ctx.arc(cx-25,ey,18,0,Math.PI*2);ctx.stroke();
+ctx.beginPath();ctx.arc(cx+25,ey,18,0,Math.PI*2);ctx.stroke();
+ctx.beginPath();ctx.moveTo(cx-7,ey);ctx.lineTo(cx+7,ey);ctx.stroke();
+ctx.beginPath();ctx.moveTo(cx-43,ey);ctx.lineTo(cx-60,ey-5);ctx.stroke();
+ctx.beginPath();ctx.moveTo(cx+43,ey);ctx.lineTo(cx+60,ey-5);ctx.stroke();
+}else if(state.accessory==='sunglasses'){
+ctx.fillStyle='#111';
+ctx.beginPath();ctx.arc(cx-25,ey,20,0,Math.PI*2);ctx.fill();
+ctx.beginPath();ctx.arc(cx+25,ey,20,0,Math.PI*2);ctx.fill();
+ctx.strokeStyle='#333';ctx.lineWidth=3;
+ctx.beginPath();ctx.moveTo(cx-5,ey);ctx.lineTo(cx+5,ey);ctx.stroke();
+ctx.beginPath();ctx.moveTo(cx-45,ey);ctx.lineTo(cx-65,ey-8);ctx.stroke();
+ctx.beginPath();ctx.moveTo(cx+45,ey);ctx.lineTo(cx+65,ey-8);ctx.stroke();
+}else if(state.accessory==='hat'){
+ctx.fillStyle='#2c3e50';
+ctx.fillRect(cx-50,cy-90,100,10);
+ctx.fillRect(cx-35,cy-130,70,45);
+}else if(state.accessory==='crown'){
+ctx.fillStyle='#f1c40f';
+ctx.beginPath();ctx.moveTo(cx-30,cy-85);ctx.lineTo(cx-30,cy-115);ctx.lineTo(cx-15,cy-100);
+ctx.lineTo(cx,cy-120);ctx.lineTo(cx+15,cy-100);ctx.lineTo(cx+30,cy-115);ctx.lineTo(cx+30,cy-85);ctx.closePath();ctx.fill();
+ctx.fillStyle='#e74c3c';ctx.beginPath();ctx.arc(cx,cy-95,4,0,Math.PI*2);ctx.fill();
+}else if(state.accessory==='earring'){
+ctx.fillStyle='#f1c40f';
+ctx.beginPath();ctx.arc(cx-72,cy+15,6,0,Math.PI*2);ctx.fill();
+ctx.beginPath();ctx.arc(cx+72,cy+15,6,0,Math.PI*2);ctx.fill();
+}
+}
+
+function initUI(){
+makeButtons('faceOpts',FACES,'face',false);
+makeButtons('skinOpts',SKINS,'skin',true);
+makeButtons('eyeOpts',EYES,'eyes',false);
+makeButtons('mouthOpts',MOUTHS,'mouth',false);
+makeButtons('hairOpts',HAIRS,'hair',false);
+makeButtons('hairColorOpts',HAIR_COLORS,'hairColor',true);
+makeButtons('accessoryOpts',ACCESSORIES,'accessory',false);
+render();
+}
+
+function randomize(){
+state.face=FACES[Math.floor(Math.random()*FACES.length)].id;
+state.skin=SKINS[Math.floor(Math.random()*SKINS.length)];
+state.eyes=EYES[Math.floor(Math.random()*EYES.length)].id;
+state.mouth=MOUTHS[Math.floor(Math.random()*MOUTHS.length)].id;
+state.hair=HAIRS[Math.floor(Math.random()*HAIRS.length)].id;
+state.hairColor=HAIR_COLORS[Math.floor(Math.random()*HAIR_COLORS.length)];
+state.accessory=ACCESSORIES[Math.floor(Math.random()*ACCESSORIES.length)].id;
+initUI();
+}
+
+function savePNG(){
+const link=document.createElement('a');
+link.download='avatar.png';
+link.href=canvas.toDataURL();
+link.click();
+}
+
+initUI();
+</script>
+</body>
+</html>
