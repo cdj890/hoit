@@ -6,365 +6,392 @@
 <title>젠가</title>
 <meta name="description" content="hoit.me - 젠가 | 무료 웹 게임. 설치 없이 브라우저에서 바로 즐기세요!">
 <meta property="og:title" content="젠가 - hoit">
-<meta property="og:description" content="hoit.me - 젠가 | 무료 웹 게임. 설치 없이 브라우저에서 바로 즐기세요!">
+<meta property="og:description" content="hoit.me - 젠가 | 무료 웹 게임.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://hoit.me/games/jenga.html">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-user-select:none;user-select:none}
-body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;overflow:hidden;touch-action:none}
+*{margin:0;padding:0;box-sizing:border-box;user-select:none}
+body{background:#0f0f1e;color:#fff;font-family:sans-serif;overflow:hidden;touch-action:none}
 canvas{display:block;margin:0 auto}
-#ui{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:100}
-#score{position:fixed;top:12px;right:12px;font-size:18px;font-weight:bold;background:rgba(0,0,0,.6);padding:8px 16px;border-radius:8px;z-index:100}
-#msg{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:28px;font-weight:bold;text-align:center;display:none;background:rgba(0,0,0,.85);padding:24px 36px;border-radius:16px;z-index:200;pointer-events:auto}
-#msg button{margin-top:16px;padding:12px 32px;font-size:18px;border:none;border-radius:10px;background:#4a6;color:#fff;font-weight:bold;cursor:pointer;touch-action:manipulation}
-#help{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);font-size:13px;color:#aaa;background:rgba(0,0,0,.5);padding:6px 14px;border-radius:8px;z-index:100;text-align:center}
+#hud{position:fixed;top:50px;left:0;width:100%;text-align:center;font-size:14px;z-index:50;pointer-events:none}
+#hud span{background:rgba(0,0,0,0.6);padding:4px 12px;border-radius:8px;margin:0 4px}
+#overlay{position:fixed;inset:0;background:rgba(15,15,30,0.95);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:200;text-align:center;padding:20px}
+#overlay.hidden{display:none}
+#overlay h1{font-size:36px;margin-bottom:10px}
+#overlay p{color:#aaa;font-size:14px;max-width:320px;line-height:1.6;margin-bottom:20px}
+.btn{background:#7B68EE;border:none;color:#fff;padding:14px 36px;border-radius:12px;font-size:18px;font-weight:bold;cursor:pointer;touch-action:manipulation;min-height:44px;margin:4px}
+.btn:active{transform:scale(0.95)}
+.btn-sm{padding:10px 16px;font-size:14px;border-radius:8px}
+.btn-red{background:#EF5350}
+#msg{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);display:none;z-index:300;background:rgba(0,0,0,0.9);padding:30px;border-radius:16px;text-align:center}
+#msg h2{font-size:28px;margin-bottom:8px}
+#msg p{color:#aaa;margin-bottom:16px}
+#controls{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:50}
 </style>
 </head>
 <body>
 <a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
-<div id="score">점수: <span id="sc">0</span></div>
-<div id="help">블록을 터치하여 선택 → 드래그하여 빼내기</div>
-<div id="msg"><div id="msgText"></div><button onclick="restartGame()">다시 하기</button></div>
+<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
+
+<div id="overlay">
+<h1>🧩 젠가</h1>
+<p>블록을 터치하여 빼고 맨 위에 올리세요!<br>한 줄에 최소 1개는 남겨야 합니다.<br>맨 위 줄에서는 뺄 수 없어요.<br>타워가 무너지면 게임 오버!</p>
+<button class="btn" onclick="startGame()">게임 시작</button>
+</div>
+
+<div id="hud">
+<span>🧱 <b id="sc">0</b>개 이동</span>
+<span>흔들림: <b id="tiltDisp">안정</b></span>
+</div>
+
 <canvas id="c"></canvas>
 
+<div id="controls">
+<button class="btn btn-sm btn-red" onclick="undoMove()">↩ 되돌리기</button>
+</div>
+
+<div id="msg">
+<h2 id="msgTitle">💥 무너졌다!</h2>
+<p id="msgSub"></p>
+<button class="btn" onclick="startGame()">다시 하기</button>
+</div>
+
 <script>
-const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
-let W,H,scale;
-function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;scale=Math.min(W/400,H/700)}
-resize();window.addEventListener('resize',resize);
+const C=document.getElementById('c'),X=C.getContext('2d');
+const W=Math.min(window.innerWidth,420);
+const H=Math.min(window.innerHeight-20,700);
+C.width=W;C.height=H;
 
-const ROWS=18,COLS=3;
-const BW=50,BH=14,GAP=1;
-const COLORS=['#c0813a','#d4955a','#b87530','#c8884a','#a06828','#d89e60'];
+const COLS=3,ROWS=12;
+const BW=Math.floor((W-80)/COLS)-2; // block width
+const BH=18; // block height
+const GAP=1;
+const TOWER_W=COLS*BW+GAP*(COLS-1);
+const BASE_X=W/2-TOWER_W/2;
+const BASE_Y=H-70;
+const COLORS=['#c8844a','#d49560','#b07030','#daa070','#a06828','#c07838'];
 
-let blocks=[],score=0,gameOver=false,selectedBlock=null,dragging=false,dragX=0,dragY=0;
-let towerTilt=0,towerTiltVel=0,removedCount=0;
-let mouseX=0,mouseY=0,mouseDown=false;
+let grid=[]; // grid[row][col] = block or null
+let score=0,gameOver=false,tilt=0,tiltVel=0;
+let selected=null,removedHistory=[];
+let shakeTimer=0;
 
-class Block{
-  constructor(row,col,horizontal){
-    this.row=row;this.col=col;this.horizontal=horizontal;
-    this.removed=false;this.placed=false;this.onTower=true;
-    this.color=COLORS[(row*3+col)%COLORS.length];
-    this.highlight=false;
-    this.x=0;this.y=0;this.w=0;this.h=0;
-    this.dragOffX=0;this.dragOffY=0;
-    this.beingDragged=false;
-    this.settled=true;
-    this.fallY=0;this.fallVel=0;
-    this.calcPosition();
-  }
-  calcPosition(){
-    const baseX=W/2;
-    const baseY=H-60;
-    const towerW=BW*COLS+GAP*(COLS-1);
-    const towerH=BH+GAP;
-    if(this.horizontal){
-      this.w=BW;this.h=BH;
-      this.x=baseX-towerW/2+this.col*(BW+GAP)+Math.sin(towerTilt*0.02)*this.row*1.5;
-      this.y=baseY-this.row*towerH+this.fallY;
-    }else{
-      this.w=BH;this.h=BW;
-      const blockW=BH;
-      const totalW=blockW*COLS+GAP*(COLS-1);
-      this.x=baseX-totalW/2+this.col*(blockW+GAP)+Math.sin(towerTilt*0.02)*this.row*1.5;
-      this.y=baseY-this.row*(BH+GAP)-(BW-BH)/2+this.fallY;
-      this.h=BH;this.w=BW;
-      this.x=baseX-towerW/2+this.col*(BW+GAP)+Math.sin(towerTilt*0.02)*this.row*1.5;
-      this.y=baseY-this.row*towerH+this.fallY;
-    }
-  }
-  draw(){
-    if(this.removed&&!this.beingDragged)return;
-    let dx=this.beingDragged?dragX-this.dragOffX:this.x;
-    let dy=this.beingDragged?dragY-this.dragOffY:this.y;
-    let rw=BW,rh=BH;
-    ctx.save();
-    // Shadow
-    ctx.fillStyle='rgba(0,0,0,0.25)';
-    ctx.beginPath();ctx.roundRect(dx+2,dy+2,rw,rh,2);ctx.fill();
-    // Block body with wood gradient
-    const grad=ctx.createLinearGradient(dx,dy,dx,dy+rh);
-    const baseColor=this.highlight?'#ffdd44':this.beingDragged?'#ffcc00':this.color;
-    grad.addColorStop(0,baseColor);
-    grad.addColorStop(0.5,this.highlight?'#ffee88':this.color);
-    grad.addColorStop(1,baseColor);
-    ctx.fillStyle=grad;
-    if(this.beingDragged)ctx.globalAlpha=0.85;
-    ctx.beginPath();ctx.roundRect(dx,dy,rw,rh,2);ctx.fill();
-    // Wood grain lines
-    ctx.strokeStyle='rgba(0,0,0,0.08)';ctx.lineWidth=0.5;
-    for(let i=3;i<rw-3;i+=6){
-      ctx.beginPath();ctx.moveTo(dx+i,dy+1);ctx.lineTo(dx+i+2,dy+rh-1);ctx.stroke();
-    }
-    // Top edge highlight
-    ctx.fillStyle='rgba(255,255,255,0.15)';
-    ctx.fillRect(dx+1,dy,rw-2,2);
-    // Border
-    ctx.strokeStyle='rgba(0,0,0,0.2)';ctx.lineWidth=1;
-    ctx.beginPath();ctx.roundRect(dx,dy,rw,rh,2);ctx.stroke();
-    // Selection glow
-    if(this.highlight){
-      ctx.shadowColor='#ffcc00';ctx.shadowBlur=12;
-      ctx.strokeStyle='#ffcc00';ctx.lineWidth=2;
-      ctx.beginPath();ctx.roundRect(dx-1,dy-1,rw+2,rh+2,3);ctx.stroke();
-      ctx.shadowBlur=0;
-    }
-    ctx.restore();
-  }
-  contains(px,py){
-    let rw,rh;
-    if(this.horizontal){rw=BW;rh=BH}else{rw=BH;rh=BW}
-    return px>=this.x&&px<=this.x+rw&&py>=this.y&&py<=this.y+rh;
-  }
-}
-
-function initGame(){
-  blocks=[];score=0;gameOver=false;selectedBlock=null;dragging=false;
-  towerTilt=0;towerTiltVel=0;removedCount=0;
-  document.getElementById('sc').textContent='0';
-  document.getElementById('msg').style.display='none';
+function initGrid(){
+  grid=[];
   for(let r=0;r<ROWS;r++){
-    let horiz=r%2===0;
+    grid[r]=[];
     for(let c=0;c<COLS;c++){
-      blocks.push(new Block(r,c,horiz));
+      grid[r][c]={row:r,col:c,color:COLORS[(r*3+c)%COLORS.length]};
     }
   }
-  recalcAll();
 }
 
-function recalcAll(){
-  const baseX=W/2;
-  const baseY=H-80;
-  const tiltOffset=(row)=>Math.sin(towerTilt*0.05)*row*2;
-  blocks.forEach(b=>{
-    if(b.removed&&!b.beingDragged)return;
-    if(b.beingDragged)return;
-    let rw,rh;
-    if(b.horizontal){rw=BW;rh=BH}else{rw=BH;rh=BW}
-    const towerW=BW*COLS+GAP*(COLS-1);
-    if(b.horizontal){
-      b.x=baseX-towerW/2+b.col*(BW+GAP)+tiltOffset(b.row);
-      b.y=baseY-b.row*(BH+GAP);
-    }else{
-      const blockW=BH;
-      const totalW=blockW*COLS+GAP*(COLS-1);
-      b.x=baseX-totalW/2+b.col*(blockW+GAP)+tiltOffset(b.row);
-      b.y=baseY-b.row*(BH+GAP)-(BW-BH)/2;
-    }
-  });
+function startGame(){
+  document.getElementById('overlay').classList.add('hidden');
+  document.getElementById('msg').style.display='none';
+  initGrid();
+  score=0;gameOver=false;tilt=0;tiltVel=0;selected=null;removedHistory=[];shakeTimer=0;
+  updateHUD();
 }
 
-function getEventPos(e){
-  const t=e.changedTouches?e.changedTouches[0]:e.touches?e.touches[0]:e;
-  return{x:t.clientX,y:t.clientY};
-}
-
-function findBlockAt(x,y){
-  for(let i=blocks.length-1;i>=0;i--){
-    const b=blocks[i];
-    if(b.removed||b.beingDragged)continue;
-    if(b.contains(x,y))return b;
+function getTopRow(){
+  for(let r=grid.length-1;r>=0;r--){
+    if(grid[r].some(b=>b))return r;
   }
-  return null;
+  return 0;
 }
 
-function canRemoveBlock(b){
-  // Can't remove from top row (must remove from lower rows)
-  const maxRow=Math.max(...blocks.filter(bl=>!bl.removed).map(bl=>bl.row));
-  if(b.row>=maxRow)return false;
-  // Must leave at least 1 block in the row
-  const rowBlocks=blocks.filter(bl=>bl.row===b.row&&!bl.removed);
-  if(rowBlocks.length<=1)return false;
+function countInRow(r){
+  return grid[r].filter(b=>b).length;
+}
+
+function canRemove(r,c){
+  if(!grid[r]||!grid[r][c])return false;
+  const topRow=getTopRow();
+  if(r===topRow)return false; // can't remove from top row
+  if(countInRow(r)<=1)return false; // must leave at least 1
   return true;
 }
 
-function checkStructuralIntegrity(justRemoved){
-  const activeBlocks=blocks.filter(b=>!b.removed);
-  if(activeBlocks.length===0)return false;
-  const maxRow=Math.max(...activeBlocks.map(b=>b.row));
-  const minRow=Math.min(...activeBlocks.map(b=>b.row));
-  // Empty row in middle = instant collapse
-  for(let r=minRow;r<=maxRow;r++){
-    if(activeBlocks.filter(b=>b.row===r).length===0)return true;
-  }
-  // 4+ consecutive single-block rows = collapse
-  let singleRowStreak=0;
-  for(let r=minRow;r<=maxRow;r++){
-    const cnt=activeBlocks.filter(b=>b.row===r).length;
-    if(cnt===1)singleRowStreak++;
-    else singleRowStreak=0;
-    if(singleRowStreak>=4)return true;
-  }
-  // Only check probability when a block was just removed (not every frame)
-  if(justRemoved){
-    const totalRemoved=ROWS*COLS-activeBlocks.length;
-    // Starts at 0%, slowly increases: 0% until 8 removed, then ~2% per extra block
-    if(totalRemoved>8){
-      const chance=(totalRemoved-8)*0.02;
-      if(Math.random()<chance)return true;
+function removeAndPlace(r,c){
+  const block=grid[r][c];
+  grid[r][c]=null;
+
+  // Place on top
+  let topRow=getTopRow();
+  let topCount=countInRow(topRow);
+
+  if(topCount>=COLS){
+    // Need new row
+    topRow++;
+    if(topRow>=grid.length)grid.push([null,null,null]);
+    grid[topRow][0]=block;
+    block.row=topRow;block.col=0;
+  }else{
+    // Find empty slot in top row
+    for(let c2=0;c2<COLS;c2++){
+      if(!grid[topRow][c2]){
+        grid[topRow][c2]=block;
+        block.row=topRow;block.col=c2;
+        break;
+      }
     }
+  }
+
+  removedHistory.push({fromRow:r,fromCol:c,toRow:block.row,toCol:block.col});
+  score++;
+
+  // Physics: add tilt based on position removed
+  const centerBias=(c-1)*0.8; // -1, 0, 1 → left/center/right
+  tiltVel+=centerBias*(1+score*0.15);
+  // Random wobble increases with score
+  tiltVel+=(Math.random()-0.5)*(0.5+score*0.2);
+  shakeTimer=10;
+
+  // Structural check
+  if(checkCollapse()){
+    doCollapse();
+  }
+
+  updateHUD();
+}
+
+function undoMove(){
+  if(removedHistory.length===0||gameOver)return;
+  const last=removedHistory.pop();
+  const block=grid[last.toRow][last.toCol];
+  grid[last.toRow][last.toCol]=null;
+  grid[last.fromRow][last.fromCol]=block;
+  block.row=last.fromRow;block.col=last.fromCol;
+  score--;
+  tiltVel=0;tilt*=0.5;
+  // Remove empty top rows
+  while(grid.length>ROWS&&grid[grid.length-1].every(b=>!b))grid.pop();
+  updateHUD();
+}
+
+function checkCollapse(){
+  // Empty row in middle = collapse
+  const topRow=getTopRow();
+  for(let r=0;r<=topRow;r++){
+    if(countInRow(r)===0)return true;
+  }
+  // Tilt too much
+  if(Math.abs(tilt)>10)return true;
+  // Probability after many removals (only checked on removal, not per frame)
+  if(score>6){
+    const chance=(score-6)*0.025;
+    if(Math.random()<chance)return true;
   }
   return false;
 }
 
-function handleDown(e){
-  e.preventDefault();
-  if(gameOver)return;
-  const p=getEventPos(e);
-  mouseX=p.x;mouseY=p.y;mouseDown=true;
-  const b=findBlockAt(p.x,p.y);
-  if(b){
-    if(selectedBlock&&selectedBlock===b){
-      if(canRemoveBlock(b)){
-        b.beingDragged=true;
-        b.dragOffX=p.x-b.x;
-        b.dragOffY=p.y-b.y;
-        dragX=p.x;dragY=p.y;
-        dragging=true;
-      }
-    }else{
-      if(selectedBlock)selectedBlock.highlight=false;
-      selectedBlock=b;
-      b.highlight=true;
-      if(canRemoveBlock(b)){
-        b.beingDragged=true;
-        b.dragOffX=p.x-b.x;
-        b.dragOffY=p.y-b.y;
-        dragX=p.x;dragY=p.y;
-        dragging=true;
-      }
-    }
-  }
-}
-
-function handleMove(e){
-  e.preventDefault();
-  if(!dragging)return;
-  const p=getEventPos(e);
-  dragX=p.x;dragY=p.y;
-}
-
-function handleUp(e){
-  e.preventDefault();
-  mouseDown=false;
-  if(dragging&&selectedBlock){
-    const b=selectedBlock;
-    const origY=b.y;
-    const movedDist=Math.abs(dragY-origY-b.dragOffY)+Math.abs(dragX-b.x-b.dragOffX);
-    if(movedDist>30){
-      b.removed=true;
-      b.beingDragged=false;
-      removedCount++;
-      const maxRow=Math.max(...blocks.filter(bl=>!bl.removed).map(bl=>bl.row));
-      const topRow=maxRow+1;
-      const topBlocks=blocks.filter(bl=>bl.row===topRow&&!bl.removed);
-      const isHoriz=topRow%2===0;
-      const existingInRow=blocks.filter(bl=>bl.row===topRow&&!bl.removed);
-      let col=existingInRow.length;
-      if(col>=COLS){
-        const newRow=topRow+1;
-        col=0;
-        b.row=newRow;b.col=col;b.horizontal=newRow%2===0;
-      }else{
-        b.row=topRow;b.col=col;b.horizontal=isHoriz;
-      }
-      b.removed=false;b.placed=true;
-      // Calculate instability based on tower structure
-      const activeBlocks=blocks.filter(bl=>!bl.removed);
-      const rowCounts={};
-      activeBlocks.forEach(bl=>{rowCounts[bl.row]=(rowCounts[bl.row]||0)+1;});
-      const singleRows=Object.values(rowCounts).filter(c=>c===1).length;
-      // Gradual instability: gentle at first, increases after 5+ removals
-      const instability=Math.max(0,removedCount-3)*0.4+singleRows*0.8+Math.random();
-      towerTiltVel+=(Math.random()-0.5)*instability*0.6;
-      // Side block removal causes slight tilt direction
-      if(b.col===0)towerTiltVel+=instability*0.15;
-      else if(b.col===2)towerTiltVel-=instability*0.15;
-      score++;
-      document.getElementById('sc').textContent=score;
-      recalcAll();
-      // Structure check after placement
-      if(checkStructuralIntegrity(true))doCollapse();
-    }else{
-      b.beingDragged=false;
-    }
-    dragging=false;
-    if(selectedBlock){selectedBlock.highlight=false;selectedBlock=null}
-  }else{
-    dragging=false;
-  }
-}
-
-canvas.addEventListener('mousedown',handleDown);
-canvas.addEventListener('mousemove',handleMove);
-canvas.addEventListener('mouseup',handleUp);
-canvas.addEventListener('touchstart',handleDown,{passive:false});
-canvas.addEventListener('touchmove',handleMove,{passive:false});
-canvas.addEventListener('touchend',handleUp,{passive:false});
-
 function doCollapse(){
   gameOver=true;
-  document.getElementById('msgText').innerHTML='탑이 무너졌습니다!<br>🧱 '+score+'개 성공!';
-  document.getElementById('msg').style.display='block';
   _hub('jenga',score);
-  towerTiltVel+=towerTilt>0?8:-8;
-}
-function checkCollapse(){
-  // Only tilt check per frame (structure check is on removal only)
-  if(Math.abs(towerTilt)>14)doCollapse();
+  document.getElementById('msgTitle').textContent='💥 무너졌다!';
+  document.getElementById('msgSub').textContent='🧱 '+score+'개 성공!';
+  document.getElementById('msg').style.display='block';
+  tiltVel+=tilt>0?5:-5;
 }
 
-function update(){
+function updateHUD(){
+  document.getElementById('sc').textContent=score;
+  const stability=Math.abs(tilt);
+  const label=stability<2?'안정':stability<5?'흔들흔들':stability<8?'위험!':'💀 위태위태';
+  const color=stability<2?'#4CAF50':stability<5?'#FF9800':stability<8?'#F44336':'#FF0000';
+  document.getElementById('tiltDisp').textContent=label;
+  document.getElementById('tiltDisp').style.color=color;
+}
+
+// Input
+function getPos(e){
+  const t=e.changedTouches?e.changedTouches[0]:e.touches?e.touches[0]:e;
+  const r=C.getBoundingClientRect();
+  return{x:t.clientX-r.left,y:t.clientY-r.top};
+}
+
+function findBlock(px,py){
+  for(let r=grid.length-1;r>=0;r--){
+    for(let c=0;c<COLS;c++){
+      if(!grid[r][c])continue;
+      const bx=getBlockX(r,c),by=getBlockY(r);
+      if(px>=bx&&px<=bx+BW&&py>=by&&py<=by+BH)return{r,c};
+    }
+  }
+  return null;
+}
+
+function getBlockX(r,c){
+  return BASE_X+c*(BW+GAP)+Math.sin(tilt*0.06)*r*1.5;
+}
+function getBlockY(r){
+  return BASE_Y-r*(BH+GAP);
+}
+
+C.addEventListener('click',e=>{
   if(gameOver)return;
-  towerTiltVel+=(-towerTilt*0.025); // spring force
-  towerTiltVel*=0.95; // damping
-  // Gentle wobble, increases gradually after 5 removals
-  const wobble=Math.max(0,removedCount-4)*0.3;
-  towerTiltVel+=(Math.random()-0.5)*0.08*(1+wobble);
-  towerTilt+=towerTiltVel;
-  checkCollapse();
-  recalcAll();
-}
+  const p=getPos(e);
+  const hit=findBlock(p.x,p.y);
+  if(!hit)return;
 
-function draw(){
-  ctx.clearRect(0,0,W,H);
-  // Background gradient
-  const bgGrad=ctx.createLinearGradient(0,0,0,H);
-  bgGrad.addColorStop(0,'#0a0a18');bgGrad.addColorStop(1,'#151530');
-  ctx.fillStyle=bgGrad;ctx.fillRect(0,0,W,H);
-  // Table surface
-  const tableGrad=ctx.createLinearGradient(0,H-60,0,H);
-  tableGrad.addColorStop(0,'#2a1810');tableGrad.addColorStop(1,'#1a1008');
-  ctx.fillStyle=tableGrad;
-  ctx.beginPath();ctx.roundRect(W/2-120,H-55,240,55,8);ctx.fill();
-  // Table edge highlight
-  ctx.fillStyle='rgba(255,255,255,0.05)';
-  ctx.fillRect(W/2-115,H-55,230,3);
-  // Table shadow
-  ctx.fillStyle='rgba(0,0,0,0.3)';
-  ctx.beginPath();ctx.ellipse(W/2,H-52,100,6,0,0,Math.PI*2);ctx.fill();
-  for(const b of blocks){
-    b.draw();
+  if(selected&&selected.r===hit.r&&selected.c===hit.c){
+    // Double tap = remove
+    if(canRemove(hit.r,hit.c)){
+      removeAndPlace(hit.r,hit.c);
+      selected=null;
+    }
+  }else{
+    selected=hit;
+    if(canRemove(hit.r,hit.c)){
+      // Immediately remove on first tap
+      removeAndPlace(hit.r,hit.c);
+      selected=null;
+    }
   }
+});
+
+C.addEventListener('touchstart',e=>{
+  e.preventDefault();
+  if(gameOver)return;
+  const p=getPos(e);
+  const hit=findBlock(p.x,p.y);
+  if(!hit)return;
+  if(canRemove(hit.r,hit.c)){
+    removeAndPlace(hit.r,hit.c);
+    selected=null;
+  }
+},{passive:false});
+
+// Physics update
+function update(){
   if(gameOver){
-    ctx.save();
-    ctx.globalAlpha=0.3;
-    ctx.fillStyle='#f00';
-    ctx.fillRect(0,0,W,H);
-    ctx.restore();
+    tiltVel+=tilt>0?0.3:-0.3;
+    tilt+=tiltVel;
+    return;
   }
+  // Spring back + damping
+  tiltVel+=(-tilt*0.03);
+  tiltVel*=0.94;
+  // Wobble increases with score
+  const wobble=Math.max(0,score-3)*0.2;
+  tiltVel+=(Math.random()-0.5)*0.06*(1+wobble);
+  tilt+=tiltVel;
+  if(shakeTimer>0)shakeTimer--;
+
+  // Frame-based tilt collapse check
+  if(Math.abs(tilt)>12&&!gameOver)doCollapse();
+
+  updateHUD();
 }
 
-function gameLoop(){
+// Drawing
+function draw(){
+  X.clearRect(0,0,W,H);
+
+  // Background
+  const bg=X.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,'#0a0a18');bg.addColorStop(1,'#151530');
+  X.fillStyle=bg;X.fillRect(0,0,W,H);
+
+  // Table
+  const tg=X.createLinearGradient(0,BASE_Y+5,0,H);
+  tg.addColorStop(0,'#2a1810');tg.addColorStop(1,'#1a0e08');
+  X.fillStyle=tg;
+  X.beginPath();X.roundRect(W/2-TOWER_W/2-20,BASE_Y+BH+5,TOWER_W+40,H-BASE_Y,6);X.fill();
+  X.fillStyle='rgba(255,255,255,0.04)';
+  X.fillRect(W/2-TOWER_W/2-15,BASE_Y+BH+5,TOWER_W+30,3);
+
+  // Screen shake
+  let shakeX=0,shakeY=0;
+  if(shakeTimer>0){
+    shakeX=(Math.random()-0.5)*shakeTimer*0.8;
+    shakeY=(Math.random()-0.5)*shakeTimer*0.5;
+  }
+  X.save();
+  X.translate(shakeX,shakeY);
+
+  // Draw blocks bottom to top
+  for(let r=0;r<grid.length;r++){
+    for(let c=0;c<COLS;c++){
+      const b=grid[r][c];
+      if(!b)continue;
+
+      const bx=getBlockX(r,c);
+      const by=getBlockY(r);
+
+      // Shadow
+      X.fillStyle='rgba(0,0,0,0.3)';
+      X.beginPath();X.roundRect(bx+2,by+2,BW,BH,3);X.fill();
+
+      // Block body
+      const grad=X.createLinearGradient(bx,by,bx,by+BH);
+      grad.addColorStop(0,b.color);
+      grad.addColorStop(0.4,lighten(b.color,20));
+      grad.addColorStop(1,b.color);
+      X.fillStyle=grad;
+      X.beginPath();X.roundRect(bx,by,BW,BH,3);X.fill();
+
+      // Wood grain
+      X.strokeStyle='rgba(0,0,0,0.06)';X.lineWidth=0.5;
+      for(let i=4;i<BW-4;i+=5){
+        X.beginPath();X.moveTo(bx+i,by+1);X.lineTo(bx+i+1,by+BH-1);X.stroke();
+      }
+
+      // Top highlight
+      X.fillStyle='rgba(255,255,255,0.12)';
+      X.fillRect(bx+2,by+1,BW-4,2);
+
+      // Border
+      X.strokeStyle='rgba(0,0,0,0.15)';X.lineWidth=1;
+      X.beginPath();X.roundRect(bx,by,BW,BH,3);X.stroke();
+
+      // Removable glow
+      if(!gameOver&&canRemove(r,c)){
+        X.strokeStyle='rgba(255,215,0,0.2)';X.lineWidth=1;
+        X.beginPath();X.roundRect(bx-1,by-1,BW+2,BH+2,4);X.stroke();
+      }
+
+      // Empty slot marker
+      if(!b){
+        X.fillStyle='rgba(255,255,255,0.02)';
+        X.fillRect(bx,by,BW,BH);
+      }
+    }
+  }
+
+  // Show empty rows (gaps)
+  const topRow=getTopRow();
+  for(let r=0;r<=topRow;r++){
+    if(countInRow(r)===0){
+      const by=getBlockY(r);
+      X.fillStyle='rgba(255,0,0,0.08)';
+      X.fillRect(BASE_X-5,by,TOWER_W+10,BH);
+      X.fillStyle='rgba(255,0,0,0.5)';X.font='10px sans-serif';X.textAlign='center';
+      X.fillText('⚠️ 위험!',W/2,by+BH/2+3);
+    }
+  }
+
+  // Collapse overlay
+  if(gameOver){
+    X.fillStyle='rgba(255,0,0,0.1)';X.fillRect(0,0,W,H);
+  }
+
+  X.restore();
+  X.textAlign='left';
+}
+
+function lighten(hex,amt){
+  let r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  r=Math.min(255,r+amt);g=Math.min(255,g+amt);b=Math.min(255,b+amt);
+  return '#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');
+}
+
+(function loop(){
   update();draw();
-  requestAnimationFrame(gameLoop);
-}
-
-function restartGame(){initGame()}
-initGame();gameLoop();
+  requestAnimationFrame(loop);
+})();
 </script>
-
 </body>
 </html>
