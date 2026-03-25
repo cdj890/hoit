@@ -75,7 +75,7 @@ const COLORS=['#c8844a','#d49560','#b07030','#daa070','#a06828','#c07838'];
 let grid=[]; // grid[row][col] = block or null
 let score=0,gameOver=false,tilt=0,tiltVel=0;
 let selected=null,removedHistory=[];
-let shakeTimer=0;
+let shakeTimer=0,camY=0;
 
 function initGrid(){
   grid=[];
@@ -227,7 +227,7 @@ function getBlockX(r,c){
   return BASE_X+c*(BW+GAP)+Math.sin(tilt*0.06)*r*1.5;
 }
 function getBlockY(r){
-  return BASE_Y-r*(BH+GAP);
+  return BASE_Y-r*(BH+GAP)+camY;
 }
 
 C.addEventListener('click',e=>{
@@ -280,6 +280,12 @@ function update(){
   tilt+=tiltVel;
   if(shakeTimer>0)shakeTimer--;
 
+  // Camera: follow top of tower
+  const topRow=getTopRow();
+  const topY=BASE_Y-topRow*(BH+GAP)-50;
+  const targetCam=topY<80?80-topY:0;
+  camY+=(targetCam-camY)*0.1;
+
   // Frame-based tilt collapse check
   if(Math.abs(tilt)>12&&!gameOver)doCollapse();
 
@@ -296,12 +302,13 @@ function draw(){
   X.fillStyle=bg;X.fillRect(0,0,W,H);
 
   // Table
-  const tg=X.createLinearGradient(0,BASE_Y+5,0,H);
+  const tableY=BASE_Y+BH+5+camY;
+  const tg=X.createLinearGradient(0,tableY,0,Math.max(H,tableY+60));
   tg.addColorStop(0,'#2a1810');tg.addColorStop(1,'#1a0e08');
   X.fillStyle=tg;
-  X.beginPath();X.roundRect(W/2-TOWER_W/2-20,BASE_Y+BH+5,TOWER_W+40,H-BASE_Y,6);X.fill();
+  X.beginPath();X.roundRect(W/2-TOWER_W/2-20,tableY,TOWER_W+40,Math.max(60,H-tableY+20),6);X.fill();
   X.fillStyle='rgba(255,255,255,0.04)';
-  X.fillRect(W/2-TOWER_W/2-15,BASE_Y+BH+5,TOWER_W+30,3);
+  X.fillRect(W/2-TOWER_W/2-15,tableY,TOWER_W+30,3);
 
   // Screen shake
   let shakeX=0,shakeY=0;
