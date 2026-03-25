@@ -150,6 +150,8 @@ footer{text-align:center;padding:30px 20px;color:#444;font-size:12px;border-top:
 .cat-btn.cat-active{background:#252545;border-color:#FFD700;color:#FFD700}
 @media(max-width:600px){.cat-filters{gap:3px;padding:0 8px}.cat-btn{padding:4px 8px;font-size:11px}}
 .pc-badge{position:absolute;top:8px;left:8px;background:rgba(0,0,0,0.7);padding:3px 8px;border-radius:6px;font-size:10px;color:#FF9800;backdrop-filter:blur(4px)}
+.hot-badge{position:absolute;top:8px;right:8px;background:rgba(255,80,0,0.85);padding:3px 8px;border-radius:6px;font-size:10px;color:#fff;backdrop-filter:blur(4px);animation:hotPulse 1.5s ease-in-out infinite}
+@keyframes hotPulse{0%,100%{opacity:1}50%{opacity:.7}}
 .card.pc-only{opacity:0.5;order:99}
 /* Mobile responsive */
 @media(max-width:600px){
@@ -168,6 +170,7 @@ footer{text-align:center;padding:30px 20px;color:#444;font-size:12px;border-top:
   .card-info p{font-size:11px}
   .card-score{font-size:9px;padding:2px 6px}
   .pc-badge{font-size:9px;padding:2px 6px}
+  .hot-badge{font-size:9px;padding:2px 6px}
   .nick-bar{gap:6px;margin-top:8px}
   .nick-bar input{font-size:13px;width:130px;padding:5px 10px}
   .nick-display{font-size:14px}
@@ -229,6 +232,98 @@ footer{text-align:center;padding:30px 20px;color:#444;font-size:12px;border-top:
 .achv-item.locked .ai-name{color:#666}
 @media(max-width:600px){.achv-grid{grid-template-columns:repeat(3,1fr);gap:8px}.achv-modal{padding:16px}}
 @media(max-width:380px){.achv-grid{grid-template-columns:repeat(2,1fr)}}
+/* Share button & panel */
+.share-fab{position:fixed;bottom:70px;right:20px;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#7B68EE,#00CED1);border:none;color:#fff;font-size:20px;cursor:pointer;z-index:100;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(123,104,238,0.4);transition:all .2s}
+.share-fab:hover{transform:scale(1.1);box-shadow:0 6px 20px rgba(123,104,238,0.6)}
+@media(max-width:600px){.share-fab{bottom:62px;right:16px;width:40px;height:40px;font-size:18px}}
+.share-panel-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:1001;opacity:0;pointer-events:none;transition:opacity .2s}
+.share-panel-overlay.show{opacity:1;pointer-events:auto}
+.share-panel{position:fixed;bottom:0;left:0;right:0;background:#1a1a2e;border-top-left-radius:20px;border-top-right-radius:20px;padding:24px 20px 30px;z-index:1002;transform:translateY(100%);transition:transform .3s ease;border-top:1px solid #2a2a4a}
+.share-panel.show{transform:translateY(0)}
+.share-panel h3{text-align:center;font-size:16px;color:#fff;margin-bottom:16px}
+.share-options{display:flex;justify-content:center;gap:16px;flex-wrap:wrap}
+.share-opt{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;padding:10px 14px;border-radius:12px;background:#252545;border:1px solid #2a2a4a;transition:all .2s;min-width:70px}
+.share-opt:hover{border-color:#7B68EE;transform:translateY(-2px)}
+.share-opt .so-icon{font-size:24px}
+.share-opt .so-label{font-size:11px;color:#aaa}
+.share-panel .share-close{display:block;margin:16px auto 0;background:#252545;border:1px solid #2a2a4a;color:#888;padding:8px 24px;border-radius:10px;cursor:pointer;font-size:14px}
+/* Dark/Light mode toggle */
+.theme-toggle{display:inline-flex;align-items:center;gap:4px;background:#1a1a2e;border:1px solid #2a2a4a;padding:6px 12px;border-radius:20px;cursor:pointer;transition:all .2s;color:#FFD700;font-size:18px}
+.theme-toggle:hover{border-color:#FFD700;background:#252535}
+body{transition:background .3s,color .3s}
+body.light-mode{background:#f5f5f5;color:#333}
+body.light-mode header{background:linear-gradient(180deg,#e8e8f0,#f5f5f5)}
+body.light-mode header h1{-webkit-text-fill-color:transparent}
+body.light-mode header .sub{color:#888}
+body.light-mode .tabs{background:rgba(255,255,255,0.95);border-bottom-color:#e0e0e0}
+body.light-mode .tab{background:#fff;border-color:#e0e0e0;color:#555}
+body.light-mode .tab:hover{border-color:#aaa}
+body.light-mode .tab.active-game{border-color:#FFD700;background:#fff8e1;color:#F59F00}
+body.light-mode .tab.active-test{border-color:#FF69B4;background:#fff0f5;color:#FF69B4}
+body.light-mode .tab.active-destiny{border-color:#7B68EE;background:#f0f0ff;color:#7B68EE}
+body.light-mode .card{background:#fff;border-color:#e0e0e0;color:#333}
+body.light-mode .card:hover{border-color:#bbb;box-shadow:0 10px 30px rgba(0,0,0,0.08)}
+body.light-mode .card-info p{color:#888}
+body.light-mode .card-tag{background:#f0f0f0;color:#777}
+body.light-mode .search-bar input{background:#fff;border-color:#e0e0e0;color:#333}
+body.light-mode .search-bar .search-icon{color:#aaa}
+body.light-mode .nick-chip{background:#fff;border-color:#e0e0e0}
+body.light-mode .nick-chip:hover{background:#f8f8ff}
+body.light-mode .modal{background:#fff;border-color:#e0e0e0}
+body.light-mode .modal input{background:#f5f5f5;border-color:#ddd;color:#333}
+body.light-mode .modal p{color:#888}
+body.light-mode .modal h3{color:#333}
+body.light-mode .modal-btns .btn-secondary{background:#f0f0f0;color:#666}
+body.light-mode .achv-btn{background:#fff;border-color:#e0e0e0}
+body.light-mode .achv-modal{background:#fff;border-color:#e0e0e0}
+body.light-mode .achv-item{background:#f5f5f5;border-color:#e0e0e0}
+body.light-mode .achv-item.unlocked{background:#fff8e1;border-color:#FFD700}
+body.light-mode .lb table{background:#fff}
+body.light-mode .lb th{background:#f5f5f5;color:#666}
+body.light-mode .lb td{border-top-color:#eee}
+body.light-mode .lb-tab{background:#f0f0f0;border-color:#ddd;color:#777}
+body.light-mode .cat-btn{background:#fff;border-color:#e0e0e0;color:#777}
+body.light-mode .cat-btn.cat-active{background:#fff8e1;border-color:#FFD700;color:#F59F00}
+body.light-mode .daily-card{background:#fff;border-color:#e0e0e0}
+body.light-mode .daily-item{background:#f5f5f5;border-color:#e0e0e0}
+body.light-mode .recent-card{background:#fff;border-color:#e0e0e0}
+body.light-mode .scroll-top{background:rgba(255,255,255,0.9);border-color:#ddd;color:#333}
+body.light-mode .scroll-top:hover{background:#FFD700;color:#000;border-color:#FFD700}
+body.light-mode footer{border-top-color:#e0e0e0;color:#999}
+body.light-mode .footer-links a{color:#888}
+body.light-mode .skeleton-card{background:#fff;border-color:#e0e0e0}
+body.light-mode .skeleton-card .skel-thumb{background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%)}
+body.light-mode .skeleton-card .skel-line{background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%)}
+body.light-mode .share-panel{background:#fff;border-top-color:#e0e0e0}
+body.light-mode .share-panel h3{color:#333}
+body.light-mode .share-opt{background:#f5f5f5;border-color:#e0e0e0}
+body.light-mode .share-panel .share-close{background:#f0f0f0;border-color:#ddd;color:#666}
+body.light-mode .theme-toggle{background:#fff;border-color:#e0e0e0;color:#F59F00}
+/* Profile modal */
+.profile-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:1000;display:flex;justify-content:center;align-items:center;backdrop-filter:blur(4px);opacity:0;transition:opacity .2s;pointer-events:none}
+.profile-overlay.show{opacity:1;pointer-events:auto}
+.profile-modal{background:#1a1a2e;border-radius:20px;padding:24px;width:95%;max-width:420px;max-height:80vh;overflow-y:auto;border:1px solid #2a2a4a;transform:scale(0.9);transition:transform .2s}
+.profile-overlay.show .profile-modal{transform:scale(1)}
+.profile-modal h3{font-size:22px;text-align:center;margin-bottom:4px;color:#FFD700}
+.profile-modal .profile-sub{text-align:center;color:#888;font-size:13px;margin-bottom:16px}
+.profile-stat{display:flex;justify-content:space-around;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.profile-stat-item{text-align:center;background:#252545;border-radius:12px;padding:12px 10px;flex:1;min-width:80px;border:1px solid #2a2a4a}
+.profile-stat-item .ps-num{font-size:22px;font-weight:bold;color:#FFD700;display:block}
+.profile-stat-item .ps-label{font-size:11px;color:#888;margin-top:2px}
+.profile-section{margin-bottom:14px}
+.profile-section h4{font-size:14px;color:#ccc;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid #2a2a4a}
+.profile-record{display:flex;justify-content:space-between;padding:4px 0;font-size:13px;color:#aaa}
+.profile-record .pr-val{color:#FFD700;font-weight:bold}
+.profile-history-item{background:#252545;border-radius:8px;padding:8px 12px;margin-bottom:6px;font-size:12px;color:#ccc;display:flex;justify-content:space-between}
+.profile-history-item .ph-date{color:#666;font-size:11px}
+.profile-close{display:block;margin:12px auto 0;background:#252545;border:1px solid #2a2a4a;color:#888;padding:8px 24px;border-radius:10px;cursor:pointer;font-size:14px}
+body.light-mode .profile-modal{background:#fff;border-color:#e0e0e0}
+body.light-mode .profile-modal h3{color:#F59F00}
+body.light-mode .profile-stat-item{background:#f5f5f5;border-color:#e0e0e0}
+body.light-mode .profile-section h4{color:#555;border-bottom-color:#e0e0e0}
+body.light-mode .profile-record{color:#666}
+body.light-mode .profile-history-item{background:#f5f5f5;color:#555}
+body.light-mode .profile-close{background:#f0f0f0;border-color:#ddd;color:#666}
 </style>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 <script type="application/ld+json">
@@ -251,6 +346,7 @@ footer{text-align:center;padding:30px 20px;color:#444;font-size:12px;border-top:
   }
 }
 </script>
+<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js" crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -293,7 +389,23 @@ footer{text-align:center;padding:30px 20px;color:#444;font-size:12px;border-top:
   <div class="recent-row" id="recentRow"></div>
 </div>
 <div class="grid" id="grid"></div>
+<button class="share-fab" id="shareFab" onclick="shareHoit('hoit - 무료 웹 게임 · 심리테스트 · 운세','설치 없이 바로 즐기는 무료 콘텐츠 179개!','https://hoit.me/')" title="공유하기">📤</button>
+<div class="share-panel-overlay" id="sharePanelOverlay" onclick="closeSharePanel()"></div>
+<div class="share-panel" id="sharePanel">
+  <h3>공유하기</h3>
+  <div class="share-options">
+    <div class="share-opt" onclick="copyShareLink()"><span class="so-icon">🔗</span><span class="so-label">링크 복사</span></div>
+    <div class="share-opt" onclick="shareTwitter()"><span class="so-icon">🐦</span><span class="so-label">Twitter/X</span></div>
+    <div class="share-opt" onclick="shareFacebook()"><span class="so-icon">📘</span><span class="so-label">Facebook</span></div>
+    <div class="share-opt" onclick="shareKakao()"><span class="so-icon">💬</span><span class="so-label">카카오톡</span></div>
+  </div>
+  <button class="share-close" onclick="closeSharePanel()">닫기</button>
+</div>
 <button class="scroll-top" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<div class="profile-overlay" id="profile-overlay" onclick="if(event.target===this)closeProfileModal()">
+  <div class="profile-modal" id="profile-modal-content"></div>
+</div>
 <div class="lb" id="lb-section" style="display:none">
   <h2>🏆 오늘의 리더보드</h2>
   <p style="color:#888;font-size:12px;text-align:center;margin-bottom:10px">매일 자정 리셋 · 실시간 순위</p>
@@ -335,6 +447,23 @@ footer{text-align:center;padding:30px 20px;color:#444;font-size:12px;border-top:
 const HUB_KEY='game_hub',LB_KEY='game_leaderboard';
 const FB='https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app';
 let fbCache={}, fbCacheTime=0;
+let todayViews=null;
+function trackView(file){
+  const today=new Date().toISOString().slice(0,10);
+  const key=file.replace(/[\/\.]/g,'_');
+  fetch(FB+'/analytics/'+today+'/'+key+'.json')
+    .then(r=>r.json())
+    .then(v=>{
+      fetch(FB+'/analytics/'+today+'/'+key+'.json',{method:'PUT',body:JSON.stringify((v||0)+1)});
+    }).catch(()=>{});
+}
+function fetchTodayViews(){
+  const today=new Date().toISOString().slice(0,10);
+  fetch(FB+'/analytics/'+today+'.json')
+    .then(r=>r.json())
+    .then(v=>{todayViews=v||{};renderFooter();})
+    .catch(()=>{todayViews={};});
+}
 
 function getHub(){return JSON.parse(localStorage.getItem(HUB_KEY)||'{}');}
 function getNick(){
@@ -743,6 +872,8 @@ function renderGrid(){
     if(currentTab==='game'&&!isPcOnly){
       card.addEventListener('click',function(){addRecentPlayed(item);});
     }
+    // Analytics tracking
+    card.addEventListener('click',function(){trackView(item.file);});
 
     if(isPcOnly){
       card.onclick=e=>{e.preventDefault();alert('이 게임은 PC에서 플레이해주세요! 🖥️\n키보드/마우스가 필요합니다.');};
@@ -759,6 +890,17 @@ function renderGrid(){
       pcb.className='pc-badge';
       pcb.textContent='🖥️ PC 전용';
       thumb.appendChild(pcb);
+    }
+
+    // Hot badge
+    if(todayViews){
+      const vk=item.file.replace(/[\/\.]/g,'_');
+      if((todayViews[vk]||0)>10){
+        const hb=document.createElement('div');
+        hb.className='hot-badge';
+        hb.textContent='\uD83D\uDD25 인기';
+        thumb.appendChild(hb);
+      }
     }
 
     if(item.id&&scores[item.id]){
@@ -931,8 +1073,17 @@ document.addEventListener('keydown',function(e){
 
 // Footer
 function renderFooter(){
-  // Popular games (first 5 from GAMES as proxy for popular)
-  const popular=GAMES.slice(0,5);
+  // Popular games: use real analytics if available
+  let popular;
+  if(todayViews&&Object.keys(todayViews).length>0){
+    const allContent=[...GAMES,...TESTS,...DESTINY,...ITKNOW,...QUIZ,...TOOLS,...MUSIC,...HEALTH,...LEARN];
+    const scored=allContent.map(g=>{const k=g.file.replace(/[\/\.]/g,'_');return{...g,views:todayViews[k]||0};}).filter(g=>g.views>0);
+    scored.sort((a,b)=>b.views-a.views);
+    popular=scored.slice(0,5);
+    if(popular.length<5)popular=[...popular,...GAMES.filter(g=>!popular.find(p=>p.file===g.file)).slice(0,5-popular.length)];
+  }else{
+    popular=GAMES.slice(0,5);
+  }
   document.getElementById('footerPopular').innerHTML=popular.map(g=>`<a href="${g.file}">${g.emoji} ${g.title}</a>`).join('');
   // Newest content (last 5 added across all)
   const newest=[...GAMES.slice(-2),...TOOLS.slice(-2),...QUIZ.slice(-1)];
@@ -1093,6 +1244,7 @@ document.getElementById('ht-count').textContent=HEALTH.length;
 document.getElementById('ln-count').textContent=LEARN.length;
 switchTab('game');
 renderFooter();
+fetchTodayViews();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
 </script>
 </body>
