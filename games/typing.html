@@ -72,6 +72,7 @@ canvas{max-width:100%!important;height:auto!important;display:block;margin:0 aut
 </div>
 
 <script>
+if(!CanvasRenderingContext2D.prototype.roundRect){CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){if(typeof r==='undefined')r=0;if(typeof r==='number')r={tl:r,tr:r,br:r,bl:r};this.beginPath();this.moveTo(x+r.tl,y);this.lineTo(x+w-r.tr,y);this.quadraticCurveTo(x+w,y,x+w,y+r.tr);this.lineTo(x+w,y+h-r.br);this.quadraticCurveTo(x+w,y+h,x+w-r.br,y+h);this.lineTo(x+r.bl,y+h);this.quadraticCurveTo(x,y+h,x,y+h-r.bl);this.lineTo(x,y+r.tl);this.quadraticCurveTo(x,y,x+r.tl,y);this.closePath();return this;};}
 const KO_WORDS_EASY=['사과','바나나','학교','음악','사랑','하늘','바다','별','구름','나비','꽃','눈','비','달','커피','우유','빵','피자','라면','김밥','만두','치킨','쿠키'];
 const KO_WORDS_HARD=['컴퓨터','고양이','강아지','토끼','기린','피아노','축구','야구','자전거','비행기','로봇','수박','딸기','포도','레몬','치즈','햄버거','떡볶이','초콜릿','아이스크림','케이크','프로그래밍','인공지능','소프트웨어','대한민국','도서관'];
 const EN_WORDS_EASY=['apple','code','dream','fire','game','happy','ice','jump','king','love','moon','rain','star','tree','zero','cloud','dance','frog','kite','light'];

@@ -77,6 +77,7 @@ canvas{max-width:100%!important;height:auto!important;display:block;margin:0 aut
 </div>
 
 <script>
+if(!CanvasRenderingContext2D.prototype.roundRect){CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){if(typeof r==='undefined')r=0;if(typeof r==='number')r={tl:r,tr:r,br:r,bl:r};this.beginPath();this.moveTo(x+r.tl,y);this.lineTo(x+w-r.tr,y);this.quadraticCurveTo(x+w,y,x+w,y+r.tr);this.lineTo(x+w,y+h-r.br);this.quadraticCurveTo(x+w,y+h,x+w-r.br,y+h);this.lineTo(x+r.bl,y+h);this.quadraticCurveTo(x,y+h,x,y+h-r.bl);this.lineTo(x,y+r.tl);this.quadraticCurveTo(x,y,x+r.tl,y);this.closePath();return this;};}
 const W=480,H=560;
 const COLS=8,ROWS=5,BRICK_W=52,BRICK_H=20,BRICK_PAD=4,BRICK_TOP=60,BRICK_LEFT=14;
 const BASE_PADDLE_W=80,PADDLE_H=12;
