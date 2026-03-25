@@ -260,6 +260,15 @@ footer{text-align:center;padding:30px 20px;color:#444;font-size:12px;border-top:
   <div class="nick-bar" id="nick-bar"></div>
 </header>
 
+<div class="achv-overlay" id="achv-overlay" onclick="if(event.target===this)closeAchvModal()">
+  <div class="achv-modal">
+    <h3>🏆 업적</h3>
+    <div class="achv-sub" id="achv-counter">0/20 달성</div>
+    <div class="achv-grid" id="achv-grid"></div>
+    <div style="text-align:center;margin-top:16px"><button onclick="closeAchvModal()" style="background:#252545;border:1px solid #2a2a4a;color:#888;padding:8px 24px;border-radius:10px;cursor:pointer;font-size:14px">닫기</button></div>
+  </div>
+</div>
+
 <div class="tabs" id="tabs">
   <div class="tab" onclick="switchTab('game')"><span class="tab-icon">🎮</span><span class="tab-label">게임</span><span class="badge badge-game" id="game-count"></span></div>
   <div class="tab" onclick="switchTab('test')"><span class="tab-icon">🧠</span><span class="tab-label">테스트</span><span class="badge badge-test" id="test-count"></span></div>
@@ -274,6 +283,7 @@ footer{text-align:center;padding:30px 20px;color:#444;font-size:12px;border-top:
   <input type="text" id="searchInput" placeholder="콘텐츠 검색..." autocomplete="off">
   <button class="search-clear" id="searchClear" onclick="clearSearch()">&times;</button>
 </div>
+<div class="daily-challenge" id="dailyChallenge"></div>
 <div class="cat-filters" id="catFilters" style="display:none"></div>
 <div class="recent-section" id="recentSection">
   <div class="recent-title">🕐 최근 플레이</div>
@@ -618,7 +628,7 @@ function confirmNick(){
   const n=document.getElementById('nick-input').value.trim();
   if(!n){document.getElementById('nick-input').focus();return;}
   if(n.length<2){alert('2글자 이상 입력해주세요');return;}
-  setNick(n);closeNickModal();renderNick();renderGrid();
+  setNick(n);closeNickModal();renderNick();renderGrid();unlockAchv(17);
 }
 
 // Game categories
@@ -658,6 +668,7 @@ function switchTab(tab){
   document.querySelectorAll('.tab')[idx]?.classList.add(cls[idx]);
   document.getElementById('lb-section').style.display=tab==='game'?'block':'none';
   renderCatFilters();
+  renderDailyChallenge();
   // Fade transition + skeleton
   const grid=document.getElementById('grid');
   grid.classList.add('tab-fade');
@@ -903,7 +914,143 @@ function renderFooter(){
   document.getElementById('footerTotal').textContent=GAMES.length+TESTS.length+DESTINY.length+ITKNOW.length+QUIZ.length+TOOLS.length;
 }
 
+// === Daily Challenge ===
+function getDailyDate(){return new Date().toISOString().slice(0,10);}
+function seededRandom(seed){let s=0;for(let i=0;i<seed.length;i++){s=((s<<5)-s)+seed.charCodeAt(i);s|=0;}return function(){s=(s*16807)%2147483647;return(s-1)/2147483646;};}
+function getDailyChallenge(){
+  const date=getDailyDate();
+  const rng=seededRandom(date+'hoit');
+  const gi=Math.floor(rng()*GAMES.length);
+  const qi=Math.floor(rng()*QUIZ.length);
+  const ti=Math.floor(rng()*TESTS.length);
+  return {date,items:[
+    {type:'게임',item:GAMES[gi],key:'game_'+GAMES[gi].file},
+    {type:'퀴즈',item:QUIZ[qi],key:'quiz_'+QUIZ[qi].file},
+    {type:'테스트',item:TESTS[ti],key:'test_'+TESTS[ti].file}
+  ]};
+}
+function getDailyCompletion(){
+  const date=getDailyDate();
+  try{return JSON.parse(localStorage.getItem('daily_'+date)||'{}');}catch(e){return {};}
+}
+function setDailyCompletion(key){
+  const date=getDailyDate();
+  const c=getDailyCompletion();
+  c[key]=true;
+  localStorage.setItem('daily_'+date,JSON.stringify(c));
+}
+function renderDailyChallenge(){
+  const el=document.getElementById('dailyChallenge');
+  if(currentTab!=='game'){el.classList.remove('show');return;}
+  el.classList.add('show');
+  const dc=getDailyChallenge();
+  const comp=getDailyCompletion();
+  const done=dc.items.filter(d=>comp[d.key]).length;
+  el.innerHTML=`<div class="daily-card"><h3>🎯 오늘의 도전</h3><div class="daily-items">${
+    dc.items.map(d=>{
+      const isDone=!!comp[d.key];
+      return `<div class="daily-item${isDone?' completed':''}"><div class="di-check">✅</div><div class="di-emoji">${d.item.emoji}</div><div class="di-title">${d.item.title}</div><div class="di-type">${d.type}</div><a href="${d.item.file}" class="daily-btn" onclick="markDailyPlayed('${d.key}')">${isDone?'완료!':'도전하기'}</a></div>`;
+    }).join('')
+  }</div><div class="daily-progress">${done}/3 완료${done===3?' 🎉 오늘의 도전 클리어!':''}</div></div>`;
+  if(done===3)unlockAchv(4);
+}
+function markDailyPlayed(key){setDailyCompletion(key);}
+
+// === Achievements ===
+const ACHIEVEMENTS=[
+  {id:0,icon:'🎮',name:'첫 게임 클리어'},
+  {id:1,icon:'🏆',name:'리더보드 등록'},
+  {id:2,icon:'🧠',name:'MBTI 테스트 완료'},
+  {id:3,icon:'🔮',name:'운세 3종 확인'},
+  {id:4,icon:'🎯',name:'오늘의 도전 완료'},
+  {id:5,icon:'📱',name:'5개 게임 플레이'},
+  {id:6,icon:'🎮',name:'10개 게임 플레이'},
+  {id:7,icon:'🎮',name:'20개 게임 플레이'},
+  {id:8,icon:'🧠',name:'테스트 5개 완료'},
+  {id:9,icon:'🔮',name:'운세 5개 확인'},
+  {id:10,icon:'🛠️',name:'도구 5개 사용'},
+  {id:11,icon:'📚',name:'퀴즈 5개 완료'},
+  {id:12,icon:'🏅',name:'게임 3연승'},
+  {id:13,icon:'💯',name:'퀴즈 만점'},
+  {id:14,icon:'⏱️',name:'3일 연속 방문'},
+  {id:15,icon:'⏱️',name:'7일 연속 방문'},
+  {id:16,icon:'🌟',name:'모든 카테고리 1개씩'},
+  {id:17,icon:'🎨',name:'닉네임 설정'},
+  {id:18,icon:'📊',name:'리더보드 1위'},
+  {id:19,icon:'👑',name:'전체 업적 완료'}
+];
+function getAchievements(){try{return JSON.parse(localStorage.getItem('achievements')||'{}');}catch(e){return {};}}
+function unlockAchv(id){
+  const a=getAchievements();
+  if(a[id])return;
+  a[id]=Date.now();
+  localStorage.setItem('achievements',JSON.stringify(a));
+  updateAchvBtn();
+  // Check "all achievements" unlock
+  if(id!==19){const unlocked=Object.keys(a).filter(k=>k!=='19').length;if(unlocked>=19)unlockAchv(19);}
+}
+function countAchv(){return Object.keys(getAchievements()).length;}
+function updateAchvBtn(){
+  const btn=document.getElementById('achv-btn-count');
+  if(btn)btn.textContent=countAchv()+'/20';
+}
+function openAchvModal(){
+  const a=getAchievements();
+  const grid=document.getElementById('achv-grid');
+  document.getElementById('achv-counter').textContent=Object.keys(a).length+'/20 달성';
+  grid.innerHTML=ACHIEVEMENTS.map(ac=>{
+    const unlocked=!!a[ac.id];
+    return `<div class="achv-item ${unlocked?'unlocked':'locked'}"><span class="ai-icon">${unlocked?ac.icon:'🔒'}</span><div class="ai-name">${ac.name}</div></div>`;
+  }).join('');
+  document.getElementById('achv-overlay').classList.add('show');
+}
+function closeAchvModal(){document.getElementById('achv-overlay').classList.remove('show');}
+function trackVisitStreak(){
+  const today=getDailyDate();
+  let visits=[];
+  try{visits=JSON.parse(localStorage.getItem('visit_dates')||'[]');}catch(e){}
+  if(visits[visits.length-1]!==today){visits.push(today);if(visits.length>30)visits=visits.slice(-30);localStorage.setItem('visit_dates',JSON.stringify(visits));}
+  // Check streaks
+  let streak=1;
+  for(let i=visits.length-1;i>0;i--){
+    const d1=new Date(visits[i]),d0=new Date(visits[i-1]);
+    if((d1-d0)/(1000*60*60*24)===1)streak++;else break;
+  }
+  if(streak>=3)unlockAchv(14);
+  if(streak>=7)unlockAchv(15);
+}
+function checkAchievementsOnLoad(){
+  const hub=getHub();const scores=hub.scores||{};const nick=hub.nick||'';
+  // Nickname set
+  if(nick&&!nick.startsWith('nonamed'))unlockAchv(17);
+  // Game counts from recent_played
+  const recent=getRecentPlayed();
+  if(recent.length>=1&&Object.keys(scores).length>=1)unlockAchv(0);
+  const playedGames=new Set([...recent.map(r=>r.file),...Object.keys(scores)]);
+  if(playedGames.size>=5)unlockAchv(5);
+  if(playedGames.size>=10)unlockAchv(6);
+  if(playedGames.size>=20)unlockAchv(7);
+  // Visit streak
+  trackVisitStreak();
+}
+
+// Patch renderNick to add achievement button
+const _origRenderNick=renderNick;
+renderNick=function(){
+  _origRenderNick();
+  const bar=document.getElementById('nick-bar');
+  if(!document.getElementById('achv-btn')){
+    const btn=document.createElement('div');
+    btn.id='achv-btn';
+    btn.className='achv-btn';
+    btn.onclick=openAchvModal;
+    btn.innerHTML='🏆 업적 <span class="achv-count" id="achv-btn-count">'+countAchv()+'/20</span>';
+    bar.appendChild(btn);
+  }else{updateAchvBtn();}
+};
+
 // Init
+checkAchievementsOnLoad();
 renderNick();
 document.getElementById('game-count').textContent=GAMES.length;
 document.getElementById('test-count').textContent=TESTS.length;
