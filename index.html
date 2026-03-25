@@ -695,7 +695,7 @@ function switchTab(tab){
   document.querySelectorAll('.tab')[idx]?.classList.add(cls[idx]);
   document.getElementById('lb-section').style.display=tab==='game'?'block':'none';
   renderCatFilters();
-  renderDailyChallenge();
+  try{renderDailyChallenge();}catch(e){console.error('daily:',e);}
   // Fade transition + skeleton
   const grid=document.getElementById('grid');
   grid.classList.add('tab-fade');
@@ -946,13 +946,15 @@ function seededRandom(seed){let s=0;for(let i=0;i<seed.length;i++){s=((s<<5)-s)+
 function getDailyChallenge(){
   const date=getDailyDate();
   const rng=seededRandom(date+'hoit');
-  const gi=Math.floor(rng()*GAMES.length);
-  const qi=Math.floor(rng()*QUIZ.length);
-  const ti=Math.floor(rng()*TESTS.length);
+  const gi=Math.abs(Math.floor(rng()*GAMES.length))%GAMES.length;
+  const qi=Math.abs(Math.floor(rng()*QUIZ.length))%QUIZ.length;
+  const ti=Math.abs(Math.floor(rng()*TESTS.length))%TESTS.length;
+  const g=GAMES[gi],q=QUIZ[qi],t=TESTS[ti];
+  if(!g||!q||!t)return {date,items:[]};
   return {date,items:[
-    {type:'게임',item:GAMES[gi],key:'game_'+GAMES[gi].file},
-    {type:'퀴즈',item:QUIZ[qi],key:'quiz_'+QUIZ[qi].file},
-    {type:'테스트',item:TESTS[ti],key:'test_'+TESTS[ti].file}
+    {type:'게임',item:g,key:'game_'+g.file},
+    {type:'퀴즈',item:q,key:'quiz_'+q.file},
+    {type:'테스트',item:t,key:'test_'+t.file}
   ]};
 }
 function getDailyCompletion(){
@@ -968,8 +970,9 @@ function setDailyCompletion(key){
 function renderDailyChallenge(){
   const el=document.getElementById('dailyChallenge');
   if(currentTab!=='game'){el.classList.remove('show');return;}
-  el.classList.add('show');
   const dc=getDailyChallenge();
+  if(!dc.items||dc.items.length===0){el.classList.remove('show');return;}
+  el.classList.add('show');
   const comp=getDailyCompletion();
   const done=dc.items.filter(d=>comp[d.key]).length;
   el.innerHTML=`<div class="daily-card"><h3>🎯 오늘의 도전</h3><div class="daily-items">${
