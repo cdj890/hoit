@@ -1431,6 +1431,7 @@ function openProfileModal(){
       <h4>🕐 최근 활동</h4>
       ${recent.length>0?recent.map(r=>`<div class="profile-history-item"><span>${r.emoji} ${r.title}</span></div>`).join(''):'<div style="text-align:center;color:#555;font-size:12px;padding:8px">최근 활동이 없습니다</div>'}
     </div>
+    <button class="profile-close" onclick="closeProfileModal();openNickModal()" style="background:linear-gradient(135deg,#FFD700,#FFA000);color:#000;margin-bottom:8px">✏️ 닉네임 변경</button>
     <button class="profile-close" onclick="closeProfileModal()">닫기</button>
   `;
   document.getElementById('profile-overlay').classList.add('show');
@@ -1445,7 +1446,9 @@ renderNick=function(){
   if(chip){
     chip.onclick=function(e){
       e.stopPropagation();
-      openProfileModal();
+      const n=getNick();
+      if(n.startsWith('nonamed')){openNickModal();}
+      else{openProfileModal();}
     };
   }
 };
