@@ -97,7 +97,7 @@ const DISCUSS_LINES={
   ]
 };
 
-function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*i+1|0;[a[i],a[j]]=[a[j],a[i]]}return a}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i];}return a;}
 
 function startGame(){
   document.getElementById('overlay').style.display='none';
@@ -108,10 +108,15 @@ function startGame(){
   phase='day';day=1;selectedTarget=null;votes={};gameActive=true;
   document.getElementById('chat').innerHTML='';
   addSystem('게임이 시작되었습니다! 7명의 플레이어가 참여합니다.');
-  addSystem(`당신의 역할: ${ROLE_NAMES[myRole]}`);
+  const roleEmoji={citizen:'👤',mafia:'🔪',police:'🔍'};
+  addSystem(`당신의 역할: ${roleEmoji[myRole]} ${ROLE_NAMES[myRole]}`);
   if(myRole==='mafia'){
     const partner=players.find((p,i)=>i!==0&&p.role==='mafia');
-    if(partner)addSystem(`동료 마피아: ${partner.name}`);
+    if(partner)addSystem(`🔪 동료 마피아: ${partner.name} (밤에 함께 시민을 제거하세요)`);
+  } else if(myRole==='police'){
+    addSystem('🔍 밤에 한 명을 조사하여 마피아인지 확인할 수 있습니다.');
+  } else {
+    addSystem('👤 토론과 투표로 마피아를 찾아내세요!');
   }
   render();
   setTimeout(()=>aiDiscuss(),1000);
