@@ -154,10 +154,40 @@ function findBlockAt(x,y){
 }
 
 function canRemoveBlock(b){
-  if(b.row>=ROWS+removedCount-1)return false;
+  // Can't remove from top row (must remove from lower rows)
+  const maxRow=Math.max(...blocks.filter(bl=>!bl.removed).map(bl=>bl.row));
+  if(b.row>=maxRow)return false;
+  // Must leave at least 1 block in the row
   const rowBlocks=blocks.filter(bl=>bl.row===b.row&&!bl.removed);
   if(rowBlocks.length<=1)return false;
   return true;
+}
+
+function checkStructuralIntegrity(){
+  // Check if any row in the middle is completely empty → collapse!
+  const activeBlocks=blocks.filter(b=>!b.removed);
+  if(activeBlocks.length===0)return false;
+  const maxRow=Math.max(...activeBlocks.map(b=>b.row));
+  const minRow=Math.min(...activeBlocks.map(b=>b.row));
+  for(let r=minRow;r<=maxRow;r++){
+    const rowCount=activeBlocks.filter(b=>b.row===r).length;
+    if(rowCount===0){
+      return true; // empty row in middle = collapse!
+    }
+  }
+  // Check if too many consecutive rows have only 1 block → unstable
+  let singleRowStreak=0;
+  for(let r=minRow;r<=maxRow;r++){
+    const rowCount=activeBlocks.filter(b=>b.row===r).length;
+    if(rowCount===1)singleRowStreak++;
+    else singleRowStreak=0;
+    if(singleRowStreak>=3)return true; // 3+ consecutive single-block rows = collapse
+  }
+  // More blocks removed = more instability
+  const totalRemoved=ROWS*COLS-activeBlocks.length;
+  const collapseChance=totalRemoved*0.03;
+  if(Math.random()<collapseChance)return true;
+  return false;
 }
 
 function handleDown(e){
@@ -222,10 +252,16 @@ function handleUp(e){
         b.row=topRow;b.col=col;b.horizontal=isHoriz;
       }
       b.removed=false;b.placed=true;
-      const rowBlocksOld=blocks.filter(bl=>bl.row===b.row-removedCount);
-      towerTiltVel+=(Math.random()-0.5)*3;
-      const instability=removedCount*0.4+Math.random()*2;
-      towerTiltVel+=(Math.random()-0.5)*instability*0.5;
+      // Calculate instability based on tower structure
+      const activeBlocks=blocks.filter(bl=>!bl.removed);
+      const rowCounts={};
+      activeBlocks.forEach(bl=>{rowCounts[bl.row]=(rowCounts[bl.row]||0)+1;});
+      const singleRows=Object.values(rowCounts).filter(c=>c===1).length;
+      const instability=removedCount*0.8+singleRows*1.5+Math.random()*2;
+      towerTiltVel+=(Math.random()-0.5)*instability;
+      // Side block removal causes more tilt
+      if(b.col===0)towerTiltVel+=instability*0.3;
+      else if(b.col===2)towerTiltVel-=instability*0.3;
       score++;
       document.getElementById('sc').textContent=score;
       recalcAll();
@@ -247,19 +283,23 @@ canvas.addEventListener('touchmove',handleMove,{passive:false});
 canvas.addEventListener('touchend',handleUp,{passive:false});
 
 function checkCollapse(){
-  if(Math.abs(towerTilt)>15){
+  if(Math.abs(towerTilt)>12||checkStructuralIntegrity()){
     gameOver=true;
-    document.getElementById('msgText').innerHTML='탑이 무너졌습니다!<br>점수: '+score+'개';
+    document.getElementById('msgText').innerHTML='탑이 무너졌습니다!<br>🧱 '+score+'개 성공!';
     document.getElementById('msg').style.display='block';
     _hub('jenga',score);
+    // Collapse animation: increase tilt rapidly
+    towerTiltVel+=towerTilt>0?8:-8;
   }
 }
 
 function update(){
   if(gameOver)return;
-  towerTiltVel+=(-towerTilt*0.02);
-  towerTiltVel*=0.96;
-  towerTiltVel+=(Math.random()-0.5)*0.1*Math.min(removedCount*0.3,3);
+  towerTiltVel+=(-towerTilt*0.03); // spring force
+  towerTiltVel*=0.94; // damping
+  // Random wobble increases with removed blocks
+  const wobble=Math.min(removedCount*0.5,5);
+  towerTiltVel+=(Math.random()-0.5)*0.15*wobble;
   towerTilt+=towerTiltVel;
   checkCollapse();
   recalcAll();
