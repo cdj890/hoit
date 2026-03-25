@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>발음 연습 (잰말)</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;min-height:100vh;padding:60px 12px 20px}
+h1{text-align:center;font-size:1.4em;margin-bottom:14px}
+.wrap{max-width:500px;margin:0 auto}
+.filters{display:flex;gap:6px;justify-content:center;margin-bottom:16px}
+.filters button{background:#1a1a2e;color:#fff;border:1px solid #333;padding:8px 16px;border-radius:20px;font-size:13px;min-height:40px;cursor:pointer;touch-action:manipulation;font-family:inherit}
+.filters button.active{background:#4fc3f7;color:#000;border-color:#4fc3f7}
+.card{background:#1a1a2e;border:1px solid #333;border-radius:16px;padding:28px 20px;text-align:center;margin-bottom:14px;min-height:180px;display:flex;flex-direction:column;justify-content:center}
+.diff-label{font-size:12px;margin-bottom:10px}
+.diff-label span{padding:4px 12px;border-radius:12px}
+.d-easy{background:#27ae60;color:#fff}
+.d-medium{background:#f39c12;color:#000}
+.d-hard{background:#e74c3c;color:#fff}
+.twister-text{font-size:22px;line-height:1.7;margin-bottom:10px;word-break:keep-all}
+.progress{font-size:13px;color:#666;margin-bottom:8px}
+.timer-area{text-align:center;margin-bottom:14px}
+.timer-display{font-size:48px;font-weight:bold;color:#4fc3f7;font-variant-numeric:tabular-nums}
+.btn-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:12px}
+.btn{background:#4fc3f7;color:#000;border:none;padding:12px 20px;border-radius:10px;font-size:15px;font-weight:bold;min-height:44px;touch-action:manipulation;cursor:pointer;font-family:inherit}
+.btn.secondary{background:#1a1a2e;color:#fff;border:1px solid #333}
+.btn.start{background:#2ecc71}
+.btn.stop{background:#e74c3c;color:#fff}
+.best-time{text-align:center;font-size:14px;color:#aaa;margin-top:8px}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+
+<div class="wrap">
+<h1>발음 연습 (잰말)</h1>
+
+<div class="filters" id="filters"></div>
+
+<div class="card">
+<div class="diff-label" id="diffLabel"></div>
+<div class="twister-text" id="twisterText"></div>
+<div class="progress" id="progress"></div>
+</div>
+
+<div class="timer-area">
+<div class="timer-display" id="timer">0.0초</div>
+</div>
+
+<div class="btn-row">
+<button class="btn start" id="timerBtn" onclick="toggleTimer()">타이머 시작</button>
+<button class="btn secondary" onclick="nextTwister()">다음</button>
+<button class="btn secondary" onclick="randomTwister()">랜덤</button>
+</div>
+
+<div class="best-time" id="bestTime"></div>
+</div>
+
+<script>
+const TWISTERS=[
+{t:'간장 공장 공장장은 강 공장장이고 된장 공장 공장장은 공 공장장이다',d:1},
+{t:'콩깍지는 깐 콩깍지인가 안 깐 콩깍지인가',d:1},
+{t:'저기 저 콩깍지가 깐 콩깍지인가 안 깐 콩깍지인가',d:1},
+{t:'내가 그린 기린 그림은 긴 기린 그림이고 네가 그린 기린 그림은 안 긴 기린 그림이다',d:2},
+{t:'철수 책상 철 책상 철수 책상 위 철 책상',d:1},
+{t:'경찰청 철창살은 외철창살이냐 쌍철창살이냐',d:2},
+{t:'저 분은 백 법학박사이고 이 분은 박 법학박사이다',d:2},
+{t:'도토리가 문을 도로록 두드리니 드르륵 문이 열렸다',d:1},
+{t:'신진 샹숑 가수의 신춘 샹숑 쇼',d:2},
+{t:'상표 붙인 큰 깡통은 깐 깡통인가 안 깐 깡통인가',d:1},
+{t:'한양 양장점 옆 한양 양장점 한양 양장점 뒷 한양 양장점',d:2},
+{t:'들의 콩깍지는 깐 콩깍지인가 안 깐 콩깍지인가 깐 콩깍지면 어떻고 안 깐 콩깍지면 어떠랴',d:3},
+{t:'고려고 교복은 고급 교복이고 고려고 교복은 고급 원단 교복이다',d:2},
+{t:'육통 통장 적금 통장은 황색 적금 통장이고 팔통 통장 적금 통장은 녹색 적금 통장이다',d:3},
+{t:'저기 계신 저 분이 박 법학박사이시고 여기 계신 이 분이 백 법학박사이시다',d:3},
+{t:'작은 토끼 큰 토끼 헌 토끼 새 토끼',d:1},
+{t:'멍멍이네 꿀꿀이는 멍멍하고 꿀꿀이네 멍멍이는 꿀꿀한다',d:1},
+{t:'서울특별시 특허허가과 허가과장 허 과장',d:2},
+{t:'안 촉촉한 초코칩 나라에 살던 안 촉촉한 초코칩이 촉촉한 초코칩 나라의 촉촉한 초코칩을 보고 촉촉하게 되어 촉촉한 초코칩이 되었다',d:3},
+{t:'낙장불입 닭장에 들어간 낙타 닭을 낙타가 낚아챘다',d:3},
+{t:'정말 절절한 전절의 절정',d:2},
+{t:'고급 교복용 고급 교복은 고급 원단 고급 교복',d:2},
+{t:'앞뜰에 있는 말뚝이 말 맬 말뚝이냐 말 못 맬 말뚝이냐',d:2},
+{t:'시골 칠칠치 촌장 집 쇳 대문은 새 쇳 대문이냐 헌 쇳 대문이냐',d:3},
+{t:'청단풍잎 홍단풍잎 홍단풍잎 청단풍잎',d:1},
+{t:'발발이가 발발이를 발로 밟으니 발발이가 발발 떤다',d:2},
+{t:'뒷집 강아지 겉껍질이 깐 겉껍질이냐 못 깐 겉껍질이냐',d:3},
+{t:'네가 그 긴 기역을 그리 길게 긋느냐 나도 그 긴 기역을 그리 길게 긋는다',d:3},
+{t:'쇠뿔 쉰 소뿔 쇠뿔 쉰 소뿔',d:2},
+{t:'지기 싫으면 지금 뛰어 지지 않으려면 지금 뛰어',d:1}
+];
+
+const DIFFS=['전체','쉬움','보통','어려움'];
+let currentDiff='전체',current=0,timerInterval=null,timerRunning=false,startTime=0,elapsed=0;
+let filtered=[];
+
+function init(){
+const f=document.getElementById('filters');
+DIFFS.forEach(d=>{
+const b=document.createElement('button');b.textContent=d;
+b.className=d===currentDiff?'active':'';
+b.onclick=()=>{currentDiff=d;document.querySelectorAll('.filters button').forEach(x=>x.classList.remove('active'));b.classList.add('active');current=0;filter();showTwister()};
+f.appendChild(b);
+});
+filter();
+showTwister();
+loadBest();
+}
+
+function filter(){
+if(currentDiff==='전체') filtered=[...TWISTERS];
+else{const d=DIFFS.indexOf(currentDiff);filtered=TWISTERS.filter(t=>t.d===d)}
+}
+
+function showTwister(){
+if(!filtered.length) return;
+if(current>=filtered.length) current=0;
+const tw=filtered[current];
+document.getElementById('twisterText').textContent=tw.t;
+const labels=['','쉬움','보통','어려움'];
+const cls=['','d-easy','d-medium','d-hard'];
+document.getElementById('diffLabel').innerHTML=`<span class="${cls[tw.d]}">${labels[tw.d]}</span>`;
+document.getElementById('progress').textContent=`${current+1} / ${filtered.length}`;
+}
+
+function nextTwister(){
+current++;
+if(timerRunning) stopTimer();
+showTwister();
+}
+
+function randomTwister(){
+current=Math.floor(Math.random()*filtered.length);
+if(timerRunning) stopTimer();
+showTwister();
+}
+
+function toggleTimer(){
+if(timerRunning) stopTimer();
+else startTimer();
+}
+
+function startTimer(){
+timerRunning=true;
+startTime=Date.now();
+document.getElementById('timerBtn').textContent='타이머 정지';
+document.getElementById('timerBtn').className='btn stop';
+timerInterval=setInterval(()=>{
+elapsed=(Date.now()-startTime)/1000;
+document.getElementById('timer').textContent=elapsed.toFixed(1)+'초';
+},100);
+}
+
+function stopTimer(){
+timerRunning=false;
+clearInterval(timerInterval);
+elapsed=(Date.now()-startTime)/1000;
+document.getElementById('timer').textContent=elapsed.toFixed(1)+'초';
+document.getElementById('timerBtn').textContent='타이머 시작';
+document.getElementById('timerBtn').className='btn start';
+saveBest(elapsed);
+}
+
+function saveBest(time){
+const key='twister_best';
+const best=parseFloat(localStorage.getItem(key)||'99999');
+if(time<best){
+localStorage.setItem(key,time.toString());
+document.getElementById('bestTime').textContent='최고 기록: '+time.toFixed(1)+'초 (갱신!)';
+}else{
+document.getElementById('bestTime').textContent='최고 기록: '+best.toFixed(1)+'초';
+}
+}
+
+function loadBest(){
+const best=localStorage.getItem('twister_best');
+if(best) document.getElementById('bestTime').textContent='최고 기록: '+parseFloat(best).toFixed(1)+'초';
+}
+
+init();
+</script>
+</body>
+</html>

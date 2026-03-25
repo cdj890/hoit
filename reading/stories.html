@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>짧은 이야기</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;min-height:100vh;padding:60px 12px 20px}
+h1{text-align:center;font-size:1.4em;margin-bottom:14px}
+.wrap{max-width:600px;margin:0 auto}
+.filters{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:16px}
+.filters button{background:#1a1a2e;color:#fff;border:1px solid #333;padding:8px 16px;border-radius:20px;font-size:13px;min-height:40px;cursor:pointer;touch-action:manipulation;font-family:inherit}
+.filters button.active{background:#4fc3f7;color:#000;border-color:#4fc3f7}
+.story-card{background:#1a1a2e;border:1px solid #333;border-radius:16px;padding:24px;margin-bottom:14px}
+.story-title{font-size:1.2em;font-weight:bold;margin-bottom:8px;color:#4fc3f7}
+.story-meta{display:flex;gap:10px;margin-bottom:14px;font-size:12px;color:#888}
+.story-meta .tag{background:#2a2a4e;padding:3px 10px;border-radius:12px;color:#aaa}
+.story-body{line-height:1.8;font-size:15px;color:#ddd}
+.story-body p{margin-bottom:12px}
+.btn-row{display:flex;gap:8px;justify-content:center;margin-bottom:16px}
+.btn{background:#4fc3f7;color:#000;border:none;padding:12px 20px;border-radius:10px;font-size:15px;font-weight:bold;min-height:44px;touch-action:manipulation;cursor:pointer;font-family:inherit}
+.btn.secondary{background:#1a1a2e;color:#fff;border:1px solid #333}
+.story-list{display:none}
+.story-list .item{background:#1a1a2e;border:1px solid #333;border-radius:10px;padding:14px;margin-bottom:8px;cursor:pointer;touch-action:manipulation}
+.story-list .item:hover{border-color:#4fc3f7}
+.story-list .item .title{font-weight:bold;margin-bottom:4px}
+.story-list .item .meta{font-size:12px;color:#888}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+
+<div class="wrap">
+<h1>짧은 이야기</h1>
+
+<div class="filters" id="filters"></div>
+
+<div class="btn-row">
+<button class="btn" onclick="randomStory()">랜덤 이야기</button>
+<button class="btn secondary" id="toggleBtn" onclick="toggleView()">목록 보기</button>
+</div>
+
+<div id="storyView">
+<div class="story-card" id="storyCard">
+<div class="story-title" id="storyTitle"></div>
+<div class="story-meta" id="storyMeta"></div>
+<div class="story-body" id="storyBody"></div>
+</div>
+</div>
+
+<div class="story-list" id="storyList"></div>
+</div>
+
+<script>
+const STORIES=[
+{title:'마지막 전화',genre:'공포',body:'한밤중에 전화가 울렸다. "여보세요?" 아무 소리도 들리지 않았다. 그저 무거운 숨소리만. 전화를 끊고 다시 잠들려 했지만, 이번엔 문자가 왔다. "뒤를 돌아봐."\n\n심장이 얼어붙었다. 천천히 고개를 돌리자, 창문에 비친 자신의 모습이 보였다. 하지만 뭔가 달랐다. 거울 속의 나는... 웃고 있지 않았다. 나는 분명 웃고 있는데.\n\n다시 전화가 울렸다. 이번에는 내 목소리가 들렸다. "도망쳐."'},
+{title:'할머니의 도시락',genre:'감동',body:'매일 학교에서 친구들은 예쁜 도시락을 가져왔다. 나의 도시락은 항상 같았다. 밥, 김치, 계란말이. 부끄러웠다.\n\n30년이 지나 할머니의 장례식에서, 이모가 말했다. "할머니는 새벽 4시에 일어나서 네 도시락을 싸셨어. 관절염이 심했는데도 하루도 안 빠지셨지."\n\n그날 밤, 나는 펑펑 울었다. 세상에서 가장 맛있는 도시락이었다는 걸 너무 늦게 알았다.'},
+{title:'자판기의 비밀',genre:'유머',body:'회사 1층 자판기에는 전설이 있었다. 버튼을 두 번 누르면 음료가 두 개 나온다는 것이다. 김대리는 매일 도전했다.\n\n어느 날, 정말 두 개가 나왔다! 흥분한 김대리가 세 번 눌러봤다. 이번엔 세 개가... 아니, 자판기가 고장났다. 음료가 쏟아지기 시작했다.\n\n결국 수리비 50만원. 김대리의 전설은 "자판기를 고장낸 남자"로 바뀌었다.'},
+{title:'803호의 이웃',genre:'미스터리',body:'803호에 이사 온 지 일주일. 매일 밤 12시에 옆집 804호에서 피아노 소리가 들렸다. 쇼팽의 녹턴. 아름다웠지만, 너무 늦은 시간이었다.\n\n경비실에 항의했더니 경비원이 고개를 갸우뚱했다. "804호요? 거기 6개월째 비어있는데요."\n\n그날 밤, 다시 피아노 소리가 들렸다. 이번엔 문 앞에 악보 한 장이 놓여 있었다. 거기엔 이렇게 적혀 있었다. "들어줘서 고마워요."'},
+{title:'용이 된 고양이',genre:'판타지',body:'밤새 내린 별똥비 다음 날, 우리 집 고양이 나비가 이상해졌다. 코에서 연기가 나기 시작한 것이다. 하품을 할 때마다 작은 불꽃이 튀었다.\n\n일주일 후, 나비는 날개가 돋았다. 비늘도 자라나기 시작했다. 수의사는 "처음 보는 증상"이라며 고개를 저었다.\n\n하지만 나비는 여전히 나비였다. 날개가 있어도 택배 상자 안에 들어가는 걸 더 좋아했고, 불을 뿜을 수 있어도 참치캔 앞에서 야옹 울었다.'},
+{title:'지하철 귀신',genre:'공포',body:'막차를 탔다. 텅 빈 칸에 나 혼자뿐이었다. 아니, 맨 끝자리에 한 사람이 더 있었다. 고개를 숙인 여자.\n\n다음 역, 또 다음 역. 아무도 타지 않았다. 종점 안내방송이 나왔는데, 여자는 내리지 않았다. 나도 종점에서 내려야 했다.\n\n문이 열리고 내리는 순간, 여자가 고개를 들었다. 나와 똑같은 얼굴이었다. 그녀가 말했다. "내리지 마."'},
+{title:'연애 상담 AI',genre:'유머',body:'"여자친구한테 뭐라고 답장해야 할까?" 최첨단 AI에게 물었다. AI가 분석을 시작했다. "99.7% 확률로 함정 질문입니다."\n\n"아니 그래서 뭐라고 해?" "제가 분석한 최적의 답변은... 이모티콘 하나입니다." "어떤 건데?" "하트요."\n\n그래서 하트를 보냈다. 여자친구 답장: "하트 하나? 그게 끝이야?" AI가 조용히 말했다. "도주를 권합니다."'},
+{title:'빗속의 우산',genre:'감동',body:'비가 쏟아지던 날, 버스 정류장에서 할아버지 한 분이 비를 맞고 계셨다. 우산이 하나밖에 없었지만, 나는 다가가 우산을 씌워드렸다.\n\n할아버지가 웃으며 말씀하셨다. "고맙구나. 50년 전에도 이 정류장에서 한 소년이 나한테 우산을 씌워줬는데..." 지갑에서 오래된 사진을 꺼내셨다.\n\n사진 속 소년은 우리 할아버지였다. 이미 돌아가신. 할아버지의 할아버지가 말씀하셨다. "친절은 돌고 도는 거란다."'},
+{title:'소원을 파는 가게',genre:'판타지',body:'골목 안쪽에 간판도 없는 가게가 있었다. "뭘 파는 곳이에요?" "소원이요." 주인 할머니가 미소 지었다. "하나에 만 원입니다."\n\n반신반의하며 "시험에 붙게 해주세요"라고 빌었다. 할머니는 고개를 저었다. "그건 안 됩니다. 저희는 노력하는 사람의 소원만 들어드려요."\n\n결국 3개월 동안 죽어라 공부했고, 시험에 붙었다. 다시 가게를 찾아갔지만, 골목에는 빈 벽만 있었다. 주머니에서 만 원짜리가 나왔다.'},
+{title:'몬스터 아래 침대',genre:'공포',body:'아이가 말했다. "엄마, 침대 밑에 괴물이 있어." 엄마는 웃으며 침대 밑을 들여다봤다.\n\n침대 밑에서 아이와 똑같이 생긴 아이가 떨고 있었다. "엄마... 침대 위에 괴물이 있어."\n\n엄마는 천천히 고개를 들어 침대 위를 봤다. 침대 위의 아이가 웃고 있었다. 하지만 그 미소가... 너무 컸다.'},
+{title:'시간여행 택시',genre:'판타지',body:'새벽 3시에 잡은 택시. 기사님이 물었다. "어디로 갈까요?" "집이요." "아니, 언제로 갈까요?"\n\n미터기에는 숫자 대신 날짜가 표시되었다. 장난인 줄 알고 "10년 전이요"라고 했다. 택시가 출발하자 창밖 풍경이 변하기 시작했다.\n\n10년 전의 내 앞에 도착했다. 택시 요금은 "후회 하나"였다. 과거의 나에게 한마디만 할 수 있었다. "그 전화 받아." 그것으로 충분했다.'},
+{title:'강아지 통역사',genre:'유머',body:'과학자가 드디어 강아지 번역기를 개발했다. 첫 실험 대상은 옆집 골든리트리버.\n\n"왈왈!" 번역: "저 사람 주머니에 간식 있는 거 다 알아." "왈!" 번역: "산책은 언제??" "왈왈왈!" 번역: "고양이 놈이 또 내 자리에서 잤어!"\n\n가장 충격적인 번역은 밤에 나왔다. "왈..." 번역: "주인이 자면 냉장고 여는 법 알아. 근데 발이 안 돼서 못 열어." 강아지는 생각보다 계획적이었다.'},
+{title:'거울 나라',genre:'미스터리',body:'새로 산 고풍스러운 거울. 자세히 보면 배경이 미묘하게 달랐다. 내 방인데 내 방이 아닌 것 같은.\n\n어느 날 거울 속의 내가 다른 행동을 했다. 나는 가만히 있는데, 거울 속의 나는 고개를 기울였다. 그리고 입 모양으로 뭔가를 말했다.\n\n립리딩으로 해독했다. "도와줘. 여기서 나가고 싶어." 나는 거울을 깨뜨렸다. 깨진 조각에서 보인 건... 더 이상 내 얼굴이 아니었다.'},
+{title:'엄마의 레시피',genre:'감동',body:'엄마가 돌아가신 후, 유품 정리를 하다 오래된 요리 노트를 발견했다. "우리 딸을 위한 레시피"라고 적혀 있었다.\n\n된장찌개, 김치볶음밥, 계란말이... 모두 내가 좋아하던 것들이었다. 각 레시피 끝에는 메모가 있었다. "딸이 이거 먹을 때 제일 행복해 보임 ♥"\n\n마지막 페이지에는 이렇게 적혀 있었다. "이 노트를 보고 있다면, 밥 잘 챙겨 먹어. 사랑해." 부엌에서 된장찌개를 끓이며 한참을 울었다.'},
+{title:'외계인의 리뷰',genre:'유머',body:'지구 방문 후기 (별 2개)\n\n교통: 최악. 아직도 바퀴 달린 상자를 타고 다님. 순간이동은 언제 개발하나?\n\n음식: 의외로 좋음. 특히 "치킨"이라는 음식은 우주에 알려야 할 수준. 별 5개 가능.\n\n주민: 대부분 친절하나, 작은 화면을 하루종일 쳐다보는 이상한 습관이 있음. 심각한 중독 의심.\n\n결론: 치킨 때문에 재방문 의사 있음. 단, 교통은 정말 참을 수 없음.'},
+{title:'저주받은 편의점',genre:'공포',body:'편의점 야간 알바 첫날. 선배가 말했다. "새벽 3시 33분에 절대 카운터에서 자지 마."\n\n그 시간이 되자 형광등이 깜빡였다. CCTV 화면에 빈 매장인데, 카운터 앞에 줄 서 있는 사람들이 보였다. 하나, 둘, 셋... 일곱 명.\n\n가장 앞에 선 사람이 카운터를 향해 물건을 내밀었다. 카운터에는 아무도 없는데, 계산 소리가 울렸다. "삐." 그리고 영수증이 출력됐다. 날짜는 1999년이었다.'},
+{title:'마법사 수습생',genre:'판타지',body:'마법학교 입학 첫날, 나의 특기는 "실수"였다. 불을 만들려면 얼음이 나왔고, 물을 만들려면 불이 나왔다.\n\n시험날, 물 소환 마법을 보여야 했다. 긴장한 나머지 지팡이를 거꾸로 들었는데, 교실 천장에서 무지개가 피어올랐다. 교수님이 감탄했다.\n\n"200년 만에 무지개 마법을 쓰는 학생이라니!" 알고 보니 실수가 겹치면 전설의 마법이 되는 거였다. 그날부터 나의 별명은 "역발상 마법사"가 되었다.'},
+{title:'고양이 카페의 비밀',genre:'미스터리',body:'매일 가는 고양이 카페. 고양이가 12마리인데, 가끔 13마리가 보였다. 직원에게 물으니 "12마리 맞아요"라고 했다.\n\n호기심에 하루 종일 관찰했다. 오후 4시 44분, 햇살이 특정 각도로 들어올 때 회색 고양이 한 마리가 더 나타났다. 만지면 손이 살짝 통과했다.\n\n카페 사장님이 마지막에 말해줬다. "원래 첫 번째 고양이였어요. 3년 전에 떠났는데, 아직도 여기가 좋은가 봐요." 13번째 고양이는 그날도 창가에서 낮잠을 잤다.'},
+{title:'아빠의 별',genre:'감동',body:'아빠가 떠나시기 전, 하늘의 별 하나를 가리키며 말씀하셨다. "아빠는 저기서 너를 볼 거야."\n\n그 후로 힘들 때마다 그 별을 찾았다. 시험에 떨어졌을 때, 실연당했을 때, 직장을 잃었을 때. 별은 항상 그 자리에서 빛났다.\n\n결혼식 날 밤, 아내와 함께 하늘을 올려다봤다. 그 별이 유난히 밝았다. "아빠가 축하하시나 봐." 아내가 말했다. 그 순간 별이 한 번 반짝였다. 정말로.'}
+];
+
+const GENRES=['전체','공포','감동','유머','미스터리','판타지'];
+let currentGenre='전체',listMode=false;
+
+function init(){
+const f=document.getElementById('filters');
+GENRES.forEach(g=>{
+const b=document.createElement('button');b.textContent=g;
+b.className=g===currentGenre?'active':'';
+b.onclick=()=>{currentGenre=g;document.querySelectorAll('.filters button').forEach(x=>x.classList.remove('active'));b.classList.add('active');if(listMode)renderList();else randomStory()};
+f.appendChild(b);
+});
+randomStory();
+}
+
+function getFiltered(){
+if(currentGenre==='전체') return STORIES;
+return STORIES.filter(s=>s.genre===currentGenre);
+}
+
+function showStory(s){
+document.getElementById('storyTitle').textContent=s.title;
+const words=s.body.replace(/\n/g,' ').split(/\s+/).length;
+const time=Math.max(1,Math.ceil(words/150));
+document.getElementById('storyMeta').innerHTML=`<span class="tag">${s.genre}</span><span>읽기 약 ${time}분</span>`;
+document.getElementById('storyBody').innerHTML=s.body.split('\n').map(p=>`<p>${p}</p>`).join('');
+}
+
+function randomStory(){
+const list=getFiltered();
+if(!list.length) return;
+showStory(list[Math.floor(Math.random()*list.length)]);
+if(listMode) toggleView();
+}
+
+function toggleView(){
+listMode=!listMode;
+document.getElementById('storyView').style.display=listMode?'none':'block';
+document.getElementById('storyList').style.display=listMode?'block':'none';
+document.getElementById('toggleBtn').textContent=listMode?'읽기 모드':'목록 보기';
+if(listMode) renderList();
+}
+
+function renderList(){
+const el=document.getElementById('storyList');
+el.innerHTML='';
+getFiltered().forEach(s=>{
+const d=document.createElement('div');d.className='item';
+const words=s.body.replace(/\n/g,' ').split(/\s+/).length;
+const time=Math.max(1,Math.ceil(words/150));
+d.innerHTML=`<div class="title">${s.title}</div><div class="meta">${s.genre} · 약 ${time}분</div>`;
+d.onclick=()=>{showStory(s);toggleView()};
+el.appendChild(d);
+});
+}
+
+init();
+</script>
+</body>
+</html>

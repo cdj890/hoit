@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<title>오늘의 일기</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;min-height:100vh;padding:60px 12px 20px}
+h1{text-align:center;font-size:1.4em;margin-bottom:14px}
+.wrap{max-width:500px;margin:0 auto}
+.tabs{display:flex;gap:4px;margin-bottom:16px}
+.tabs button{flex:1;background:#1a1a2e;color:#aaa;border:1px solid #333;padding:10px;border-radius:8px 8px 0 0;font-size:14px;min-height:44px;cursor:pointer;touch-action:manipulation;font-family:inherit}
+.tabs button.active{background:#1e3a5f;color:#4fc3f7;border-color:#4fc3f7;border-bottom:none}
+.panel{display:none}
+.panel.active{display:block}
+.date-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.date-row input{background:#1a1a2e;color:#fff;border:1px solid #333;padding:10px;border-radius:8px;font-size:15px;min-height:44px;flex:1;font-family:inherit}
+.mood-row{display:flex;gap:8px;justify-content:center;margin-bottom:14px}
+.mood-row button{font-size:32px;background:none;border:2px solid transparent;border-radius:12px;padding:8px;cursor:pointer;min-width:50px;min-height:50px;touch-action:manipulation}
+.mood-row button.active{border-color:#4fc3f7;background:#1e3a5f}
+textarea{width:100%;background:#1a1a2e;color:#fff;border:1px solid #333;padding:14px;border-radius:8px;font-size:15px;min-height:160px;resize:vertical;font-family:inherit;line-height:1.6}
+.btn{background:#4fc3f7;color:#000;border:none;padding:12px 20px;border-radius:10px;font-size:15px;font-weight:bold;min-height:44px;touch-action:manipulation;cursor:pointer;width:100%;margin-top:12px;font-family:inherit}
+.btn.secondary{background:#1a1a2e;color:#fff;border:1px solid #333}
+.btn.danger{background:#e74c3c;color:#fff}
+.cal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.cal-header button{background:#1a1a2e;color:#fff;border:1px solid #333;padding:8px 16px;border-radius:8px;min-height:44px;min-width:44px;cursor:pointer;touch-action:manipulation;font-family:inherit;font-size:18px}
+.cal-header span{font-size:16px;font-weight:bold}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:14px}
+.cal-grid .day-header{text-align:center;font-size:12px;color:#666;padding:6px}
+.cal-grid .day{text-align:center;padding:10px 4px;border-radius:6px;cursor:pointer;font-size:13px;min-height:40px;touch-action:manipulation;position:relative}
+.cal-grid .day:hover{background:#2a2a4e}
+.cal-grid .day.has-entry{background:#1e3a5f;color:#4fc3f7}
+.cal-grid .day.today{border:1px solid #4fc3f7}
+.cal-grid .day.empty{cursor:default}
+.cal-grid .day .mood-dot{position:absolute;bottom:2px;left:50%;transform:translateX(-50%);font-size:10px}
+.entry-view{background:#1a1a2e;border:1px solid #333;border-radius:12px;padding:20px;margin-bottom:12px;display:none}
+.entry-view .ev-date{font-size:14px;color:#888;margin-bottom:6px}
+.entry-view .ev-mood{font-size:28px;margin-bottom:10px}
+.entry-view .ev-text{line-height:1.7;font-size:15px;white-space:pre-wrap}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#4fc3f7;color:#000;padding:10px 24px;border-radius:8px;font-weight:bold;display:none;z-index:999}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+
+<div class="wrap">
+<h1>오늘의 일기</h1>
+
+<div class="tabs">
+<button class="active" onclick="switchTab('write')">쓰기</button>
+<button onclick="switchTab('calendar')">달력</button>
+<button onclick="switchTab('export')">내보내기</button>
+</div>
+
+<div class="panel active" id="panelWrite">
+<div class="date-row">
+<input type="date" id="entryDate">
+</div>
+<div class="mood-row" id="moodRow"></div>
+<textarea id="entryText" placeholder="오늘 하루는 어땠나요?"></textarea>
+<button class="btn" onclick="saveEntry()">저장하기</button>
+</div>
+
+<div class="panel" id="panelCalendar">
+<div class="cal-header">
+<button onclick="changeMonth(-1)">&lt;</button>
+<span id="calTitle"></span>
+<button onclick="changeMonth(1)">&gt;</button>
+</div>
+<div class="cal-grid" id="calGrid"></div>
+<div class="entry-view" id="entryView">
+<div class="ev-date" id="evDate"></div>
+<div class="ev-mood" id="evMood"></div>
+<div class="ev-text" id="evText"></div>
+<button class="btn secondary" onclick="editEntry()" style="margin-top:10px">수정</button>
+<button class="btn danger" onclick="deleteEntry()" style="margin-top:6px">삭제</button>
+</div>
+</div>
+
+<div class="panel" id="panelExport">
+<p style="margin-bottom:12px;color:#aaa;text-align:center">일기 데이터를 텍스트로 내보내기</p>
+<textarea id="exportArea" readonly style="min-height:200px"></textarea>
+<button class="btn" onclick="doExport()">텍스트 생성</button>
+<button class="btn secondary" onclick="copyExport()" style="margin-top:8px">클립보드 복사</button>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const MOODS=[
+{emoji:'😊',label:'행복'},
+{emoji:'😢',label:'슬픔'},
+{emoji:'😡',label:'화남'},
+{emoji:'😴',label:'피곤'},
+{emoji:'😐',label:'평범'}
+];
+
+let entries=JSON.parse(localStorage.getItem('diary_entries')||'{}');
+let selectedMood=0;
+let calYear,calMonth;
+let viewingDate='';
+
+function init(){
+const today=new Date();
+document.getElementById('entryDate').value=formatDate(today);
+calYear=today.getFullYear();
+calMonth=today.getMonth();
+
+const mr=document.getElementById('moodRow');
+MOODS.forEach((m,i)=>{
+const b=document.createElement('button');
+b.textContent=m.emoji;
+b.title=m.label;
+b.className=i===0?'active':'';
+b.onclick=()=>{selectedMood=i;document.querySelectorAll('.mood-row button').forEach(x=>x.classList.remove('active'));b.classList.add('active')};
+mr.appendChild(b);
+});
+
+loadExisting();
+}
+
+function formatDate(d){
+return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+
+function loadExisting(){
+const date=document.getElementById('entryDate').value;
+if(entries[date]){
+selectedMood=entries[date].mood;
+document.getElementById('entryText').value=entries[date].text;
+document.querySelectorAll('.mood-row button').forEach((b,i)=>b.classList.toggle('active',i===selectedMood));
+}else{
+document.getElementById('entryText').value='';
+}
+}
+
+document.getElementById('entryDate').addEventListener('change',loadExisting);
+
+function saveEntry(){
+const date=document.getElementById('entryDate').value;
+const text=document.getElementById('entryText').value.trim();
+if(!text){showToast('내용을 입력해주세요');return}
+entries[date]={mood:selectedMood,text,saved:Date.now()};
+localStorage.setItem('diary_entries',JSON.stringify(entries));
+showToast('저장완료!');
+}
+
+function switchTab(tab){
+document.querySelectorAll('.tabs button').forEach((b,i)=>{
+const panels=['write','calendar','export'];
+b.classList.toggle('active',panels[i]===tab);
+document.getElementById('panel'+panels[i].charAt(0).toUpperCase()+panels[i].slice(1)).classList.toggle('active',panels[i]===tab);
+});
+if(tab==='calendar') renderCalendar();
+}
+
+function changeMonth(d){
+calMonth+=d;
+if(calMonth<0){calMonth=11;calYear--}
+if(calMonth>11){calMonth=0;calYear++}
+renderCalendar();
+}
+
+function renderCalendar(){
+const title=calYear+'년 '+(calMonth+1)+'월';
+document.getElementById('calTitle').textContent=title;
+const grid=document.getElementById('calGrid');
+grid.innerHTML='';
+const days=['일','월','화','수','목','금','토'];
+days.forEach(d=>{const div=document.createElement('div');div.className='day-header';div.textContent=d;grid.appendChild(div)});
+const first=new Date(calYear,calMonth,1);
+const lastDay=new Date(calYear,calMonth+1,0).getDate();
+const startDay=first.getDay();
+const today=formatDate(new Date());
+for(let i=0;i<startDay;i++){const div=document.createElement('div');div.className='day empty';grid.appendChild(div)}
+for(let d=1;d<=lastDay;d++){
+const div=document.createElement('div');
+div.className='day';
+div.textContent=d;
+const dateStr=calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+if(dateStr===today) div.classList.add('today');
+if(entries[dateStr]){
+div.classList.add('has-entry');
+const dot=document.createElement('span');
+dot.className='mood-dot';
+dot.textContent=MOODS[entries[dateStr].mood].emoji;
+div.appendChild(dot);
+}
+div.onclick=()=>showEntry(dateStr);
+grid.appendChild(div);
+}
+}
+
+function showEntry(date){
+viewingDate=date;
+const ev=document.getElementById('entryView');
+if(!entries[date]){ev.style.display='none';return}
+ev.style.display='block';
+document.getElementById('evDate').textContent=date;
+document.getElementById('evMood').textContent=MOODS[entries[date].mood].emoji+' '+MOODS[entries[date].mood].label;
+document.getElementById('evText').textContent=entries[date].text;
+}
+
+function editEntry(){
+if(!viewingDate||!entries[viewingDate]) return;
+document.getElementById('entryDate').value=viewingDate;
+selectedMood=entries[viewingDate].mood;
+document.getElementById('entryText').value=entries[viewingDate].text;
+document.querySelectorAll('.mood-row button').forEach((b,i)=>b.classList.toggle('active',i===selectedMood));
+switchTab('write');
+}
+
+function deleteEntry(){
+if(!viewingDate||!entries[viewingDate]) return;
+if(!confirm('정말 삭제하시겠습니까?')) return;
+delete entries[viewingDate];
+localStorage.setItem('diary_entries',JSON.stringify(entries));
+document.getElementById('entryView').style.display='none';
+renderCalendar();
+showToast('삭제완료');
+}
+
+function doExport(){
+const sorted=Object.keys(entries).sort();
+let text='=== 나의 일기 ===\n\n';
+sorted.forEach(date=>{
+const e=entries[date];
+text+=`[${date}] ${MOODS[e.mood].emoji} ${MOODS[e.mood].label}\n${e.text}\n\n---\n\n`;
+});
+if(!sorted.length) text+='아직 작성된 일기가 없습니다.';
+document.getElementById('exportArea').value=text;
+}
+
+function copyExport(){
+const t=document.getElementById('exportArea').value;
+if(!t) doExport();
+navigator.clipboard.writeText(document.getElementById('exportArea').value);
+showToast('복사완료!');
+}
+
+function showToast(msg){
+const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';
+setTimeout(()=>t.style.display='none',1500);
+}
+
+init();
+</script>
+</body>
+</html>

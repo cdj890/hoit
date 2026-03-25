@@ -375,6 +375,8 @@ body.light-mode .profile-close{background:#f0f0f0;border-color:#ddd;color:#666}
   <div class="tab" onclick="switchTab('music')"><span class="tab-icon">🎵</span><span class="tab-label">음악</span><span class="badge badge-tools" id="mu-count"></span></div>
   <div class="tab" onclick="switchTab('health')"><span class="tab-icon">🏋️</span><span class="tab-label">건강</span><span class="badge badge-quiz" id="ht-count"></span></div>
   <div class="tab" onclick="switchTab('learn')"><span class="tab-icon">🎓</span><span class="tab-label">학습</span><span class="badge badge-itknow" id="ln-count"></span></div>
+  <div class="tab" onclick="switchTab('creative')"><span class="tab-icon">🎨</span><span class="tab-label">창작</span><span class="badge badge-test" id="cr-count"></span></div>
+  <div class="tab" onclick="switchTab('reading')"><span class="tab-icon">📖</span><span class="tab-label">읽기</span><span class="badge badge-destiny" id="rd-count"></span></div>
 </div>
 
 <div class="search-bar">
@@ -748,6 +750,22 @@ const LEARN=[
   {file:'learn/typing_practice.html',title:'타자 속도 측정',desc:'WPM/CPM 측정',emoji:'⌨️',bg:'linear-gradient(135deg,#455A64,#78909C)'},
 ];
 
+const CREATIVE=[
+  {file:'creative/pixel.html',title:'픽셀아트',desc:'도트 그림 에디터',emoji:'🎨',bg:'linear-gradient(135deg,#E91E63,#F48FB1)'},
+  {file:'creative/ascii.html',title:'아스키아트',desc:'텍스트를 아트로 변환',emoji:'💻',bg:'linear-gradient(135deg,#37474F,#607D8B)'},
+  {file:'creative/meme.html',title:'밈 생성기',desc:'밈 이미지 만들기',emoji:'😂',bg:'linear-gradient(135deg,#FF6F00,#FFB300)'},
+  {file:'creative/emoji_mix.html',title:'이모지 믹서',desc:'이모지 조합 실험',emoji:'🧪',bg:'linear-gradient(135deg,#7B1FA2,#CE93D8)'},
+  {file:'creative/avatar.html',title:'아바타 만들기',desc:'나만의 캐릭터 생성',emoji:'👤',bg:'linear-gradient(135deg,#00695C,#26A69A)'},
+];
+
+const READING=[
+  {file:'reading/quotes.html',title:'명언 생성기',desc:'200+ 명언 랜덤 보기',emoji:'💬',bg:'linear-gradient(135deg,#4527A0,#7C4DFF)'},
+  {file:'reading/stories.html',title:'짧은 이야기',desc:'장르별 20편 단편',emoji:'📖',bg:'linear-gradient(135deg,#1565C0,#42A5F5)'},
+  {file:'reading/riddles.html',title:'수수께끼',desc:'50개 수수께끼 풀기',emoji:'❓',bg:'linear-gradient(135deg,#E65100,#FF9800)'},
+  {file:'reading/tongue.html',title:'잰말 연습',desc:'30개 발음 도전',emoji:'👅',bg:'linear-gradient(135deg,#C62828,#EF5350)'},
+  {file:'reading/diary.html',title:'오늘의 일기',desc:'매일 기록하는 일기장',emoji:'📝',bg:'linear-gradient(135deg,#283593,#5C6BC0)'},
+];
+
 // Nick
 function renderNick(){
   const bar=document.getElementById('nick-bar');
@@ -818,8 +836,8 @@ function switchTab(tab){
     const badges=t.querySelector('.badge');
     t.className='tab';
   });
-  const tabs={game:0,test:1,destiny:2,itknow:3,quiz:4,tools:5,music:6,health:7,learn:8};
-  const cls=['active-game','active-test','active-destiny','active-game','active-test','active-destiny','active-game','active-test','active-destiny'];
+  const tabs={game:0,test:1,destiny:2,itknow:3,quiz:4,tools:5,music:6,health:7,learn:8,creative:9,reading:10};
+  const cls=['active-game','active-test','active-destiny','active-game','active-test','active-destiny','active-game','active-test','active-destiny','active-game','active-test'];
   const idx=tabs[tab]||0;
   document.querySelectorAll('.tab')[idx]?.classList.add(cls[idx]);
   document.getElementById('lb-section').style.display=tab==='game'?'block':'none';
@@ -842,7 +860,7 @@ const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
 function renderGrid(){
   const grid=document.getElementById('grid');
   grid.innerHTML='';
-  const TAB_MAP={game:GAMES,test:TESTS,destiny:DESTINY,itknow:ITKNOW,quiz:QUIZ,tools:TOOLS,music:MUSIC,health:HEALTH,learn:LEARN};
+  const TAB_MAP={game:GAMES,test:TESTS,destiny:DESTINY,itknow:ITKNOW,quiz:QUIZ,tools:TOOLS,music:MUSIC,health:HEALTH,learn:LEARN,creative:CREATIVE,reading:READING};
   let items=TAB_MAP[currentTab]||GAMES;
   const scores=getScores();
 
@@ -1088,7 +1106,7 @@ function renderFooter(){
   // Newest content (last 5 added across all)
   const newest=[...GAMES.slice(-2),...TOOLS.slice(-2),...QUIZ.slice(-1)];
   document.getElementById('footerNew').innerHTML=newest.map(g=>`<a href="${g.file}">${g.emoji} ${g.title}</a>`).join('');
-  document.getElementById('footerTotal').textContent=GAMES.length+TESTS.length+DESTINY.length+ITKNOW.length+QUIZ.length+TOOLS.length;
+  document.getElementById('footerTotal').textContent=GAMES.length+TESTS.length+DESTINY.length+ITKNOW.length+QUIZ.length+TOOLS.length+MUSIC.length+HEALTH.length+LEARN.length+CREATIVE.length+READING.length;
 }
 
 // === Daily Challenge ===
@@ -1242,6 +1260,8 @@ document.getElementById('tl-count').textContent=TOOLS.length;
 document.getElementById('mu-count').textContent=MUSIC.length;
 document.getElementById('ht-count').textContent=HEALTH.length;
 document.getElementById('ln-count').textContent=LEARN.length;
+document.getElementById('cr-count').textContent=CREATIVE.length;
+document.getElementById('rd-count').textContent=READING.length;
 switchTab('game');
 renderFooter();
 fetchTodayViews();
