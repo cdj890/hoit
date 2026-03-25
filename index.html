@@ -157,7 +157,7 @@ footer{text-align:center;padding:30px 20px;color:#444;font-size:12px;border-top:
 @media(max-width:600px){
   header{padding:25px 15px 10px}
   header h1{font-size:28px}
-  .tabs{gap:4px;padding:8px 6px;display:grid;grid-template-columns:repeat(3,1fr)}
+  .tabs{gap:4px;padding:8px 6px;display:grid;grid-template-columns:repeat(4,1fr)}
   .tab{padding:8px 6px;font-size:12px;flex-direction:column;text-align:center;gap:2px;justify-content:center}
   .tab-icon{font-size:20px;display:block}
   .tab-label{font-size:11px;display:block}
@@ -372,11 +372,8 @@ body.light-mode .profile-close{background:#f0f0f0;border-color:#ddd;color:#666}
   <div class="tab" onclick="switchTab('itknow')"><span class="tab-icon">💻</span><span class="tab-label">IT</span><span class="badge badge-itknow" id="it-count"></span></div>
   <div class="tab" onclick="switchTab('quiz')"><span class="tab-icon">📚</span><span class="tab-label">퀴즈</span><span class="badge badge-quiz" id="qz-count"></span></div>
   <div class="tab" onclick="switchTab('tools')"><span class="tab-icon">🛠️</span><span class="tab-label">도구</span><span class="badge badge-tools" id="tl-count"></span></div>
-  <div class="tab" onclick="switchTab('music')"><span class="tab-icon">🎵</span><span class="tab-label">음악</span><span class="badge badge-tools" id="mu-count"></span></div>
-  <div class="tab" onclick="switchTab('health')"><span class="tab-icon">🏋️</span><span class="tab-label">건강</span><span class="badge badge-quiz" id="ht-count"></span></div>
   <div class="tab" onclick="switchTab('learn')"><span class="tab-icon">🎓</span><span class="tab-label">학습</span><span class="badge badge-itknow" id="ln-count"></span></div>
   <div class="tab" onclick="switchTab('creative')"><span class="tab-icon">🎨</span><span class="tab-label">창작</span><span class="badge badge-test" id="cr-count"></span></div>
-  <div class="tab" onclick="switchTab('reading')"><span class="tab-icon">📖</span><span class="tab-label">읽기</span><span class="badge badge-destiny" id="rd-count"></span></div>
 </div>
 
 <div class="search-bar">
@@ -634,6 +631,7 @@ const DESTINY=[
   {file:'destiny/spirit_animal.html',title:'수호 동물',desc:'나의 수호 동물의 메시지',emoji:'🐺',bg:'linear-gradient(135deg,#1A237E,#3949AB)'},
   {file:'destiny/biorhythm.html',title:'바이오리듬',desc:'신체·감정·지성 리듬 분석',emoji:'📈',bg:'linear-gradient(135deg,#00695C,#26A69A)'},
   {file:'destiny/color_fortune.html',title:'오늘의 색 운세',desc:'오늘의 행운 색은?',emoji:'🎨',bg:'linear-gradient(135deg,#C62828,#EF5350)'},
+  {file:'destiny/conch.html',title:'마법의 소라고동',desc:'소라고동에게 물어봐!',emoji:'🐚',bg:'linear-gradient(135deg,#00695C,#26A69A)'},
 ];
 
 
@@ -725,23 +723,14 @@ const TOOLS=[
   {file:'tools/todo.html',title:'할일 목록',desc:'카테고리별 투두리스트',emoji:'✅',bg:'linear-gradient(135deg,#00695C,#26A69A)'},
   {file:'tools/habit.html',title:'습관 트래커',desc:'잔디 그래프 일별 체크',emoji:'📊',bg:'linear-gradient(135deg,#33691E,#689F38)'},
   {file:'tools/noise.html',title:'백색소음',desc:'빗소리/파도/바람 생성',emoji:'🔊',bg:'linear-gradient(135deg,#263238,#455A64)'},
-];
-
-const MUSIC=[
-  {file:'music/metronome.html',title:'메트로놈',desc:'BPM 조절 비트 클릭',emoji:'🎵',bg:'linear-gradient(135deg,#E65100,#FF9800)'},
-  {file:'music/piano.html',title:'피아노',desc:'2옥타브 건반 연주',emoji:'🎹',bg:'linear-gradient(135deg,#1a1a2e,#333)'},
-  {file:'music/chords.html',title:'기타 코드표',desc:'코드 다이어그램 20종',emoji:'🎸',bg:'linear-gradient(135deg,#5D4037,#8D6E63)'},
-  {file:'music/tuner.html',title:'음 주파수표',desc:'A4=440Hz 기준 전체 음계',emoji:'🎼',bg:'linear-gradient(135deg,#283593,#5C6BC0)'},
-  {file:'music/drums.html',title:'드럼 패드',desc:'9개 패드 비트 만들기',emoji:'🥁',bg:'linear-gradient(135deg,#880E4F,#AD1457)'},
-];
-
-const HEALTH=[
   {file:'health/workout.html',title:'운동 타이머',desc:'HIIT/타바타 인터벌',emoji:'🏋️',bg:'linear-gradient(135deg,#C62828,#EF5350)'},
   {file:'health/calories.html',title:'칼로리 계산',desc:'음식별 칼로리 합산',emoji:'🍎',bg:'linear-gradient(135deg,#2E7D32,#66BB6A)'},
   {file:'health/stretch.html',title:'스트레칭 가이드',desc:'부위별 10종 타이머',emoji:'🧘',bg:'linear-gradient(135deg,#4527A0,#7C4DFF)'},
   {file:'health/water.html',title:'물 마시기',desc:'하루 8잔 트래커',emoji:'💧',bg:'linear-gradient(135deg,#0277BD,#29B6F6)'},
   {file:'health/sleep.html',title:'수면 계산기',desc:'수면 사이클 최적 기상',emoji:'😴',bg:'linear-gradient(135deg,#1A237E,#3949AB)'},
 ];
+
+
 
 const LEARN=[
   {file:'learn/english.html',title:'영어 단어장',desc:'500단어 플래시카드',emoji:'🔤',bg:'linear-gradient(135deg,#00695C,#26A69A)'},
@@ -752,6 +741,11 @@ const LEARN=[
   {file:'learn/japanese.html',title:'일본어 한 문장',desc:'매일 일본어 문장 학습',emoji:'🇯🇵',bg:'linear-gradient(135deg,#AD1457,#E91E63)'},
   {file:'learn/spanish.html',title:'스페인어 한 문장',desc:'매일 스페인어 문장 학습',emoji:'🇪🇸',bg:'linear-gradient(135deg,#E65100,#FF6D00)'},
   {file:'learn/english_daily.html',title:'영어 한 문장',desc:'매일 영어 실용 표현',emoji:'🇺🇸',bg:'linear-gradient(135deg,#0D47A1,#1976D2)'},
+  {file:'reading/quotes.html',title:'명언 생성기',desc:'200+ 명언 랜덤 보기',emoji:'💬',bg:'linear-gradient(135deg,#4527A0,#7C4DFF)'},
+  {file:'reading/stories.html',title:'짧은 이야기',desc:'장르별 20편 단편',emoji:'📖',bg:'linear-gradient(135deg,#1565C0,#42A5F5)'},
+  {file:'reading/riddles.html',title:'수수께끼',desc:'50개 수수께끼 풀기',emoji:'❓',bg:'linear-gradient(135deg,#E65100,#FF9800)'},
+  {file:'reading/tongue.html',title:'잰말 연습',desc:'30개 발음 도전',emoji:'👅',bg:'linear-gradient(135deg,#C62828,#EF5350)'},
+  {file:'reading/diary.html',title:'오늘의 일기',desc:'매일 기록하는 일기장',emoji:'📝',bg:'linear-gradient(135deg,#283593,#5C6BC0)'},
 ];
 
 const CREATIVE=[
@@ -759,15 +753,13 @@ const CREATIVE=[
   {file:'creative/ascii.html',title:'아스키아트',desc:'텍스트를 아트로 변환',emoji:'💻',bg:'linear-gradient(135deg,#37474F,#607D8B)'},
   {file:'creative/emoji_mix.html',title:'이모지 믹서',desc:'이모지 조합 실험',emoji:'🧪',bg:'linear-gradient(135deg,#7B1FA2,#CE93D8)'},
   {file:'creative/avatar.html',title:'아바타 만들기',desc:'나만의 캐릭터 생성',emoji:'👤',bg:'linear-gradient(135deg,#00695C,#26A69A)'},
+  {file:'music/metronome.html',title:'메트로놈',desc:'BPM 조절 비트 클릭',emoji:'🎵',bg:'linear-gradient(135deg,#E65100,#FF9800)'},
+  {file:'music/piano.html',title:'피아노',desc:'2옥타브 건반 연주',emoji:'🎹',bg:'linear-gradient(135deg,#1a1a2e,#333)'},
+  {file:'music/chords.html',title:'기타 코드표',desc:'코드 다이어그램 20종',emoji:'🎸',bg:'linear-gradient(135deg,#5D4037,#8D6E63)'},
+  {file:'music/tuner.html',title:'음 주파수표',desc:'A4=440Hz 기준 전체 음계',emoji:'🎼',bg:'linear-gradient(135deg,#283593,#5C6BC0)'},
+  {file:'music/drums.html',title:'드럼 패드',desc:'9개 패드 비트 만들기',emoji:'🥁',bg:'linear-gradient(135deg,#880E4F,#AD1457)'},
 ];
 
-const READING=[
-  {file:'reading/quotes.html',title:'명언 생성기',desc:'200+ 명언 랜덤 보기',emoji:'💬',bg:'linear-gradient(135deg,#4527A0,#7C4DFF)'},
-  {file:'reading/stories.html',title:'짧은 이야기',desc:'장르별 20편 단편',emoji:'📖',bg:'linear-gradient(135deg,#1565C0,#42A5F5)'},
-  {file:'reading/riddles.html',title:'수수께끼',desc:'50개 수수께끼 풀기',emoji:'❓',bg:'linear-gradient(135deg,#E65100,#FF9800)'},
-  {file:'reading/tongue.html',title:'잰말 연습',desc:'30개 발음 도전',emoji:'👅',bg:'linear-gradient(135deg,#C62828,#EF5350)'},
-  {file:'reading/diary.html',title:'오늘의 일기',desc:'매일 기록하는 일기장',emoji:'📝',bg:'linear-gradient(135deg,#283593,#5C6BC0)'},
-];
 
 // Nick
 function renderNick(){
@@ -839,8 +831,8 @@ function switchTab(tab){
     const badges=t.querySelector('.badge');
     t.className='tab';
   });
-  const tabs={game:0,test:1,destiny:2,itknow:3,quiz:4,tools:5,music:6,health:7,learn:8,creative:9,reading:10};
-  const cls=['active-game','active-test','active-destiny','active-game','active-test','active-destiny','active-game','active-test','active-destiny','active-game','active-test'];
+  const tabs={game:0,test:1,destiny:2,itknow:3,quiz:4,tools:5,learn:6,creative:7};
+  const cls=['active-game','active-test','active-destiny','active-game','active-test','active-destiny','active-game','active-test'];
   const idx=tabs[tab]||0;
   document.querySelectorAll('.tab')[idx]?.classList.add(cls[idx]);
   document.getElementById('lb-section').style.display=tab==='game'?'block':'none';
@@ -863,7 +855,7 @@ const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
 function renderGrid(){
   const grid=document.getElementById('grid');
   grid.innerHTML='';
-  const TAB_MAP={game:GAMES,test:TESTS,destiny:DESTINY,itknow:ITKNOW,quiz:QUIZ,tools:TOOLS,music:MUSIC,health:HEALTH,learn:LEARN,creative:CREATIVE,reading:READING};
+  const TAB_MAP={game:GAMES,test:TESTS,destiny:DESTINY,itknow:ITKNOW,quiz:QUIZ,tools:TOOLS,learn:LEARN,creative:CREATIVE};
   let items=TAB_MAP[currentTab]||GAMES;
   const scores=getScores();
 
@@ -1037,6 +1029,8 @@ function clearSearch(){
   document.getElementById('it-count').textContent=ITKNOW.length;
   document.getElementById('qz-count').textContent=QUIZ.length;
   document.getElementById('tl-count').textContent=TOOLS.length;
+  document.getElementById('ln-count').textContent=LEARN.length;
+  document.getElementById('cr-count').textContent=CREATIVE.length;
   renderGrid();
 }
 
@@ -1088,7 +1082,7 @@ function getGlowClass(bg){
 // Keyboard navigation: 1-6 switches tabs
 document.addEventListener('keydown',function(e){
   if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
-  const tabKeys={'1':'game','2':'test','3':'destiny','4':'itknow','5':'quiz','6':'tools'};
+  const tabKeys={'1':'game','2':'test','3':'destiny','4':'itknow','5':'quiz','6':'tools','7':'learn','8':'creative'};
   if(tabKeys[e.key]){e.preventDefault();switchTab(tabKeys[e.key]);}
 });
 
@@ -1097,7 +1091,7 @@ function renderFooter(){
   // Popular games: use real analytics if available
   let popular;
   if(todayViews&&Object.keys(todayViews).length>0){
-    const allContent=[...GAMES,...TESTS,...DESTINY,...ITKNOW,...QUIZ,...TOOLS,...MUSIC,...HEALTH,...LEARN];
+    const allContent=[...GAMES,...TESTS,...DESTINY,...ITKNOW,...QUIZ,...TOOLS,...LEARN,...CREATIVE];
     const scored=allContent.map(g=>{const k=g.file.replace(/[\/\.]/g,'_');return{...g,views:todayViews[k]||0};}).filter(g=>g.views>0);
     scored.sort((a,b)=>b.views-a.views);
     popular=scored.slice(0,5);
@@ -1109,7 +1103,7 @@ function renderFooter(){
   // Newest content (last 5 added across all)
   const newest=[...GAMES.slice(-2),...TOOLS.slice(-2),...QUIZ.slice(-1)];
   document.getElementById('footerNew').innerHTML=newest.map(g=>`<a href="${g.file}">${g.emoji} ${g.title}</a>`).join('');
-  document.getElementById('footerTotal').textContent=GAMES.length+TESTS.length+DESTINY.length+ITKNOW.length+QUIZ.length+TOOLS.length+MUSIC.length+HEALTH.length+LEARN.length+CREATIVE.length+READING.length;
+  document.getElementById('footerTotal').textContent=GAMES.length+TESTS.length+DESTINY.length+ITKNOW.length+QUIZ.length+TOOLS.length+LEARN.length+CREATIVE.length;
 }
 
 // === Daily Challenge ===
@@ -1256,15 +1250,11 @@ renderNick();
 document.getElementById('game-count').textContent=GAMES.length;
 document.getElementById('test-count').textContent=TESTS.length;
 document.getElementById('dest-count').textContent=DESTINY.length;
-
 document.getElementById('it-count').textContent=ITKNOW.length;
 document.getElementById('qz-count').textContent=QUIZ.length;
 document.getElementById('tl-count').textContent=TOOLS.length;
-document.getElementById('mu-count').textContent=MUSIC.length;
-document.getElementById('ht-count').textContent=HEALTH.length;
 document.getElementById('ln-count').textContent=LEARN.length;
 document.getElementById('cr-count').textContent=CREATIVE.length;
-document.getElementById('rd-count').textContent=READING.length;
 switchTab('game');
 renderFooter();
 fetchTodayViews();

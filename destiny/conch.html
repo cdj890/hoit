@@ -1,0 +1,124 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>마법의 소라고동</title>
+<meta name="description" content="hoit.me - 마법의 소라고동 | 무료 웹 콘텐츠. 설치 없이 브라우저에서 바로 즐기세요!">
+<meta property="og:title" content="마법의 소라고동 - hoit">
+<meta property="og:description" content="hoit.me - 마법의 소라고동 | 무료 웹 콘텐츠. 설치 없이 브라우저에서 바로 즐기세요!">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://hoit.me/destiny/conch.html">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{min-height:100vh;background:#0f0f1e;color:#e0d0ff;font-family:'Segoe UI',sans-serif;display:flex;flex-direction:column;align-items:center;padding:20px;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+h1{margin:30px 0 8px;font-size:2em;text-shadow:0 0 20px rgba(120,80,200,.5)}
+.sub{color:#9988bb;margin-bottom:24px;font-size:.95em;text-align:center}
+.question-area{width:100%;max-width:420px;margin-bottom:20px}
+.question-area input{width:100%;padding:14px 18px;border-radius:14px;border:2px solid rgba(120,80,200,.3);background:rgba(255,255,255,.06);color:#e0d0ff;font-size:1em;outline:none;transition:border-color .3s}
+.question-area input:focus{border-color:rgba(120,80,200,.7)}
+.question-area input::placeholder{color:#7766aa}
+.shell-wrap{position:relative;margin:10px 0 20px;cursor:pointer;user-select:none;-webkit-user-select:none}
+.shell{width:160px;height:160px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#b388ff,#7c4dff 40%,#4a148c 80%,#1a0040);box-shadow:0 0 40px rgba(120,80,200,.4),inset 0 -8px 20px rgba(0,0,0,.4),inset 0 4px 12px rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:4.5em;transition:transform .15s,box-shadow .15s;position:relative;overflow:hidden}
+.shell::before{content:'';position:absolute;top:10%;left:15%;width:30%;height:20%;background:radial-gradient(ellipse,rgba(255,255,255,.25),transparent);border-radius:50%;pointer-events:none}
+.shell:active{transform:scale(.95)}
+.shell.shaking{animation:shellShake .6s ease-in-out}
+.shell.revealing{animation:shellReveal 1.2s ease-in-out}
+@keyframes shellShake{0%,100%{transform:rotate(0) scale(1)}10%{transform:rotate(-12deg) scale(1.05)}20%{transform:rotate(10deg) scale(1.05)}30%{transform:rotate(-10deg) scale(1.03)}40%{transform:rotate(8deg) scale(1.03)}50%{transform:rotate(-6deg) scale(1.02)}60%{transform:rotate(5deg) scale(1.01)}70%{transform:rotate(-3deg) scale(1)}80%{transform:rotate(2deg)}90%{transform:rotate(-1deg)}}
+@keyframes shellReveal{0%{transform:scale(1);box-shadow:0 0 40px rgba(120,80,200,.4)}50%{transform:scale(1.15);box-shadow:0 0 80px rgba(120,80,200,.8),0 0 120px rgba(0,230,200,.3)}100%{transform:scale(1);box-shadow:0 0 40px rgba(120,80,200,.4)}}
+.shell-label{color:#b388ff;font-size:.9em;margin-top:10px;text-align:center;opacity:.7}
+.answer-box{display:none;text-align:center;max-width:420px;width:100%;margin-top:10px;animation:fadeUp .6s ease}
+.answer-inner{background:linear-gradient(135deg,rgba(74,20,140,.3),rgba(0,77,64,.3));border:2px solid rgba(120,80,200,.3);border-radius:20px;padding:30px 24px;position:relative;overflow:hidden}
+.answer-inner::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle at 50% 0%,rgba(179,136,255,.1),transparent 60%);pointer-events:none}
+.answer-text{font-size:2em;font-weight:bold;color:#e0f7fa;text-shadow:0 0 20px rgba(0,230,200,.4);margin:10px 0;letter-spacing:2px}
+.answer-label{color:#80cbc4;font-size:.85em;margin-bottom:8px}
+.bubbles{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:hidden;z-index:0}
+.bubble{position:absolute;bottom:-40px;background:rgba(120,80,200,.08);border-radius:50%;animation:rise linear infinite}
+@keyframes rise{0%{transform:translateY(0) scale(1);opacity:.6}100%{transform:translateY(-110vh) scale(.3);opacity:0}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.reset-btn{background:linear-gradient(135deg,#7c4dff,#4a148c);color:#e0d0ff;border:none;padding:12px 30px;border-radius:12px;font-size:1em;cursor:pointer;margin-top:16px;font-weight:bold;transition:all .3s;touch-action:manipulation}
+.reset-btn:hover{transform:scale(1.05);box-shadow:0 0 20px rgba(120,80,200,.4)}
+.content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%}
+.hint{color:#7766aa;font-size:.82em;margin-top:6px;text-align:center}
+</style>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<script>
+const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}
+</script>
+</head><body>
+<div class="bubbles" id="bubbles"></div>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<div class="content">
+<h1>🐚 마법의 소라고동</h1>
+<p class="sub">오 위대한 소라고동이여, 질문에 답하소서!</p>
+
+<div class="question-area">
+<input type="text" id="questionInput" placeholder="예/아니오 질문을 입력하세요..." maxlength="100" autocomplete="off">
+<p class="hint">질문을 적고 소라고동을 터치하세요</p>
+</div>
+
+<div class="shell-wrap" id="shellWrap" onclick="askConch()">
+<div class="shell" id="shell">🐚</div>
+</div>
+<p class="shell-label">소라고동을 터치하세요</p>
+
+<div class="answer-box" id="answerBox">
+<div class="answer-inner">
+<p class="answer-label">소라고동의 답변</p>
+<p class="answer-text" id="answerText"></p>
+</div>
+<button class="reset-btn" onclick="resetConch()">다시 물어보기</button>
+</div>
+</div>
+
+<script>
+const answers=["그래","아니","안 돼","다시 한번 물어봐","그것도 안 돼","좋아","어쩌면...","당연하지!","글쎄...","절대 안 돼","한번 해봐","포기해","네 마음대로 해","소라고동은 모른다","그럴 수도 있지"];
+let busy=false;
+
+function askConch(){
+if(busy)return;
+const q=document.getElementById('questionInput').value.trim();
+if(!q){document.getElementById('questionInput').focus();document.getElementById('questionInput').style.borderColor='rgba(255,80,80,.6)';setTimeout(()=>document.getElementById('questionInput').style.borderColor='',800);return;}
+busy=true;
+const shell=document.getElementById('shell');
+const box=document.getElementById('answerBox');
+box.style.display='none';
+shell.className='shell shaking';
+setTimeout(()=>{
+shell.className='shell revealing';
+setTimeout(()=>{
+shell.className='shell';
+const answer=answers[Math.floor(Math.random()*answers.length)];
+document.getElementById('answerText').textContent=answer;
+box.style.display='block';
+box.style.animation='none';
+box.offsetHeight;
+box.style.animation='fadeUp .6s ease';
+box.scrollIntoView({behavior:'smooth',block:'nearest'});
+busy=false;
+},600);
+},700);
+}
+
+function resetConch(){
+document.getElementById('answerBox').style.display='none';
+document.getElementById('questionInput').value='';
+document.getElementById('questionInput').focus();
+}
+
+document.getElementById('questionInput').addEventListener('keydown',function(e){
+if(e.key==='Enter')askConch();
+});
+
+// Ambient bubbles
+(function(){
+const cont=document.getElementById('bubbles');
+for(let i=0;i<12;i++){
+const b=document.createElement('div');
+b.className='bubble';
+const size=20+Math.random()*50;
+b.style.width=size+'px';
+b.style.height=size+'px';
+b.style.left=Math.random()*100+'%';
+b.style.animationDuration=(8+Math.random()*12)+'s';
+b.style.animationDelay=(Math.random()*10)+'s';
+cont.appendChild(b);
+}
+})();
+</script>
+</body></html>
