@@ -65,8 +65,13 @@ header .sub{color:#888;font-size:14px}
 @media(min-width:1200px){.grid{grid-template-columns:repeat(5,1fr)}}
 @media(min-width:900px) and (max-width:1199px){.grid{grid-template-columns:repeat(4,1fr)}}
 @media(min-width:601px) and (max-width:899px){.grid{grid-template-columns:repeat(3,1fr)}}
-.card{background:#1a1a2e;border-radius:14px;overflow:hidden;border:1px solid #2a2a4a;transition:all .3s;cursor:pointer;text-decoration:none;color:inherit;display:block}
+.card{background:#1a1a2e;border-radius:14px;overflow:hidden;border:1px solid #2a2a4a;transition:all .3s;cursor:pointer;text-decoration:none;color:inherit;display:block;content-visibility:auto;contain-intrinsic-size:0 230px}
 .card:hover{transform:translateY(-5px);border-color:#5a5a8a;box-shadow:0 10px 30px rgba(100,100,255,0.12)}
+.card.glow-warm:hover{box-shadow:0 10px 35px rgba(255,150,100,0.25)}
+.card.glow-cool:hover{box-shadow:0 10px 35px rgba(100,150,255,0.25)}
+.card.glow-green:hover{box-shadow:0 10px 35px rgba(100,200,100,0.25)}
+.card.glow-purple:hover{box-shadow:0 10px 35px rgba(180,100,255,0.25)}
+.card.glow-pink:hover{box-shadow:0 10px 35px rgba(255,100,180,0.25)}
 .card-thumb{height:130px;display:flex;align-items:center;justify-content:center;font-size:50px;position:relative}
 .card-info{padding:14px 16px}
 .card-info h3{font-size:17px;margin-bottom:4px}
@@ -86,7 +91,53 @@ header .sub{color:#888;font-size:14px}
 .lb-tab{background:#2a2a4a;border:1px solid #333;padding:3px 10px;border-radius:5px;cursor:pointer;font-size:11px;color:#aaa}
 .lb-tab:hover{border-color:#888}
 .lb-tab.active{border-color:#FFD700;color:#FFD700}
-footer{text-align:center;padding:20px;color:#444;font-size:12px}
+footer{text-align:center;padding:30px 20px;color:#444;font-size:12px;border-top:1px solid #1a1a2e;margin-top:20px}
+.footer-links{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-bottom:12px}
+.footer-links a{color:#666;text-decoration:none;font-size:12px;transition:color .2s}
+.footer-links a:hover{color:#FFD700}
+.footer-section{margin-bottom:10px}
+.footer-section-title{color:#555;font-size:11px;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px}
+/* Search bar */
+.search-bar{max-width:1200px;margin:10px auto 0;padding:0 24px;position:relative}
+.search-bar input{width:100%;background:#1a1a2e;border:1px solid #2a2a4a;color:#fff;padding:10px 40px 10px 38px;border-radius:10px;font-size:14px;transition:border-color .2s}
+.search-bar input:focus{outline:none;border-color:#FFD700}
+.search-bar input::placeholder{color:#555}
+.search-bar .search-icon{position:absolute;left:36px;top:50%;transform:translateY(-50%);color:#555;font-size:16px;pointer-events:none}
+.search-bar .search-clear{position:absolute;right:36px;top:50%;transform:translateY(-50%);color:#555;font-size:18px;cursor:pointer;background:none;border:none;display:none;padding:4px}
+.search-bar .search-clear:hover{color:#fff}
+/* Scroll to top */
+.scroll-top{position:fixed;bottom:24px;right:24px;width:44px;height:44px;border-radius:50%;background:rgba(30,30,60,0.9);border:1px solid #2a2a4a;color:#fff;font-size:20px;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:100;transition:all .2s;backdrop-filter:blur(6px)}
+.scroll-top:hover{background:#FFD700;color:#000;border-color:#FFD700}
+.scroll-top.visible{display:flex}
+/* Recently played */
+.recent-section{max-width:1200px;margin:8px auto;padding:0 24px;display:none}
+.recent-section.show{display:block}
+.recent-title{color:#888;font-size:12px;margin-bottom:6px}
+.recent-row{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin;scrollbar-color:#2a2a4a transparent}
+.recent-row::-webkit-scrollbar{height:4px}
+.recent-row::-webkit-scrollbar-thumb{background:#2a2a4a;border-radius:2px}
+.recent-card{flex:0 0 auto;width:120px;background:#1a1a2e;border:1px solid #2a2a4a;border-radius:10px;padding:10px;text-align:center;text-decoration:none;color:#fff;transition:all .2s}
+.recent-card:hover{border-color:#FFD700;transform:translateY(-2px)}
+.recent-card .rc-emoji{font-size:28px;margin-bottom:4px}
+.recent-card .rc-title{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Tab fade transition */
+.grid{transition:opacity .15s ease}
+.grid.tab-fade{opacity:0}
+/* Skeleton shimmer */
+.skeleton-card{background:#1a1a2e;border-radius:14px;border:1px solid #2a2a4a;overflow:hidden}
+.skeleton-card .skel-thumb{height:130px;background:linear-gradient(90deg,#1a1a2e 25%,#252545 50%,#1a1a2e 75%);background-size:200% 100%;animation:shimmer 1.2s infinite}
+.skeleton-card .skel-info{padding:14px 16px}
+.skeleton-card .skel-line{height:12px;background:linear-gradient(90deg,#1a1a2e 25%,#252545 50%,#1a1a2e 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;border-radius:4px;margin-bottom:6px}
+.skeleton-card .skel-line.w60{width:60%}
+.skeleton-card .skel-line.w80{width:80%}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+/* Tab badge colors */
+.tab .badge.badge-game{background:#FFD700;color:#000}
+.tab .badge.badge-test{background:#FF69B4;color:#fff}
+.tab .badge.badge-destiny{background:#7B68EE;color:#fff}
+.tab .badge.badge-itknow{background:#42A5F5;color:#fff}
+.tab .badge.badge-quiz{background:#66BB6A;color:#fff}
+.tab .badge.badge-tools{background:#FF9800;color:#fff}
 /* Game category filters */
 .cat-filters{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin:8px auto;max-width:1200px;padding:0 20px}
 .cat-btn{background:#1a1a2e;border:1px solid #2a2a4a;color:#888;padding:5px 12px;border-radius:8px;font-size:12px;cursor:pointer;transition:all .15s;white-space:nowrap}
@@ -120,6 +171,13 @@ footer{text-align:center;padding:20px;color:#444;font-size:12px}
   .lb-tabs{gap:3px}
   .lb-tab{font-size:10px;padding:2px 7px}
   footer{font-size:11px;padding:15px 10px}
+  .search-bar{padding:0 10px}
+  .search-bar .search-icon{left:18px}
+  .search-bar .search-clear{right:18px}
+  .recent-section{padding:0 10px}
+  .recent-card{width:100px;padding:8px}
+  .scroll-top{bottom:16px;right:16px;width:40px;height:40px;font-size:18px}
+  .skeleton-card .skel-thumb{height:90px}
 }
 @media(max-width:380px){
   .grid{grid-template-columns:repeat(2,1fr);gap:8px;padding:0 8px 15px}
@@ -159,16 +217,26 @@ footer{text-align:center;padding:20px;color:#444;font-size:12px}
 </header>
 
 <div class="tabs" id="tabs">
-  <div class="tab" onclick="switchTab('game')"><span class="tab-icon">🎮</span><span class="tab-label">게임</span><span class="badge" id="game-count"></span></div>
-  <div class="tab" onclick="switchTab('test')"><span class="tab-icon">🧠</span><span class="tab-label">테스트</span><span class="badge" id="test-count"></span></div>
-  <div class="tab" onclick="switchTab('destiny')"><span class="tab-icon">🔮</span><span class="tab-label">운세</span><span class="badge" id="dest-count"></span></div>
-  <div class="tab" onclick="switchTab('itknow')"><span class="tab-icon">💻</span><span class="tab-label">IT</span><span class="badge" id="it-count"></span></div>
-  <div class="tab" onclick="switchTab('quiz')"><span class="tab-icon">📚</span><span class="tab-label">퀴즈</span><span class="badge" id="qz-count"></span></div>
-  <div class="tab" onclick="switchTab('tools')"><span class="tab-icon">🛠️</span><span class="tab-label">도구</span><span class="badge" id="tl-count"></span></div>
+  <div class="tab" onclick="switchTab('game')"><span class="tab-icon">🎮</span><span class="tab-label">게임</span><span class="badge badge-game" id="game-count"></span></div>
+  <div class="tab" onclick="switchTab('test')"><span class="tab-icon">🧠</span><span class="tab-label">테스트</span><span class="badge badge-test" id="test-count"></span></div>
+  <div class="tab" onclick="switchTab('destiny')"><span class="tab-icon">🔮</span><span class="tab-label">운세</span><span class="badge badge-destiny" id="dest-count"></span></div>
+  <div class="tab" onclick="switchTab('itknow')"><span class="tab-icon">💻</span><span class="tab-label">IT</span><span class="badge badge-itknow" id="it-count"></span></div>
+  <div class="tab" onclick="switchTab('quiz')"><span class="tab-icon">📚</span><span class="tab-label">퀴즈</span><span class="badge badge-quiz" id="qz-count"></span></div>
+  <div class="tab" onclick="switchTab('tools')"><span class="tab-icon">🛠️</span><span class="tab-label">도구</span><span class="badge badge-tools" id="tl-count"></span></div>
 </div>
 
+<div class="search-bar">
+  <span class="search-icon">🔍</span>
+  <input type="text" id="searchInput" placeholder="콘텐츠 검색..." autocomplete="off">
+  <button class="search-clear" id="searchClear" onclick="clearSearch()">&times;</button>
+</div>
 <div class="cat-filters" id="catFilters" style="display:none"></div>
+<div class="recent-section" id="recentSection">
+  <div class="recent-title">🕐 최근 플레이</div>
+  <div class="recent-row" id="recentRow"></div>
+</div>
 <div class="grid" id="grid"></div>
+<button class="scroll-top" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 <div class="lb" id="lb-section" style="display:none">
   <h2>🏆 오늘의 리더보드</h2>
   <p style="color:#888;font-size:12px;text-align:center;margin-bottom:10px">매일 자정 리셋 · 실시간 순위</p>
@@ -190,10 +258,20 @@ footer{text-align:center;padding:20px;color:#444;font-size:12px}
 </div>
 
 <footer>
-  <a href="about.html" style="color:#666;text-decoration:none;margin:0 8px">소개</a> ·
-  <a href="privacy.html" style="color:#666;text-decoration:none;margin:0 8px">개인정보처리방침</a> ·
-  <a href="https://github.com/cdj890/hoit" style="color:#666;text-decoration:none;margin:0 8px">GitHub</a>
-  <br><span style="margin-top:6px;display:inline-block">놀이터 v1.0</span>
+  <div class="footer-section">
+    <div class="footer-section-title">인기 게임 TOP 5</div>
+    <div class="footer-links" id="footerPopular"></div>
+  </div>
+  <div class="footer-section">
+    <div class="footer-section-title">새로 추가된 콘텐츠</div>
+    <div class="footer-links" id="footerNew"></div>
+  </div>
+  <div class="footer-links" style="margin-top:8px">
+    <a href="about.html">소개</a>
+    <a href="privacy.html">개인정보처리방침</a>
+    <a href="https://github.com/cdj890/hoit">GitHub</a>
+  </div>
+  <span style="margin-top:6px;display:inline-block;color:#333;font-size:11px">놀이터 v2.0 · 콘텐츠 <span id="footerTotal"></span>개</span>
 </footer>
 
 <script>
@@ -525,14 +603,26 @@ function renderCatFilters(){
 function switchTab(tab){
   currentTab=tab;
   gameCatFilter='all';
-  document.querySelectorAll('.tab').forEach(t=>t.className='tab');
+  document.querySelectorAll('.tab').forEach(t=>{
+    // preserve badge classes
+    const badges=t.querySelector('.badge');
+    t.className='tab';
+  });
   const tabs={game:0,test:1,destiny:2,itknow:3,quiz:4,tools:5};
   const cls=['active-game','active-test','active-destiny','active-game','active-test','active-destiny','active-game'];
   const idx=tabs[tab]||0;
   document.querySelectorAll('.tab')[idx]?.classList.add(cls[idx]);
   document.getElementById('lb-section').style.display=tab==='game'?'block':'none';
   renderCatFilters();
-  renderGrid();
+  // Fade transition + skeleton
+  const grid=document.getElementById('grid');
+  grid.classList.add('tab-fade');
+  showSkeleton();
+  setTimeout(()=>{
+    renderGrid();
+    renderRecent();
+    grid.classList.remove('tab-fade');
+  },120);
   if(tab==='game')renderLB().catch(()=>{});
 }
 
@@ -551,6 +641,11 @@ function renderGrid(){
     items=items.filter(g=>g.cat===gameCatFilter);
   }
 
+  // Search filter (across all tabs)
+  if(searchTerm){
+    items=items.filter(i=>i.title.toLowerCase().includes(searchTerm)||i.desc.toLowerCase().includes(searchTerm));
+  }
+
   // Sort: mobile-ok first on mobile
   const sorted = isMobile && currentTab==='game'
     ? [...items].sort((a,b)=> (a.mobile==='pc'?1:0) - (b.mobile==='pc'?1:0))
@@ -559,8 +654,14 @@ function renderGrid(){
   sorted.forEach(item=>{
     const isPcOnly = isMobile && item.mobile==='pc';
     const card=document.createElement('a');
-    card.className='card' + (isPcOnly?' pc-only':'');
+    const glowCls=getGlowClass(item.bg);
+    card.className='card' + (isPcOnly?' pc-only':'') + (glowCls?' '+glowCls:'');
     card.href=item.file;
+
+    // Track recently played for games
+    if(currentTab==='game'&&!isPcOnly){
+      card.addEventListener('click',function(){addRecentPlayed(item);});
+    }
 
     if(isPcOnly){
       card.onclick=e=>{e.preventDefault();alert('이 게임은 PC에서 플레이해주세요! 🖥️\n키보드/마우스가 필요합니다.');};
@@ -594,6 +695,15 @@ function renderGrid(){
     card.appendChild(thumb);
     card.appendChild(info);
     grid.appendChild(card);
+  });
+
+  // Update badge count dynamically based on filtered items
+  if(!searchTerm){return;}
+  const countMap={game:'game-count',test:'test-count',destiny:'dest-count',itknow:'it-count',quiz:'qz-count',tools:'tl-count'};
+  const allMap={game:GAMES,test:TESTS,destiny:DESTINY,itknow:ITKNOW,quiz:QUIZ,tools:TOOLS};
+  Object.entries(countMap).forEach(([tab,id])=>{
+    const filtered=allMap[tab].filter(i=>i.title.toLowerCase().includes(searchTerm)||i.desc.toLowerCase().includes(searchTerm));
+    document.getElementById(id).textContent=filtered.length;
   });
 }
 
@@ -665,6 +775,90 @@ async function renderLB(){
   }
 }
 
+// Search
+let searchTerm='';
+document.getElementById('searchInput').addEventListener('input',function(e){
+  searchTerm=e.target.value.toLowerCase().trim();
+  document.getElementById('searchClear').style.display=searchTerm?'block':'none';
+  renderGrid();
+});
+function clearSearch(){
+  document.getElementById('searchInput').value='';
+  searchTerm='';
+  document.getElementById('searchClear').style.display='none';
+  // Reset badge counts
+  document.getElementById('game-count').textContent=GAMES.length;
+  document.getElementById('test-count').textContent=TESTS.length;
+  document.getElementById('dest-count').textContent=DESTINY.length;
+  document.getElementById('it-count').textContent=ITKNOW.length;
+  document.getElementById('qz-count').textContent=QUIZ.length;
+  document.getElementById('tl-count').textContent=TOOLS.length;
+  renderGrid();
+}
+
+// Scroll to top
+window.addEventListener('scroll',function(){
+  document.getElementById('scrollTopBtn').classList.toggle('visible',window.scrollY>400);
+});
+
+// Recently played (games only)
+function getRecentPlayed(){
+  try{return JSON.parse(localStorage.getItem('recent_played')||'[]');}catch(e){return [];}
+}
+function addRecentPlayed(item){
+  let recent=getRecentPlayed().filter(r=>r.file!==item.file);
+  recent.unshift({file:item.file,title:item.title,emoji:item.emoji});
+  if(recent.length>5)recent=recent.slice(0,5);
+  localStorage.setItem('recent_played',JSON.stringify(recent));
+}
+function renderRecent(){
+  const sec=document.getElementById('recentSection');
+  const row=document.getElementById('recentRow');
+  if(currentTab!=='game'){sec.classList.remove('show');return;}
+  const recent=getRecentPlayed();
+  if(recent.length===0){sec.classList.remove('show');return;}
+  sec.classList.add('show');
+  row.innerHTML=recent.map(r=>`<a class="recent-card" href="${r.file}"><div class="rc-emoji">${r.emoji}</div><div class="rc-title">${r.title}</div></a>`).join('');
+}
+
+// Skeleton loading
+function showSkeleton(){
+  const grid=document.getElementById('grid');
+  let html='';
+  for(let i=0;i<8;i++){
+    html+=`<div class="skeleton-card"><div class="skel-thumb"></div><div class="skel-info"><div class="skel-line w80"></div><div class="skel-line w60"></div></div></div>`;
+  }
+  grid.innerHTML=html;
+}
+
+// Glow color helper
+function getGlowClass(bg){
+  if(!bg)return '';
+  if(bg.includes('FF9')|| bg.includes('FF7')|| bg.includes('FFD')|| bg.includes('E65')|| bg.includes('BF3'))return 'glow-warm';
+  if(bg.includes('FF69')|| bg.includes('EC4')|| bg.includes('AD1')|| bg.includes('E91'))return 'glow-pink';
+  if(bg.includes('7B6')|| bg.includes('AB4')|| bg.includes('6A1')|| bg.includes('4A1')|| bg.includes('4527'))return 'glow-purple';
+  if(bg.includes('66B')|| bg.includes('2E7')|| bg.includes('1B5E')|| bg.includes('4CAF')|| bg.includes('26A'))return 'glow-green';
+  return 'glow-cool';
+}
+
+// Keyboard navigation: 1-6 switches tabs
+document.addEventListener('keydown',function(e){
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+  const tabKeys={'1':'game','2':'test','3':'destiny','4':'itknow','5':'quiz','6':'tools'};
+  if(tabKeys[e.key]){e.preventDefault();switchTab(tabKeys[e.key]);}
+});
+
+// Footer
+function renderFooter(){
+  // Popular games (first 5 from GAMES as proxy for popular)
+  const popular=GAMES.slice(0,5);
+  document.getElementById('footerPopular').innerHTML=popular.map(g=>`<a href="${g.file}">${g.emoji} ${g.title}</a>`).join('');
+  // Newest content (last 5 added across all)
+  const newest=[...GAMES.slice(-2),...TOOLS.slice(-2),...QUIZ.slice(-1)];
+  document.getElementById('footerNew').innerHTML=newest.map(g=>`<a href="${g.file}">${g.emoji} ${g.title}</a>`).join('');
+  document.getElementById('footerTotal').textContent=GAMES.length+TESTS.length+DESTINY.length+ITKNOW.length+QUIZ.length+TOOLS.length;
+}
+
 // Init
 renderNick();
 document.getElementById('game-count').textContent=GAMES.length;
@@ -675,6 +869,7 @@ document.getElementById('it-count').textContent=ITKNOW.length;
 document.getElementById('qz-count').textContent=QUIZ.length;
 document.getElementById('tl-count').textContent=TOOLS.length;
 switchTab('game');
+renderFooter();
 </script>
 </body>
 </html>
