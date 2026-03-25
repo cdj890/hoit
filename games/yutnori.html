@@ -134,16 +134,15 @@ function getPath(startNode, steps) {
 
 // Better approach: each horse has a route (sequence of nodes to follow)
 function getStandardRoute(){
-  return [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]; // 20 spots, after 19 = home
+  return [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]; // 출발(0)에서 시작, 19 이후 골인
 }
 function getRoute5(){
-  return [0,1,2,3,4,5,21,22,20,23,24,15,16,17,18,19]; // shortcut from corner 5
+  return [1,2,3,4,5,21,22,20,23,24,15,16,17,18,19]; // 5번 꼭짓점에서 대각선 지름길
 }
 function getRoute10(){
-  return [0,1,2,3,4,5,6,7,8,9,10,25,26,20,27,28]; // shortcut from corner 10
+  return [1,2,3,4,5,6,7,8,9,10,25,26,20,27,28]; // 10번 꼭짓점에서 대각선 지름길
 }
 function getRoute5_10(){
-  // If on route through 5 and land on center, this shouldn't happen, center leads to 15
   return getRoute5();
 }
 
