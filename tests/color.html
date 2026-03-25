@@ -33,7 +33,7 @@ a.back{position:fixed;top:8px;left:8px;z-index:99;background:rgba(0,0,0,0.75);co
 .lucky-color{background:linear-gradient(135deg,#252545,#1a1a2e);border:1px solid #353565;border-radius:10px;padding:13px;margin:12px 0;text-align:center}
 .interior-tip{background:#252545;border-radius:10px;padding:13px;margin:12px 0;text-align:left;font-size:13px;line-height:1.6;color:#ccc}
 </style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
-</head><body>
+<script>function _copy(t,b){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){if(b){b.textContent='복사 완료!';setTimeout(function(){b.textContent=b.dataset.orig||'📋 결과 복사'},1500);}}).catch(function(){_copyFB(t,b)});}else{_copyFB(t,b);}}function _copyFB(t,b){var ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;left:-9999px';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');if(b){b.textContent='복사 완료!';setTimeout(function(){b.textContent=b.dataset.orig||'📋 결과 복사'},1500);}}catch(e){alert('복사 실패');}document.body.removeChild(ta);}</script></head><body>
 <a class="back" href="../index.html">← 뒤로</a>
 <div class="wrap" id="app"></div>
 <script>
@@ -116,6 +116,6 @@ function showResult(i,j){
       <div class="recommend"><span style="color:#888;font-size:12px">다른 테스트 추천</span><br><a href="firstimp.html">첫인상</a><a href="empathy.html">공감 능력</a><a href="food.html">음식 성격</a></div>
     </div>`;
 }
-function copyResult(){const d=JSON.parse(localStorage.getItem('hoit_color'));_copy('[hoit.me] 색깔 심리: '+d.name+' - https://hoit.me/tests/color.html',this);b.textContent='복사 완료!';setTimeout(()=>b.textContent='결과 복사',1500);});}
+function copyResult(){const d=JSON.parse(localStorage.getItem('hoit_color'));_copy('[hoit.me] 색깔 심리: '+d.name+' - https://hoit.me/tests/color.html',document.querySelector('.share-btn'));}
 showColors();
 </script></body></html>

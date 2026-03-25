@@ -41,10 +41,10 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 .gauge-needle{width:4px;height:80px;background:#fff;position:absolute;bottom:0;left:50%;transform-origin:bottom center;transform:translateX(-50%) rotate(-90deg);transition:transform 1.2s ease;border-radius:2px}
 .gauge-meter-center{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:30px;height:15px;background:#1a1a2e;border-radius:15px 15px 0 0}
 </style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous">
-function _copy(text,btn){
+function _copy(t,b){
   if(navigator.clipboard&&navigator.clipboard.writeText){
-    _copy(text,this).catch(()=>_copyFallback(text,btn));
-  } else { _copyFallback(text,btn); }
+    navigator.clipboard.writeText(t).then(()=>{if(b){b.textContent='복사 완료!';setTimeout(()=>b.textContent=b.dataset.orig||'📋 결과 복사',1500);}}).catch(()=>_copyFallback(t,b));
+  } else { _copyFallback(t,b); }
 }
 function _copyFallback(text,btn){
   const ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;left:-9999px';
@@ -113,6 +113,6 @@ document.getElementById('rBadge').textContent=badge;document.getElementById('rBa
 document.getElementById('rTip').innerHTML=tip;
 setTimeout(()=>{document.getElementById('needle').style.transform='translateX(-50%) rotate('+(pct*1.8-90)+'deg)';},200);
 localStorage.setItem('hoit_insider',JSON.stringify({type:type,pct:pct,date:new Date().toISOString()}));}
-function copyResult(){const d=JSON.parse(localStorage.getItem('hoit_insider'));_copy('[hoit.me] 인싸/아싸 테스트 결과: '+d.type+' (인싸력 '+d.pct+'%,this) - https://hoit.me/tests/insider.html').then(()=>{const b=document.querySelector('.share-btn');b.textContent='복사 완료!';setTimeout(()=>b.textContent='결과 복사',1500);});}
+function copyResult(){const d=JSON.parse(localStorage.getItem('hoit_insider'));_copy('[hoit.me] 인싸/아싸 테스트 결과: '+d.type+' (인싸력 '+d.pct+'%) - https://hoit.me/tests/insider.html',document.querySelector('.share-btn'));}
 (function(){const prev=localStorage.getItem('hoit_insider');if(prev){const d=JSON.parse(prev);document.querySelector('.sub').textContent='이전 결과: '+d.type+' ('+d.pct+'%) | 다시 해볼까요?';}})();
 </script></body></html>

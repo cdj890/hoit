@@ -45,7 +45,7 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 .puzzle-box .puzzle-q{font-size:1.1em;margin-bottom:12px;line-height:1.5}
 .color-word{font-size:2em;font-weight:bold;margin:12px 0}
 </style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
-</head><body>
+<script>function _copy(t,b){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){if(b){b.textContent='복사 완료!';setTimeout(function(){b.textContent=b.dataset.orig||'📋 결과 복사'},1500);}}).catch(function(){_copyFB(t,b)});}else{_copyFB(t,b);}}function _copyFB(t,b){var ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;left:-9999px';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');if(b){b.textContent='복사 완료!';setTimeout(function(){b.textContent=b.dataset.orig||'📋 결과 복사'},1500);}}catch(e){alert('복사 실패');}document.body.removeChild(ta);}</script></head><body>
 <a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
 <div class="card">
 <div id="intro">
@@ -114,6 +114,6 @@ if(lp>rp){document.getElementById('rEmoji').textContent='🔵';document.getEleme
 else if(rp>lp){document.getElementById('rEmoji').textContent='🔴';document.getElementById('rType').textContent='우뇌 우세형 (창의적/감성적)';document.getElementById('rDesc').textContent='당신은 창의적이고 감성적인 우뇌형! 상상력과 직관력이 뛰어나며, 예술적 감각이 넘칩니다. 자유로운 사고로 독창적인 아이디어를 잘 떠올려요.';}
 else{document.getElementById('rEmoji').textContent='🟣';document.getElementById('rType').textContent='균형형 (좌뇌 = 우뇌)';document.getElementById('rDesc').textContent='당신은 좌뇌와 우뇌가 균형 잡힌 타입! 논리와 감성을 모두 갖추고 있어 상황에 따라 유연하게 사고할 수 있습니다. 정말 멋진 능력이에요!';}
 localStorage.setItem('brain_result',JSON.stringify({left:lp,right:rp,date:new Date().toLocaleDateString('ko-KR')}));}
-function copyResult(){const t=document.getElementById('rType').textContent+'\n'+document.getElementById('pctText').textContent;_copy('[좌뇌우뇌 테스트 결과]\n'+t,this);b.textContent='복사 완료!';setTimeout(()=>b.textContent='결과 복사',1500);});}
+function copyResult(){const t=document.getElementById('rType').textContent+'\n'+document.getElementById('pctText').textContent;_copy('[좌뇌우뇌 테스트 결과]\n'+t,document.querySelector('.share-btn'));}
 (function(){const p=localStorage.getItem('brain_result');if(p){try{const d=JSON.parse(p);document.getElementById('prevResult').innerHTML='<div class="prev-result">이전 결과: 좌뇌 '+d.left+'% / 우뇌 '+d.right+'% ('+d.date+')</div>';}catch(e){}}})();
 </script></body></html>

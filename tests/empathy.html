@@ -34,10 +34,10 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 .scenario-emoji{font-size:2em;margin:8px 0}
 .improve-tip{background:#2a2a3e;border-radius:10px;padding:14px;margin:12px 0;text-align:left;font-size:.9em;line-height:1.8;color:#ddd}
 </style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous">
-function _copy(text,btn){
+function _copy(t,b){
   if(navigator.clipboard&&navigator.clipboard.writeText){
-    _copy(text,this).catch(()=>_copyFallback(text,btn));
-  } else { _copyFallback(text,btn); }
+    navigator.clipboard.writeText(t).then(()=>{if(b){b.textContent='복사 완료!';setTimeout(()=>b.textContent=b.dataset.orig||'📋 결과 복사',1500);}}).catch(()=>_copyFallback(t,b));
+  } else { _copyFallback(t,b); }
 }
 function _copyFallback(text,btn){
   const ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;left:-9999px';
@@ -109,6 +109,6 @@ function drawRadar(vals,labels){const c=document.getElementById('radarCanvas');c
 for(let lv=1;lv<=4;lv++){ctx.beginPath();for(let i=0;i<n;i++){const a=Math.PI*2*i/n-Math.PI/2;const x=cx+r*lv/4*Math.cos(a);const y=cy+r*lv/4*Math.sin(a);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.closePath();ctx.strokeStyle='#2a2a3e';ctx.stroke();}
 ctx.beginPath();for(let i=0;i<n;i++){const a=Math.PI*2*i/n-Math.PI/2;const v=vals[i]/100;const x=cx+r*v*Math.cos(a);const y=cy+r*v*Math.sin(a);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.closePath();ctx.fillStyle='rgba(232,67,147,0.3)';ctx.fill();ctx.strokeStyle='#fd79a8';ctx.lineWidth=2;ctx.stroke();
 for(let i=0;i<n;i++){const a=Math.PI*2*i/n-Math.PI/2;const x=cx+(r+18)*Math.cos(a);const y=cy+(r+18)*Math.sin(a);ctx.fillStyle='#aaa';ctx.font='11px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(labels[i],x,y);}}
-function copyResult(){const d=JSON.parse(localStorage.getItem('hoit_empathy'));_copy('[hoit.me] 공감 능력: '+d.type+' ('+d.score+'점,this) - https://hoit.me/tests/empathy.html').then(()=>{const b=document.querySelector('.share-btn');b.textContent='복사 완료!';setTimeout(()=>b.textContent='결과 복사',1500);});}
+function copyResult(){const d=JSON.parse(localStorage.getItem('hoit_empathy'));_copy('[hoit.me] 공감 능력: '+d.type+' ('+d.score+'점) - https://hoit.me/tests/empathy.html',document.querySelector('.share-btn'));}
 (function(){const prev=localStorage.getItem('hoit_empathy');if(prev){const d=JSON.parse(prev);document.querySelector('.sub').textContent='이전 결과: '+d.type+' ('+d.score+'점) | 다시 해볼까요?';}})();
 </script></body></html>

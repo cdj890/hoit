@@ -39,7 +39,7 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 .budget-bar-fill{height:100%;border-radius:4px;transition:width 1s}
 .saving-challenge{background:linear-gradient(135deg,#00b89422,#ffeaa722);border-radius:10px;padding:14px;margin:12px 0;text-align:center;font-size:.9em;line-height:1.6}
 </style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
-</head><body>
+<script>function _copy(t,b){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){if(b){b.textContent='복사 완료!';setTimeout(function(){b.textContent=b.dataset.orig||'📋 결과 복사'},1500);}}).catch(function(){_copyFB(t,b)});}else{_copyFB(t,b);}}function _copyFB(t,b){var ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;left:-9999px';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');if(b){b.textContent='복사 완료!';setTimeout(function(){b.textContent=b.dataset.orig||'📋 결과 복사'},1500);}}catch(e){alert('복사 실패');}document.body.removeChild(ta);}</script></head><body>
 <a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
 <div class="card">
 <div id="intro">
@@ -100,6 +100,6 @@ localStorage.setItem('hoit_money',JSON.stringify({type:r.n,total:total,date:new 
 function drawPie(data,colors,labels){const c=document.getElementById('pieCanvas');const ctx=c.getContext('2d');const cx=90,cy=90,r=70;let start=0;const sum=data.reduce((a,b)=>a+b,0);
 data.forEach((v,i)=>{const slice=v/sum*Math.PI*2;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,start,start+slice);ctx.fillStyle=colors[i];ctx.fill();
 const mid=start+slice/2;const lx=cx+r*0.65*Math.cos(mid);const ly=cy+r*0.65*Math.sin(mid);ctx.fillStyle='#fff';ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(labels[i],lx,ly);start+=slice;});}
-function copyResult(){const d=JSON.parse(localStorage.getItem('hoit_money'));_copy('[hoit.me] 금전감각 테스트: '+d.type+' - https://hoit.me/tests/money.html',this);b.textContent='복사 완료!';setTimeout(()=>b.textContent='결과 복사',1500);});}
+function copyResult(){const d=JSON.parse(localStorage.getItem('hoit_money'));_copy('[hoit.me] 금전감각 테스트: '+d.type+' - https://hoit.me/tests/money.html',document.querySelector('.share-btn'));}
 (function(){const prev=localStorage.getItem('hoit_money');if(prev){const d=JSON.parse(prev);document.querySelector('.sub').textContent='이전 결과: '+d.type+' | 다시 해볼까요?';}})();
 </script></body></html>
