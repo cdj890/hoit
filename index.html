@@ -9,6 +9,11 @@
 <meta name="author" content="hoit.me">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://hoit.me/">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0f0f1e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="hoit">
 <!-- Open Graph / SNS 공유 -->
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://hoit.me/">
@@ -185,6 +190,45 @@ footer{text-align:center;padding:30px 20px;color:#444;font-size:12px;border-top:
   .card-info h3{font-size:13px}
   .card-info p{display:none}
 }
+/* Daily Challenge */
+.daily-challenge{max-width:1200px;margin:12px auto 0;padding:0 24px;display:none}
+.daily-challenge.show{display:block}
+.daily-card{background:#1a1a2e;border:2px solid transparent;border-image:linear-gradient(135deg,#FFD700,#FF6B6B,#7B68EE,#00CED1) 1;border-radius:0;padding:18px 20px;position:relative;overflow:hidden}
+.daily-card-inner{border-radius:14px}
+.daily-card h3{font-size:16px;margin-bottom:12px;color:#FFD700}
+.daily-items{display:flex;gap:12px;flex-wrap:wrap}
+.daily-item{flex:1;min-width:150px;background:#252545;border-radius:10px;padding:12px;text-align:center;position:relative;border:1px solid #2a2a4a;transition:all .2s}
+.daily-item.completed{border-color:#4CAF50;background:#1a2e1a}
+.daily-item .di-emoji{font-size:28px;margin-bottom:4px}
+.daily-item .di-title{font-size:13px;margin-bottom:4px;color:#ddd}
+.daily-item .di-type{font-size:10px;color:#888;margin-bottom:8px}
+.daily-item .di-check{position:absolute;top:6px;right:8px;font-size:16px;color:#4CAF50;display:none}
+.daily-item.completed .di-check{display:block}
+.daily-btn{display:inline-block;background:linear-gradient(135deg,#FFD700,#FFA000);color:#000;border:none;padding:6px 16px;border-radius:8px;font-size:12px;font-weight:bold;cursor:pointer;text-decoration:none;animation:pulse-btn 2s infinite}
+.daily-item.completed .daily-btn{background:#4CAF50;color:#fff;animation:none;pointer-events:none}
+@keyframes pulse-btn{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.daily-progress{margin-top:10px;text-align:center;font-size:12px;color:#888}
+@media(max-width:600px){.daily-challenge{padding:0 10px}.daily-items{flex-direction:column}.daily-item{min-width:auto}}
+/* Achievements */
+.achv-btn{display:inline-flex;align-items:center;gap:6px;background:#1a1a2e;border:1px solid #2a2a4a;padding:6px 14px;border-radius:20px;cursor:pointer;transition:all .2s;color:#FFD700;font-size:14px;font-weight:bold}
+.achv-btn:hover{border-color:#FFD700;background:#252535}
+.achv-btn .achv-count{font-size:11px;color:#888;font-weight:normal}
+.achv-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:1000;display:flex;justify-content:center;align-items:center;backdrop-filter:blur(4px);opacity:0;transition:opacity .2s;pointer-events:none}
+.achv-overlay.show{opacity:1;pointer-events:auto}
+.achv-modal{background:#1a1a2e;border-radius:20px;padding:24px;width:95%;max-width:560px;max-height:85vh;overflow-y:auto;border:1px solid #2a2a4a;transform:scale(0.9);transition:transform .2s}
+.achv-overlay.show .achv-modal{transform:scale(1)}
+.achv-modal h3{font-size:20px;text-align:center;margin-bottom:4px;color:#FFD700}
+.achv-modal .achv-sub{text-align:center;color:#888;font-size:13px;margin-bottom:16px}
+.achv-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.achv-item{background:#252545;border-radius:12px;padding:12px 8px;text-align:center;border:1px solid #2a2a4a;transition:all .2s}
+.achv-item.unlocked{border-color:#FFD700;background:#2a2a1a}
+.achv-item.locked{opacity:0.5}
+.achv-item .ai-icon{font-size:28px;margin-bottom:4px;display:block}
+.achv-item.locked .ai-icon{filter:grayscale(1)}
+.achv-item .ai-name{font-size:10px;color:#ccc;line-height:1.3}
+.achv-item.locked .ai-name{color:#666}
+@media(max-width:600px){.achv-grid{grid-template-columns:repeat(3,1fr);gap:8px}.achv-modal{padding:16px}}
+@media(max-width:380px){.achv-grid{grid-template-columns:repeat(2,1fr)}}
 </style>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 <script type="application/ld+json">
@@ -870,6 +914,7 @@ document.getElementById('qz-count').textContent=QUIZ.length;
 document.getElementById('tl-count').textContent=TOOLS.length;
 switchTab('game');
 renderFooter();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
 </script>
 </body>
 </html>
