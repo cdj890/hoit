@@ -768,12 +768,12 @@ function renderNick(){
   const isNoname=nick.startsWith('nonamed');
   if(isNoname){
     bar.innerHTML=`<div class="nick-chip noname" onclick="openNickModal()">
-      <span class="nick-name">${nick}</span>
+      <span class="nick-name">${escHtml(nick)}</span>
       <span class="nick-edit">닉네임 설정하기 →</span>
     </div>`;
   } else {
     bar.innerHTML=`<div class="nick-chip" onclick="openNickModal()">
-      <span class="nick-name">🎮 ${nick}</span>
+      <span class="nick-name">🎮 ${escHtml(nick)}</span>
       <span class="nick-edit">변경</span>
     </div>`;
   }
@@ -793,10 +793,13 @@ function openNickModal(){
 
 function closeNickModal(){document.getElementById('nick-modal').classList.remove('show');}
 
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function confirmNick(){
-  const n=document.getElementById('nick-input').value.trim();
+  let n=document.getElementById('nick-input').value.trim();
   if(!n){document.getElementById('nick-input').focus();return;}
   if(n.length<2){alert('2글자 이상 입력해주세요');return;}
+  n=n.replace(/[<>"'&]/g,'').substring(0,20);
+  if(n.length<2){alert('사용할 수 없는 문자가 포함되어 있습니다');return;}
   setNick(n);closeNickModal();renderNick();renderGrid();unlockAchv(17);
 }
 
@@ -986,7 +989,7 @@ async function renderLB(){
       const medal=i<3?['🥇','🥈','🥉'][i]:(i+1);
       const me=p.nick===nick;
       const isNoname=p.nick.startsWith('nonamed');
-      const displayNick=isNoname?`<span style="color:#666">${p.nick}</span>`:p.nick;
+      const displayNick=isNoname?`<span style="color:#666">${escHtml(p.nick)}</span>`:escHtml(p.nick);
       html+=`<tr><td class="rank">${medal}</td><td class="${me?'me':''}">${displayNick}${me?' (나)':''}</td><td style="text-align:center;color:#888">${p.games}</td>`;
       top5.forEach(id=>{
         const s=p.details[id];
@@ -1004,7 +1007,7 @@ async function renderLB(){
       const medal=i<3?['🥇','🥈','🥉'][i]:(i+1);
       const me=e.nick===nick;
       const isNoname=e.nick.startsWith('nonamed');
-      const displayNick=isNoname?`<span style="color:#666">${e.nick}</span>`:e.nick;
+      const displayNick=isNoname?`<span style="color:#666">${escHtml(e.nick)}</span>`:escHtml(e.nick);
       html+=`<tr><td class="rank">${medal}</td><td class="${me?'me':''}">${displayNick}${me?' (나)':''}</td><td style="text-align:right;color:#FFD700;font-weight:bold">${e.score.toLocaleString()}${unit}</td><td style="text-align:right;color:#555;font-size:12px">${e.date||''}</td></tr>`;
     });
     table.innerHTML=html;

@@ -80,7 +80,7 @@ function run(){
         return`<div>매치${i+1}: <span class="gv">${esc(m[0])}</span> → ${g}</div>`;
       }).join('');
     }else{grp.style.display='none'}
-  }catch(e){res.innerHTML='<span style="color:#ff4757">오류: '+e.message+'</span>';cnt.textContent='0';grp.style.display='none'}
+  }catch(e){res.innerHTML='<span style="color:#ff4757">오류: '+esc(e.message)+'</span>';cnt.textContent='0';grp.style.display='none'}
 }
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 pat.addEventListener('input',run);
