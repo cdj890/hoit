@@ -232,7 +232,8 @@ function landOn(){
     setMsg(`${p.name}: 무인도! 3턴 대기`);
     endAction();
   } else if(sp.type==='travel'){
-    const dest=Math.floor(Math.random()*TOTAL);
+    let dest;
+    do{dest=Math.floor(Math.random()*TOTAL);}while(dest===14);
     p.pos=dest;
     setMsg(`${p.name}: 우주여행 → ${SPACES[dest].name}`);
     draw();
@@ -310,7 +311,7 @@ function checkBankrupt(p){
     p.alive=false;p.gold=0;
     // Release properties
     SPACES.forEach(sp=>{if(sp.owner===players.indexOf(p))sp.owner=-1;});
-    setMsg(msg=>p.name+' 파산!');
+    setMsg(p.name+' 파산!');
   }
 }
 

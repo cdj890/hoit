@@ -20,6 +20,26 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 .start-btn:hover{opacity:.9}
 .emoji{font-size:4em;margin:16px 0}.result-type{font-size:1.4em;font-weight:bold;color:#fab1a0;margin-bottom:12px}
 .result-desc{color:#bbb;line-height:1.7;margin-bottom:20px;font-size:.95em}.hidden{display:none}
+@keyframes slideIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes bounce{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+.q-slide{animation:slideIn .35s ease}
+.btn.selected{background:#fab1a0;color:#1a1a2e;font-weight:bold;pointer-events:none;animation:pulse .3s ease}
+.btn.selected::after{content:' \2713';font-weight:bold}
+.result-card{border:2px solid transparent;background:linear-gradient(#1a1a2e,#1a1a2e) padding-box,linear-gradient(135deg,#ff7675,#fab1a0) border-box;border-radius:16px;padding:20px;margin:16px 0;animation:fadeIn .6s ease}
+.share-btn{background:linear-gradient(135deg,#ff7675,#fab1a0);color:#1a1a2e;font-weight:bold;border:none;padding:12px;border-radius:10px;width:100%;cursor:pointer;font-size:1em;margin:8px 0;transition:opacity .2s}
+.share-btn:hover{opacity:.85}
+.recommend{margin-top:16px;text-align:center}
+.recommend a{display:inline-block;margin:4px 6px;padding:8px 14px;background:#2a2a3e;color:#fab1a0;border-radius:8px;text-decoration:none;font-size:.85em;transition:background .2s}
+.recommend a:hover{background:#3a3a5e}
+.food-char{font-size:5em;margin:12px 0;animation:bounce 1s ease infinite}
+.menu-rec{background:linear-gradient(135deg,#ff767522,#fab1a022);border-radius:10px;padding:14px;margin:12px 0;text-align:center;font-size:1em;line-height:1.6}
+.taste-bars{margin:16px 0}
+.taste-row{display:flex;align-items:center;margin:6px 0;font-size:.85em}
+.taste-label{width:60px;text-align:right;margin-right:8px;color:#aaa}
+.taste-track{flex:1;height:10px;background:#2a2a3e;border-radius:5px;overflow:hidden}
+.taste-fill{height:100%;border-radius:5px;transition:width 1s}
 </style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 </head><body>
 <a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
@@ -38,8 +58,13 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 <div id="result" class="hidden">
 <div class="emoji" id="rEmoji"></div>
 <div class="result-type" id="rType"></div>
+<div class="food-char" id="rChar"></div>
 <div class="result-desc" id="rDesc"></div>
+<div class="taste-bars" id="rTaste"></div>
+<div class="menu-rec" id="rMenu"></div>
+<button class="share-btn" onclick="copyResult()">결과 복사</button>
 <button class="btn start-btn" onclick="location.reload()">다시 하기</button>
+<div class="recommend"><span style="color:#888;font-size:.85em">다른 테스트 추천</span><br><a href="travel.html">여행 유형</a><a href="money.html">금전감각</a><a href="color.html">색깔 심리</a></div>
 </div>
 </div>
 <script>function _shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
@@ -53,14 +78,24 @@ const questions=[
 {q:"치킨을 시킨다면?",a:[["🍗 양념치킨","pas"],["🍗 후라이드치킨","per"]]},
 {q:"아침 음료는?",a:[["☕ 아메리카노","per"],["🥤 달달한 라떼","rom"]]}
 ];
-const types={adv:{e:"🌮",n:"모험가형",d:"새로운 음식에 도전하는 것을 즐기는 당신! 호기심이 많고 개방적인 성격으로, 삶에서도 새로운 경험을 추구해요. 두려움 없이 도전하는 용감한 사람입니다!"},
-com:{e:"🍚",n:"안정추구형",d:"익숙하고 편안한 음식을 좋아하는 당신! 신뢰감 있고 꾸준한 성격이에요. 변화보다 안정을 중시하며, 주변 사람들에게 든든한 존재입니다."},
-pas:{e:"🌶️",n:"열정가형",d:"강렬한 맛을 좋아하는 당신! 열정적이고 에너지 넘치는 성격이에요. 뭐든 화끈하게 해내며, 주변에 활력을 불어넣는 사람입니다!"},
-rom:{e:"🍰",n:"로맨티스트형",d:"달콤한 음식을 사랑하는 당신! 감성적이고 낭만적인 성격이에요. 아름다운 것을 좋아하고, 주변 사람들에게 따뜻한 사랑을 나누는 사람입니다."},
-per:{e:"🍣",n:"완벽주의형",d:"깔끔하고 정갈한 음식을 선호하는 당신! 섬세하고 꼼꼼한 성격이에요. 품질을 중시하며, 모든 일에 최선을 다하는 프로페셔널입니다."}};
+const types={adv:{e:"🌮",n:"모험가형",d:"새로운 음식에 도전하는 것을 즐기는 당신! 호기심이 많고 개방적인 성격으로, 삶에서도 새로운 경험을 추구해요. 두려움 없이 도전하는 용감한 사람입니다!",char:"🌍",taste:[70,50,60,80,65],menus:["태국 팟타이","멕시코 타코","인도 커리","베트남 쌀국수","에티오피아 인제라","터키 케밥"]},
+com:{e:"🍚",n:"안정추구형",d:"익숙하고 편안한 음식을 좋아하는 당신! 신뢰감 있고 꾸준한 성격이에요. 변화보다 안정을 중시하며, 주변 사람들에게 든든한 존재입니다.",char:"🏠",taste:[30,50,60,70,20],menus:["된장찌개","김치볶음밥","계란말이","소고기 미역국","떡볶이","칼국수"]},
+pas:{e:"🌶️",n:"열정가형",d:"강렬한 맛을 좋아하는 당신! 열정적이고 에너지 넘치는 성격이에요. 뭐든 화끈하게 해내며, 주변에 활력을 불어넣는 사람입니다!",char:"🔥",taste:[95,30,70,60,40],menus:["불닭볶음면","마라탕","낙곱새","매운 갈비찜","청양고추 비빔밥","쭈꾸미볶음"]},
+rom:{e:"🍰",n:"로맨티스트형",d:"달콤한 음식을 사랑하는 당신! 감성적이고 낭만적인 성격이에요. 아름다운 것을 좋아하고, 주변 사람들에게 따뜻한 사랑을 나누는 사람입니다.",char:"💕",taste:[20,95,40,50,30],menus:["딸기 케이크","티라미수","허니 브레드","크레페","마카롱","밀크티"]},
+per:{e:"🍣",n:"완벽주의형",d:"깔끔하고 정갈한 음식을 선호하는 당신! 섬세하고 꼼꼼한 성격이에요. 품질을 중시하며, 모든 일에 최선을 다하는 프로페셔널입니다.",char:"✨",taste:[40,40,50,90,55],menus:["오마카세","한정식","리조또","카프레제","연어 포케","프렌치 코스"]}};
 let cur=0,scores={};
 function startQuiz(){_shuf(questions);document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();}
-function showQ(){if(!window._qs){_shuf(questions);window._qs=1;}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';const d=document.createElement('div');d.className='pair';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=()=>pick(a[1]);d.appendChild(b);});o.appendChild(d);}
+function showQ(){if(!window._qs){_shuf(questions);window._qs=1;}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';document.getElementById('quiz').classList.add('q-slide');setTimeout(()=>document.getElementById('quiz').classList.remove('q-slide'),350);const d=document.createElement('div');d.className='pair';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=function(){this.classList.add('selected');setTimeout(()=>pick(a[1]),350)};d.appendChild(b);});o.appendChild(d);}
 function pick(t){scores[t]=(scores[t]||0)+1;cur++;if(cur<questions.length)showQ();else showResult();}
-function showResult(){const top=Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];const r=types[top];document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');document.getElementById('rEmoji').textContent=r.e;document.getElementById('rType').textContent=r.n;document.getElementById('rDesc').textContent=r.d;}
+function showResult(){const top=Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];const r=types[top];document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');document.getElementById('rEmoji').textContent=r.e;document.getElementById('rType').textContent=r.n;document.getElementById('rDesc').textContent=r.d;
+document.getElementById('rChar').textContent=r.char;
+const tasteLabels=['매운맛','단맛','짠맛','감칠맛','신맛'];const tasteColors=['#e17055','#fd79a8','#0984e3','#00b894','#fdcb6e'];
+let tasteHTML='';r.taste.forEach((v,i)=>{tasteHTML+='<div class="taste-row"><span class="taste-label">'+tasteLabels[i]+'</span><div class="taste-track"><div class="taste-fill" style="width:0;background:'+tasteColors[i]+'" data-w="'+v+'%"></div></div></div>';});
+document.getElementById('rTaste').innerHTML=tasteHTML;
+setTimeout(()=>{document.querySelectorAll('.taste-fill').forEach(el=>{el.style.width=el.dataset.w;});},200);
+const today=new Date();const seed=today.getFullYear()*10000+today.getMonth()*100+today.getDate();const menuIdx=seed%r.menus.length;
+document.getElementById('rMenu').innerHTML='🍽️ <strong>오늘의 추천 메뉴</strong><br><span style="font-size:1.3em;color:#fab1a0">'+r.menus[menuIdx]+'</span>';
+localStorage.setItem('hoit_food',JSON.stringify({type:r.n,date:new Date().toISOString()}));}
+function copyResult(){const d=JSON.parse(localStorage.getItem('hoit_food'));navigator.clipboard.writeText('[hoit.me] 음식 성격: '+d.type+' - https://hoit.me/tests/food.html').then(()=>{const b=document.querySelector('.share-btn');b.textContent='복사 완료!';setTimeout(()=>b.textContent='결과 복사',1500);});}
+(function(){const prev=localStorage.getItem('hoit_food');if(prev){const d=JSON.parse(prev);document.querySelector('.sub').textContent='이전 결과: '+d.type+' | 다시 해볼까요?';}})();
 </script></body></html>

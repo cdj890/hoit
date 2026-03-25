@@ -20,6 +20,26 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 .result-desc{color:#bbb;line-height:1.7;margin-bottom:10px;font-size:.95em}
 .traits{background:#2a2a3e;border-radius:10px;padding:14px;margin:12px 0;text-align:left;font-size:.9em;line-height:1.8;color:#ddd}
 .hidden{display:none}
+@keyframes slideIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.q-slide{animation:slideIn .35s ease}
+.btn.selected{background:#74b9ff;color:#1a1a2e;font-weight:bold;pointer-events:none;animation:pulse .3s ease}
+.btn.selected::after{content:' \2713';font-weight:bold}
+.result-card{border:2px solid transparent;background:linear-gradient(#1a1a2e,#1a1a2e) padding-box,linear-gradient(135deg,#0984e3,#74b9ff) border-box;border-radius:16px;padding:20px;margin:16px 0;animation:fadeIn .6s ease}
+.share-btn{background:linear-gradient(135deg,#0984e3,#74b9ff);color:#fff;font-weight:bold;border:none;padding:12px;border-radius:10px;width:100%;cursor:pointer;font-size:1em;margin:8px 0;transition:opacity .2s}
+.share-btn:hover{opacity:.85}
+.recommend{margin-top:16px;text-align:center}
+.recommend a{display:inline-block;margin:4px 6px;padding:8px 14px;background:#2a2a3e;color:#74b9ff;border-radius:8px;text-decoration:none;font-size:.85em;transition:background .2s}
+.recommend a:hover{background:#3a3a5e}
+.leader-match{background:linear-gradient(135deg,#0984e322,#74b9ff22);border-radius:12px;padding:16px;margin:12px 0;text-align:center}
+.leader-match .name{font-size:1.3em;font-weight:bold;color:#74b9ff}
+.leader-match .sub-text{color:#aaa;font-size:.85em;margin-top:4px}
+.sw-cards{display:flex;gap:10px;margin:12px 0}
+.sw-card{flex:1;background:#2a2a3e;border-radius:10px;padding:12px;font-size:.85em;line-height:1.6}
+.sw-card h4{margin-bottom:6px;font-size:.9em}
+.radar-wrap{margin:16px auto;width:220px;height:220px;position:relative}
+.radar-wrap canvas{width:220px;height:220px}
 </style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 </head><body>
 <a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
@@ -39,8 +59,13 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 <div class="emoji" id="rEmoji"></div>
 <div class="result-type" id="rType"></div>
 <div class="result-desc" id="rDesc"></div>
+<div class="leader-match" id="rLeader"></div>
+<div class="sw-cards"><div class="sw-card" id="rStrength"></div><div class="sw-card" id="rWeakness"></div></div>
 <div class="traits" id="rTraits"></div>
+<canvas id="radarCanvas" width="220" height="220" style="display:block;margin:16px auto"></canvas>
+<button class="share-btn" onclick="copyResult()">결과 복사</button>
 <button class="btn start-btn" onclick="location.reload()">다시 하기</button>
+<div class="recommend"><span style="color:#888;font-size:.85em">다른 테스트 추천</span><br><a href="insider.html">인싸/아싸</a><a href="mental.html">멘탈 강도</a><a href="empathy.html">공감 능력</a></div>
 </div>
 </div>
 <script>function _shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
@@ -54,13 +79,23 @@ const questions=[
 {q:"새 팀원이 합류하면?",a:[["역할과 기대치를 명확히","cha"],["팀에 소개하고 의견을 물어본다","dem"],["멘토를 붙여주고 케어한다","ser"],["팀의 비전과 꿈을 공유한다","tra"]]},
 {q:"나의 리더십 롤모델은?",a:[["스티브 잡스","cha"],["오바마","dem"],["테레사 수녀","ser"],["일론 머스크","tra"]]}
 ];
-const types={cha:{e:"🔥",n:"카리스마 리더",d:"강력한 존재감과 추진력으로 팀을 이끄는 리더! 위기 상황에서 빛나며, 빠른 판단과 실행력이 강점입니다.",t:"<strong>강점:</strong> 결단력, 추진력, 위기대응, 영향력<br><strong>리더십 스타일:</strong> 명확한 방향 제시, 빠른 실행<br><strong>닮은 인물:</strong> 스티브 잡스, 이순신"},
-dem:{e:"🤝",n:"민주적 리더",d:"모든 팀원의 의견을 존중하고 합의를 이끌어내는 리더! 공정한 과정을 통해 최선의 결정을 내립니다.",t:"<strong>강점:</strong> 경청, 공정성, 합의도출, 소통<br><strong>리더십 스타일:</strong> 참여형, 토론과 합의 중시<br><strong>닮은 인물:</strong> 넬슨 만델라, 세종대왕"},
-ser:{e:"💚",n:"서번트 리더",d:"팀원의 성장과 행복을 최우선으로 생각하는 리더! 섬김과 지원을 통해 팀의 잠재력을 이끌어냅니다.",t:"<strong>강점:</strong> 공감, 헌신, 멘토링, 신뢰구축<br><strong>리더십 스타일:</strong> 지원형, 팀원 중심 성장<br><strong>닮은 인물:</strong> 간디, 유관순"},
-tra:{e:"🚀",n:"변혁적 리더",d:"혁신적인 비전으로 팀에 영감을 주는 리더! 현재에 안주하지 않고 끊임없이 변화와 도전을 추구합니다.",t:"<strong>강점:</strong> 비전, 혁신, 열정, 영감부여<br><strong>리더십 스타일:</strong> 비전 제시형, 변화 주도<br><strong>닮은 인물:</strong> 일론 머스크, 정주영"}};
+const types={cha:{e:"🔥",n:"카리스마 리더",d:"강력한 존재감과 추진력으로 팀을 이끄는 리더! 위기 상황에서 빛나며, 빠른 판단과 실행력이 강점입니다.",t:"<strong>강점:</strong> 결단력, 추진력, 위기대응, 영향력<br><strong>리더십 스타일:</strong> 명확한 방향 제시, 빠른 실행<br><strong>닮은 인물:</strong> 스티브 잡스, 이순신",leader:"이순신 장군",leaderDesc:"위기 속에서 결단력으로 팀을 이끄는 카리스마 리더!",str:"<h4>💪 강점</h4>결단력이 뛰어남<br>위기 대응 능력<br>강한 추진력",weak:"<h4>⚠️ 약점</h4>독단적일 수 있음<br>타인 의견 경시<br>번아웃 위험",radar:[90,50,80,40,95]},
+dem:{e:"🤝",n:"민주적 리더",d:"모든 팀원의 의견을 존중하고 합의를 이끌어내는 리더! 공정한 과정을 통해 최선의 결정을 내립니다.",t:"<strong>강점:</strong> 경청, 공정성, 합의도출, 소통<br><strong>리더십 스타일:</strong> 참여형, 토론과 합의 중시<br><strong>닮은 인물:</strong> 넬슨 만델라, 세종대왕",leader:"세종대왕",leaderDesc:"소통과 합의로 모두가 참여하는 리더십의 표본!",str:"<h4>💪 강점</h4>뛰어난 경청 능력<br>공정한 의사결정<br>팀 화합 유도",weak:"<h4>⚠️ 약점</h4>결정이 느릴 수 있음<br>갈등 상황 우유부단<br>효율성 저하 가능",radar:[50,95,70,85,55]},
+ser:{e:"💚",n:"서번트 리더",d:"팀원의 성장과 행복을 최우선으로 생각하는 리더! 섬김과 지원을 통해 팀의 잠재력을 이끌어냅니다.",t:"<strong>강점:</strong> 공감, 헌신, 멘토링, 신뢰구축<br><strong>리더십 스타일:</strong> 지원형, 팀원 중심 성장<br><strong>닮은 인물:</strong> 간디, 유관순",leader:"간디",leaderDesc:"섬김과 헌신으로 사람들의 마음을 움직이는 리더!",str:"<h4>💪 강점</h4>깊은 공감 능력<br>팀원 성장 지원<br>강한 신뢰 구축",weak:"<h4>⚠️ 약점</h4>자기 희생 과다<br>강한 결단력 부족<br>성과 압박에 약함",radar:[40,70,60,95,45]},
+tra:{e:"🚀",n:"변혁적 리더",d:"혁신적인 비전으로 팀에 영감을 주는 리더! 현재에 안주하지 않고 끊임없이 변화와 도전을 추구합니다.",t:"<strong>강점:</strong> 비전, 혁신, 열정, 영감부여<br><strong>리더십 스타일:</strong> 비전 제시형, 변화 주도<br><strong>닮은 인물:</strong> 일론 머스크, 정주영",leader:"정주영",leaderDesc:"비전과 혁신으로 불가능을 가능으로 만드는 리더!",str:"<h4>💪 강점</h4>강력한 비전 제시<br>혁신적 사고<br>열정으로 영감 부여",weak:"<h4>⚠️ 약점</h4>현실 감각 부족<br>안정성 경시<br>팀원 피로 유발 가능",radar:[75,60,95,55,70]}};
 let cur=0,scores={};
 function startQuiz(){_shuf(questions);document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();}
-function showQ(){if(!window._qs){_shuf(questions);window._qs=1;}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=()=>pick(a[1]);o.appendChild(b);});}
+function showQ(){if(!window._qs){_shuf(questions);window._qs=1;}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';document.getElementById('quiz').classList.add('q-slide');setTimeout(()=>document.getElementById('quiz').classList.remove('q-slide'),350);q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=function(){this.classList.add('selected');setTimeout(()=>pick(a[1]),350)};o.appendChild(b);});}
 function pick(t){scores[t]=(scores[t]||0)+1;cur++;if(cur<questions.length)showQ();else showResult();}
-function showResult(){const top=Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];const r=types[top];document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');document.getElementById('rEmoji').textContent=r.e;document.getElementById('rType').textContent=r.n;document.getElementById('rDesc').textContent=r.d;document.getElementById('rTraits').innerHTML=r.t;}
+function showResult(){const top=Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];const r=types[top];document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');document.getElementById('rEmoji').textContent=r.e;document.getElementById('rType').textContent=r.n;document.getElementById('rDesc').textContent=r.d;document.getElementById('rTraits').innerHTML=r.t;
+document.getElementById('rLeader').innerHTML='<div style="font-size:2em;margin-bottom:4px">👑</div><div class="name">당신은 '+r.leader+' 타입!</div><div class="sub-text">'+r.leaderDesc+'</div>';
+document.getElementById('rStrength').innerHTML=r.str;document.getElementById('rWeakness').innerHTML=r.weak;
+drawRadar(r.radar);
+localStorage.setItem('hoit_leader',JSON.stringify({type:r.n,leader:r.leader,date:new Date().toISOString()}));}
+function drawRadar(vals){const c=document.getElementById('radarCanvas');const ctx=c.getContext('2d');const cx=110,cy=110,r=80;const labels=['결단력','소통','비전','공감','실행'];const n=5;ctx.clearRect(0,0,220,220);
+for(let lv=1;lv<=4;lv++){ctx.beginPath();for(let i=0;i<n;i++){const a=Math.PI*2*i/n-Math.PI/2;const x=cx+r*lv/4*Math.cos(a);const y=cy+r*lv/4*Math.sin(a);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.closePath();ctx.strokeStyle='#2a2a3e';ctx.stroke();}
+ctx.beginPath();for(let i=0;i<n;i++){const a=Math.PI*2*i/n-Math.PI/2;const v=vals[i]/100;const x=cx+r*v*Math.cos(a);const y=cy+r*v*Math.sin(a);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.closePath();ctx.fillStyle='rgba(9,132,227,0.3)';ctx.fill();ctx.strokeStyle='#74b9ff';ctx.lineWidth=2;ctx.stroke();
+for(let i=0;i<n;i++){const a=Math.PI*2*i/n-Math.PI/2;const x=cx+(r+18)*Math.cos(a);const y=cy+(r+18)*Math.sin(a);ctx.fillStyle='#aaa';ctx.font='11px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(labels[i],x,y);}}
+function copyResult(){const d=JSON.parse(localStorage.getItem('hoit_leader'));navigator.clipboard.writeText('[hoit.me] 리더십 유형: '+d.type+' ('+d.leader+' 타입) - https://hoit.me/tests/leader.html').then(()=>{const b=document.querySelector('.share-btn');b.textContent='복사 완료!';setTimeout(()=>b.textContent='결과 복사',1500);});}
+(function(){const prev=localStorage.getItem('hoit_leader');if(prev){const d=JSON.parse(prev);document.querySelector('.sub').textContent='이전 결과: '+d.type+' | 다시 해볼까요?';}})();
 </script></body></html>

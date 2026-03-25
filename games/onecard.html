@@ -108,10 +108,10 @@ function isAttack(c){
 }
 
 function canPlay(c,top,changedSuit){
+  if(attackStack>0){return isAttack(c)>0}
   if(c.suit==='joker')return true;
   if(c.rank==='J')return true;
   const s=changedSuit||top.suit;
-  if(attackStack>0){return isAttack(c)>0}
   if(top.suit==='joker'){return c.suit===(changedSuit||'hearts')}
   if(c.suit===s)return true;
   if(c.rank===top.rank)return true;
@@ -251,8 +251,9 @@ function aiTurn(){
     if(attackStack>0){
       const atkCards=playable.filter(i=>isAttack(hands[p][i])>0);
       if(atkCards.length>0)pick=atkCards[0];else{
+        const drawCount=attackStack;
         drawCards(p,attackStack);attackStack=0;
-        document.getElementById('info').textContent=PLAYER_NAMES[p]+'이(가) '+attackStack+'장 받음';
+        document.getElementById('info').textContent=PLAYER_NAMES[p]+'이(가) '+drawCount+'장 받음';
         advance();render();
         if(currentPlayer!==0)setTimeout(aiTurn,600);else render();
         return;
@@ -302,6 +303,6 @@ function endGame(winner){
 
 startGame();
 </script>
-<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
+
 </body>
 </html>

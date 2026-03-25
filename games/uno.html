@@ -123,14 +123,16 @@ function playCard(hand,idx,newColor){
   discardPile.push(c);
   topCard=c;
   chosenColor=c.color==='wild'?newColor:c.color;
-  // Effects
-  if(c.value==='⊘'){currentPlayer=(currentPlayer+direction+3)%3;}// skip next
-  else if(c.value==='⇄'){direction*=-1;if(hands.filter(h=>h.length>0).length<=2){currentPlayer=(currentPlayer+direction+3)%3;}}
-  else if(c.value==='+2'){const np=(currentPlayer+direction+3)%3;for(let i=0;i<2;i++){if(deck.length)hands[np].push(deck.pop());else recycleDeck();if(deck.length)hands[np].push(deck.pop());}currentPlayer=(currentPlayer+direction+3)%3;}
-  else if(c.value==='W+4'){const np=(currentPlayer+direction+3)%3;for(let i=0;i<4;i++){if(deck.length)hands[np].push(deck.pop());else recycleDeck();}currentPlayer=(currentPlayer+direction+3)%3;}
+  // Effects - skip/draw cards advance currentPlayer so caller should NOT advance again
+  let extraAdvanced=false;
+  if(c.value==='⊘'){currentPlayer=(currentPlayer+direction+3)%3;extraAdvanced=true;}// skip next
+  else if(c.value==='⇄'){direction*=-1;if(hands.filter(h=>h.length>0).length<=2){currentPlayer=(currentPlayer+direction+3)%3;extraAdvanced=true;}}
+  else if(c.value==='+2'){const np=(currentPlayer+direction+3)%3;for(let i=0;i<2;i++){if(!deck.length)recycleDeck();if(deck.length)hands[np].push(deck.pop());}currentPlayer=(currentPlayer+direction+3)%3;extraAdvanced=true;}
+  else if(c.value==='W+4'){const np=(currentPlayer+direction+3)%3;for(let i=0;i<4;i++){if(!deck.length)recycleDeck();if(deck.length)hands[np].push(deck.pop());}currentPlayer=(currentPlayer+direction+3)%3;extraAdvanced=true;}
   // Check win
   if(hand.length===0){endRound(hands.indexOf(hand)===-1?currentPlayer:players_indexOf(hand));return true;}
-  return false;
+  // Return 'skip' to signal caller should not advance
+  return extraAdvanced?'skip':false;
 }
 
 function players_indexOf(hand){return hands.indexOf(hand);}
@@ -184,7 +186,9 @@ function playerPlay(idx){
     document.getElementById('colorPick').classList.add('show');
     return;
   }
-  if(playCard(hands[0],idx,null))return;
+  const result=playCard(hands[0],idx,null);
+  if(result===true)return;
+  if(result==='skip'){render();if(currentPlayer!==0)setTimeout(aiTurn,700);return;}
   advance();
 }
 
@@ -192,7 +196,9 @@ function pickColor(col){
   document.getElementById('colorPick').classList.remove('show');
   if(pendingWild===null)return;
   const idx=pendingWild;pendingWild=null;
-  if(playCard(hands[0],idx,col))return;
+  const result=playCard(hands[0],idx,col);
+  if(result===true)return;
+  if(result==='skip'){render();if(currentPlayer!==0)setTimeout(aiTurn,700);return;}
   advance();
 }
 
@@ -228,7 +234,9 @@ function aiTurn(){
       hand.forEach(c=>{if(c.color!=='wild')counts[c.color]++;});
       col=CKEYS.reduce((a,b)=>counts[a]>=counts[b]?a:b);
     }
-    if(playCard(hand,pick.i,col))return;
+    const result=playCard(hand,pick.i,col);
+    if(result===true)return;
+    if(result==='skip'){render();if(currentPlayer!==0)setTimeout(aiTurn,700);return;}
   } else {
     drawCard(hand);
   }

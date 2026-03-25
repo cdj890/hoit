@@ -15,6 +15,18 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 .start-btn:hover{opacity:.9}
 .emoji{font-size:4em;margin:16px 0}.result-type{font-size:1.4em;font-weight:bold;color:#a29bfe;margin-bottom:12px}
 .result-desc{color:#bbb;line-height:1.7;margin-bottom:20px;font-size:.95em}.hidden{display:none}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1)}}
+.btn.selected{background:#a29bfe;color:#1a1a2e;font-weight:bold;pointer-events:none;animation:pulse .3s ease}
+.result-card{border:2px solid transparent;background:linear-gradient(#1a1a2e,#1a1a2e) padding-box,linear-gradient(135deg,#a29bfe,#6c5ce7) border-box;border-radius:16px;padding:20px;margin:16px 0;animation:fadeIn .6s ease}
+.share-btn{background:linear-gradient(135deg,#a29bfe,#6c5ce7);color:#fff;font-weight:bold;border:none;padding:12px;border-radius:10px;width:100%;cursor:pointer;font-size:1em;margin:8px 0;transition:opacity .2s}
+.share-btn:hover{opacity:.85}
+.recommend{margin-top:16px;text-align:center}
+.recommend a{display:inline-block;margin:4px 6px;padding:8px 14px;background:#2a2a3e;color:#a29bfe;border-radius:8px;text-decoration:none;font-size:.85em;transition:background .2s}
+.recommend a:hover{background:#3a3a5e}
+.brain-age{font-size:1.3em;color:#a29bfe;margin:10px 0;font-weight:bold}
+.percentile{background:linear-gradient(135deg,#a29bfe22,#6c5ce722);border-radius:10px;padding:12px;margin:12px 0;font-size:1em;color:#a29bfe;font-weight:bold}
+.reaction-box{background:#2a2a3e;border-radius:16px;padding:30px;margin:16px 0;cursor:pointer;font-size:1.1em;min-height:120px;display:flex;align-items:center;justify-content:center;transition:background .2s;user-select:none}
 .display{font-size:3em;letter-spacing:12px;margin:20px 0;color:#a29bfe;font-weight:bold;min-height:60px}
 .status{color:#888;margin:10px 0;font-size:.95em}
 .level{font-size:1.1em;color:#a29bfe;margin:10px 0;font-weight:bold}
@@ -41,12 +53,16 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 <div id="result" class="hidden">
 <div class="emoji" id="rEmoji"></div>
 <div class="result-type" id="rType"></div>
+<div class="brain-age" id="rBrain"></div>
+<div class="percentile" id="rPct"></div>
 <div class="result-desc" id="rDesc"></div>
+<button class="share-btn" onclick="copyResult()">결과 복사</button>
 <button class="btn start-btn" onclick="location.reload()">다시 하기</button>
+<div class="recommend"><span style="color:#888;font-size:.85em">다른 테스트 추천</span><br><a href="mental.html">멘탈 강도</a><a href="empathy.html">공감 능력</a><a href="insider.html">인싸/아싸</a></div>
 </div>
 </div>
 <script>
-let level=1,seq=[],userSeq=[],phase='',timerInt;
+let level=1,seq=[],userSeq=[],phase='',timerInt,reactionTime=0,reactionDone=false;
 function startGame(){document.getElementById('intro').classList.add('hidden');document.getElementById('game').classList.remove('hidden');nextRound();}
 function nextRound(){const len=level+2;seq=[];for(let i=0;i<len;i++)seq.push(Math.floor(Math.random()*10));userSeq=[];phase='show';
 document.getElementById('lvl').textContent='레벨 '+level+' (숫자 '+len+'개)';

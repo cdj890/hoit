@@ -20,6 +20,21 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 .result-desc{color:#bbb;line-height:1.7;margin-bottom:10px;font-size:.95em}
 .dest{background:#2a2a3e;border-radius:10px;padding:14px;margin:12px 0;text-align:left;font-size:.9em;line-height:1.8;color:#ddd}
 .hidden{display:none}
+@keyframes slideIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.q-slide{animation:slideIn .35s ease}
+.btn.selected{background:#81ecec;color:#1a1a2e;font-weight:bold;pointer-events:none;animation:pulse .3s ease}
+.btn.selected::after{content:' \2713';font-weight:bold}
+.result-card{border:2px solid transparent;background:linear-gradient(#1a1a2e,#1a1a2e) padding-box,linear-gradient(135deg,#00cec9,#81ecec) border-box;border-radius:16px;padding:20px;margin:16px 0;animation:fadeIn .6s ease}
+.share-btn{background:linear-gradient(135deg,#00cec9,#81ecec);color:#1a1a2e;font-weight:bold;border:none;padding:12px;border-radius:10px;width:100%;cursor:pointer;font-size:1em;margin:8px 0;transition:opacity .2s}
+.share-btn:hover{opacity:.85}
+.recommend{margin-top:16px;text-align:center}
+.recommend a{display:inline-block;margin:4px 6px;padding:8px 14px;background:#2a2a3e;color:#81ecec;border-radius:8px;text-decoration:none;font-size:.85em;transition:background .2s}
+.recommend a:hover{background:#3a3a5e}
+.flag-dest{font-size:1.6em;margin:12px 0;letter-spacing:4px}
+.bucket-list{background:#2a2a3e;border-radius:10px;padding:14px;margin:12px 0;text-align:left;font-size:.9em;line-height:1.8;color:#ddd}
+.packing-tip{background:linear-gradient(135deg,#00cec922,#81ecec22);border-radius:10px;padding:14px;margin:12px 0;text-align:center;font-size:.9em;line-height:1.6}
 </style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 </head><body>
 <a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
@@ -39,8 +54,13 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 <div class="emoji" id="rEmoji"></div>
 <div class="result-type" id="rType"></div>
 <div class="result-desc" id="rDesc"></div>
+<div class="flag-dest" id="rFlags"></div>
 <div class="dest" id="rDest"></div>
+<div class="bucket-list" id="rBucket"></div>
+<div class="packing-tip" id="rPacking"></div>
+<button class="share-btn" onclick="copyResult()">결과 복사</button>
 <button class="btn start-btn" onclick="location.reload()">다시 하기</button>
+<div class="recommend"><span style="color:#888;font-size:.85em">다른 테스트 추천</span><br><a href="food.html">음식 성격</a><a href="insider.html">인싸/아싸</a><a href="color.html">색깔 심리</a></div>
 </div>
 </div>
 <script>function _shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
@@ -54,14 +74,17 @@ const questions=[
 {q:"비가 오는 여행 날씨에?",a:[["빗속 산책도 좋다!","backpack"],["호텔에서 여유롭게","hotel"],["실내 맛집 투어","food"],["실내 미술관/박물관","culture"],["비 오는 풍경 감상","nature"]]},
 {q:"여행 후 가장 하고 싶은 말?",a:[["다음엔 어디 가지?","backpack"],["완전 재충전됐어!","hotel"],["그 음식 또 먹고 싶다","food"],["많이 배웠어","culture"],["힐링 완료!","nature"]]}
 ];
-const types={backpack:{e:"🎒",n:"배낭여행형",d:"자유로운 영혼의 모험가! 정해진 계획보다 즉흥적인 여행을 즐기며, 새로운 경험과 만남을 소중히 여겨요.",dest:"<strong>🗺️ 추천 여행지:</strong><br>• 동남아 배낭여행 (태국, 베트남)<br>• 유럽 인터레일<br>• 남미 (페루, 볼리비아)<br>• 제주 올레길"},
-hotel:{e:"🏨",n:"호캉스형",d:"여행은 곧 휴식! 좋은 숙소에서 편안하게 재충전하는 게 진정한 여행이라 생각해요. 퀄리티 있는 휴식을 추구합니다.",dest:"<strong>🗺️ 추천 여행지:</strong><br>• 몰디브/발리 리조트<br>• 제주 풀빌라<br>• 강원도 스파 호텔<br>• 싱가포르 마리나베이"},
-food:{e:"🍽️",n:"맛집투어형",d:"여행의 핵심은 음식! 현지 맛집을 찾아다니며 그 나라의 문화를 맛으로 경험하는 진정한 미식가입니다.",dest:"<strong>🗺️ 추천 여행지:</strong><br>• 일본 오사카 (식도락의 도시)<br>• 이탈리아 (정통 파스타/피자)<br>• 전주 한옥마을 (한식 투어)<br>• 태국 방콕 (길거리 음식)"},
-culture:{e:"🏛️",n:"문화탐방형",d:"역사와 문화를 깊이 탐구하는 지적 여행자! 박물관, 유적지, 전시회를 통해 새로운 지식을 쌓는 것을 즐겨요.",dest:"<strong>🗺️ 추천 여행지:</strong><br>• 로마/아테네 (고대 유적)<br>• 경주 (역사 탐방)<br>• 이집트 (피라미드)<br>• 교토 (전통 문화)"},
-nature:{e:"🌿",n:"자연힐링형",d:"자연 속에서 진정한 평화를 찾는 타입! 산, 바다, 숲 등 자연의 아름다움에 깊이 감동하며 힐링하는 여행을 좋아해요.",dest:"<strong>🗺️ 추천 여행지:</strong><br>• 뉴질랜드 (대자연)<br>• 제주 한라산<br>• 스위스 알프스<br>• 강원도 속초/양양"}};
+const types={backpack:{e:"🎒",n:"배낭여행형",d:"자유로운 영혼의 모험가! 정해진 계획보다 즉흥적인 여행을 즐기며, 새로운 경험과 만남을 소중히 여겨요.",dest:"<strong>🗺️ 추천 여행지:</strong><br>• 동남아 배낭여행 (태국, 베트남)<br>• 유럽 인터레일<br>• 남미 (페루, 볼리비아)<br>• 제주 올레길",flags:"🇹🇭 🇻🇳 🇵🇪 🇧🇴",bucket:"<strong>🗒️ 버킷리스트</strong><br>• 히말라야 트레킹<br>• 사하라 사막 캠핑<br>• 아이슬란드 링로드 일주<br>• 산티아고 순례길 완주",packing:"🎒 <strong>패킹 스타일:</strong> 미니멀리스트! 백팩 하나면 충분. 가벼운 짐이 자유로운 여행의 핵심!"},
+hotel:{e:"🏨",n:"호캉스형",d:"여행은 곧 휴식! 좋은 숙소에서 편안하게 재충전하는 게 진정한 여행이라 생각해요. 퀄리티 있는 휴식을 추구합니다.",dest:"<strong>🗺️ 추천 여행지:</strong><br>• 몰디브/발리 리조트<br>• 제주 풀빌라<br>• 강원도 스파 호텔<br>• 싱가포르 마리나베이",flags:"🇲🇻 🇮🇩 🇸🇬 🇰🇷",bucket:"<strong>🗒️ 버킷리스트</strong><br>• 몰디브 수상빌라 숙박<br>• 두바이 7성급 호텔 체험<br>• 산토리니 선셋 뷰 호텔<br>• 북유럽 유리 이글루",packing:"🧳 <strong>패킹 스타일:</strong> 럭셔리! 캐리어에 편안한 옷과 뷰티 용품 필수. 여행도 컴포트가 우선!"},
+food:{e:"🍽️",n:"맛집투어형",d:"여행의 핵심은 음식! 현지 맛집을 찾아다니며 그 나라의 문화를 맛으로 경험하는 진정한 미식가입니다.",dest:"<strong>🗺️ 추천 여행지:</strong><br>• 일본 오사카 (식도락의 도시)<br>• 이탈리아 (정통 파스타/피자)<br>• 전주 한옥마을 (한식 투어)<br>• 태국 방콕 (길거리 음식)",flags:"🇯🇵 🇮🇹 🇹🇭 🇰🇷",bucket:"<strong>🗒️ 버킷리스트</strong><br>• 도쿄 츠키지 새벽 스시<br>• 나폴리 정통 피자 투어<br>• 프랑스 와이너리 투어<br>• 페루 세비체 현지 맛",packing:"🍴 <strong>패킹 스타일:</strong> 위장 중심! 편한 신발과 여유로운 옷. 많이 먹어야 하니까 배 편한 옷 필수!"},
+culture:{e:"🏛️",n:"문화탐방형",d:"역사와 문화를 깊이 탐구하는 지적 여행자! 박물관, 유적지, 전시회를 통해 새로운 지식을 쌓는 것을 즐겨요.",dest:"<strong>🗺️ 추천 여행지:</strong><br>• 로마/아테네 (고대 유적)<br>• 경주 (역사 탐방)<br>• 이집트 (피라미드)<br>• 교토 (전통 문화)",flags:"🇮🇹 🇬🇷 🇪🇬 🇯🇵",bucket:"<strong>🗒️ 버킷리스트</strong><br>• 이집트 피라미드 내부 탐방<br>• 바티칸 시스티나 성당<br>• 앙코르와트 일출<br>• 마추픽추 잉카 문명 체험",packing:"📔 <strong>패킹 스타일:</strong> 지식인! 가이드북과 카메라 필수. 편한 운동화로 온종일 탐방 준비!"},
+nature:{e:"🌿",n:"자연힐링형",d:"자연 속에서 진정한 평화를 찾는 타입! 산, 바다, 숲 등 자연의 아름다움에 깊이 감동하며 힐링하는 여행을 좋아해요.",dest:"<strong>🗺️ 추천 여행지:</strong><br>• 뉴질랜드 (대자연)<br>• 제주 한라산<br>• 스위스 알프스<br>• 강원도 속초/양양",flags:"🇳🇿 🇨🇭 🇳🇴 🇰🇷",bucket:"<strong>🗒️ 버킷리스트</strong><br>• 노르웨이 피오르드 크루즈<br>• 파타고니아 빙하 트레킹<br>• 아이슬란드 오로라 관측<br>• 캐나다 로키산맥 캠핑",packing:"🏕️ <strong>패킹 스타일:</strong> 아웃도어! 등산화, 방수 자켓, 보온 장비. 자연과 하나되기 위한 기능성 위주!"}};
 let cur=0,scores={};
 function startQuiz(){_shuf(questions);document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();}
-function showQ(){if(!window._qs){_shuf(questions);window._qs=1;}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=()=>pick(a[1]);o.appendChild(b);});}
+function showQ(){if(!window._qs){_shuf(questions);window._qs=1;}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';document.getElementById('quiz').classList.add('q-slide');setTimeout(()=>document.getElementById('quiz').classList.remove('q-slide'),350);q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=function(){this.classList.add('selected');setTimeout(()=>pick(a[1]),350)};o.appendChild(b);});}
 function pick(t){scores[t]=(scores[t]||0)+1;cur++;if(cur<questions.length)showQ();else showResult();}
-function showResult(){const top=Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];const r=types[top];document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');document.getElementById('rEmoji').textContent=r.e;document.getElementById('rType').textContent=r.n;document.getElementById('rDesc').textContent=r.d;document.getElementById('rDest').innerHTML=r.dest;}
+function showResult(){const top=Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];const r=types[top];document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');document.getElementById('rEmoji').textContent=r.e;document.getElementById('rType').textContent=r.n;document.getElementById('rDesc').textContent=r.d;document.getElementById('rFlags').textContent=r.flags;document.getElementById('rDest').innerHTML=r.dest;document.getElementById('rBucket').innerHTML=r.bucket;document.getElementById('rPacking').innerHTML=r.packing;
+localStorage.setItem('hoit_travel',JSON.stringify({type:r.n,date:new Date().toISOString()}));}
+function copyResult(){const d=JSON.parse(localStorage.getItem('hoit_travel'));navigator.clipboard.writeText('[hoit.me] 여행 유형: '+d.type+' - https://hoit.me/tests/travel.html').then(()=>{const b=document.querySelector('.share-btn');b.textContent='복사 완료!';setTimeout(()=>b.textContent='결과 복사',1500);});}
+(function(){const prev=localStorage.getItem('hoit_travel');if(prev){const d=JSON.parse(prev);document.querySelector('.sub').textContent='이전 결과: '+d.type+' | 다시 해볼까요?';}})();
 </script></body></html>

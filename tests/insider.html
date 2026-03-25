@@ -22,6 +22,24 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 .gauge-fill{height:100%;border-radius:15px;transition:width 1s;background:linear-gradient(90deg,#636e72,#ff6b6b,#feca57)}
 .gauge-labels{display:flex;justify-content:space-between;font-size:.85em;color:#aaa;margin-bottom:4px}
 .pct{font-size:1.5em;font-weight:bold;color:#feca57;margin:8px 0}
+@keyframes slideIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.q-slide{animation:slideIn .35s ease}
+.btn.selected{background:#feca57;color:#1a1a2e;font-weight:bold;pointer-events:none;animation:pulse .3s ease}
+.btn.selected::after{content:' \2713';font-weight:bold}
+.result-card{background:#1a1a2e;border:2px solid transparent;border-image:linear-gradient(135deg,#ff6b6b,#feca57) 1;border-radius:16px;padding:20px;margin:16px 0;animation:fadeIn .6s ease}
+.share-btn{background:linear-gradient(135deg,#ff6b6b,#feca57);color:#1a1a2e;font-weight:bold;border:none;padding:12px;border-radius:10px;width:100%;cursor:pointer;font-size:1em;margin:8px 0;transition:opacity .2s}
+.share-btn:hover{opacity:.85}
+.recommend{margin-top:16px;text-align:center}
+.recommend a{display:inline-block;margin:4px 6px;padding:8px 14px;background:#2a2a3e;color:#feca57;border-radius:8px;text-decoration:none;font-size:.85em;transition:background .2s}
+.recommend a:hover{background:#3a3a5e}
+.badge{display:inline-block;padding:6px 16px;border-radius:20px;font-weight:bold;font-size:1.1em;margin:8px 0}
+.social-tip{background:#2a2a3e;border-radius:10px;padding:14px;margin:12px 0;text-align:left;font-size:.9em;line-height:1.8;color:#ddd}
+.gauge-meter{position:relative;width:200px;height:100px;margin:16px auto;overflow:hidden}
+.gauge-meter-bg{width:200px;height:100px;border-radius:100px 100px 0 0;background:conic-gradient(from 0.75turn,#636e72,#ff6b6b,#feca57,#00b894);position:absolute;top:0}
+.gauge-needle{width:4px;height:80px;background:#fff;position:absolute;bottom:0;left:50%;transform-origin:bottom center;transform:translateX(-50%) rotate(-90deg);transition:transform 1.2s ease;border-radius:2px}
+.gauge-meter-center{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:30px;height:15px;background:#1a1a2e;border-radius:15px 15px 0 0}
 </style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 </head><body>
 <a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
@@ -41,10 +59,15 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 <div class="emoji" id="rEmoji"></div>
 <div class="result-type" id="rType"></div>
 <div class="pct" id="rPct"></div>
+<div class="gauge-meter"><div class="gauge-meter-bg"></div><div class="gauge-needle" id="needle"></div><div class="gauge-meter-center"></div></div>
+<div class="badge" id="rBadge"></div>
 <div class="gauge-labels"><span>🏠 아싸</span><span>인싸 🎉</span></div>
 <div class="gauge-bar"><div class="gauge-fill" id="bar"></div></div>
 <div class="result-desc" id="rDesc"></div>
+<div class="social-tip" id="rTip"></div>
+<button class="share-btn" onclick="copyResult()">결과 복사</button>
 <button class="btn start-btn" onclick="location.reload()">다시 하기</button>
+<div class="recommend"><span style="color:#888;font-size:.85em">다른 테스트 추천</span><br><a href="leader.html">리더십 테스트</a><a href="empathy.html">공감 능력</a><a href="firstimp.html">첫인상</a></div>
 </div>
 </div>
 <script>function _shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
@@ -60,17 +83,24 @@ const questions=[
 ];
 let cur=0,total=0;
 function startQuiz(){_shuf(questions);document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();}
-function showQ(){if(!window._qs){_shuf(questions);window._qs=1;}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=()=>pick(a[1]);o.appendChild(b);});}
+function showQ(){if(!window._qs){_shuf(questions);window._qs=1;}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';document.getElementById('quiz').classList.add('q-slide');setTimeout(()=>document.getElementById('quiz').classList.remove('q-slide'),350);q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=function(){this.classList.add('selected');setTimeout(()=>pick(a[1]),350)};o.appendChild(b);});}
 function pick(v){total+=v;cur++;if(cur<questions.length)showQ();else showResult();}
 function showResult(){const pct=Math.round((total-8)/24*100);
 document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');
 setTimeout(()=>document.getElementById('bar').style.width=pct+'%',100);
 document.getElementById('rPct').textContent='인싸력 '+pct+'%';
 let emoji,type,desc;
-if(pct>=80){emoji='🥳';type='핵인싸';desc='당신은 어디서든 분위기를 주도하는 핵인싸! 사람들이 자연스럽게 모이는 매력의 소유자예요. 파티의 중심은 언제나 당신!';}
-else if(pct>=60){emoji='😎';type='인싸';desc='사교성이 좋은 인싸 타입! 적절한 사교 스킬로 어디서든 잘 어울려요. 모임에 가면 금방 친해지는 능력자!';}
-else if(pct>=40){emoji='🙂';type='중간계 (인싸쏘싸)';desc='상황에 따라 인싸도 아싸도 될 수 있는 밸런스형! 친한 사람들과는 인싸, 처음 보는 사람들과는 약간 쑥스러워요.';}
-else if(pct>=20){emoji='📚';type='아싸';desc='혼자만의 시간을 소중히 여기는 아싸! 소수의 깊은 관계를 선호해요. 집이 세상에서 제일 좋은 곳이죠.';}
-else{emoji='🏠';type='핵아싸';desc='집이 곧 천국인 핵아싸! 혼자 있을 때 가장 편안하고 행복해요. 사회성보다 자기만의 세계가 풍요로운 사람이에요.';}
-document.getElementById('rEmoji').textContent=emoji;document.getElementById('rType').textContent=type;document.getElementById('rDesc').textContent=desc;}
+let badge,badgeColor,tip;
+if(pct>=80){emoji='🥳';type='핵인싸';desc='당신은 어디서든 분위기를 주도하는 핵인싸! 사람들이 자연스럽게 모이는 매력의 소유자예요. 파티의 중심은 언제나 당신!';badge='핵인싸';badgeColor='#feca57';tip='<strong>💡 사교 팁:</strong><br>• 가끔은 혼자만의 시간으로 에너지를 충전하세요<br>• 조용한 사람의 이야기에도 귀 기울여보세요<br>• 깊이 있는 1:1 대화도 시도해보세요';}
+else if(pct>=60){emoji='😎';type='인싸';desc='사교성이 좋은 인싸 타입! 적절한 사교 스킬로 어디서든 잘 어울려요. 모임에 가면 금방 친해지는 능력자!';badge='인싸';badgeColor='#74b9ff';tip='<strong>💡 사교 팁:</strong><br>• 새로운 모임에 더 적극적으로 참여해보세요<br>• 다양한 취미 활동으로 인맥을 넓혀보세요<br>• 먼저 연락하는 습관을 들여보세요';}
+else if(pct>=40){emoji='🙂';type='중간계 (인싸쏘싸)';desc='상황에 따라 인싸도 아싸도 될 수 있는 밸런스형! 친한 사람들과는 인싸, 처음 보는 사람들과는 약간 쑥스러워요.';badge='보통';badgeColor='#a29bfe';tip='<strong>💡 사교 팁:</strong><br>• 소규모 모임부터 시작해보세요<br>• 공통 관심사가 있는 동호회를 찾아보세요<br>• 카톡에서 먼저 대화를 시작해보세요';}
+else if(pct>=20){emoji='📚';type='아싸';desc='혼자만의 시간을 소중히 여기는 아싸! 소수의 깊은 관계를 선호해요. 집이 세상에서 제일 좋은 곳이죠.';badge='아싸';badgeColor='#636e72';tip='<strong>💡 사교 팁:</strong><br>• 온라인 커뮤니티에서 먼저 시작해보세요<br>• 1:1 만남으로 깊은 관계를 만들어가세요<br>• 혼자하는 취미를 통해 비슷한 사람을 만나보세요';}
+else{emoji='🏠';type='핵아싸';desc='집이 곧 천국인 핵아싸! 혼자 있을 때 가장 편안하고 행복해요. 사회성보다 자기만의 세계가 풍요로운 사람이에요.';badge='핵아싸';badgeColor='#2d3436';tip='<strong>💡 사교 팁:</strong><br>• 자신만의 페이스를 존중하되, 가끔 밖으로 나가보세요<br>• 온라인 활동으로 사회적 연결을 유지하세요<br>• 편안한 한 명의 친구와 정기적으로 만나보세요';}
+document.getElementById('rEmoji').textContent=emoji;document.getElementById('rType').textContent=type;document.getElementById('rDesc').textContent=desc;
+document.getElementById('rBadge').textContent=badge;document.getElementById('rBadge').style.background=badgeColor;document.getElementById('rBadge').style.color=pct>=40?'#1a1a2e':'#fff';
+document.getElementById('rTip').innerHTML=tip;
+setTimeout(()=>{document.getElementById('needle').style.transform='translateX(-50%) rotate('+(pct*1.8-90)+'deg)';},200);
+localStorage.setItem('hoit_insider',JSON.stringify({type:type,pct:pct,date:new Date().toISOString()}));}
+function copyResult(){const d=JSON.parse(localStorage.getItem('hoit_insider'));navigator.clipboard.writeText('[hoit.me] 인싸/아싸 테스트 결과: '+d.type+' (인싸력 '+d.pct+'%) - https://hoit.me/tests/insider.html').then(()=>{const b=document.querySelector('.share-btn');b.textContent='복사 완료!';setTimeout(()=>b.textContent='결과 복사',1500);});}
+(function(){const prev=localStorage.getItem('hoit_insider');if(prev){const d=JSON.parse(prev);document.querySelector('.sub').textContent='이전 결과: '+d.type+' ('+d.pct+'%) | 다시 해볼까요?';}})();
 </script></body></html>

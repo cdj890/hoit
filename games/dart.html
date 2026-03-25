@@ -163,11 +163,8 @@ function processDart(player,result){
   dartsLeft--;
 
   if(remaining<0||(remaining===1)){
-    // Bust - score stays, end turn
+    // Bust - score stays, end turn (current throw not yet subtracted)
     setMsg(`버스트! 점수 복원`);
-    playerScores[player]+=roundThrows.slice(0,-1).reduce((a,r)=>a+r.score,0);
-    // Actually we haven't subtracted yet per throw, let me fix the logic
-    // We track round throws separately
     endTurn(player,true);
     return;
   }
@@ -176,7 +173,8 @@ function processDart(player,result){
 
   if(remaining===0){
     if(!result.isDouble){
-      // Must finish on double
+      // Must finish on double - need to restore this throw's deduction
+      playerScores[player]+=result.score;
       setMsg('더블/불스아이로 끝내야 합니다! 버스트!');
       endTurn(player,true);
       return;
@@ -204,10 +202,12 @@ function processDart(player,result){
 
 function endTurn(player,bust){
   if(bust){
-    // Restore score
-    let restored=playerScores[player];
-    roundThrows.forEach(r=>restored+=r.score);
-    playerScores[player]=restored;
+    // Restore score: add back all throws that were actually subtracted from playerScores
+    // The last throw in roundThrows caused the bust and was NOT subtracted (or was already restored)
+    // So we restore all throws except the last one
+    for(let i=0;i<roundThrows.length-1;i++){
+      playerScores[player]+=roundThrows[i].score;
+    }
   }
   roundThrows=[];
   dartsLeft=3;

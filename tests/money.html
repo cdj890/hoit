@@ -20,6 +20,24 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 .result-desc{color:#bbb;line-height:1.7;margin-bottom:10px;font-size:.95em}
 .advice{background:#2a2a3e;border-radius:10px;padding:14px;margin:12px 0;text-align:left;font-size:.9em;line-height:1.8;color:#ddd}
 .hidden{display:none}
+@keyframes slideIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.q-slide{animation:slideIn .35s ease}
+.btn.selected{background:#ffeaa7;color:#1a1a2e;font-weight:bold;pointer-events:none;animation:pulse .3s ease}
+.btn.selected::after{content:' \2713';font-weight:bold}
+.result-card{border:2px solid transparent;background:linear-gradient(#1a1a2e,#1a1a2e) padding-box,linear-gradient(135deg,#00b894,#ffeaa7) border-box;border-radius:16px;padding:20px;margin:16px 0;animation:fadeIn .6s ease}
+.share-btn{background:linear-gradient(135deg,#00b894,#ffeaa7);color:#1a1a2e;font-weight:bold;border:none;padding:12px;border-radius:10px;width:100%;cursor:pointer;font-size:1em;margin:8px 0;transition:opacity .2s}
+.share-btn:hover{opacity:.85}
+.recommend{margin-top:16px;text-align:center}
+.recommend a{display:inline-block;margin:4px 6px;padding:8px 14px;background:#2a2a3e;color:#ffeaa7;border-radius:8px;text-decoration:none;font-size:.85em;transition:background .2s}
+.recommend a:hover{background:#3a3a5e}
+.pie-wrap{width:180px;height:180px;margin:16px auto;border-radius:50%;position:relative}
+.budget-sim{background:#2a2a3e;border-radius:10px;padding:14px;margin:12px 0;text-align:left;font-size:.85em;line-height:1.8;color:#ddd}
+.budget-row{display:flex;justify-content:space-between;align-items:center;margin:4px 0}
+.budget-bar{height:8px;background:#1a1a2e;border-radius:4px;flex:1;margin-left:10px;overflow:hidden}
+.budget-bar-fill{height:100%;border-radius:4px;transition:width 1s}
+.saving-challenge{background:linear-gradient(135deg,#00b89422,#ffeaa722);border-radius:10px;padding:14px;margin:12px 0;text-align:center;font-size:.9em;line-height:1.6}
 </style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 </head><body>
 <a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
@@ -39,8 +57,13 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 <div class="emoji" id="rEmoji"></div>
 <div class="result-type" id="rType"></div>
 <div class="result-desc" id="rDesc"></div>
+<canvas id="pieCanvas" width="180" height="180" style="display:block;margin:16px auto"></canvas>
+<div class="budget-sim" id="rBudget"></div>
 <div class="advice" id="rAdvice"></div>
+<div class="saving-challenge" id="rChallenge"></div>
+<button class="share-btn" onclick="copyResult()">결과 복사</button>
 <button class="btn start-btn" onclick="location.reload()">다시 하기</button>
+<div class="recommend"><span style="color:#888;font-size:.85em">다른 테스트 추천</span><br><a href="travel.html">여행 유형</a><a href="food.html">음식 성격</a><a href="insider.html">인싸/아싸</a></div>
 </div>
 </div>
 <script>function _shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
@@ -62,7 +85,21 @@ const types=[
 ];
 let cur=0,total=0;
 function startQuiz(){_shuf(questions);document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();}
-function showQ(){if(!window._qs){_shuf(questions);window._qs=1;}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=()=>pick(a[1]);o.appendChild(b);});}
+function showQ(){if(!window._qs){_shuf(questions);window._qs=1;}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';document.getElementById('quiz').classList.add('q-slide');setTimeout(()=>document.getElementById('quiz').classList.remove('q-slide'),350);q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=function(){this.classList.add('selected');setTimeout(()=>pick(a[1]),350)};o.appendChild(b);});}
 function pick(v){total+=v;cur++;if(cur<questions.length)showQ();else showResult();}
-function showResult(){const r=types.find(t=>total>=t.min&&total<=t.max)||types[2];document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');document.getElementById('rEmoji').textContent=r.e;document.getElementById('rType').textContent=r.n;document.getElementById('rDesc').textContent=r.d;document.getElementById('rAdvice').innerHTML=r.a;}
+function showResult(){const r=types.find(t=>total>=t.min&&total<=t.max)||types[2];document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');document.getElementById('rEmoji').textContent=r.e;document.getElementById('rType').textContent=r.n;document.getElementById('rDesc').textContent=r.d;document.getElementById('rAdvice').innerHTML=r.a;
+const pieData=total<=13?[60,15,10,10,5]:total<=19?[40,20,15,15,10]:total<=25?[25,25,20,20,10]:[10,15,25,30,20];
+const pieLabels=['저축','주거','식비','쇼핑','여가'];const pieColors=['#00b894','#0984e3','#fdcb6e','#e17055','#6c5ce7'];
+drawPie(pieData,pieColors,pieLabels);
+const budgetMul=total<=13?{s:60,h:15,f:10,sh:10,l:5}:total<=19?{s:40,h:20,f:15,sh:15,l:10}:total<=25?{s:25,h:25,f:20,sh:20,l:10}:{s:10,h:15,f:25,sh:30,l:20};
+document.getElementById('rBudget').innerHTML='<strong>💰 월 300만원 예상 지출</strong><br>'+
+['저축 '+budgetMul.s*3+'만원','주거 '+budgetMul.h*3+'만원','식비 '+budgetMul.f*3+'만원','쇼핑 '+budgetMul.sh*3+'만원','여가 '+budgetMul.l*3+'만원'].join('<br>');
+const challenges=['매일 커피값 아끼기 (월 9만원 절약!)','무지출 챌린지 주 1회 도전','위시리스트 30일 냉각기 규칙','구독 서비스 3개 이하로 줄이기'];
+document.getElementById('rChallenge').innerHTML='<strong>🏆 추천 절약 챌린지</strong><br>'+challenges[types.indexOf(r)];
+localStorage.setItem('hoit_money',JSON.stringify({type:r.n,total:total,date:new Date().toISOString()}));}
+function drawPie(data,colors,labels){const c=document.getElementById('pieCanvas');const ctx=c.getContext('2d');const cx=90,cy=90,r=70;let start=0;const sum=data.reduce((a,b)=>a+b,0);
+data.forEach((v,i)=>{const slice=v/sum*Math.PI*2;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,start,start+slice);ctx.fillStyle=colors[i];ctx.fill();
+const mid=start+slice/2;const lx=cx+r*0.65*Math.cos(mid);const ly=cy+r*0.65*Math.sin(mid);ctx.fillStyle='#fff';ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(labels[i],lx,ly);start+=slice;});}
+function copyResult(){const d=JSON.parse(localStorage.getItem('hoit_money'));navigator.clipboard.writeText('[hoit.me] 금전감각 테스트: '+d.type+' - https://hoit.me/tests/money.html').then(()=>{const b=document.querySelector('.share-btn');b.textContent='복사 완료!';setTimeout(()=>b.textContent='결과 복사',1500);});}
+(function(){const prev=localStorage.getItem('hoit_money');if(prev){const d=JSON.parse(prev);document.querySelector('.sub').textContent='이전 결과: '+d.type+' | 다시 해볼까요?';}})();
 </script></body></html>

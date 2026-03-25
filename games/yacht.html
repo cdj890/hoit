@@ -238,9 +238,15 @@ function endGame(){
   else if(ps<as)msg.textContent=`AI 승리... ${ps} vs ${as}`;
   else msg.textContent=`무승부! ${ps}`;
   renderDice();renderScores();
+  document.getElementById('rollBtn').disabled=true;
+  const restartBtn=document.createElement('button');
+  restartBtn.textContent='다시 하기';restartBtn.style.cssText='background:#4a6fa5;color:#fff;border:none;border-radius:12px;padding:12px 32px;font-size:17px;font-weight:bold;font-family:inherit;cursor:pointer;min-height:44px;margin:8px';
+  restartBtn.onclick=init;
+  document.getElementById('msg').after(restartBtn);
 }
 
 function init(){
+  document.querySelectorAll('#game > button').forEach(b=>b.remove());
   scores=[{},{}];turnCount=0;gameOver=false;currentPlayer=0;
   rollsLeft=3;held=[false,false,false,false,false];dice=[0,0,0,0,0];
   document.getElementById('msg').textContent='';
