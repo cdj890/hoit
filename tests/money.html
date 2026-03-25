@@ -100,6 +100,6 @@ localStorage.setItem('hoit_money',JSON.stringify({type:r.n,total:total,date:new 
 function drawPie(data,colors,labels){const c=document.getElementById('pieCanvas');const ctx=c.getContext('2d');const cx=90,cy=90,r=70;let start=0;const sum=data.reduce((a,b)=>a+b,0);
 data.forEach((v,i)=>{const slice=v/sum*Math.PI*2;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,start,start+slice);ctx.fillStyle=colors[i];ctx.fill();
 const mid=start+slice/2;const lx=cx+r*0.65*Math.cos(mid);const ly=cy+r*0.65*Math.sin(mid);ctx.fillStyle='#fff';ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(labels[i],lx,ly);start+=slice;});}
-function copyResult(){const d=JSON.parse(localStorage.getItem('hoit_money'));navigator.clipboard.writeText('[hoit.me] 금전감각 테스트: '+d.type+' - https://hoit.me/tests/money.html').then(()=>{const b=document.querySelector('.share-btn');b.textContent='복사 완료!';setTimeout(()=>b.textContent='결과 복사',1500);});}
+function copyResult(){const d=JSON.parse(localStorage.getItem('hoit_money'));_copy('[hoit.me] 금전감각 테스트: '+d.type+' - https://hoit.me/tests/money.html',this);b.textContent='복사 완료!';setTimeout(()=>b.textContent='결과 복사',1500);});}
 (function(){const prev=localStorage.getItem('hoit_money');if(prev){const d=JSON.parse(prev);document.querySelector('.sub').textContent='이전 결과: '+d.type+' | 다시 해볼까요?';}})();
 </script></body></html>

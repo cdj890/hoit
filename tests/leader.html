@@ -40,7 +40,19 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 .sw-card h4{margin-bottom:6px;font-size:.9em}
 .radar-wrap{margin:16px auto;width:220px;height:220px;position:relative}
 .radar-wrap canvas{width:220px;height:220px}
-</style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+</style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous">
+function _copy(text,btn){
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    _copy(text,this).catch(()=>_copyFallback(text,btn));
+  } else { _copyFallback(text,btn); }
+}
+function _copyFallback(text,btn){
+  const ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;left:-9999px';
+  document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy');if(btn)btn.textContent='복사 완료!';}catch(e){alert('복사 실패. 수동으로 복사해주세요.');}
+  document.body.removeChild(ta);
+}
+</script>
 </head><body>
 <a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
 <div class="card">
@@ -96,6 +108,6 @@ function drawRadar(vals){const c=document.getElementById('radarCanvas');const ct
 for(let lv=1;lv<=4;lv++){ctx.beginPath();for(let i=0;i<n;i++){const a=Math.PI*2*i/n-Math.PI/2;const x=cx+r*lv/4*Math.cos(a);const y=cy+r*lv/4*Math.sin(a);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.closePath();ctx.strokeStyle='#2a2a3e';ctx.stroke();}
 ctx.beginPath();for(let i=0;i<n;i++){const a=Math.PI*2*i/n-Math.PI/2;const v=vals[i]/100;const x=cx+r*v*Math.cos(a);const y=cy+r*v*Math.sin(a);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.closePath();ctx.fillStyle='rgba(9,132,227,0.3)';ctx.fill();ctx.strokeStyle='#74b9ff';ctx.lineWidth=2;ctx.stroke();
 for(let i=0;i<n;i++){const a=Math.PI*2*i/n-Math.PI/2;const x=cx+(r+18)*Math.cos(a);const y=cy+(r+18)*Math.sin(a);ctx.fillStyle='#aaa';ctx.font='11px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(labels[i],x,y);}}
-function copyResult(){const d=JSON.parse(localStorage.getItem('hoit_leader'));navigator.clipboard.writeText('[hoit.me] 리더십 유형: '+d.type+' ('+d.leader+' 타입) - https://hoit.me/tests/leader.html').then(()=>{const b=document.querySelector('.share-btn');b.textContent='복사 완료!';setTimeout(()=>b.textContent='결과 복사',1500);});}
+function copyResult(){const d=JSON.parse(localStorage.getItem('hoit_leader'));_copy('[hoit.me] 리더십 유형: '+d.type+' ('+d.leader+' 타입,this) - https://hoit.me/tests/leader.html').then(()=>{const b=document.querySelector('.share-btn');b.textContent='복사 완료!';setTimeout(()=>b.textContent='결과 복사',1500);});}
 (function(){const prev=localStorage.getItem('hoit_leader');if(prev){const d=JSON.parse(prev);document.querySelector('.sub').textContent='이전 결과: '+d.type+' | 다시 해볼까요?';}})();
 </script></body></html>

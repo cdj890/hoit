@@ -134,8 +134,8 @@ function render(){
         ${partner?`<p style="font-size:12px;color:#666;margin-top:8px">저장된 파트너: ${TYPES[partner]?TYPES[partner].title:'?'}</p>`:''}
       </div>
       <div class="share-row">
-        <div class="share-btn2" onclick="navigator.clipboard.writeText('나의 연애 유형: ${r.title} ${r.emoji}\\n${r.desc}').then(()=>this.textContent='복사 완료!')">📋 결과 복사</div>
-        <div class="share-btn2" onclick="navigator.clipboard.writeText(location.href).then(()=>this.textContent='링크 복사됨!')">🔗 링크 공유</div>
+        <div class="share-btn2" onclick="_copy('나의 연애 유형: ${r.title} ${r.emoji}\\n${r.desc}',this)">📋 결과 복사</div>
+        <div class="share-btn2" onclick="_copy(location.href,this)">🔗 링크 공유</div>
       </div>
       <button class="btn" onclick="cur=0;scores={P:0,W:0,F:0,S:0};window._started=false;render()">다시 하기</button>
       <div class="recommend-section"><h3>🎯 다른 테스트 추천</h3><div class="recommend-links">${recs.map(r=>`<a href="${r.url}">${r.name}</a>`).join('')}</div></div>

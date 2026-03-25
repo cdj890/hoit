@@ -116,6 +116,6 @@ function showResult(i,j){
       <div class="recommend"><span style="color:#888;font-size:12px">다른 테스트 추천</span><br><a href="firstimp.html">첫인상</a><a href="empathy.html">공감 능력</a><a href="food.html">음식 성격</a></div>
     </div>`;
 }
-function copyResult(){const d=JSON.parse(localStorage.getItem('hoit_color'));navigator.clipboard.writeText('[hoit.me] 색깔 심리: '+d.name+' - https://hoit.me/tests/color.html').then(()=>{const b=document.querySelector('.share-btn');b.textContent='복사 완료!';setTimeout(()=>b.textContent='결과 복사',1500);});}
+function copyResult(){const d=JSON.parse(localStorage.getItem('hoit_color'));_copy('[hoit.me] 색깔 심리: '+d.name+' - https://hoit.me/tests/color.html',this);b.textContent='복사 완료!';setTimeout(()=>b.textContent='결과 복사',1500);});}
 showColors();
 </script></body></html>

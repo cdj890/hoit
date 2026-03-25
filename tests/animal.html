@@ -144,8 +144,8 @@ function showResult(){
         <div class="animals">${allKeys.map(k=>`<span class="${col.includes(k)?'found':'locked'}">${animals[k].e}</span>`).join('')}</div>
       </div>
       <div class="share-row">
-        <div class="share-btn2" onclick="navigator.clipboard.writeText('나의 동물 성격: ${r.n} ${r.e}\\n${r.d}').then(()=>this.textContent='복사 완료!')">📋 결과 복사</div>
-        <div class="share-btn2" onclick="navigator.clipboard.writeText(location.href).then(()=>this.textContent='링크 복사됨!')">🔗 링크 공유</div>
+        <div class="share-btn2" onclick="_copy('나의 동물 성격: ${r.n} ${r.e}\\n${r.d}',this)">📋 결과 복사</div>
+        <div class="share-btn2" onclick="_copy(location.href,this)">🔗 링크 공유</div>
       </div>
       <button class="btn start-btn" onclick="location.reload()">다시 하기</button>
       <div class="recommend-section"><h3>🎯 다른 테스트 추천</h3><div class="recommend-links">${recs.map(r=>`<a href="${r.url}">${r.name}</a>`).join('')}</div></div>

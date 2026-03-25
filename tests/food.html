@@ -96,6 +96,6 @@ setTimeout(()=>{document.querySelectorAll('.taste-fill').forEach(el=>{el.style.w
 const today=new Date();const seed=today.getFullYear()*10000+today.getMonth()*100+today.getDate();const menuIdx=seed%r.menus.length;
 document.getElementById('rMenu').innerHTML='🍽️ <strong>오늘의 추천 메뉴</strong><br><span style="font-size:1.3em;color:#fab1a0">'+r.menus[menuIdx]+'</span>';
 localStorage.setItem('hoit_food',JSON.stringify({type:r.n,date:new Date().toISOString()}));}
-function copyResult(){const d=JSON.parse(localStorage.getItem('hoit_food'));navigator.clipboard.writeText('[hoit.me] 음식 성격: '+d.type+' - https://hoit.me/tests/food.html').then(()=>{const b=document.querySelector('.share-btn');b.textContent='복사 완료!';setTimeout(()=>b.textContent='결과 복사',1500);});}
+function copyResult(){const d=JSON.parse(localStorage.getItem('hoit_food'));_copy('[hoit.me] 음식 성격: '+d.type+' - https://hoit.me/tests/food.html',this);b.textContent='복사 완료!';setTimeout(()=>b.textContent='결과 복사',1500);});}
 (function(){const prev=localStorage.getItem('hoit_food');if(prev){const d=JSON.parse(prev);document.querySelector('.sub').textContent='이전 결과: '+d.type+' | 다시 해볼까요?';}})();
 </script></body></html>

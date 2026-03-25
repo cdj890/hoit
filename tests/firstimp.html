@@ -39,7 +39,19 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 .profile-card .pc-style{font-size:.85em;color:#aaa;margin-top:8px}
 .fashion-tip{background:#2a2a3e;border-radius:10px;padding:14px;margin:12px 0;text-align:left;font-size:.9em;line-height:1.8;color:#ddd}
 .interview-tip{background:linear-gradient(135deg,#dfe6e922,#b2bec322);border-radius:10px;padding:14px;margin:12px 0;text-align:center;font-size:.9em;line-height:1.6}
-</style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+</style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous">
+function _copy(text,btn){
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    _copy(text,this).catch(()=>_copyFallback(text,btn));
+  } else { _copyFallback(text,btn); }
+}
+function _copyFallback(text,btn){
+  const ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;left:-9999px';
+  document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy');if(btn)btn.textContent='복사 완료!';}catch(e){alert('복사 실패. 수동으로 복사해주세요.');}
+  document.body.removeChild(ta);
+}
+</script>
 </head><body>
 <a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
 <div class="card">
@@ -91,6 +103,6 @@ function showResult(){const top=Object.entries(scores).sort((a,b)=>b[1]-a[1])[0]
 const pc=document.getElementById('rProfile');pc.style.borderColor=r.color;pc.innerHTML='<div class="pc-emoji">'+r.e+'</div><div class="pc-name">MY PROFILE CARD</div><div class="pc-type" style="color:'+r.color+'">'+r.n+'</div><div class="pc-style">스타일: '+r.style+' | 컬러: <span style="display:inline-block;width:12px;height:12px;background:'+r.color+';border-radius:50%;vertical-align:middle"></span></div>';
 document.getElementById('rTraits').innerHTML=r.t;document.getElementById('rFashion').innerHTML=r.fashion;document.getElementById('rInterview').innerHTML='💼 <strong>면접 팁</strong><br>'+r.interview;
 localStorage.setItem('hoit_firstimp',JSON.stringify({type:r.n,style:r.style,date:new Date().toISOString()}));}
-function copyResult(){const d=JSON.parse(localStorage.getItem('hoit_firstimp'));navigator.clipboard.writeText('[hoit.me] 첫인상: '+d.type+' ('+d.style+') - https://hoit.me/tests/firstimp.html').then(()=>{const b=document.querySelector('.share-btn');b.textContent='복사 완료!';setTimeout(()=>b.textContent='결과 복사',1500);});}
+function copyResult(){const d=JSON.parse(localStorage.getItem('hoit_firstimp'));_copy('[hoit.me] 첫인상: '+d.type+' ('+d.style+',this) - https://hoit.me/tests/firstimp.html').then(()=>{const b=document.querySelector('.share-btn');b.textContent='복사 완료!';setTimeout(()=>b.textContent='결과 복사',1500);});}
 (function(){const prev=localStorage.getItem('hoit_firstimp');if(prev){const d=JSON.parse(prev);document.querySelector('.sub').textContent='이전 결과: '+d.type+' | 다시 해볼까요?';}})();
 </script></body></html>

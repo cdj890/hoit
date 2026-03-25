@@ -219,8 +219,8 @@ function showResult(){
         <div class="mini-grid">${allTypes.map(t=>`<div class="cell${t===type?' me':''}">${t}</div>`).join('')}</div>
       </div>
       <div class="share-row">
-        <div class="share-btn2" onclick="navigator.clipboard.writeText('나의 MBTI: ${type} (${info.title}) ${info.emoji}\\n${info.desc}').then(()=>this.textContent='복사 완료!')">📋 결과 복사</div>
-        <div class="share-btn2" onclick="navigator.clipboard.writeText(location.href).then(()=>this.textContent='링크 복사됨!')">🔗 링크 공유</div>
+        <div class="share-btn2" onclick="_copy('나의 MBTI: ${type} (${info.title}) ${info.emoji}',this)">📋 결과 복사</div>
+        <div class="share-btn2" onclick="_copy(location.href,this)">🔗 링크 공유</div>
       </div>
       <button class="btn" onclick="cur=0;answers={EI:0,SN:0,TF:0,JP:0};window._started=false;render()">다시 하기</button>
       <div class="recommend-section">

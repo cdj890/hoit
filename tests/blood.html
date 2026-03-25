@@ -139,8 +139,8 @@ function showResult(type){
         <p>${getDailyFortune(type)}</p>
       </div>
       <div class="share-row">
-        <div class="share-btn2" onclick="navigator.clipboard.writeText('나의 혈액형: ${type}형 - ${d.title} ${d.emoji}').then(()=>this.textContent='복사 완료!')">📋 결과 복사</div>
-        <div class="share-btn2" onclick="navigator.clipboard.writeText(location.href).then(()=>this.textContent='링크 복사됨!')">🔗 링크 공유</div>
+        <div class="share-btn2" onclick="_copy('나의 혈액형: ${type}형 - ${d.title} ${d.emoji}',this)">📋 결과 복사</div>
+        <div class="share-btn2" onclick="_copy(location.href,this)">🔗 링크 공유</div>
       </div>
       <button class="btn" onclick="showSelect()">다른 혈액형 보기</button>
       <div class="recommend-section">

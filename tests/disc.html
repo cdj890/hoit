@@ -113,6 +113,6 @@ document.getElementById('rTeamRole').innerHTML='<div class="card-title">팀 역�
 document.getElementById('rConflict').innerHTML='<div class="card-title">갈등 해결 팁</div>'+r.conflict;
 document.getElementById('rFamous').innerHTML='<strong>같은 유형 유명인:</strong><br>'+r.famous;
 localStorage.setItem('disc_result',JSON.stringify({type:r.n,emoji:r.e,date:new Date().toLocaleDateString('ko-KR')}));}
-function copyResult(){const t=document.getElementById('rType').textContent+'\n'+document.getElementById('rDesc').textContent;navigator.clipboard.writeText('[DISC 성격 테스트 결과]\n'+t).then(()=>{const b=document.querySelector('.share-copy');b.textContent='복사 완료!';setTimeout(()=>b.textContent='결과 복사',1500);});}
+function copyResult(){const t=document.getElementById('rType').textContent+'\n'+document.getElementById('rDesc').textContent;_copy('[DISC 성격 테스트 결과]\n'+t,this);b.textContent='복사 완료!';setTimeout(()=>b.textContent='결과 복사',1500);});}
 (function(){const p=localStorage.getItem('disc_result');if(p){try{const d=JSON.parse(p);document.getElementById('prevResult').innerHTML='<div class="prev-result">이전 결과: '+d.emoji+' '+d.type+' ('+d.date+')</div>';}catch(e){}}})();
 </script></body></html>
