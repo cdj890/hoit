@@ -701,8 +701,7 @@ function switchTab(tab){
   grid.classList.add('tab-fade');
   showSkeleton();
   setTimeout(()=>{
-    renderGrid();
-    renderRecent();
+    try{renderGrid();renderRecent();}catch(err){console.error('renderGrid error:',err);}
     grid.classList.remove('tab-fade');
   },120);
   if(tab==='game')renderLB().catch(()=>{});
@@ -1077,7 +1076,7 @@ renderNick=function(){
 };
 
 // Init
-checkAchievementsOnLoad();
+try{checkAchievementsOnLoad();}catch(e){console.error('achv error:',e);}
 renderNick();
 document.getElementById('game-count').textContent=GAMES.length;
 document.getElementById('test-count').textContent=TESTS.length;
