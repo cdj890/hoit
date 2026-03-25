@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>스페인어 오늘의 한 문장</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;min-height:100vh;padding:60px 16px 30px}
+.container{max-width:520px;margin:0 auto}
+h1{text-align:center;font-size:1.6rem;margin-bottom:6px;background:linear-gradient(135deg,#f7b733,#fc4a1a);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{text-align:center;color:#888;font-size:0.85rem;margin-bottom:20px}
+.streak-bar{display:flex;justify-content:center;gap:16px;margin-bottom:20px}
+.streak-item{background:#1a1a2e;padding:8px 16px;border-radius:12px;text-align:center;font-size:0.8rem;color:#aaa}
+.streak-item span{display:block;font-size:1.3rem;font-weight:bold;color:#f7b733}
+.card{background:linear-gradient(145deg,#1a1a2e,#16213e);border-radius:20px;padding:28px 24px;margin-bottom:16px;border:1px solid rgba(247,183,51,0.15);position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#f7b733,#fc4a1a,#e74c3c)}
+.category{display:inline-block;background:rgba(247,183,51,0.15);color:#f7b733;padding:4px 12px;border-radius:20px;font-size:0.75rem;margin-bottom:16px}
+.es-text{font-size:1.8rem;font-weight:bold;color:#fff;line-height:1.5;margin-bottom:12px;letter-spacing:0.5px}
+.pron{font-size:1rem;color:#4dc9f6;margin-bottom:10px;font-style:italic}
+.kr-text{font-size:1.1rem;color:#ccc;margin-bottom:16px;padding:12px;background:rgba(255,255,255,0.04);border-radius:10px;border-left:3px solid #fc4a1a}
+.word-guide{margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.06)}
+.word-guide h4{font-size:0.8rem;color:#888;margin-bottom:8px}
+.word-item{display:flex;justify-content:space-between;padding:5px 0;font-size:0.85rem;border-bottom:1px solid rgba(255,255,255,0.03)}
+.word-item .w-es{color:#fff}.word-item .w-pr{color:#4dc9f6}.word-item .w-kr{color:#aaa}
+.actions{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.btn{flex:1;min-width:0;padding:12px 10px;border:none;border-radius:12px;font-size:0.9rem;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px}
+.btn-prev{background:#1a1a2e;color:#aaa;border:1px solid #333}
+.btn-prev:hover{background:#222240;color:#fff}
+.btn-next{background:linear-gradient(135deg,#f7b733,#fc4a1a);color:#fff}
+.btn-next:hover{transform:scale(1.02)}
+.btn-copy{background:#1a1a2e;color:#4dc9f6;border:1px solid rgba(77,201,246,0.3)}
+.btn-copy:hover{background:rgba(77,201,246,0.1)}
+.btn-bookmark{background:#1a1a2e;color:#f7b733;border:1px solid rgba(247,183,51,0.3)}
+.btn-bookmark.active{background:rgba(247,183,51,0.15);color:#f7b733}
+.btn-bookmark:hover{background:rgba(247,183,51,0.1)}
+.fav-section{margin-top:24px}
+.fav-section h3{font-size:1rem;color:#aaa;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.fav-card{background:#1a1a2e;border-radius:12px;padding:14px;margin-bottom:8px;border:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between;align-items:center}
+.fav-card .fav-text{flex:1}
+.fav-card .fav-es{font-size:1rem;color:#fff}
+.fav-card .fav-kr{font-size:0.8rem;color:#888;margin-top:2px}
+.fav-remove{background:none;border:none;color:#555;font-size:1.2rem;cursor:pointer;padding:8px}
+.fav-remove:hover{color:#fc4a1a}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(247,183,51,0.9);color:#000;padding:10px 24px;border-radius:20px;font-size:0.85rem;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;font-weight:600}
+.toast.show{opacity:1}
+.empty-fav{text-align:center;color:#555;font-size:0.85rem;padding:20px}
+.nav-row{display:flex;gap:10px;margin-bottom:16px}
+@media(max-width:380px){.es-text{font-size:1.4rem}.btn{font-size:0.8rem;padding:10px 6px}}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<div class="container">
+<h1>🇪🇸 스페인어 오늘의 한 문장</h1>
+<p class="subtitle">매일 새로운 스페인어 문장을 배워보세요</p>
+<div class="streak-bar">
+<div class="streak-item"><span id="streakCount">0</span>연속 일수</div>
+<div class="streak-item"><span id="totalCount">0</span>총 학습</div>
+<div class="streak-item"><span id="favCount">0</span>즐겨찾기</div>
+</div>
+<div class="card" id="mainCard"></div>
+<div class="nav-row">
+<button class="btn btn-prev" id="prevBtn" disabled>← 이전</button>
+<button class="btn btn-next" id="nextBtn">다음 문장 →</button>
+</div>
+<div class="actions">
+<button class="btn btn-copy" id="copyBtn">📋 복사</button>
+<button class="btn btn-bookmark" id="bookmarkBtn">♡ 저장</button>
+</div>
+<div class="fav-section">
+<h3>⭐ 즐겨찾기</h3>
+<div id="favList"></div>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const sentences=[
+{cat:"인사",es:"Buenos días. ¿Cómo estás hoy?",pr:"부에노스 디아스. 꼬모 에스따스 오이?",kr:"좋은 아침. 오늘 어때요?",words:[{es:"Buenos días",pr:"부에노스 디아스",kr:"좋은 아침"},{es:"Cómo",pr:"꼬모",kr:"어떻게"},{es:"estás",pr:"에스따스",kr:"있다(너)"},{es:"hoy",pr:"오이",kr:"오늘"}]},
+{cat:"인사",es:"Mucho gusto en conocerte. Me llamo Carlos.",pr:"무초 구스또 엔 꼬노쎄르떼. 메 야모 까를로스.",kr:"만나서 반가워요. 저는 카를로스입니다.",words:[{es:"Mucho gusto",pr:"무초 구스또",kr:"반갑습니다"},{es:"conocerte",pr:"꼬노쎄르떼",kr:"너를 알게 되어"},{es:"Me llamo",pr:"메 야모",kr:"제 이름은"}]},
+{cat:"인사",es:"¿Qué tal? Hace mucho tiempo que no nos vemos.",pr:"께 딸? 아쎄 무초 띠엠뽀 게 노 노스 베모스.",kr:"잘 지내? 정말 오랜만이야.",words:[{es:"Qué tal",pr:"게 딸",kr:"어때?"},{es:"mucho tiempo",pr:"무초 띠엠뽀",kr:"오랜 시간"},{es:"no nos vemos",pr:"노 노스 베모스",kr:"만나지 못했다"}]},
+{cat:"인사",es:"Buenas noches. Que descanses bien.",pr:"부에나스 노체스. 게 데스깐세스 비엔.",kr:"안녕히 주무세요. 푹 쉬세요.",words:[{es:"Buenas noches",pr:"부에나스 노체스",kr:"좋은 밤"},{es:"descanses",pr:"데스깐세스",kr:"쉬다"},{es:"bien",pr:"비엔",kr:"잘"}]},
+{cat:"인사",es:"¡Hasta luego! Nos vemos pronto.",pr:"아스따 루에고! 노스 베모스 쁘론또.",kr:"나중에 봐요! 곧 만나요.",words:[{es:"Hasta luego",pr:"아스따 루에고",kr:"나중에 봐요"},{es:"pronto",pr:"쁘론또",kr:"곧"}]},
+{cat:"인사",es:"Bienvenido a mi casa. Siéntete como en tu hogar.",pr:"비엔베니도 아 미 까사. 씨엔떼떼 꼬모 엔 뚜 오가르.",kr:"우리 집에 어서 오세요. 편하게 지내세요.",words:[{es:"Bienvenido",pr:"비엔베니도",kr:"환영합니다"},{es:"casa",pr:"까사",kr:"집"},{es:"hogar",pr:"오가르",kr:"가정"}]},
+{cat:"인사",es:"¡Feliz cumpleaños! Que todos tus deseos se cumplan.",pr:"펠리스 꿈쁠레아뇨스! 게 또도스 뚜스 데세오스 세 꿈쁠란.",kr:"생일 축하해요! 모든 소원이 이루어지길.",words:[{es:"Feliz",pr:"펠리스",kr:"행복한"},{es:"cumpleaños",pr:"꿈쁠레아뇨스",kr:"생일"},{es:"deseos",pr:"데세오스",kr:"소원들"}]},
+{cat:"인사",es:"Gracias por todo. Te lo agradezco mucho.",pr:"그라씨아스 뽀르 또도. 떼 로 아그라데스꼬 무초.",kr:"모든 것에 감사합니다. 정말 고마워요.",words:[{es:"Gracias",pr:"그라씨아스",kr:"감사"},{es:"todo",pr:"또도",kr:"모든 것"},{es:"agradezco",pr:"아그라데스꼬",kr:"감사하다"}]},
+{cat:"인사",es:"Perdón por llegar tarde. Había mucho tráfico.",pr:"뻬르돈 뽀르 예가르 따르데. 아비아 무초 뜨라피꼬.",kr:"늦어서 죄송합니다. 차가 많이 막혔어요.",words:[{es:"Perdón",pr:"뻬르돈",kr:"용서/죄송"},{es:"llegar tarde",pr:"예가르 따르데",kr:"늦게 도착하다"},{es:"tráfico",pr:"뜨라피꼬",kr:"교통"}]},
+{cat:"인사",es:"¡Feliz año nuevo! Que este año sea maravilloso.",pr:"펠리스 아뇨 누에보! 게 에스떼 아뇨 세아 마라비요소.",kr:"새해 복 많이 받으세요! 올해도 멋진 해가 되길.",words:[{es:"Feliz",pr:"펠리스",kr:"행복한"},{es:"año nuevo",pr:"아뇨 누에보",kr:"새해"},{es:"maravilloso",pr:"마라비요소",kr:"멋진"}]},
+{cat:"일상",es:"Hoy hace muy buen tiempo. Vamos a pasear.",pr:"오이 아쎄 무이 부엔 띠엠뽀. 바모스 아 빠세아르.",kr:"오늘 날씨가 정말 좋아요. 산책하러 가요.",words:[{es:"tiempo",pr:"띠엠뽀",kr:"날씨/시간"},{es:"pasear",pr:"빠세아르",kr:"산책하다"}]},
+{cat:"일상",es:"¿Qué desayunaste esta mañana?",pr:"게 데사유나스떼 에스따 마냐나?",kr:"오늘 아침에 뭘 먹었어요?",words:[{es:"desayunaste",pr:"데사유나스떼",kr:"아침을 먹었다"},{es:"mañana",pr:"마냐나",kr:"아침/내일"}]},
+{cat:"일상",es:"Esta película es muy interesante. Te la recomiendo.",pr:"에스따 뻴리꿀라 에스 무이 인떼레산떼. 떼 라 레꼬미엔도.",kr:"이 영화는 정말 재미있어요. 추천해요.",words:[{es:"película",pr:"뻴리꿀라",kr:"영화"},{es:"interesante",pr:"인떼레산떼",kr:"재미있는"},{es:"recomiendo",pr:"레꼬미엔도",kr:"추천하다"}]},
+{cat:"일상",es:"¿Qué planes tienes para el fin de semana?",pr:"게 쁠라네스 띠에네스 빠라 엘 핀 데 세마나?",kr:"주말에 무슨 계획이 있어요?",words:[{es:"planes",pr:"쁠라네스",kr:"계획"},{es:"fin de semana",pr:"핀 데 세마나",kr:"주말"}]},
+{cat:"일상",es:"Estoy aprendiendo español. Es un idioma hermoso.",pr:"에스또이 아쁘렌디엔도 에스빠뇰. 에스 운 이디오마 에르모소.",kr:"스페인어를 배우고 있어요. 아름다운 언어예요.",words:[{es:"aprendiendo",pr:"아쁘렌디엔도",kr:"배우고 있는"},{es:"español",pr:"에스빠뇰",kr:"스페인어"},{es:"hermoso",pr:"에르모소",kr:"아름다운"}]},
+{cat:"일상",es:"Tengo hambre. ¿Vamos a comer algo?",pr:"뗑고 암브레. 바모스 아 꼬메르 알고?",kr:"배가 고파요. 뭔가 먹으러 갈까요?",words:[{es:"hambre",pr:"암브레",kr:"배고픔"},{es:"comer",pr:"꼬메르",kr:"먹다"},{es:"algo",pr:"알고",kr:"무언가"}]},
+{cat:"일상",es:"¿Qué hora es? Ya es muy tarde.",pr:"게 오라 에스? 야 에스 무이 따르데.",kr:"몇 시예요? 벌써 많이 늦었네요.",words:[{es:"hora",pr:"오라",kr:"시간"},{es:"tarde",pr:"따르데",kr:"늦은"}]},
+{cat:"일상",es:"Me encanta la música latina. ¿A ti también?",pr:"메 엔깐따 라 무시까 라띠나. 아 띠 딴비엔?",kr:"라틴 음악을 너무 좋아해요. 당신도요?",words:[{es:"encanta",pr:"엔깐따",kr:"매우 좋아하다"},{es:"música",pr:"무시까",kr:"음악"},{es:"latina",pr:"라띠나",kr:"라틴의"}]},
+{cat:"일상",es:"¿Tienes mascotas? Yo tengo un perro y un gato.",pr:"띠에네스 마스꼬따스? 요 뗑고 운 뻬로 이 운 가또.",kr:"반려동물 있어요? 저는 개와 고양이가 있어요.",words:[{es:"mascotas",pr:"마스꼬따스",kr:"반려동물"},{es:"perro",pr:"뻬로",kr:"개"},{es:"gato",pr:"가또",kr:"고양이"}]},
+{cat:"일상",es:"Mañana no trabajo. Voy a dormir hasta tarde.",pr:"마냐나 노 뜨라바호. 보이 아 도르미르 아스따 따르데.",kr:"내일은 일 안 해요. 늦게까지 잘 거예요.",words:[{es:"mañana",pr:"마냐나",kr:"내일"},{es:"trabajo",pr:"뜨라바호",kr:"일하다"},{es:"dormir",pr:"도르미르",kr:"자다"}]},
+{cat:"일상",es:"Necesito ir al supermercado. ¿Necesitas algo?",pr:"네쎄시또 이르 알 수뻬르메르까도. 네쎄시따스 알고?",kr:"슈퍼마켓에 가야 해요. 뭐 필요한 거 있어요?",words:[{es:"necesito",pr:"네쎄시또",kr:"필요하다"},{es:"supermercado",pr:"수뻬르메르까도",kr:"슈퍼마켓"}]},
+{cat:"일상",es:"El café de esta cafetería es delicioso.",pr:"엘 까페 데 에스따 까페떼리아 에스 델리씨오소.",kr:"이 카페의 커피가 정말 맛있어요.",words:[{es:"café",pr:"까페",kr:"커피"},{es:"cafetería",pr:"까페떼리아",kr:"카페"},{es:"delicioso",pr:"델리씨오소",kr:"맛있는"}]},
+{cat:"일상",es:"Estoy muy cansado. Necesito descansar.",pr:"에스또이 무이 깐사도. 네쎄시또 데스깐사르.",kr:"너무 피곤해요. 쉬어야 해요.",words:[{es:"cansado",pr:"깐사도",kr:"피곤한"},{es:"descansar",pr:"데스깐사르",kr:"쉬다"}]},
+{cat:"일상",es:"¿Puedes hablar más despacio, por favor?",pr:"뿌에데스 아블라르 마스 데스빠씨오, 뽀르 파보르?",kr:"좀 더 천천히 말해주실 수 있나요?",words:[{es:"hablar",pr:"아블라르",kr:"말하다"},{es:"despacio",pr:"데스빠씨오",kr:"천천히"},{es:"por favor",pr:"뽀르 파보르",kr:"부탁합니다"}]},
+{cat:"일상",es:"Me gusta cocinar. Hoy voy a hacer paella.",pr:"메 구스따 꼬씨나르. 오이 보이 아 아쎄르 빠에야.",kr:"요리하는 걸 좋아해요. 오늘 빠에야를 만들 거예요.",words:[{es:"cocinar",pr:"꼬씨나르",kr:"요리하다"},{es:"hacer",pr:"아쎄르",kr:"만들다"},{es:"paella",pr:"빠에야",kr:"빠에야"}]},
+{cat:"일상",es:"El tren llega a las tres de la tarde.",pr:"엘 뜨렌 예가 아 라스 뜨레스 데 라 따르데.",kr:"기차가 오후 3시에 도착해요.",words:[{es:"tren",pr:"뜨렌",kr:"기차"},{es:"llega",pr:"예가",kr:"도착하다"},{es:"tarde",pr:"따르데",kr:"오후"}]},
+{cat:"일상",es:"Últimamente estoy haciendo ejercicio todos los días.",pr:"울띠마멘떼 에스또이 아씨엔도 에헤르씨씨오 또도스 로스 디아스.",kr:"최근에 매일 운동하고 있어요.",words:[{es:"últimamente",pr:"울띠마멘떼",kr:"최근에"},{es:"ejercicio",pr:"에헤르씨씨오",kr:"운동"},{es:"todos los días",pr:"또도스 로스 디아스",kr:"매일"}]},
+{cat:"일상",es:"¿Me puedes tomar una foto aquí?",pr:"메 뿌에데스 또마르 우나 포또 아끼?",kr:"여기서 사진 찍어줄 수 있어요?",words:[{es:"tomar",pr:"또마르",kr:"찍다"},{es:"foto",pr:"포또",kr:"사진"},{es:"aquí",pr:"아끼",kr:"여기"}]},
+{cat:"일상",es:"Este libro es muy interesante. Lo estoy leyendo ahora.",pr:"에스떼 리브로 에스 무이 인떼레산떼. 로 에스또이 레옌도 아오라.",kr:"이 책은 정말 재미있어요. 지금 읽고 있어요.",words:[{es:"libro",pr:"리브로",kr:"책"},{es:"leyendo",pr:"레옌도",kr:"읽고 있는"},{es:"ahora",pr:"아오라",kr:"지금"}]},
+{cat:"일상",es:"La batería de mi teléfono se está agotando.",pr:"라 바떼리아 데 미 뗄레포노 세 에스따 아고딴도.",kr:"핸드폰 배터리가 다 돼가요.",words:[{es:"batería",pr:"바떼리아",kr:"배터리"},{es:"teléfono",pr:"뗄레포노",kr:"전화기"},{es:"agotando",pr:"아고딴도",kr:"소진되는"}]},
+{cat:"여행",es:"¿Dónde está la estación de metro más cercana?",pr:"돈데 에스따 라 에스따씨온 데 메뜨로 마스 쎄르까나?",kr:"가장 가까운 지하철역이 어디인가요?",words:[{es:"dónde",pr:"돈데",kr:"어디"},{es:"estación",pr:"에스따씨온",kr:"역"},{es:"metro",pr:"메뜨로",kr:"지하철"},{es:"cercana",pr:"쎄르까나",kr:"가까운"}]},
+{cat:"여행",es:"Quisiera reservar una habitación doble, por favor.",pr:"끼시에라 레세르바르 우나 아비따씨온 도블레, 뽀르 파보르.",kr:"더블룸을 예약하고 싶습니다.",words:[{es:"reservar",pr:"레세르바르",kr:"예약하다"},{es:"habitación",pr:"아비따씨온",kr:"방"},{es:"doble",pr:"도블레",kr:"더블"}]},
+{cat:"여행",es:"¿Cuánto cuesta este recuerdo?",pr:"꿘또 꿰스따 에스떼 레꿰르도?",kr:"이 기념품은 얼마인가요?",words:[{es:"cuánto",pr:"꿘또",kr:"얼마"},{es:"cuesta",pr:"꿰스따",kr:"비용이 들다"},{es:"recuerdo",pr:"레꿰르도",kr:"기념품"}]},
+{cat:"여행",es:"¿Me puede recomendar un buen restaurante?",pr:"메 뿌에데 레꼬멘다르 운 부엔 레스따우란떼?",kr:"좋은 레스토랑을 추천해주실 수 있나요?",words:[{es:"recomendar",pr:"레꼬멘다르",kr:"추천하다"},{es:"restaurante",pr:"레스따우란떼",kr:"레스토랑"}]},
+{cat:"여행",es:"¿Dónde puedo cambiar dinero?",pr:"돈데 뿌에도 깜비아르 디네로?",kr:"어디서 환전할 수 있나요?",words:[{es:"cambiar",pr:"깜비아르",kr:"바꾸다/환전하다"},{es:"dinero",pr:"디네로",kr:"돈"}]},
+{cat:"여행",es:"La cuenta, por favor. ¿Aceptan tarjetas de crédito?",pr:"라 꿰따, 뽀르 파보르. 아쎕딴 따르헤따스 데 끄레디또?",kr:"계산서 부탁합니다. 신용카드 되나요?",words:[{es:"cuenta",pr:"꿰따",kr:"계산서"},{es:"tarjetas",pr:"따르헤따스",kr:"카드"},{es:"crédito",pr:"끄레디또",kr:"신용"}]},
+{cat:"여행",es:"¿Puede llamar un taxi para mí, por favor?",pr:"뿌에데 야마르 운 딱시 빠라 미, 뽀르 파보르?",kr:"택시를 불러주실 수 있나요?",words:[{es:"llamar",pr:"야마르",kr:"부르다"},{es:"taxi",pr:"딱시",kr:"택시"}]},
+{cat:"여행",es:"Estoy perdido. ¿Puede ayudarme?",pr:"에스또이 뻬르디도. 뿌에데 아유다르메?",kr:"길을 잃었어요. 도와주실 수 있나요?",words:[{es:"perdido",pr:"뻬르디도",kr:"길을 잃은"},{es:"ayudarme",pr:"아유다르메",kr:"나를 도와주다"}]},
+{cat:"여행",es:"¿Cuánto tiempo tarda en llegar al aeropuerto?",pr:"꿘또 띠엠뽀 따르다 엔 예가르 알 아에로뿌에르또?",kr:"공항까지 얼마나 걸리나요?",words:[{es:"tiempo",pr:"띠엠뽀",kr:"시간"},{es:"tarda",pr:"따르다",kr:"걸리다"},{es:"aeropuerto",pr:"아에로뿌에르또",kr:"공항"}]},
+{cat:"여행",es:"Necesito un mapa de la ciudad, por favor.",pr:"네쎄시또 운 마빠 데 라 씨우다드, 뽀르 파보르.",kr:"도시 지도가 필요합니다.",words:[{es:"mapa",pr:"마빠",kr:"지도"},{es:"ciudad",pr:"씨우다드",kr:"도시"}]},
+{cat:"여행",es:"¿Hay wifi gratis aquí? ¿Cuál es la contraseña?",pr:"아이 와이파이 그라띠스 아끼? 꿸 에스 라 꼰뜨라세냐?",kr:"여기 무료 와이파이 있나요? 비밀번호가 뭔가요?",words:[{es:"wifi gratis",pr:"와이파이 그라띠스",kr:"무료 와이파이"},{es:"contraseña",pr:"꼰뜨라세냐",kr:"비밀번호"}]},
+{cat:"여행",es:"Me gustaría probar la comida típica de aquí.",pr:"메 구스따리아 쁘로바르 라 꼬미다 띠삐까 데 아끼.",kr:"이곳의 전통 음식을 먹어보고 싶어요.",words:[{es:"probar",pr:"쁘로바르",kr:"시도하다/먹어보다"},{es:"comida típica",pr:"꼬미다 띠삐까",kr:"전통 음식"}]},
+{cat:"여행",es:"¿A qué hora sale el próximo autobús?",pr:"아 게 오라 살레 엘 쁘록시모 아우또부스?",kr:"다음 버스는 몇 시에 출발하나요?",words:[{es:"hora",pr:"오라",kr:"시간"},{es:"sale",pr:"살레",kr:"출발하다"},{es:"autobús",pr:"아우또부스",kr:"버스"}]},
+{cat:"여행",es:"Quisiera cancelar mi reservación.",pr:"끼시에라 깐쎌라르 미 레세르바씨온.",kr:"예약을 취소하고 싶습니다.",words:[{es:"cancelar",pr:"깐쎌라르",kr:"취소하다"},{es:"reservación",pr:"레세르바씨온",kr:"예약"}]},
+{cat:"여행",es:"¿Tienen menú en coreano o inglés?",pr:"띠에넨 메누 엔 꼬레아노 오 잉글레스?",kr:"한국어나 영어 메뉴 있나요?",words:[{es:"menú",pr:"메누",kr:"메뉴"},{es:"coreano",pr:"꼬레아노",kr:"한국어"},{es:"inglés",pr:"잉글레스",kr:"영어"}]},
+{cat:"여행",es:"La vista desde aquí es increíble.",pr:"라 비스따 데스데 아끼 에스 인끄레이블레.",kr:"여기서 보는 경치가 정말 놀라워요.",words:[{es:"vista",pr:"비스따",kr:"경치"},{es:"increíble",pr:"인끄레이블레",kr:"놀라운"}]},
+{cat:"여행",es:"¿Dónde puedo comprar souvenirs?",pr:"돈데 뿌에도 꼼쁘라르 수베니르스?",kr:"기념품을 어디서 살 수 있나요?",words:[{es:"comprar",pr:"꼼쁘라르",kr:"사다"},{es:"souvenirs",pr:"수베니르스",kr:"기념품"}]},
+{cat:"여행",es:"¿Es seguro caminar por esta zona de noche?",pr:"에스 세구로 까미나르 뽀르 에스따 소나 데 노체?",kr:"밤에 이 지역을 걸어다녀도 안전한가요?",words:[{es:"seguro",pr:"세구로",kr:"안전한"},{es:"caminar",pr:"까미나르",kr:"걷다"},{es:"noche",pr:"노체",kr:"밤"}]},
+{cat:"여행",es:"Necesito ir al hospital. No me siento bien.",pr:"네쎄시또 이르 알 오스삐딸. 노 메 씨엔또 비엔.",kr:"병원에 가야 해요. 몸이 안 좋아요.",words:[{es:"hospital",pr:"오스삐딸",kr:"병원"},{es:"siento",pr:"씨엔또",kr:"느끼다"}]},
+{cat:"여행",es:"¿Puede sacarme una foto, por favor?",pr:"뿌에데 사까르메 우나 포또, 뽀르 파보르?",kr:"사진 좀 찍어주실 수 있나요?",words:[{es:"sacarme",pr:"사까르메",kr:"나를 찍다"},{es:"foto",pr:"포또",kr:"사진"}]},
+{cat:"음식",es:"¿Cuál es el plato del día?",pr:"꿸 에스 엘 쁠라또 델 디아?",kr:"오늘의 요리는 뭔가요?",words:[{es:"plato",pr:"쁠라또",kr:"요리/접시"},{es:"día",pr:"디아",kr:"날"}]},
+{cat:"음식",es:"Para mí, una sangría y unas tapas, por favor.",pr:"빠라 미, 우나 상그리아 이 우나스 따빠스, 뽀르 파보르.",kr:"저는 상그리아 하나와 타파스 주세요.",words:[{es:"sangría",pr:"상그리아",kr:"상그리아"},{es:"tapas",pr:"따빠스",kr:"타파스"}]},
+{cat:"음식",es:"Esta paella está riquísima. ¿Cuál es la receta?",pr:"에스따 빠에야 에스따 리끼시마. 꿸 에스 라 레쎄따?",kr:"이 빠에야 정말 맛있어요. 레시피가 뭔가요?",words:[{es:"paella",pr:"빠에야",kr:"빠에야"},{es:"riquísima",pr:"리끼시마",kr:"아주 맛있는"},{es:"receta",pr:"레쎄따",kr:"레시피"}]},
+{cat:"음식",es:"Soy alérgico a los mariscos. ¿Este plato los contiene?",pr:"소이 알레르히꼬 아 로스 마리스꼬스. 에스떼 쁠라또 로스 꼰띠에네?",kr:"해산물 알레르기가 있어요. 이 요리에 들어있나요?",words:[{es:"alérgico",pr:"알레르히꼬",kr:"알레르기의"},{es:"mariscos",pr:"마리스꼬스",kr:"해산물"},{es:"contiene",pr:"꼰띠에네",kr:"포함하다"}]},
+{cat:"음식",es:"¿Me puede traer la carta de vinos?",pr:"메 뿌에데 뜨라에르 라 까르따 데 비노스?",kr:"와인 메뉴를 가져다주실 수 있나요?",words:[{es:"traer",pr:"뜨라에르",kr:"가져오다"},{es:"carta",pr:"까르따",kr:"메뉴/카드"},{es:"vinos",pr:"비노스",kr:"와인들"}]},
+{cat:"음식",es:"Quisiera un café con leche, por favor.",pr:"끼시에라 운 까페 꼰 레체, 뽀르 파보르.",kr:"카페라떼 하나 주세요.",words:[{es:"café",pr:"까페",kr:"커피"},{es:"leche",pr:"레체",kr:"우유"}]},
+{cat:"음식",es:"La comida mexicana es picante pero deliciosa.",pr:"라 꼬미다 메히까나 에스 삐깐떼 뻬로 델리씨오사.",kr:"멕시코 음식은 매콤하지만 맛있어요.",words:[{es:"comida",pr:"꼬미다",kr:"음식"},{es:"picante",pr:"삐깐떼",kr:"매운"},{es:"deliciosa",pr:"델리씨오사",kr:"맛있는"}]},
+{cat:"음식",es:"¿Tienen opciones vegetarianas?",pr:"띠에넨 옵씨오네스 베헤따리아나스?",kr:"채식 메뉴가 있나요?",words:[{es:"opciones",pr:"옵씨오네스",kr:"선택지"},{es:"vegetarianas",pr:"베헤따리아나스",kr:"채식의"}]},
+{cat:"음식",es:"El postre estaba increíble. ¿Puedo repetir?",pr:"엘 뽀스뜨레 에스따바 인끄레이블레. 뿌에도 레뻬띠르?",kr:"디저트가 놀라웠어요. 한 번 더 먹을 수 있나요?",words:[{es:"postre",pr:"뽀스뜨레",kr:"디저트"},{es:"increíble",pr:"인끄레이블레",kr:"놀라운"},{es:"repetir",pr:"레뻬띠르",kr:"반복하다"}]},
+{cat:"음식",es:"Me encanta el churro con chocolate. Es mi favorito.",pr:"메 엔깐따 엘 추로 꼰 초꼴라떼. 에스 미 파보리또.",kr:"츄러스와 초콜릿을 정말 좋아해요. 제 최애예요.",words:[{es:"churro",pr:"추로",kr:"츄러스"},{es:"chocolate",pr:"초꼴라떼",kr:"초콜릿"},{es:"favorito",pr:"파보리또",kr:"최애"}]},
+{cat:"음식",es:"¿Puede prepararlo sin sal? Cuido mi salud.",pr:"뿌에데 쁘레빠라를로 신 살? 꿰이도 미 살루드.",kr:"소금 없이 만들어주실 수 있나요? 건강을 관리해요.",words:[{es:"prepararlo",pr:"쁘레빠라를로",kr:"그것을 준비하다"},{es:"sin sal",pr:"신 살",kr:"소금 없이"},{es:"salud",pr:"살루드",kr:"건강"}]},
+{cat:"음식",es:"¿Cuál es la especialidad de la casa?",pr:"꿸 에스 라 에스뻬씨알리다드 데 라 까사?",kr:"이 집의 대표 메뉴는 뭔가요?",words:[{es:"especialidad",pr:"에스뻬씨알리다드",kr:"특선/전문"},{es:"casa",pr:"까사",kr:"집/레스토랑"}]},
+{cat:"음식",es:"Este vino tinto es excelente. ¿De qué región es?",pr:"에스떼 비노 띤또 에스 엑쎌렌떼. 데 게 레히온 에스?",kr:"이 레드와인 훌륭해요. 어느 지역 것인가요?",words:[{es:"vino tinto",pr:"비노 띤또",kr:"레드와인"},{es:"excelente",pr:"엑쎌렌떼",kr:"훌륭한"},{es:"región",pr:"레히온",kr:"지역"}]},
+{cat:"음식",es:"La tortilla española es un plato muy sencillo pero sabroso.",pr:"라 또르띠야 에스빠뇰라 에스 운 쁠라또 무이 쎈씨요 뻬로 사브로소.",kr:"스페인 오믈렛은 간단하지만 맛있는 요리예요.",words:[{es:"tortilla",pr:"또르띠야",kr:"오믈렛"},{es:"sencillo",pr:"쎈씨요",kr:"간단한"},{es:"sabroso",pr:"사브로소",kr:"맛있는"}]},
+{cat:"음식",es:"¿Nos puede traer más pan, por favor?",pr:"노스 뿌에데 뜨라에르 마스 빤, 뽀르 파보르?",kr:"빵을 더 가져다주실 수 있나요?",words:[{es:"traer",pr:"뜨라에르",kr:"가져오다"},{es:"más",pr:"마스",kr:"더"},{es:"pan",pr:"빤",kr:"빵"}]},
+{cat:"감정",es:"Estoy muy feliz hoy. Todo salió perfecto.",pr:"에스또이 무이 펠리스 오이. 또도 살리오 뻬르펙또.",kr:"오늘 정말 행복해요. 모든 게 완벽했어요.",words:[{es:"feliz",pr:"펠리스",kr:"행복한"},{es:"salió",pr:"살리오",kr:"나갔다/되었다"},{es:"perfecto",pr:"뻬르펙또",kr:"완벽한"}]},
+{cat:"감정",es:"Estoy triste pero sé que todo va a mejorar.",pr:"에스또이 뜨리스떼 뻬로 세 게 또도 바 아 메호라르.",kr:"슬프지만 모든 게 나아질 거라는 걸 알아요.",words:[{es:"triste",pr:"뜨리스떼",kr:"슬픈"},{es:"mejorar",pr:"메호라르",kr:"나아지다"}]},
+{cat:"감정",es:"Estoy nervioso por el examen de mañana.",pr:"에스또이 네르비오소 뽀르 엘 엑사멘 데 마냐나.",kr:"내일 시험 때문에 긴장돼요.",words:[{es:"nervioso",pr:"네르비오소",kr:"긴장한"},{es:"examen",pr:"엑사멘",kr:"시험"}]},
+{cat:"감정",es:"¡Increíble! No puedo creerlo. Es como un sueño.",pr:"인끄레이블레! 노 뿌에도 끄레에를로. 에스 꼬모 운 수에뇨.",kr:"믿을 수 없어! 꿈같아요.",words:[{es:"increíble",pr:"인끄레이블레",kr:"믿을 수 없는"},{es:"sueño",pr:"수에뇨",kr:"꿈"}]},
+{cat:"감정",es:"Te voy a echar de menos. Cuídate mucho.",pr:"떼 보이 아 에차르 데 메노스. 꿰이다떼 무초.",kr:"보고 싶을 거예요. 몸 조심하세요.",words:[{es:"echar de menos",pr:"에차르 데 메노스",kr:"그리워하다"},{es:"cuídate",pr:"꿰이다떼",kr:"몸조심해"}]},
+{cat:"감정",es:"No te preocupes. Todo va a salir bien.",pr:"노 떼 쁘레오꿔뻬스. 또도 바 아 살리르 비엔.",kr:"걱정하지 마세요. 다 잘 될 거예요.",words:[{es:"preocupes",pr:"쁘레오꿔뻬스",kr:"걱정하다"},{es:"salir bien",pr:"살리르 비엔",kr:"잘 되다"}]},
+{cat:"감정",es:"Me siento muy agradecido por todo lo que tengo.",pr:"메 씨엔또 무이 아그라데씨도 뽀르 또도 로 게 뗑고.",kr:"가진 모든 것에 정말 감사해요.",words:[{es:"agradecido",pr:"아그라데씨도",kr:"감사하는"},{es:"todo",pr:"또도",kr:"모든 것"}]},
+{cat:"감정",es:"Estoy estresado con el trabajo. Necesito vacaciones.",pr:"에스또이 에스뜨레사도 꼰 엘 뜨라바호. 네쎄시또 바까씨오네스.",kr:"일 때문에 스트레스받아요. 휴가가 필요해요.",words:[{es:"estresado",pr:"에스뜨레사도",kr:"스트레스받는"},{es:"trabajo",pr:"뜨라바호",kr:"일"},{es:"vacaciones",pr:"바까씨오네스",kr:"휴가"}]},
+{cat:"감정",es:"¡Lo logré! No me rendí y valió la pena.",pr:"로 로그레! 노 메 렌디 이 발리오 라 뻬나.",kr:"해냈어요! 포기하지 않은 보람이 있었어요.",words:[{es:"logré",pr:"로그레",kr:"이루었다"},{es:"rendí",pr:"렌디",kr:"포기했다"},{es:"valió la pena",pr:"발리오 라 뻬나",kr:"보람이 있었다"}]},
+{cat:"감정",es:"Estoy emocionado por el viaje. No puedo esperar.",pr:"에스또이 에모씨오나도 뽀르 엘 비아헤. 노 뿌에도 에스뻬라르.",kr:"여행이 기대돼요. 기다릴 수가 없어요.",words:[{es:"emocionado",pr:"에모씨오나도",kr:"설레는"},{es:"viaje",pr:"비아헤",kr:"여행"},{es:"esperar",pr:"에스뻬라르",kr:"기다리다"}]},
+{cat:"감정",es:"Me arrepiento de no haber dicho la verdad.",pr:"메 아레삐엔또 데 노 아베르 디초 라 베르다드.",kr:"진실을 말하지 않은 것이 후회돼요.",words:[{es:"arrepiento",pr:"아레삐엔또",kr:"후회하다"},{es:"verdad",pr:"베르다드",kr:"진실"}]},
+{cat:"감정",es:"Tú puedes con todo. Cree en ti mismo.",pr:"뚜 뿌에데스 꼰 또도. 끄레에 엔 띠 미스모.",kr:"너는 뭐든 할 수 있어. 자신을 믿어.",words:[{es:"puedes",pr:"뿌에데스",kr:"할 수 있다"},{es:"cree",pr:"끄레에",kr:"믿어라"},{es:"ti mismo",pr:"띠 미스모",kr:"너 자신"}]},
+{cat:"감정",es:"Qué nostalgia. Recuerdo esos buenos tiempos.",pr:"게 노스딸히아. 레꿰르도 에소스 부에노스 띠엠뽀스.",kr:"정말 그립다. 그 좋았던 시절이 떠올라.",words:[{es:"nostalgia",pr:"노스딸히아",kr:"그리움"},{es:"recuerdo",pr:"레꿰르도",kr:"기억하다"},{es:"tiempos",pr:"띠엠뽀스",kr:"시절"}]},
+{cat:"감정",es:"Estoy orgulloso de ti. Has hecho un gran trabajo.",pr:"에스또이 오르구요소 데 띠. 아스 에초 운 그란 뜨라바호.",kr:"네가 자랑스러워. 정말 잘했어.",words:[{es:"orgulloso",pr:"오르구요소",kr:"자랑스러운"},{es:"gran",pr:"그란",kr:"큰/대단한"},{es:"trabajo",pr:"뜨라바호",kr:"일"}]},
+{cat:"감정",es:"Hoy ha sido el mejor día de mi vida.",pr:"오이 아 시도 엘 메호르 디아 데 미 비다.",kr:"오늘은 내 인생 최고의 날이었어요.",words:[{es:"mejor",pr:"메호르",kr:"최고의"},{es:"día",pr:"디아",kr:"날"},{es:"vida",pr:"비다",kr:"인생"}]},
+{cat:"감정",es:"Me sorprendí mucho. No me lo esperaba.",pr:"메 소르쁘렌디 무초. 노 메 로 에스뻬라바.",kr:"정말 놀랐어요. 예상 못 했어요.",words:[{es:"sorprendí",pr:"소르쁘렌디",kr:"놀랐다"},{es:"esperaba",pr:"에스뻬라바",kr:"기대했다"}]},
+{cat:"일상",es:"¿Qué serie estás viendo últimamente?",pr:"게 세리에 에스따스 비엔도 울띠마멘떼?",kr:"요즘 무슨 시리즈 보고 있어요?",words:[{es:"serie",pr:"세리에",kr:"시리즈"},{es:"viendo",pr:"비엔도",kr:"보고 있는"},{es:"últimamente",pr:"울띠마멘떼",kr:"최근에"}]},
+{cat:"일상",es:"El próximo mes me voy a mudar a otra ciudad.",pr:"엘 쁘록시모 메스 메 보이 아 무다르 아 오뜨라 씨우다드.",kr:"다음 달에 다른 도시로 이사해요.",words:[{es:"próximo mes",pr:"쁘록시모 메스",kr:"다음 달"},{es:"mudar",pr:"무다르",kr:"이사하다"},{es:"ciudad",pr:"씨우다드",kr:"도시"}]},
+{cat:"일상",es:"Estoy resfriado. Tengo fiebre y me duele la garganta.",pr:"에스또이 레스프리아도. 뗑고 피에브레 이 메 두엘레 라 가르간따.",kr:"감기에 걸렸어요. 열도 있고 목이 아파요.",words:[{es:"resfriado",pr:"레스프리아도",kr:"감기 걸린"},{es:"fiebre",pr:"피에브레",kr:"열"},{es:"garganta",pr:"가르간따",kr:"목"}]},
+{cat:"일상",es:"Necesito estudiar más. El examen es la próxima semana.",pr:"네쎄시또 에스뚜디아르 마스. 엘 엑사멘 에스 라 쁘록시마 세마나.",kr:"더 공부해야 해요. 시험이 다음 주예요.",words:[{es:"estudiar",pr:"에스뚜디아르",kr:"공부하다"},{es:"examen",pr:"엑사멘",kr:"시험"},{es:"semana",pr:"세마나",kr:"주"}]},
+{cat:"음식",es:"Quiero probar el gazpacho. Es una sopa fría, ¿verdad?",pr:"끼에로 쁘로바르 엘 가스빠초. 에스 우나 소빠 프리아, 베르다드?",kr:"가스파초를 먹어보고 싶어요. 차가운 수프죠?",words:[{es:"probar",pr:"쁘로바르",kr:"맛보다"},{es:"gazpacho",pr:"가스빠초",kr:"가스파초"},{es:"sopa fría",pr:"소빠 프리아",kr:"차가운 수프"}]},
+{cat:"음식",es:"El jamón ibérico es una delicia española.",pr:"엘 하몬 이베리꼬 에스 우나 델리씨아 에스빠뇰라.",kr:"이베리코 햄은 스페인의 별미예요.",words:[{es:"jamón",pr:"하몬",kr:"햄"},{es:"ibérico",pr:"이베리꼬",kr:"이베리코"},{es:"delicia",pr:"델리씨아",kr:"별미"}]},
+{cat:"감정",es:"Cuando estoy triste, escucho música y me siento mejor.",pr:"꿘도 에스또이 뜨리스떼, 에스꾸초 무시까 이 메 씨엔또 메호르.",kr:"슬플 때 음악을 들으면 기분이 나아져요.",words:[{es:"cuando",pr:"꿘도",kr:"~할 때"},{es:"escucho",pr:"에스꾸초",kr:"듣다"},{es:"mejor",pr:"메호르",kr:"더 나은"}]},
+{cat:"인사",es:"¿Cómo te fue hoy en el trabajo?",pr:"꼬모 떼 푸에 오이 엔 엘 뜨라바호?",kr:"오늘 회사 어땠어요?",words:[{es:"cómo",pr:"꼬모",kr:"어떻게"},{es:"te fue",pr:"떼 푸에",kr:"~했다"},{es:"trabajo",pr:"뜨라바호",kr:"일/직장"}]},
+{cat:"여행",es:"Barcelona tiene una arquitectura impresionante.",pr:"바르쎌로나 띠에네 우나 아르끼떽뚜라 임쁘레씨오난떼.",kr:"바르셀로나는 인상적인 건축물이 있어요.",words:[{es:"Barcelona",pr:"바르쎌로나",kr:"바르셀로나"},{es:"arquitectura",pr:"아르끼떽뚜라",kr:"건축"},{es:"impresionante",pr:"임쁘레씨오난떼",kr:"인상적인"}]},
+{cat:"일상",es:"Últimamente he engordado. Voy a empezar una dieta.",pr:"울띠마멘떼 에 엔고르다도. 보이 아 엠뻬사르 우나 디에따.",kr:"최근에 살이 쪘어요. 다이어트를 시작할 거예요.",words:[{es:"engordado",pr:"엔고르다도",kr:"살찐"},{es:"empezar",pr:"엠뻬사르",kr:"시작하다"},{es:"dieta",pr:"디에따",kr:"다이어트"}]},
+{cat:"일상",es:"¿Puedes ayudarme con este problema? No entiendo.",pr:"뿌에데스 아유다르메 꼰 에스떼 쁘로블레마? 노 엔띠엔도.",kr:"이 문제 좀 도와줄 수 있어요? 이해가 안 돼요.",words:[{es:"ayudarme",pr:"아유다르메",kr:"나를 도와주다"},{es:"problema",pr:"쁘로블레마",kr:"문제"},{es:"entiendo",pr:"엔띠엔도",kr:"이해하다"}]},
+{cat:"감정",es:"La vida es bella. Hay que disfrutar cada momento.",pr:"라 비다 에스 베야. 아이 게 디스프루따르 까다 모멘또.",kr:"인생은 아름다워요. 매 순간을 즐겨야 해요.",words:[{es:"vida",pr:"비다",kr:"인생"},{es:"bella",pr:"베야",kr:"아름다운"},{es:"disfrutar",pr:"디스프루따르",kr:"즐기다"},{es:"momento",pr:"모멘또",kr:"순간"}]},
+{cat:"일상",es:"Voy a aprender a tocar la guitarra este año.",pr:"보이 아 아쁘렌데르 아 또까르 라 기따라 에스떼 아뇨.",kr:"올해 기타 치는 법을 배울 거예요.",words:[{es:"aprender",pr:"아쁘렌데르",kr:"배우다"},{es:"tocar",pr:"또까르",kr:"치다/연주하다"},{es:"guitarra",pr:"기따라",kr:"기타"}]},
+{cat:"여행",es:"El flamenco es un arte apasionante. Quiero verlo en vivo.",pr:"엘 플라멩꼬 에스 운 아르떼 아빠씨오난떼. 끼에로 베를로 엔 비보.",kr:"플라멩코는 열정적인 예술이에요. 라이브로 보고 싶어요.",words:[{es:"flamenco",pr:"플라멩꼬",kr:"플라멩코"},{es:"arte",pr:"아르떼",kr:"예술"},{es:"en vivo",pr:"엔 비보",kr:"라이브로"}]},
+{cat:"감정",es:"Gracias por estar siempre a mi lado. Significas mucho para mí.",pr:"그라씨아스 뽀르 에스따르 씨엠쁘레 아 미 라도. 시그니피까스 무초 빠라 미.",kr:"항상 내 곁에 있어줘서 고마워. 나한테 정말 소중한 사람이야.",words:[{es:"siempre",pr:"씨엠쁘레",kr:"항상"},{es:"lado",pr:"라도",kr:"곁"},{es:"significas",pr:"시그니피까스",kr:"의미하다"}]},
+{cat:"일상",es:"Hoy llovió todo el día. Me quedé en casa leyendo.",pr:"오이 요비오 또도 엘 디아. 메 게데 엔 까사 레옌도.",kr:"오늘 하루 종일 비가 왔어요. 집에서 책 읽었어요.",words:[{es:"llovió",pr:"요비오",kr:"비가 왔다"},{es:"todo el día",pr:"또도 엘 디아",kr:"하루 종일"},{es:"leyendo",pr:"레옌도",kr:"읽으면서"}]},
+{cat:"음식",es:"¿Me recomiendas algún plato típico de aquí?",pr:"메 레꼬미엔다스 알군 쁠라또 띠삐꼬 데 아끼?",kr:"여기 전통 요리 뭔가 추천해줄 수 있어요?",words:[{es:"recomiendas",pr:"레꼬미엔다스",kr:"추천하다"},{es:"plato típico",pr:"쁠라또 띠삐꼬",kr:"전통 요리"}]}
+];
+
+let history=[],histIdx=-1,current=null;
+const LS_FAV='es_favs',LS_STREAK='es_streak',LS_LAST='es_last',LS_TOTAL='es_total';
+
+function seed(d){const s=d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate();let h=s;h=((h>>16)^h)*0x45d9f3b;h=((h>>16)^h)*0x45d9f3b;h=(h>>16)^h;return Math.abs(h)}
+function getTodayIdx(){return seed(new Date())%sentences.length}
+function rand(){return Math.floor(Math.random()*sentences.length)}
+function getFavs(){try{return JSON.parse(localStorage.getItem(LS_FAV))||[]}catch{return[]}}
+function saveFavs(f){localStorage.setItem(LS_FAV,JSON.stringify(f))}
+
+function updateStreak(){
+  const today=new Date().toDateString();
+  const last=localStorage.getItem(LS_LAST);
+  let streak=parseInt(localStorage.getItem(LS_STREAK))||0;
+  let total=parseInt(localStorage.getItem(LS_TOTAL))||0;
+  if(last!==today){
+    const yd=new Date();yd.setDate(yd.getDate()-1);
+    if(last===yd.toDateString())streak++;else streak=1;
+    total++;
+    localStorage.setItem(LS_STREAK,streak);
+    localStorage.setItem(LS_LAST,today);
+    localStorage.setItem(LS_TOTAL,total);
+  }
+  document.getElementById('streakCount').textContent=streak;
+  document.getElementById('totalCount').textContent=total;
+  document.getElementById('favCount').textContent=getFavs().length;
+}
+
+function showSentence(idx){
+  current=sentences[idx];
+  const c=document.getElementById('mainCard');
+  let wordsHtml='';
+  if(current.words&&current.words.length){
+    wordsHtml='<div class="word-guide"><h4>단어별 발음 가이드</h4>';
+    current.words.forEach(w=>{wordsHtml+=`<div class="word-item"><span class="w-es">${w.es}</span><span class="w-pr">${w.pr}</span><span class="w-kr">${w.kr}</span></div>`});
+    wordsHtml+='</div>';
+  }
+  c.innerHTML=`<div class="category">${current.cat}</div>
+<div class="es-text">${current.es}</div>
+<div class="pron">${current.pr}</div>
+<div class="kr-text">${current.kr}</div>${wordsHtml}`;
+  const favs=getFavs();
+  const bk=document.getElementById('bookmarkBtn');
+  const isFav=favs.some(f=>f.es===current.es);
+  bk.className='btn btn-bookmark'+(isFav?' active':'');
+  bk.textContent=isFav?'♥ 저장됨':'♡ 저장';
+  document.getElementById('prevBtn').disabled=histIdx<=0;
+}
+
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1500)}
+
+document.getElementById('nextBtn').onclick=()=>{
+  const idx=rand();
+  if(histIdx<history.length-1)history=history.slice(0,histIdx+1);
+  history.push(idx);histIdx=history.length-1;
+  showSentence(idx);
+};
+document.getElementById('prevBtn').onclick=()=>{if(histIdx>0){histIdx--;showSentence(history[histIdx])}};
+document.getElementById('copyBtn').onclick=()=>{
+  if(!current)return;
+  navigator.clipboard.writeText(current.es+'\n'+current.pr+'\n'+current.kr).then(()=>showToast('복사되었습니다!')).catch(()=>showToast('복사 실패'));
+};
+document.getElementById('bookmarkBtn').onclick=()=>{
+  if(!current)return;
+  let favs=getFavs();
+  const exists=favs.findIndex(f=>f.es===current.es);
+  if(exists>=0){favs.splice(exists,1);showToast('즐겨찾기에서 제거됨')}
+  else{favs.unshift({es:current.es,kr:current.kr,pr:current.pr,cat:current.cat});showToast('즐겨찾기에 저장됨')}
+  saveFavs(favs);renderFavs();showSentence(history[histIdx]);
+  document.getElementById('favCount').textContent=favs.length;
+};
+
+function renderFavs(){
+  const list=document.getElementById('favList');
+  const favs=getFavs();
+  if(!favs.length){list.innerHTML='<div class="empty-fav">저장된 문장이 없습니다</div>';return}
+  list.innerHTML=favs.map((f,i)=>`<div class="fav-card"><div class="fav-text"><div class="fav-es">${f.es}</div><div class="fav-kr">${f.kr}</div></div><button class="fav-remove" data-i="${i}">&times;</button></div>`).join('');
+  list.querySelectorAll('.fav-remove').forEach(b=>b.onclick=e=>{
+    const idx=parseInt(e.currentTarget.dataset.i);
+    let ff=getFavs();ff.splice(idx,1);saveFavs(ff);renderFavs();
+    document.getElementById('favCount').textContent=ff.length;
+    if(current){const bk=document.getElementById('bookmarkBtn');const isFav=ff.some(f=>f.es===current.es);bk.className='btn btn-bookmark'+(isFav?' active':'');bk.textContent=isFav?'♥ 저장됨':'♡ 저장'}
+  });
+}
+
+const todayIdx=getTodayIdx();
+history.push(todayIdx);histIdx=0;
+showSentence(todayIdx);
+updateStreak();
+renderFavs();
+</script>
+</body>
+</html>

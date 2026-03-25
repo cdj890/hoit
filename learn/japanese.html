@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>일본어 오늘의 한 문장</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;min-height:100vh;padding:60px 16px 30px}
+.container{max-width:520px;margin:0 auto}
+h1{text-align:center;font-size:1.6rem;margin-bottom:6px;background:linear-gradient(135deg,#ff6b9d,#c44dff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{text-align:center;color:#888;font-size:0.85rem;margin-bottom:20px}
+.streak-bar{display:flex;justify-content:center;gap:16px;margin-bottom:20px}
+.streak-item{background:#1a1a2e;padding:8px 16px;border-radius:12px;text-align:center;font-size:0.8rem;color:#aaa}
+.streak-item span{display:block;font-size:1.3rem;font-weight:bold;color:#ff6b9d}
+.card{background:linear-gradient(145deg,#1a1a2e,#16213e);border-radius:20px;padding:28px 24px;margin-bottom:16px;border:1px solid rgba(255,107,157,0.15);position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#ff6b9d,#c44dff,#4dc9f6)}
+.category{display:inline-block;background:rgba(255,107,157,0.15);color:#ff6b9d;padding:4px 12px;border-radius:20px;font-size:0.75rem;margin-bottom:16px}
+.jp-text{font-size:1.8rem;font-weight:bold;color:#fff;line-height:1.5;margin-bottom:12px;letter-spacing:1px}
+.romaji{font-size:1rem;color:#4dc9f6;margin-bottom:10px;font-style:italic}
+.kr-text{font-size:1.1rem;color:#ccc;margin-bottom:16px;padding:12px;background:rgba(255,255,255,0.04);border-radius:10px;border-left:3px solid #c44dff}
+.word-guide{margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.06)}
+.word-guide h4{font-size:0.8rem;color:#888;margin-bottom:8px}
+.word-item{display:flex;justify-content:space-between;padding:5px 0;font-size:0.85rem;border-bottom:1px solid rgba(255,255,255,0.03)}
+.word-item .w-jp{color:#fff}.word-item .w-rm{color:#4dc9f6}.word-item .w-kr{color:#aaa}
+.actions{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.btn{flex:1;min-width:0;padding:12px 10px;border:none;border-radius:12px;font-size:0.9rem;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px}
+.btn-prev{background:#1a1a2e;color:#aaa;border:1px solid #333}
+.btn-prev:hover{background:#222240;color:#fff}
+.btn-next{background:linear-gradient(135deg,#ff6b9d,#c44dff);color:#fff}
+.btn-next:hover{transform:scale(1.02)}
+.btn-copy{background:#1a1a2e;color:#4dc9f6;border:1px solid rgba(77,201,246,0.3)}
+.btn-copy:hover{background:rgba(77,201,246,0.1)}
+.btn-bookmark{background:#1a1a2e;color:#ff6b9d;border:1px solid rgba(255,107,157,0.3)}
+.btn-bookmark.active{background:rgba(255,107,157,0.15);color:#ff6b9d}
+.btn-bookmark:hover{background:rgba(255,107,157,0.1)}
+.fav-section{margin-top:24px}
+.fav-section h3{font-size:1rem;color:#aaa;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.fav-card{background:#1a1a2e;border-radius:12px;padding:14px;margin-bottom:8px;border:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between;align-items:center}
+.fav-card .fav-text{flex:1}
+.fav-card .fav-jp{font-size:1rem;color:#fff}
+.fav-card .fav-kr{font-size:0.8rem;color:#888;margin-top:2px}
+.fav-remove{background:none;border:none;color:#555;font-size:1.2rem;cursor:pointer;padding:8px}
+.fav-remove:hover{color:#ff6b9d}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(77,201,246,0.9);color:#fff;padding:10px 24px;border-radius:20px;font-size:0.85rem;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999}
+.toast.show{opacity:1}
+.empty-fav{text-align:center;color:#555;font-size:0.85rem;padding:20px}
+.nav-row{display:flex;gap:10px;margin-bottom:16px}
+@media(max-width:380px){.jp-text{font-size:1.4rem}.btn{font-size:0.8rem;padding:10px 6px}}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<div class="container">
+<h1>🇯🇵 일본어 오늘의 한 문장</h1>
+<p class="subtitle">매일 새로운 일본어 문장을 배워보세요</p>
+<div class="streak-bar">
+<div class="streak-item"><span id="streakCount">0</span>연속 일수</div>
+<div class="streak-item"><span id="totalCount">0</span>총 학습</div>
+<div class="streak-item"><span id="favCount">0</span>즐겨찾기</div>
+</div>
+<div class="card" id="mainCard"></div>
+<div class="nav-row">
+<button class="btn btn-prev" id="prevBtn" disabled>← 이전</button>
+<button class="btn btn-next" id="nextBtn">다음 문장 →</button>
+</div>
+<div class="actions">
+<button class="btn btn-copy" id="copyBtn">📋 복사</button>
+<button class="btn btn-bookmark" id="bookmarkBtn">♡ 저장</button>
+</div>
+<div class="fav-section">
+<h3>⭐ 즐겨찾기</h3>
+<div id="favList"></div>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const sentences=[
+{cat:"인사",jp:"おはようございます。今日もいい一日になりますように。",rm:"Ohayou gozaimasu. Kyou mo ii ichinichi ni narimasu you ni.",kr:"좋은 아침입니다. 오늘도 좋은 하루가 되길 바랍니다.",words:[{jp:"おはよう",rm:"ohayou",kr:"좋은 아침"},{jp:"今日",rm:"kyou",kr:"오늘"},{jp:"いい",rm:"ii",kr:"좋은"},{jp:"一日",rm:"ichinichi",kr:"하루"}]},
+{cat:"인사",jp:"お久しぶりです。お元気でしたか？",rm:"Ohisashiburi desu. Ogenki deshita ka?",kr:"오랜만이에요. 잘 지내셨어요?",words:[{jp:"久しぶり",rm:"hisashiburi",kr:"오랜만"},{jp:"元気",rm:"genki",kr:"건강/잘 지냄"}]},
+{cat:"인사",jp:"初めまして、どうぞよろしくお願いします。",rm:"Hajimemashite, douzo yoroshiku onegaishimasu.",kr:"처음 뵙겠습니다, 잘 부탁드립니다.",words:[{jp:"初めまして",rm:"hajimemashite",kr:"처음 뵙겠습니다"},{jp:"よろしく",rm:"yoroshiku",kr:"잘 부탁합니다"}]},
+{cat:"인사",jp:"お疲れ様でした。今日も一日お疲れ様。",rm:"Otsukaresama deshita. Kyou mo ichinichi otsukaresama.",kr:"수고하셨습니다. 오늘도 하루 수고하셨어요.",words:[{jp:"お疲れ様",rm:"otsukaresama",kr:"수고하셨습니다"},{jp:"一日",rm:"ichinichi",kr:"하루"}]},
+{cat:"인사",jp:"おやすみなさい。いい夢を見てね。",rm:"Oyasuminasai. Ii yume wo mite ne.",kr:"안녕히 주무세요. 좋은 꿈 꾸세요.",words:[{jp:"おやすみ",rm:"oyasumi",kr:"잘 자"},{jp:"夢",rm:"yume",kr:"꿈"},{jp:"見て",rm:"mite",kr:"꿔"}]},
+{cat:"인사",jp:"いってきます！行ってらっしゃい！",rm:"Ittekimasu! Itterasshai!",kr:"다녀오겠습니다! 다녀오세요!",words:[{jp:"いってきます",rm:"ittekimasu",kr:"다녀오겠습니다"},{jp:"行ってらっしゃい",rm:"itterasshai",kr:"다녀오세요"}]},
+{cat:"인사",jp:"ただいま！おかえりなさい！",rm:"Tadaima! Okaerinasai!",kr:"다녀왔습니다! 어서오세요!",words:[{jp:"ただいま",rm:"tadaima",kr:"다녀왔어요"},{jp:"おかえり",rm:"okaeri",kr:"어서와"}]},
+{cat:"인사",jp:"今年もよろしくお願いします。",rm:"Kotoshi mo yoroshiku onegaishimasu.",kr:"올해도 잘 부탁드립니다.",words:[{jp:"今年",rm:"kotoshi",kr:"올해"},{jp:"よろしく",rm:"yoroshiku",kr:"잘 부탁"}]},
+{cat:"인사",jp:"お誕生日おめでとうございます！",rm:"Otanjoubi omedetou gozaimasu!",kr:"생일 축하합니다!",words:[{jp:"誕生日",rm:"tanjoubi",kr:"생일"},{jp:"おめでとう",rm:"omedetou",kr:"축하"}]},
+{cat:"인사",jp:"またね！また会えるのを楽しみにしています。",rm:"Mata ne! Mata aeru no wo tanoshimi ni shiteimasu.",kr:"또 봐요! 다시 만나길 기대하고 있어요.",words:[{jp:"また",rm:"mata",kr:"또"},{jp:"会える",rm:"aeru",kr:"만날 수 있다"},{jp:"楽しみ",rm:"tanoshimi",kr:"기대"}]},
+{cat:"일상",jp:"今日の天気はとてもいいですね。",rm:"Kyou no tenki wa totemo ii desu ne.",kr:"오늘 날씨가 정말 좋네요.",words:[{jp:"天気",rm:"tenki",kr:"날씨"},{jp:"とても",rm:"totemo",kr:"정말"},{jp:"いい",rm:"ii",kr:"좋은"}]},
+{cat:"일상",jp:"朝ごはんは何を食べましたか？",rm:"Asagohan wa nani wo tabemashita ka?",kr:"아침밥은 뭘 드셨어요?",words:[{jp:"朝ごはん",rm:"asagohan",kr:"아침밥"},{jp:"何",rm:"nani",kr:"무엇"},{jp:"食べました",rm:"tabemashita",kr:"먹었습니다"}]},
+{cat:"일상",jp:"この映画はとても面白かったです。",rm:"Kono eiga wa totemo omoshirokatta desu.",kr:"이 영화는 정말 재미있었어요.",words:[{jp:"映画",rm:"eiga",kr:"영화"},{jp:"面白い",rm:"omoshiroi",kr:"재미있다"}]},
+{cat:"일상",jp:"週末は何をする予定ですか？",rm:"Shuumatsu wa nani wo suru yotei desu ka?",kr:"주말에 뭐 할 예정이에요?",words:[{jp:"週末",rm:"shuumatsu",kr:"주말"},{jp:"予定",rm:"yotei",kr:"예정"}]},
+{cat:"일상",jp:"最近、日本語の勉強を始めました。",rm:"Saikin, nihongo no benkyou wo hajimemashita.",kr:"최근에 일본어 공부를 시작했어요.",words:[{jp:"最近",rm:"saikin",kr:"최근"},{jp:"日本語",rm:"nihongo",kr:"일본어"},{jp:"勉強",rm:"benkyou",kr:"공부"},{jp:"始めました",rm:"hajimemashita",kr:"시작했습니다"}]},
+{cat:"일상",jp:"お腹が空きました。何か食べに行きませんか？",rm:"Onaka ga sukimashita. Nanika tabe ni ikimasen ka?",kr:"배가 고파요. 뭔가 먹으러 가지 않을래요?",words:[{jp:"お腹",rm:"onaka",kr:"배"},{jp:"空きました",rm:"sukimashita",kr:"고파졌어요"},{jp:"食べに行く",rm:"tabe ni iku",kr:"먹으러 가다"}]},
+{cat:"일상",jp:"今何時ですか？もう遅い時間ですね。",rm:"Ima nanji desu ka? Mou osoi jikan desu ne.",kr:"지금 몇 시예요? 벌써 늦은 시간이네요.",words:[{jp:"今",rm:"ima",kr:"지금"},{jp:"何時",rm:"nanji",kr:"몇 시"},{jp:"遅い",rm:"osoi",kr:"늦은"}]},
+{cat:"일상",jp:"日本の桜はとても綺麗です。",rm:"Nihon no sakura wa totemo kirei desu.",kr:"일본의 벚꽃은 정말 예뻐요.",words:[{jp:"日本",rm:"nihon",kr:"일본"},{jp:"桜",rm:"sakura",kr:"벚꽃"},{jp:"綺麗",rm:"kirei",kr:"예쁜"}]},
+{cat:"일상",jp:"趣味は何ですか？私は読書が好きです。",rm:"Shumi wa nan desu ka? Watashi wa dokusho ga suki desu.",kr:"취미가 뭐예요? 저는 독서를 좋아해요.",words:[{jp:"趣味",rm:"shumi",kr:"취미"},{jp:"読書",rm:"dokusho",kr:"독서"},{jp:"好き",rm:"suki",kr:"좋아하다"}]},
+{cat:"일상",jp:"明日は休みなので、ゆっくり寝ます。",rm:"Ashita wa yasumi nanode, yukkuri nemasu.",kr:"내일은 쉬는 날이라 푹 잘 거예요.",words:[{jp:"明日",rm:"ashita",kr:"내일"},{jp:"休み",rm:"yasumi",kr:"쉬는 날"},{jp:"ゆっくり",rm:"yukkuri",kr:"느긋하게"},{jp:"寝ます",rm:"nemasu",kr:"잡니다"}]},
+{cat:"일상",jp:"ちょっと待ってください。すぐ戻ります。",rm:"Chotto matte kudasai. Sugu modorimasu.",kr:"잠깐만 기다려 주세요. 금방 돌아올게요.",words:[{jp:"ちょっと",rm:"chotto",kr:"잠깐"},{jp:"待って",rm:"matte",kr:"기다려"},{jp:"すぐ",rm:"sugu",kr:"바로"},{jp:"戻ります",rm:"modorimasu",kr:"돌아옵니다"}]},
+{cat:"일상",jp:"この音楽、すごくいいですね。誰の曲ですか？",rm:"Kono ongaku, sugoku ii desu ne. Dare no kyoku desu ka?",kr:"이 음악 정말 좋네요. 누구 곡이에요?",words:[{jp:"音楽",rm:"ongaku",kr:"음악"},{jp:"すごく",rm:"sugoku",kr:"매우"},{jp:"誰",rm:"dare",kr:"누구"},{jp:"曲",rm:"kyoku",kr:"곡"}]},
+{cat:"일상",jp:"写真を撮ってもいいですか？",rm:"Shashin wo tottemo ii desu ka?",kr:"사진을 찍어도 될까요?",words:[{jp:"写真",rm:"shashin",kr:"사진"},{jp:"撮って",rm:"totte",kr:"찍어"}]},
+{cat:"일상",jp:"コーヒーと紅茶、どちらがいいですか？",rm:"Koohii to koucha, dochira ga ii desu ka?",kr:"커피와 홍차 중 어느 쪽이 좋으세요?",words:[{jp:"コーヒー",rm:"koohii",kr:"커피"},{jp:"紅茶",rm:"koucha",kr:"홍차"},{jp:"どちら",rm:"dochira",kr:"어느 쪽"}]},
+{cat:"일상",jp:"ペットを飼っていますか？私は猫を飼っています。",rm:"Petto wo katteimasu ka? Watashi wa neko wo katteimasu.",kr:"반려동물 키우세요? 저는 고양이를 키우고 있어요.",words:[{jp:"ペット",rm:"petto",kr:"반려동물"},{jp:"飼って",rm:"katte",kr:"키우고"},{jp:"猫",rm:"neko",kr:"고양이"}]},
+{cat:"일상",jp:"電車が遅れています。少し待ちましょう。",rm:"Densha ga okurete imasu. Sukoshi machimashou.",kr:"전철이 지연되고 있어요. 조금 기다리죠.",words:[{jp:"電車",rm:"densha",kr:"전철"},{jp:"遅れて",rm:"okurete",kr:"지연되어"},{jp:"少し",rm:"sukoshi",kr:"조금"}]},
+{cat:"일상",jp:"最近運動を始めました。毎朝走っています。",rm:"Saikin undou wo hajimemashita. Maiasa hashitteimasu.",kr:"최근에 운동을 시작했어요. 매일 아침 뛰고 있어요.",words:[{jp:"運動",rm:"undou",kr:"운동"},{jp:"毎朝",rm:"maiasa",kr:"매일 아침"},{jp:"走って",rm:"hashitte",kr:"뛰고"}]},
+{cat:"일상",jp:"このケーキ、本当に美味しいですね！",rm:"Kono keeki, hontou ni oishii desu ne!",kr:"이 케이크 정말 맛있네요!",words:[{jp:"ケーキ",rm:"keeki",kr:"케이크"},{jp:"本当に",rm:"hontou ni",kr:"정말로"},{jp:"美味しい",rm:"oishii",kr:"맛있다"}]},
+{cat:"일상",jp:"もう少し安くなりませんか？",rm:"Mou sukoshi yasuku narimasen ka?",kr:"좀 더 싸게 안 될까요?",words:[{jp:"もう少し",rm:"mou sukoshi",kr:"좀 더"},{jp:"安く",rm:"yasuku",kr:"싸게"}]},
+{cat:"일상",jp:"頭が痛いので、薬を飲みます。",rm:"Atama ga itai node, kusuri wo nomimasu.",kr:"머리가 아파서 약을 먹을게요.",words:[{jp:"頭",rm:"atama",kr:"머리"},{jp:"痛い",rm:"itai",kr:"아프다"},{jp:"薬",rm:"kusuri",kr:"약"},{jp:"飲みます",rm:"nomimasu",kr:"마십니다/먹습니다"}]},
+{cat:"여행",jp:"すみません、駅はどこですか？",rm:"Sumimasen, eki wa doko desu ka?",kr:"실례합니다, 역은 어디인가요?",words:[{jp:"すみません",rm:"sumimasen",kr:"실례합니다"},{jp:"駅",rm:"eki",kr:"역"},{jp:"どこ",rm:"doko",kr:"어디"}]},
+{cat:"여행",jp:"この電車は東京駅に行きますか？",rm:"Kono densha wa Toukyou eki ni ikimasu ka?",kr:"이 전철은 도쿄역에 가나요?",words:[{jp:"電車",rm:"densha",kr:"전철"},{jp:"東京駅",rm:"toukyou eki",kr:"도쿄역"},{jp:"行きます",rm:"ikimasu",kr:"갑니다"}]},
+{cat:"여행",jp:"チェックインをお願いします。予約した田中です。",rm:"Chekkuin wo onegaishimasu. Yoyaku shita Tanaka desu.",kr:"체크인 부탁합니다. 예약한 다나카입니다.",words:[{jp:"チェックイン",rm:"chekkuin",kr:"체크인"},{jp:"予約",rm:"yoyaku",kr:"예약"}]},
+{cat:"여행",jp:"おすすめの観光スポットはありますか？",rm:"Osusume no kankou supotto wa arimasu ka?",kr:"추천하는 관광 명소가 있나요?",words:[{jp:"おすすめ",rm:"osusume",kr:"추천"},{jp:"観光",rm:"kankou",kr:"관광"},{jp:"スポット",rm:"supotto",kr:"명소"}]},
+{cat:"여행",jp:"Wi-Fiのパスワードを教えていただけますか？",rm:"Waifai no pasuwaado wo oshiete itadakemasu ka?",kr:"와이파이 비밀번호를 알려주실 수 있나요?",words:[{jp:"パスワード",rm:"pasuwaado",kr:"비밀번호"},{jp:"教えて",rm:"oshiete",kr:"알려줘"}]},
+{cat:"여행",jp:"タクシーを呼んでいただけますか？",rm:"Takushii wo yonde itadakemasu ka?",kr:"택시를 불러주실 수 있나요?",words:[{jp:"タクシー",rm:"takushii",kr:"택시"},{jp:"呼んで",rm:"yonde",kr:"불러서"}]},
+{cat:"여행",jp:"この近くにコンビニはありますか？",rm:"Kono chikaku ni konbini wa arimasu ka?",kr:"이 근처에 편의점이 있나요?",words:[{jp:"近く",rm:"chikaku",kr:"근처"},{jp:"コンビニ",rm:"konbini",kr:"편의점"},{jp:"あります",rm:"arimasu",kr:"있습니다"}]},
+{cat:"여행",jp:"お会計をお願いします。カードは使えますか？",rm:"Okaikei wo onegaishimasu. Kaado wa tsukaemasu ka?",kr:"계산 부탁합니다. 카드 사용 가능한가요?",words:[{jp:"お会計",rm:"okaikei",kr:"계산"},{jp:"カード",rm:"kaado",kr:"카드"},{jp:"使えます",rm:"tsukaemasu",kr:"사용할 수 있습니다"}]},
+{cat:"여행",jp:"地図を見せていただけますか？迷ってしまいました。",rm:"Chizu wo misete itadakemasu ka? Mayotte shimaimashita.",kr:"지도를 보여주실 수 있나요? 길을 잃어버렸어요.",words:[{jp:"地図",rm:"chizu",kr:"지도"},{jp:"迷って",rm:"mayotte",kr:"길을 잃어"},{jp:"見せて",rm:"misete",kr:"보여줘"}]},
+{cat:"여행",jp:"荷物を預けたいのですが。",rm:"Nimotsu wo azuketai no desu ga.",kr:"짐을 맡기고 싶은데요.",words:[{jp:"荷物",rm:"nimotsu",kr:"짐"},{jp:"預けたい",rm:"azuketai",kr:"맡기고 싶다"}]},
+{cat:"여행",jp:"空港までどのくらいかかりますか？",rm:"Kuukou made dono kurai kakarimasu ka?",kr:"공항까지 얼마나 걸리나요?",words:[{jp:"空港",rm:"kuukou",kr:"공항"},{jp:"どのくらい",rm:"dono kurai",kr:"얼마나"},{jp:"かかります",rm:"kakarimasu",kr:"걸립니다"}]},
+{cat:"여행",jp:"日本円に両替したいのですが。",rm:"Nihon en ni ryougae shitai no desu ga.",kr:"일본 엔으로 환전하고 싶은데요.",words:[{jp:"日本円",rm:"nihon en",kr:"일본 엔"},{jp:"両替",rm:"ryougae",kr:"환전"}]},
+{cat:"여행",jp:"このお土産はいくらですか？",rm:"Kono omiyage wa ikura desu ka?",kr:"이 기념품은 얼마인가요?",words:[{jp:"お土産",rm:"omiyage",kr:"기념품"},{jp:"いくら",rm:"ikura",kr:"얼마"}]},
+{cat:"여행",jp:"免税店はどこにありますか？",rm:"Menzeiten wa doko ni arimasu ka?",kr:"면세점은 어디에 있나요?",words:[{jp:"免税店",rm:"menzeiten",kr:"면세점"},{jp:"どこ",rm:"doko",kr:"어디"}]},
+{cat:"여행",jp:"温泉に入りたいです。近くにありますか？",rm:"Onsen ni hairitai desu. Chikaku ni arimasu ka?",kr:"온천에 들어가고 싶어요. 근처에 있나요?",words:[{jp:"温泉",rm:"onsen",kr:"온천"},{jp:"入りたい",rm:"hairitai",kr:"들어가고 싶다"},{jp:"近く",rm:"chikaku",kr:"근처"}]},
+{cat:"여행",jp:"写真を撮っていただけますか？",rm:"Shashin wo totte itadakemasu ka?",kr:"사진을 찍어주실 수 있나요?",words:[{jp:"写真",rm:"shashin",kr:"사진"},{jp:"撮って",rm:"totte",kr:"찍어서"}]},
+{cat:"여행",jp:"予約をキャンセルしたいのですが。",rm:"Yoyaku wo kyanseru shitai no desu ga.",kr:"예약을 취소하고 싶은데요.",words:[{jp:"予約",rm:"yoyaku",kr:"예약"},{jp:"キャンセル",rm:"kyanseru",kr:"취소"}]},
+{cat:"여행",jp:"この料理はアレルギー対応ですか？",rm:"Kono ryouri wa arerugii taiou desu ka?",kr:"이 요리는 알레르기 대응이 되나요?",words:[{jp:"料理",rm:"ryouri",kr:"요리"},{jp:"アレルギー",rm:"arerugii",kr:"알레르기"},{jp:"対応",rm:"taiou",kr:"대응"}]},
+{cat:"여행",jp:"一番人気のメニューは何ですか？",rm:"Ichiban ninki no menyuu wa nan desu ka?",kr:"가장 인기 있는 메뉴는 뭔가요?",words:[{jp:"一番",rm:"ichiban",kr:"가장"},{jp:"人気",rm:"ninki",kr:"인기"},{jp:"メニュー",rm:"menyuu",kr:"메뉴"}]},
+{cat:"여행",jp:"ここから富士山は見えますか？",rm:"Koko kara Fujisan wa miemasu ka?",kr:"여기서 후지산이 보이나요?",words:[{jp:"ここ",rm:"koko",kr:"여기"},{jp:"富士山",rm:"fujisan",kr:"후지산"},{jp:"見えます",rm:"miemasu",kr:"보입니다"}]},
+{cat:"비즈니스",jp:"お忙しいところ恐れ入りますが。",rm:"Oisogashii tokoro osoreirimasu ga.",kr:"바쁘신데 죄송합니다만.",words:[{jp:"忙しい",rm:"isogashii",kr:"바쁜"},{jp:"恐れ入ります",rm:"osoreirimasu",kr:"죄송합니다/감사합니다"}]},
+{cat:"비즈니스",jp:"本日はお時間をいただきありがとうございます。",rm:"Honjitsu wa ojikan wo itadaki arigatou gozaimasu.",kr:"오늘 시간 내주셔서 감사합니다.",words:[{jp:"本日",rm:"honjitsu",kr:"오늘"},{jp:"お時間",rm:"ojikan",kr:"시간"},{jp:"いただき",rm:"itadaki",kr:"받아서"}]},
+{cat:"비즈니스",jp:"ご検討よろしくお願いいたします。",rm:"Gokentou yoroshiku onegaiitashimasu.",kr:"검토 잘 부탁드립니다.",words:[{jp:"検討",rm:"kentou",kr:"검토"},{jp:"よろしく",rm:"yoroshiku",kr:"잘"},{jp:"お願い",rm:"onegai",kr:"부탁"}]},
+{cat:"비즈니스",jp:"この件について、もう少し詳しく教えていただけますか？",rm:"Kono ken ni tsuite, mou sukoshi kuwashiku oshiete itadakemasu ka?",kr:"이 건에 대해 좀 더 자세히 알려주실 수 있나요?",words:[{jp:"件",rm:"ken",kr:"건"},{jp:"詳しく",rm:"kuwashiku",kr:"자세히"},{jp:"教えて",rm:"oshiete",kr:"알려줘"}]},
+{cat:"비즈니스",jp:"メールをお送りしましたので、ご確認ください。",rm:"Meeru wo okuri shimashita node, gokakunin kudasai.",kr:"메일을 보내드렸으니 확인해 주세요.",words:[{jp:"メール",rm:"meeru",kr:"메일"},{jp:"送り",rm:"okuri",kr:"보내"},{jp:"確認",rm:"kakunin",kr:"확인"}]},
+{cat:"비즈니스",jp:"会議は何時からですか？資料は準備できていますか？",rm:"Kaigi wa nanji kara desu ka? Shiryou wa junbi dekiteimasu ka?",kr:"회의는 몇 시부터인가요? 자료는 준비됐나요?",words:[{jp:"会議",rm:"kaigi",kr:"회의"},{jp:"資料",rm:"shiryou",kr:"자료"},{jp:"準備",rm:"junbi",kr:"준비"}]},
+{cat:"비즈니스",jp:"納期に間に合いますでしょうか？",rm:"Nouki ni ma ni aimasu deshou ka?",kr:"납기에 맞출 수 있을까요?",words:[{jp:"納期",rm:"nouki",kr:"납기"},{jp:"間に合います",rm:"ma ni aimasu",kr:"맞출 수 있습니다"}]},
+{cat:"비즈니스",jp:"予算内で対応可能です。",rm:"Yosan nai de taiou kanou desu.",kr:"예산 내에서 대응 가능합니다.",words:[{jp:"予算",rm:"yosan",kr:"예산"},{jp:"対応",rm:"taiou",kr:"대응"},{jp:"可能",rm:"kanou",kr:"가능"}]},
+{cat:"비즈니스",jp:"プレゼンの準備はできましたか？",rm:"Purezen no junbi wa dekimashita ka?",kr:"프레젠테이션 준비는 됐나요?",words:[{jp:"プレゼン",rm:"purezen",kr:"프레젠테이션"},{jp:"準備",rm:"junbi",kr:"준비"}]},
+{cat:"비즈니스",jp:"この提案について、ご意見をいただけますか？",rm:"Kono teian ni tsuite, goiken wo itadakemasu ka?",kr:"이 제안에 대해 의견을 주실 수 있나요?",words:[{jp:"提案",rm:"teian",kr:"제안"},{jp:"意見",rm:"iken",kr:"의견"}]},
+{cat:"비즈니스",jp:"契約書にサインをお願いいたします。",rm:"Keiyakusho ni sain wo onegai itashimasu.",kr:"계약서에 서명을 부탁드립니다.",words:[{jp:"契約書",rm:"keiyakusho",kr:"계약서"},{jp:"サイン",rm:"sain",kr:"서명"}]},
+{cat:"비즈니스",jp:"来週の月曜日はいかがでしょうか？",rm:"Raishuu no getsuyoubi wa ikaga deshou ka?",kr:"다음 주 월요일은 어떠신가요?",words:[{jp:"来週",rm:"raishuu",kr:"다음 주"},{jp:"月曜日",rm:"getsuyoubi",kr:"월요일"},{jp:"いかが",rm:"ikaga",kr:"어떠신가요"}]},
+{cat:"비즈니스",jp:"お見積もりをお願いできますか？",rm:"Omitsumori wo onegai dekimasu ka?",kr:"견적을 부탁드려도 될까요?",words:[{jp:"見積もり",rm:"mitsumori",kr:"견적"}]},
+{cat:"비즈니스",jp:"ご不明な点がございましたら、お気軽にお問い合わせください。",rm:"Gofumei na ten ga gozaimashitara, okigaru ni otoiawase kudasai.",kr:"불명확한 점이 있으시면 편하게 문의해 주세요.",words:[{jp:"不明",rm:"fumei",kr:"불명확"},{jp:"お気軽に",rm:"okigaru ni",kr:"편하게"},{jp:"問い合わせ",rm:"toiawase",kr:"문의"}]},
+{cat:"비즈니스",jp:"報告書を作成しましたので、ご確認ください。",rm:"Houkokusho wo sakusei shimashita node, gokakunin kudasai.",kr:"보고서를 작성했으니 확인해 주세요.",words:[{jp:"報告書",rm:"houkokusho",kr:"보고서"},{jp:"作成",rm:"sakusei",kr:"작성"},{jp:"確認",rm:"kakunin",kr:"확인"}]},
+{cat:"비즈니스",jp:"スケジュールを調整させていただきます。",rm:"Sukejuuru wo chousei sasete itadakimasu.",kr:"스케줄을 조정하겠습니다.",words:[{jp:"スケジュール",rm:"sukejuuru",kr:"스케줄"},{jp:"調整",rm:"chousei",kr:"조정"}]},
+{cat:"비즈니스",jp:"この案件の進捗状況を教えてください。",rm:"Kono anken no shinchoku joukyou wo oshiete kudasai.",kr:"이 안건의 진행 상황을 알려주세요.",words:[{jp:"案件",rm:"anken",kr:"안건"},{jp:"進捗",rm:"shinchoku",kr:"진행"},{jp:"状況",rm:"joukyou",kr:"상황"}]},
+{cat:"비즈니스",jp:"お客様のご要望にお応えできるよう努力いたします。",rm:"Okyakusama no goyoubou ni okotae dekiru you doryoku itashimasu.",kr:"고객님의 요구에 부응할 수 있도록 노력하겠습니다.",words:[{jp:"お客様",rm:"okyakusama",kr:"고객님"},{jp:"要望",rm:"youbou",kr:"요구"},{jp:"努力",rm:"doryoku",kr:"노력"}]},
+{cat:"비즈니스",jp:"先日のご提案、社内で検討させていただきました。",rm:"Senjitsu no goteian, shanai de kentou sasete itadakimashita.",kr:"지난번 제안, 사내에서 검토했습니다.",words:[{jp:"先日",rm:"senjitsu",kr:"지난번"},{jp:"提案",rm:"teian",kr:"제안"},{jp:"社内",rm:"shanai",kr:"사내"}]},
+{cat:"비즈니스",jp:"今後ともよろしくお願いいたします。",rm:"Kongo tomo yoroshiku onegai itashimasu.",kr:"앞으로도 잘 부탁드립니다.",words:[{jp:"今後",rm:"kongo",kr:"앞으로"},{jp:"とも",rm:"tomo",kr:"도"}]},
+{cat:"감정",jp:"本当に嬉しいです！ありがとうございます！",rm:"Hontou ni ureshii desu! Arigatou gozaimasu!",kr:"정말 기뻐요! 감사합니다!",words:[{jp:"本当に",rm:"hontou ni",kr:"정말로"},{jp:"嬉しい",rm:"ureshii",kr:"기쁘다"},{jp:"ありがとう",rm:"arigatou",kr:"감사합니다"}]},
+{cat:"감정",jp:"悲しいけど、前を向いて頑張ります。",rm:"Kanashii kedo, mae wo muite ganbarimasu.",kr:"슬프지만 앞을 보고 힘내겠습니다.",words:[{jp:"悲しい",rm:"kanashii",kr:"슬프다"},{jp:"前",rm:"mae",kr:"앞"},{jp:"頑張ります",rm:"ganbarimasu",kr:"힘내겠습니다"}]},
+{cat:"감정",jp:"お気持ちはよくわかります。大丈夫ですよ。",rm:"Okimochi wa yoku wakarimasu. Daijoubu desu yo.",kr:"마음 잘 알아요. 괜찮을 거예요.",words:[{jp:"気持ち",rm:"kimochi",kr:"마음/기분"},{jp:"わかります",rm:"wakarimasu",kr:"알겠습니다"},{jp:"大丈夫",rm:"daijoubu",kr:"괜찮다"}]},
+{cat:"감정",jp:"緊張しています。うまくできるか心配です。",rm:"Kinchou shiteimasu. Umaku dekiru ka shinpai desu.",kr:"긴장하고 있어요. 잘할 수 있을지 걱정이에요.",words:[{jp:"緊張",rm:"kinchou",kr:"긴장"},{jp:"うまく",rm:"umaku",kr:"잘"},{jp:"心配",rm:"shinpai",kr:"걱정"}]},
+{cat:"감정",jp:"すごい！信じられない！夢みたいです。",rm:"Sugoi! Shinjirarenai! Yume mitai desu.",kr:"대단해! 믿을 수 없어! 꿈같아요.",words:[{jp:"すごい",rm:"sugoi",kr:"대단하다"},{jp:"信じられない",rm:"shinjirarenai",kr:"믿을 수 없다"},{jp:"夢",rm:"yume",kr:"꿈"}]},
+{cat:"감정",jp:"寂しくなりますが、また会いましょう。",rm:"Sabishiku narimasu ga, mata aimashou.",kr:"외로워지겠지만, 다시 만나요.",words:[{jp:"寂しい",rm:"sabishii",kr:"외롭다"},{jp:"また",rm:"mata",kr:"다시"},{jp:"会いましょう",rm:"aimashou",kr:"만나요"}]},
+{cat:"감정",jp:"怒らないでください。ちゃんと説明させてください。",rm:"Okoranaide kudasai. Chanto setsumei sasete kudasai.",kr:"화내지 마세요. 제대로 설명하게 해주세요.",words:[{jp:"怒らないで",rm:"okoranaide",kr:"화내지 마"},{jp:"ちゃんと",rm:"chanto",kr:"제대로"},{jp:"説明",rm:"setsumei",kr:"설명"}]},
+{cat:"감정",jp:"感動しました。涙が出そうです。",rm:"Kandou shimashita. Namida ga desou desu.",kr:"감동받았어요. 눈물이 날 것 같아요.",words:[{jp:"感動",rm:"kandou",kr:"감동"},{jp:"涙",rm:"namida",kr:"눈물"},{jp:"出そう",rm:"desou",kr:"나올 것 같다"}]},
+{cat:"감정",jp:"ストレスがたまっています。リフレッシュしたいです。",rm:"Sutoresu ga tamatteimasu. Rifuresshu shitai desu.",kr:"스트레스가 쌓여 있어요. 리프레시하고 싶어요.",words:[{jp:"ストレス",rm:"sutoresu",kr:"스트레스"},{jp:"たまって",rm:"tamatte",kr:"쌓여"},{jp:"リフレッシュ",rm:"rifuresshu",kr:"리프레시"}]},
+{cat:"감정",jp:"やっとできた！諦めなくてよかった。",rm:"Yatto dekita! Akiramenakute yokatta.",kr:"드디어 해냈다! 포기하지 않길 잘했어.",words:[{jp:"やっと",rm:"yatto",kr:"드디어"},{jp:"できた",rm:"dekita",kr:"해냈다"},{jp:"諦めなくて",rm:"akiramenakute",kr:"포기하지 않고"}]},
+{cat:"감정",jp:"不安な時は、深呼吸をしましょう。",rm:"Fuan na toki wa, shinkokyuu wo shimashou.",kr:"불안할 때는 심호흡을 합시다.",words:[{jp:"不安",rm:"fuan",kr:"불안"},{jp:"深呼吸",rm:"shinkokyuu",kr:"심호흡"}]},
+{cat:"감정",jp:"彼女に振られてしまいました。とても辛いです。",rm:"Kanojo ni furarete shimaimashita. Totemo tsurai desu.",kr:"여자친구에게 차였어요. 너무 힘들어요.",words:[{jp:"彼女",rm:"kanojo",kr:"여자친구"},{jp:"振られて",rm:"furarete",kr:"차여서"},{jp:"辛い",rm:"tsurai",kr:"힘들다/괴롭다"}]},
+{cat:"감정",jp:"応援しています！きっとうまくいきますよ。",rm:"Ouen shiteimasu! Kitto umaku ikimasu yo.",kr:"응원하고 있어요! 분명 잘 될 거예요.",words:[{jp:"応援",rm:"ouen",kr:"응원"},{jp:"きっと",rm:"kitto",kr:"분명"},{jp:"うまくいく",rm:"umaku iku",kr:"잘 되다"}]},
+{cat:"감정",jp:"ありがたいことに、周りの人に恵まれています。",rm:"Arigatai koto ni, mawari no hito ni megumareteimasu.",kr:"감사하게도 주변 사람들에게 은혜를 받고 있어요.",words:[{jp:"ありがたい",rm:"arigatai",kr:"감사하다"},{jp:"周り",rm:"mawari",kr:"주변"},{jp:"恵まれて",rm:"megumarete",kr:"은혜를 받아"}]},
+{cat:"감정",jp:"今日は最高の一日でした！幸せです。",rm:"Kyou wa saikou no ichinichi deshita! Shiawase desu.",kr:"오늘은 최고의 하루였어요! 행복해요.",words:[{jp:"最高",rm:"saikou",kr:"최고"},{jp:"一日",rm:"ichinichi",kr:"하루"},{jp:"幸せ",rm:"shiawase",kr:"행복"}]},
+{cat:"감정",jp:"びっくりしました！全然知りませんでした。",rm:"Bikkuri shimashita! Zenzen shirimasen deshita.",kr:"깜짝 놀랐어요! 전혀 몰랐어요.",words:[{jp:"びっくり",rm:"bikkuri",kr:"깜짝"},{jp:"全然",rm:"zenzen",kr:"전혀"},{jp:"知りません",rm:"shirimasen",kr:"모릅니다"}]},
+{cat:"감정",jp:"後悔しています。あの時、ちゃんと伝えればよかった。",rm:"Koukai shiteimasu. Ano toki, chanto tsutaereba yokatta.",kr:"후회하고 있어요. 그때 제대로 전했으면 좋았을 텐데.",words:[{jp:"後悔",rm:"koukai",kr:"후회"},{jp:"あの時",rm:"ano toki",kr:"그때"},{jp:"伝えれば",rm:"tsutaereba",kr:"전했으면"}]},
+{cat:"감정",jp:"懐かしいですね。昔のことを思い出します。",rm:"Natsukashii desu ne. Mukashi no koto wo omoidashimasu.",kr:"그립네요. 옛날 일이 떠올라요.",words:[{jp:"懐かしい",rm:"natsukashii",kr:"그립다"},{jp:"昔",rm:"mukashi",kr:"옛날"},{jp:"思い出します",rm:"omoidashimasu",kr:"떠올립니다"}]},
+{cat:"감정",jp:"わくわくしています！楽しみで仕方ありません。",rm:"Wakuwaku shiteimasu! Tanoshimi de shikata arimasen.",kr:"설레고 있어요! 기대돼서 어쩔 수가 없어요.",words:[{jp:"わくわく",rm:"wakuwaku",kr:"설레다/두근두근"},{jp:"楽しみ",rm:"tanoshimi",kr:"기대"},{jp:"仕方ありません",rm:"shikata arimasen",kr:"어쩔 수 없다"}]},
+{cat:"감정",jp:"自分を信じてください。あなたならできます。",rm:"Jibun wo shinjite kudasai. Anata nara dekimasu.",kr:"자신을 믿으세요. 당신이라면 할 수 있어요.",words:[{jp:"自分",rm:"jibun",kr:"자신"},{jp:"信じて",rm:"shinjite",kr:"믿어"},{jp:"できます",rm:"dekimasu",kr:"할 수 있습니다"}]},
+{cat:"일상",jp:"今日はとても疲れました。早く寝たいです。",rm:"Kyou wa totemo tsukaremashita. Hayaku netai desu.",kr:"오늘 너무 피곤해요. 빨리 자고 싶어요.",words:[{jp:"疲れました",rm:"tsukaremashita",kr:"피곤해졌어요"},{jp:"早く",rm:"hayaku",kr:"빨리"},{jp:"寝たい",rm:"netai",kr:"자고 싶다"}]},
+{cat:"일상",jp:"洗濯物を干さないといけません。",rm:"Sentakumono wo hosanai to ikemasen.",kr:"빨래를 널어야 해요.",words:[{jp:"洗濯物",rm:"sentakumono",kr:"빨래"},{jp:"干す",rm:"hosu",kr:"널다"}]},
+{cat:"일상",jp:"掃除をしてから買い物に行きます。",rm:"Souji wo shite kara kaimono ni ikimasu.",kr:"청소를 하고 나서 장보러 갈게요.",words:[{jp:"掃除",rm:"souji",kr:"청소"},{jp:"買い物",rm:"kaimono",kr:"장보기/쇼핑"},{jp:"行きます",rm:"ikimasu",kr:"갑니다"}]},
+{cat:"일상",jp:"日本の漫画を読むのが大好きです。",rm:"Nihon no manga wo yomu no ga daisuki desu.",kr:"일본 만화 읽는 걸 정말 좋아해요.",words:[{jp:"漫画",rm:"manga",kr:"만화"},{jp:"読む",rm:"yomu",kr:"읽다"},{jp:"大好き",rm:"daisuki",kr:"정말 좋아하다"}]},
+{cat:"일상",jp:"新しいレストランを見つけました。一緒に行きませんか？",rm:"Atarashii resutoran wo mitsukemashita. Issho ni ikimasen ka?",kr:"새 레스토랑을 찾았어요. 같이 가지 않을래요?",words:[{jp:"新しい",rm:"atarashii",kr:"새로운"},{jp:"見つけました",rm:"mitsukemashita",kr:"찾았습니다"},{jp:"一緒に",rm:"issho ni",kr:"같이"}]},
+{cat:"일상",jp:"料理を作るのは楽しいですが、片付けは大変です。",rm:"Ryouri wo tsukuru no wa tanoshii desu ga, katazuke wa taihen desu.",kr:"요리하는 건 즐겁지만 뒷정리는 힘들어요.",words:[{jp:"料理",rm:"ryouri",kr:"요리"},{jp:"楽しい",rm:"tanoshii",kr:"즐겁다"},{jp:"片付け",rm:"katazuke",kr:"뒷정리"},{jp:"大変",rm:"taihen",kr:"힘들다"}]},
+{cat:"여행",jp:"日本に来たら、ラーメンを食べてみてください。",rm:"Nihon ni kitara, raamen wo tabete mite kudasai.",kr:"일본에 오면 라멘을 꼭 먹어보세요.",words:[{jp:"来たら",rm:"kitara",kr:"오면"},{jp:"ラーメン",rm:"raamen",kr:"라멘"},{jp:"食べてみて",rm:"tabete mite",kr:"먹어봐"}]},
+{cat:"여행",jp:"切符の買い方がわかりません。助けてください。",rm:"Kippu no kaikata ga wakarimasen. Tasukete kudasai.",kr:"표 사는 방법을 모르겠어요. 도와주세요.",words:[{jp:"切符",rm:"kippu",kr:"표"},{jp:"買い方",rm:"kaikata",kr:"사는 방법"},{jp:"助けて",rm:"tasukete",kr:"도와줘"}]},
+{cat:"여행",jp:"この街はとても活気があって素敵ですね。",rm:"Kono machi wa totemo kakki ga atte suteki desu ne.",kr:"이 거리는 정말 활기차고 멋지네요.",words:[{jp:"街",rm:"machi",kr:"거리/마을"},{jp:"活気",rm:"kakki",kr:"활기"},{jp:"素敵",rm:"suteki",kr:"멋진"}]},
+{cat:"비즈니스",jp:"ご連絡いただきありがとうございます。",rm:"Gorenraku itadaki arigatou gozaimasu.",kr:"연락 주셔서 감사합니다.",words:[{jp:"連絡",rm:"renraku",kr:"연락"},{jp:"いただき",rm:"itadaki",kr:"주셔서"},{jp:"ありがとう",rm:"arigatou",kr:"감사"}]},
+{cat:"비즈니스",jp:"申し訳ございませんが、その日は都合が悪いです。",rm:"Moushiwake gozaimasen ga, sono hi wa tsugou ga warui desu.",kr:"죄송합니다만, 그날은 사정이 좋지 않습니다.",words:[{jp:"申し訳",rm:"moushiwake",kr:"죄송"},{jp:"都合",rm:"tsugou",kr:"사정"},{jp:"悪い",rm:"warui",kr:"나쁘다"}]},
+{cat:"일상",jp:"最近ハマっているドラマはありますか？",rm:"Saikin hamatte iru dorama wa arimasu ka?",kr:"최근 빠져 있는 드라마가 있나요?",words:[{jp:"最近",rm:"saikin",kr:"최근"},{jp:"ハマって",rm:"hamatte",kr:"빠져서"},{jp:"ドラマ",rm:"dorama",kr:"드라마"}]},
+{cat:"일상",jp:"来月、引っ越しをする予定です。",rm:"Raigetsu, hikkoshi wo suru yotei desu.",kr:"다음 달에 이사할 예정이에요.",words:[{jp:"来月",rm:"raigetsu",kr:"다음 달"},{jp:"引っ越し",rm:"hikkoshi",kr:"이사"},{jp:"予定",rm:"yotei",kr:"예정"}]},
+{cat:"감정",jp:"毎日が充実していて、とても幸せです。",rm:"Mainichi ga juujitsu shite ite, totemo shiawase desu.",kr:"매일이 충실하고 정말 행복해요.",words:[{jp:"毎日",rm:"mainichi",kr:"매일"},{jp:"充実",rm:"juujitsu",kr:"충실"},{jp:"幸せ",rm:"shiawase",kr:"행복"}]},
+{cat:"여행",jp:"ホテルの朝食は何時からですか？",rm:"Hoteru no choushoku wa nanji kara desu ka?",kr:"호텔 조식은 몇 시부터인가요?",words:[{jp:"ホテル",rm:"hoteru",kr:"호텔"},{jp:"朝食",rm:"choushoku",kr:"조식"},{jp:"何時から",rm:"nanji kara",kr:"몇 시부터"}]},
+{cat:"일상",jp:"スマホの充電がもうすぐ切れそうです。",rm:"Sumaho no juuden ga mousugu kiresou desu.",kr:"스마트폰 충전이 곧 떨어질 것 같아요.",words:[{jp:"スマホ",rm:"sumaho",kr:"스마트폰"},{jp:"充電",rm:"juuden",kr:"충전"},{jp:"切れそう",rm:"kiresou",kr:"떨어질 것 같다"}]},
+{cat:"일상",jp:"この本、すごくおすすめです。ぜひ読んでみてください。",rm:"Kono hon, sugoku osusume desu. Zehi yonde mite kudasai.",kr:"이 책 정말 추천해요. 꼭 읽어보세요.",words:[{jp:"本",rm:"hon",kr:"책"},{jp:"おすすめ",rm:"osusume",kr:"추천"},{jp:"ぜひ",rm:"zehi",kr:"꼭"},{jp:"読んでみて",rm:"yonde mite",kr:"읽어봐"}]},
+{cat:"비즈니스",jp:"締め切りまであと三日です。急ぎましょう。",rm:"Shimekiri made ato mikka desu. Isogimashou.",kr:"마감까지 3일 남았어요. 서두릅시다.",words:[{jp:"締め切り",rm:"shimekiri",kr:"마감"},{jp:"あと",rm:"ato",kr:"남은"},{jp:"三日",rm:"mikka",kr:"3일"},{jp:"急ぎましょう",rm:"isogimashou",kr:"서두릅시다"}]},
+{cat:"감정",jp:"彼の優しさに心が温かくなりました。",rm:"Kare no yasashisa ni kokoro ga atatakaku narimashita.",kr:"그의 다정함에 마음이 따뜻해졌어요.",words:[{jp:"優しさ",rm:"yasashisa",kr:"다정함"},{jp:"心",rm:"kokoro",kr:"마음"},{jp:"温かく",rm:"atatakaku",kr:"따뜻하게"}]},
+{cat:"여행",jp:"浅草の雷門は一度は見るべきです。",rm:"Asakusa no kaminarimon wa ichido wa miru beki desu.",kr:"아사쿠사의 카미나리몬은 한 번은 꼭 봐야 해요.",words:[{jp:"浅草",rm:"asakusa",kr:"아사쿠사"},{jp:"雷門",rm:"kaminarimon",kr:"카미나리몬"},{jp:"一度",rm:"ichido",kr:"한 번"},{jp:"見るべき",rm:"miru beki",kr:"봐야 하다"}]},
+{cat:"일상",jp:"最近太ったので、ダイエットを始めます。",rm:"Saikin futotta node, daietto wo hajimemasu.",kr:"최근에 살이 쪄서 다이어트를 시작할게요.",words:[{jp:"太った",rm:"futotta",kr:"살쪘다"},{jp:"ダイエット",rm:"daietto",kr:"다이어트"},{jp:"始めます",rm:"hajimemasu",kr:"시작합니다"}]},
+{cat:"일상",jp:"この問題の答えがわかりません。教えてください。",rm:"Kono mondai no kotae ga wakarimasen. Oshiete kudasai.",kr:"이 문제의 답을 모르겠어요. 알려주세요.",words:[{jp:"問題",rm:"mondai",kr:"문제"},{jp:"答え",rm:"kotae",kr:"답"},{jp:"わかりません",rm:"wakarimasen",kr:"모르겠어요"}]},
+{cat:"비즈니스",jp:"新しいプロジェクトのリーダーに選ばれました。",rm:"Atarashii purojekuto no riidaa ni erabaremashita.",kr:"새 프로젝트의 리더로 선정되었습니다.",words:[{jp:"プロジェクト",rm:"purojekuto",kr:"프로젝트"},{jp:"リーダー",rm:"riidaa",kr:"리더"},{jp:"選ばれました",rm:"erabaremashita",kr:"선정되었습니다"}]},
+{cat:"감정",jp:"この景色を見ると、心が癒されます。",rm:"Kono keshiki wo miru to, kokoro ga iyasaremasu.",kr:"이 경치를 보면 마음이 치유돼요.",words:[{jp:"景色",rm:"keshiki",kr:"경치"},{jp:"心",rm:"kokoro",kr:"마음"},{jp:"癒されます",rm:"iyasaremasu",kr:"치유됩니다"}]},
+{cat:"일상",jp:"約束の時間に遅れてすみません。",rm:"Yakusoku no jikan ni okurete sumimasen.",kr:"약속 시간에 늦어서 죄송합니다.",words:[{jp:"約束",rm:"yakusoku",kr:"약속"},{jp:"時間",rm:"jikan",kr:"시간"},{jp:"遅れて",rm:"okurete",kr:"늦어서"}]},
+{cat:"일상",jp:"風邪を引いたみたいです。熱があります。",rm:"Kaze wo hiita mitai desu. Netsu ga arimasu.",kr:"감기에 걸린 것 같아요. 열이 있어요.",words:[{jp:"風邪",rm:"kaze",kr:"감기"},{jp:"引いた",rm:"hiita",kr:"걸렸다"},{jp:"熱",rm:"netsu",kr:"열"}]},
+{cat:"여행",jp:"新幹線のチケットを予約したいのですが。",rm:"Shinkansen no chiketto wo yoyaku shitai no desu ga.",kr:"신칸센 티켓을 예약하고 싶은데요.",words:[{jp:"新幹線",rm:"shinkansen",kr:"신칸센"},{jp:"チケット",rm:"chiketto",kr:"티켓"},{jp:"予約",rm:"yoyaku",kr:"예약"}]},
+{cat:"비즈니스",jp:"売上が前年比20%増加しました。",rm:"Uriage ga zennenhi nijuu paasento zouka shimashita.",kr:"매출이 전년 대비 20% 증가했습니다.",words:[{jp:"売上",rm:"uriage",kr:"매출"},{jp:"前年比",rm:"zennenhi",kr:"전년 대비"},{jp:"増加",rm:"zouka",kr:"증가"}]},
+{cat:"감정",jp:"あなたのことをずっと応援しています。",rm:"Anata no koto wo zutto ouen shiteimasu.",kr:"당신을 계속 응원하고 있어요.",words:[{jp:"あなた",rm:"anata",kr:"당신"},{jp:"ずっと",rm:"zutto",kr:"계속"},{jp:"応援",rm:"ouen",kr:"응원"}]}
+];
+
+let history=[], histIdx=-1, current=null;
+const LS_FAV='jp_favs', LS_STREAK='jp_streak', LS_LAST='jp_last', LS_TOTAL='jp_total';
+
+function seed(d){const s=d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate();let h=s;h=((h>>16)^h)*0x45d9f3b;h=((h>>16)^h)*0x45d9f3b;h=(h>>16)^h;return Math.abs(h)}
+function getTodayIdx(){return seed(new Date())%sentences.length}
+function rand(){return Math.floor(Math.random()*sentences.length)}
+
+function getFavs(){try{return JSON.parse(localStorage.getItem(LS_FAV))||[]}catch{return[]}}
+function saveFavs(f){localStorage.setItem(LS_FAV,JSON.stringify(f))}
+
+function updateStreak(){
+  const today=new Date().toDateString();
+  const last=localStorage.getItem(LS_LAST);
+  let streak=parseInt(localStorage.getItem(LS_STREAK))||0;
+  let total=parseInt(localStorage.getItem(LS_TOTAL))||0;
+  if(last!==today){
+    const yd=new Date();yd.setDate(yd.getDate()-1);
+    if(last===yd.toDateString())streak++;
+    else streak=1;
+    total++;
+    localStorage.setItem(LS_STREAK,streak);
+    localStorage.setItem(LS_LAST,today);
+    localStorage.setItem(LS_TOTAL,total);
+  }
+  document.getElementById('streakCount').textContent=streak;
+  document.getElementById('totalCount').textContent=total;
+  document.getElementById('favCount').textContent=getFavs().length;
+}
+
+function showSentence(idx){
+  current=sentences[idx];
+  const c=document.getElementById('mainCard');
+  let wordsHtml='';
+  if(current.words&&current.words.length){
+    wordsHtml='<div class="word-guide"><h4>단어별 발음 가이드</h4>';
+    current.words.forEach(w=>{wordsHtml+=`<div class="word-item"><span class="w-jp">${w.jp}</span><span class="w-rm">${w.rm}</span><span class="w-kr">${w.kr}</span></div>`});
+    wordsHtml+='</div>';
+  }
+  c.innerHTML=`<div class="category">${current.cat}</div>
+<div class="jp-text">${current.jp}</div>
+<div class="romaji">${current.rm}</div>
+<div class="kr-text">${current.kr}</div>${wordsHtml}`;
+  const favs=getFavs();
+  const bk=document.getElementById('bookmarkBtn');
+  const isFav=favs.some(f=>f.jp===current.jp);
+  bk.className='btn btn-bookmark'+(isFav?' active':'');
+  bk.textContent=isFav?'♥ 저장됨':'♡ 저장';
+  document.getElementById('prevBtn').disabled=histIdx<=0;
+}
+
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1500)}
+
+document.getElementById('nextBtn').onclick=()=>{
+  const idx=rand();
+  if(histIdx<history.length-1)history=history.slice(0,histIdx+1);
+  history.push(idx);histIdx=history.length-1;
+  showSentence(idx);
+};
+document.getElementById('prevBtn').onclick=()=>{
+  if(histIdx>0){histIdx--;showSentence(history[histIdx])}
+};
+document.getElementById('copyBtn').onclick=()=>{
+  if(!current)return;
+  navigator.clipboard.writeText(current.jp+'\n'+current.rm+'\n'+current.kr).then(()=>showToast('복사되었습니다!')).catch(()=>showToast('복사 실패'));
+};
+document.getElementById('bookmarkBtn').onclick=()=>{
+  if(!current)return;
+  let favs=getFavs();
+  const exists=favs.findIndex(f=>f.jp===current.jp);
+  if(exists>=0){favs.splice(exists,1);showToast('즐겨찾기에서 제거됨')}
+  else{favs.unshift({jp:current.jp,kr:current.kr,rm:current.rm,cat:current.cat});showToast('즐겨찾기에 저장됨')}
+  saveFavs(favs);renderFavs();showSentence(history[histIdx]);
+  document.getElementById('favCount').textContent=favs.length;
+};
+
+function renderFavs(){
+  const list=document.getElementById('favList');
+  const favs=getFavs();
+  if(!favs.length){list.innerHTML='<div class="empty-fav">저장된 문장이 없습니다</div>';return}
+  list.innerHTML=favs.map((f,i)=>`<div class="fav-card"><div class="fav-text"><div class="fav-jp">${f.jp}</div><div class="fav-kr">${f.kr}</div></div><button class="fav-remove" data-i="${i}">&times;</button></div>`).join('');
+  list.querySelectorAll('.fav-remove').forEach(b=>b.onclick=e=>{
+    const idx=parseInt(e.currentTarget.dataset.i);
+    let ff=getFavs();ff.splice(idx,1);saveFavs(ff);renderFavs();
+    document.getElementById('favCount').textContent=ff.length;
+    if(current){const bk=document.getElementById('bookmarkBtn');const isFav=ff.some(f=>f.jp===current.jp);bk.className='btn btn-bookmark'+(isFav?' active':'');bk.textContent=isFav?'♥ 저장됨':'♡ 저장'}
+  });
+}
+
+// Init
+const todayIdx=getTodayIdx();
+history.push(todayIdx);histIdx=0;
+showSentence(todayIdx);
+updateStreak();
+renderFavs();
+</script>
+</body>
+</html>
