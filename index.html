@@ -1246,6 +1246,190 @@ switchTab('game');
 renderFooter();
 fetchTodayViews();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
+
+// === Feature 1: SNS Share System ===
+if(window.Kakao && !Kakao.isInitialized()) Kakao.init('YOUR_KAKAO_KEY');
+
+let _shareTitle='hoit - 무료 웹 게임 · 심리테스트 · 운세';
+let _shareDesc='설치 없이 바로 즐기는 무료 콘텐츠 179개!';
+let _shareUrl='https://hoit.me/';
+
+function shareHoit(title, desc, url){
+  _shareTitle=title||_shareTitle;
+  _shareDesc=desc||_shareDesc;
+  _shareUrl=url||_shareUrl;
+  if(navigator.share){
+    navigator.share({title:_shareTitle, text:_shareDesc, url:_shareUrl}).catch(()=>{});
+  } else {
+    openSharePanel();
+  }
+}
+function openSharePanel(){
+  document.getElementById('sharePanelOverlay').classList.add('show');
+  document.getElementById('sharePanel').classList.add('show');
+}
+function closeSharePanel(){
+  document.getElementById('sharePanelOverlay').classList.remove('show');
+  document.getElementById('sharePanel').classList.remove('show');
+}
+function copyShareLink(){
+  navigator.clipboard.writeText(_shareUrl).then(()=>{
+    alert('링크가 복사되었습니다!');
+    closeSharePanel();
+  }).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=_shareUrl;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    alert('링크가 복사되었습니다!');closeSharePanel();
+  });
+}
+function shareTwitter(){
+  window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(_shareTitle+' - '+_shareDesc)+'&url='+encodeURIComponent(_shareUrl),'_blank','width=600,height=400');
+  closeSharePanel();
+}
+function shareFacebook(){
+  window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(_shareUrl),'_blank','width=600,height=400');
+  closeSharePanel();
+}
+function shareKakao(){
+  if(window.Kakao && Kakao.isInitialized()){
+    Kakao.Share.sendDefault({
+      objectType:'feed',
+      content:{title:_shareTitle,description:_shareDesc,imageUrl:'https://hoit.me/og-image.png',link:{mobileWebUrl:_shareUrl,webUrl:_shareUrl}},
+      buttons:[{title:'바로가기',link:{mobileWebUrl:_shareUrl,webUrl:_shareUrl}}]
+    });
+    closeSharePanel();
+  } else {
+    alert('카카오 SDK가 초기화되지 않았습니다.\nKakao.init()에 유효한 키를 설정해주세요.');
+  }
+}
+
+// === Feature 2: Dark/Light Mode Toggle ===
+function getTheme(){return localStorage.getItem('theme')||'dark';}
+function setTheme(t){
+  localStorage.setItem('theme',t);
+  document.body.classList.toggle('light-mode',t==='light');
+  const btn=document.getElementById('theme-toggle-btn');
+  if(btn)btn.textContent=t==='light'?'☀️':'🌙';
+  const meta=document.querySelector('meta[name="theme-color"]');
+  if(meta)meta.content=t==='light'?'#f5f5f5':'#0f0f1e';
+}
+function toggleTheme(){setTheme(getTheme()==='dark'?'light':'dark');}
+setTheme(getTheme());
+
+// Patch renderNick to also add theme toggle button
+const _patchedRenderNick=renderNick;
+renderNick=function(){
+  _patchedRenderNick();
+  const bar=document.getElementById('nick-bar');
+  if(!document.getElementById('theme-toggle-btn')){
+    const btn=document.createElement('div');
+    btn.id='theme-toggle-btn';
+    btn.className='theme-toggle';
+    btn.onclick=toggleTheme;
+    btn.textContent=getTheme()==='light'?'☀️':'🌙';
+    bar.appendChild(btn);
+  }
+};
+renderNick();
+
+// === Feature 3: Profile Modal ===
+function getVisitStreak(){
+  let visits=[];
+  try{visits=JSON.parse(localStorage.getItem('visit_dates')||'[]');}catch(e){}
+  if(visits.length===0)return 0;
+  let streak=1;
+  for(let i=visits.length-1;i>0;i--){
+    const d1=new Date(visits[i]),d0=new Date(visits[i-1]);
+    if(Math.round((d1-d0)/(1000*60*60*24))===1)streak++;else break;
+  }
+  return streak;
+}
+function getTestHistory(){
+  const results=[];
+  for(let i=0;i<localStorage.length;i++){
+    const key=localStorage.key(i);
+    if(key&&key.startsWith('test_result_')){
+      try{
+        const val=JSON.parse(localStorage.getItem(key));
+        results.push({name:key.replace('test_result_',''),result:val});
+      }catch(e){
+        results.push({name:key.replace('test_result_',''),result:localStorage.getItem(key)});
+      }
+    }
+  }
+  return results;
+}
+function openProfileModal(){
+  const nick=getNick();
+  const scores=getScores();
+  const achvCount=countAchv();
+  const recent=getRecentPlayed();
+  const streak=getVisitStreak();
+  const scoreEntries=Object.entries(scores);
+  const totalPlays=Math.max(recent.length, scoreEntries.length);
+  const testHistory=getTestHistory();
+
+  let recordsHtml='';
+  if(scoreEntries.length>0){
+    recordsHtml=scoreEntries.map(([id,score])=>{
+      const name=GAME_NAMES[id]||id;
+      const unit=SCORE_UNITS[id]||'점';
+      return `<div class="profile-record"><span>${name}</span><span class="pr-val">${score.toLocaleString()}${unit}</span></div>`;
+    }).join('');
+  } else {
+    recordsHtml='<div style="text-align:center;color:#555;font-size:12px;padding:8px">아직 기록이 없습니다</div>';
+  }
+
+  let historyHtml='';
+  if(testHistory.length>0){
+    historyHtml=testHistory.slice(0,5).map(t=>{
+      const display=typeof t.result==='object'?JSON.stringify(t.result):String(t.result);
+      return `<div class="profile-history-item"><span>${t.name}</span><span>${display.substring(0,30)}</span></div>`;
+    }).join('');
+  } else {
+    historyHtml='<div style="text-align:center;color:#555;font-size:12px;padding:8px">아직 테스트 기록이 없습니다</div>';
+  }
+
+  const modal=document.getElementById('profile-modal-content');
+  modal.innerHTML=`
+    <h3>👤 ${nick}</h3>
+    <div class="profile-sub">프로필</div>
+    <div class="profile-stat">
+      <div class="profile-stat-item"><span class="ps-num">${totalPlays}</span><span class="ps-label">총 플레이</span></div>
+      <div class="profile-stat-item"><span class="ps-num">${scoreEntries.length}</span><span class="ps-label">게임 기록</span></div>
+      <div class="profile-stat-item"><span class="ps-num">${achvCount}/20</span><span class="ps-label">업적</span></div>
+      <div class="profile-stat-item"><span class="ps-num">${streak}일</span><span class="ps-label">연속 방문</span></div>
+    </div>
+    <div class="profile-section">
+      <h4>🏆 최고 기록</h4>
+      ${recordsHtml}
+    </div>
+    <div class="profile-section">
+      <h4>🧠 테스트 기록</h4>
+      ${historyHtml}
+    </div>
+    <div class="profile-section">
+      <h4>🕐 최근 활동</h4>
+      ${recent.length>0?recent.map(r=>`<div class="profile-history-item"><span>${r.emoji} ${r.title}</span></div>`).join(''):'<div style="text-align:center;color:#555;font-size:12px;padding:8px">최근 활동이 없습니다</div>'}
+    </div>
+    <button class="profile-close" onclick="closeProfileModal()">닫기</button>
+  `;
+  document.getElementById('profile-overlay').classList.add('show');
+}
+function closeProfileModal(){document.getElementById('profile-overlay').classList.remove('show');}
+
+// Patch renderNick to make nick-chip open profile modal
+const _profileRenderNick=renderNick;
+renderNick=function(){
+  _profileRenderNick();
+  const chip=document.querySelector('.nick-chip');
+  if(chip){
+    chip.onclick=function(e){
+      e.stopPropagation();
+      openProfileModal();
+    };
+  }
+};
+renderNick();
 </script>
 </body>
 </html>
