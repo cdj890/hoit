@@ -246,10 +246,12 @@ function endGame(){
 }
 
 function init(){
-  document.querySelectorAll('#game > button').forEach(b=>b.remove());
+  // Remove only restart buttons, not rollBtn
+  document.querySelectorAll('#game > button:not(#rollBtn)').forEach(b=>b.remove());
   scores=[{},{}];turnCount=0;gameOver=false;currentPlayer=0;
   rollsLeft=3;held=[false,false,false,false,false];dice=[0,0,0,0,0];
   document.getElementById('msg').textContent='';
+  document.getElementById('rollBtn').disabled=false;
   renderDice();renderScores();
 }
 init();
