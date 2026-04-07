@@ -18,7 +18,7 @@ body{background:#0a0a16;color:#fff;font-family:'Apple SD Gothic Neo','Noto Sans 
 /* ===== BOARD LAYOUT ===== */
 .board{display:grid;width:100%;max-width:700px;height:calc(100vh - 50px);margin:0 auto;padding:44px 0 0;
   grid-template-areas:"north north north" "west table east" "south south south";
-  grid-template-rows:46px minmax(80px,35vh) 1fr;grid-template-columns:32px 1fr 32px;gap:0}
+  grid-template-rows:46px 1fr auto;grid-template-columns:32px 1fr 32px;gap:0}
 .board.p2{grid-template-columns:0 1fr 0}
 .board.p3{grid-template-columns:0 1fr 32px}
 
@@ -59,7 +59,7 @@ body{background:#0a0a16;color:#fff;font-family:'Apple SD Gothic Neo','Noto Sans 
 .tile.selected{border-color:#4a6;transform:translateY(-5px);box-shadow:0 4px 12px rgba(68,170,102,.5),inset 0 1px 0 rgba(255,255,255,.6)}
 .tile.table-selected{border-color:#e80;transform:translateY(-5px);box-shadow:0 4px 12px rgba(238,136,0,.5),inset 0 1px 0 rgba(255,255,255,.6)}
 .tile.joker{background:linear-gradient(180deg,#ffe66d 0%,#ffd700 40%,#e6a800 100%);color:#8b4513;font-size:10px;font-weight:900;font-family:sans-serif;text-shadow:0 1px 0 rgba(255,255,255,.3);border-color:rgba(200,160,0,.5)}
-.tile-red{color:#c0392b}.tile-blue{color:#2471a3}.tile-black{color:#1a1a1a}.tile-orange{color:#d35400}
+.tile-red{color:#cc1111}.tile-blue{color:#2255cc}.tile-black{color:#1a1a1a}.tile-orange{color:#ff8800}
 
 /* ===== SOUTH PLAYER ===== */
 .my-hand{display:flex;flex-wrap:wrap;gap:3px;justify-content:center;padding:6px 0;min-height:48px}
