@@ -19,6 +19,18 @@
     <priority>0.3</priority>
   </url>
   <url>
+    <loc>https://hoit.me/terms.html</loc>
+    <lastmod>2026-04-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://hoit.me/contact.html</loc>
+    <lastmod>2026-04-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
     <loc>https://hoit.me/games/baduk.html</loc>
     <lastmod>2026-03-25</lastmod>
     <changefreq>weekly</changefreq>
