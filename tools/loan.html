@@ -13,14 +13,14 @@
 <link rel="canonical" href="https://hoit.me/tools/loan.html">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0f0f1e;color:#e0e0e0;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;justify-content:center}
+body{background:#0f0f1e;color:#e0e0e0;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;flex-direction:column;justify-content:center}
 .wrap{width:100%;max-width:500px;padding:60px 16px 30px}
 h1{text-align:center;font-size:22px;margin-bottom:20px;color:#fff}
 label{font-size:14px;color:#aaa;display:block;margin:12px 0 6px}
 input[type=number]{width:100%;background:#1a1a2e;border:1px solid #333;border-radius:12px;color:#e0e0e0;padding:14px;font-size:16px;outline:none;-moz-appearance:textfield}
 input:focus{border-color:#6c5ce7}
 input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none}
-.type{display:flex;gap:8px;margin:12px 0}
+.type{display:flex;flex-direction:column;gap:8px;margin:12px 0}
 .type button{flex:1;padding:12px;background:#1a1a2e;border:1px solid #333;color:#e0e0e0;border-radius:10px;font-size:14px;cursor:pointer;min-height:44px;touch-action:manipulation;font-weight:600}
 .type button.active{background:#6c5ce7;color:#fff;border-color:#6c5ce7}
 .btn{width:100%;padding:14px;background:#6c5ce7;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:bold;cursor:pointer;min-height:44px;touch-action:manipulation;margin-top:16px}
@@ -37,7 +37,7 @@ tr:nth-child(even){background:#0a0a16}
 </style>
 </head>
 <body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation">← 뒤로</a>
 <div class="wrap">
 <h1>대출 계산기</h1>
 <label>원금 (만원)</label><input type="number" id="principal" placeholder="예: 10000">

@@ -9,9 +9,9 @@
 <meta name="description" content="스트레칭 가이드로 올바른 스트레칭을 배워보세요. 부위별 스트레칭 동작과 방법을 안내합니다.">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:70px 16px 30px}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;min-height:100vh;display:flex;flex-direction:column;flex-direction:column;align-items:center;padding:70px 16px 30px}
 h1{font-size:1.5rem;margin-bottom:16px}
-.progress{width:100%;max-width:440px;display:flex;gap:4px;margin-bottom:16px}
+.progress{width:100%;max-width:440px;display:flex;flex-direction:column;gap:4px;margin-bottom:16px}
 .progress .dot{flex:1;height:6px;border-radius:3px;background:#333}
 .progress .dot.done{background:#00e5ff}
 .progress .dot.cur{background:#ff4081}
@@ -24,7 +24,7 @@ h1{font-size:1.5rem;margin-bottom:16px}
 .timer-bg{fill:none;stroke:#222;stroke-width:8}
 .timer-prog{fill:none;stroke:#00e5ff;stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset 1s linear}
 .timer-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:2.4rem;font-weight:bold}
-.nav-btns{display:flex;gap:10px;margin-top:16px;justify-content:center}
+.nav-btns{display:flex;flex-direction:column;gap:10px;margin-top:16px;justify-content:center}
 .nav-btns button{padding:12px 28px;border:none;border-radius:10px;font-size:1rem;font-weight:bold;cursor:pointer;min-height:44px;touch-action:manipulation}
 .btn-start{background:#00e5ff;color:#0f0f1e}
 .btn-skip{background:#333;color:#ccc}
@@ -32,7 +32,7 @@ h1{font-size:1.5rem;margin-bottom:16px}
 </style>
 </head>
 <body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation">← 뒤로</a>
 
 <h1>스트레칭 가이드</h1>
 <div class="progress" id="progress"></div>

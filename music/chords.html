@@ -9,9 +9,9 @@
 <meta name="description" content="기타 코드표로 기본 코드를 배워보세요. 주요 기타 코드의 운지법을 시각적으로 확인할 수 있습니다.">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;min-height:100vh;padding:70px 12px 30px;display:flex;flex-direction:column;align-items:center}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;min-height:100vh;padding:70px 12px 30px;display:flex;flex-direction:column;flex-direction:column;align-items:center}
 h1{font-size:1.5rem;margin-bottom:16px}
-.chord-btns{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:500px;margin-bottom:20px}
+.chord-btns{display:flex;flex-direction:column;flex-wrap:wrap;gap:8px;justify-content:center;max-width:500px;margin-bottom:20px}
 .chord-btns button{background:#1e1e3a;color:#ccc;border:2px solid #333;padding:8px 14px;border-radius:8px;font-size:.9rem;cursor:pointer;min-width:44px;min-height:44px;touch-action:manipulation}
 .chord-btns button.sel{border-color:#00e5ff;color:#00e5ff;background:#1a2a3a}
 .chord-name{font-size:2rem;color:#00e5ff;margin:10px 0}
@@ -20,7 +20,7 @@ canvas{border-radius:8px;background:#1a1a2e}
 </style>
 </head>
 <body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation">← 뒤로</a>
 
 <h1>기타 코드표</h1>
 <div class="chord-btns" id="btns"></div>

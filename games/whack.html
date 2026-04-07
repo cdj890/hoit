@@ -6,16 +6,16 @@
 <meta property="og:url" content="https://hoit.me/games/whack.html">
 <link rel="canonical" href="https://hoit.me/games/whack.html">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;display:flex;flex-direction:column;align-items:center;min-height:100vh;overflow:hidden;touch-action:manipulation}
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;display:flex;flex-direction:column;flex-direction:column;align-items:center;min-height:100vh;overflow:hidden;touch-action:manipulation}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:320px;width:90%;margin:15px auto}
-.hole{background:#3a2a1a;border-radius:16px;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:48px;cursor:pointer;transition:background .1s;-webkit-tap-highlight-color:transparent;user-select:none}
+.hole{background:#3a2a1a;border-radius:16px;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:48px;cursor:pointer;transition:background .1s;-webkit-tap-highlight-color:transparent;user-select:none}
 .hole.active{background:#5a4a2a;animation:pop .15s}
 .hole.hit{background:#4CAF50}
 @keyframes pop{0%{transform:scale(0.8)}100%{transform:scale(1)}}
-.hud{display:flex;justify-content:space-between;width:90%;max-width:320px;margin-top:15px;font-size:16px}
+.hud{display:flex;flex-direction:column;justify-content:space-between;width:90%;max-width:320px;margin-top:15px;font-size:16px}
 .btn{background:#8D6E63;border:none;color:#fff;padding:14px 36px;border-radius:12px;font-size:18px;font-weight:bold;cursor:pointer;margin-top:20px;touch-action:manipulation}
 </style></head><body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation">← 뒤로</a>
 <script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
 <div id="app" style="text-align:center;padding:50px 20px"></div>
 <script>

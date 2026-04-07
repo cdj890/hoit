@@ -6,15 +6,15 @@
 <meta property="og:url" content="https://hoit.me/games/reaction.html">
 <link rel="canonical" href="https://hoit.me/games/reaction.html">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{min-height:100vh;display:flex;flex-direction:column;font-family:sans-serif;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;overflow:hidden}
-.screen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;cursor:pointer}
+<style>*{margin:0;padding:0;box-sizing:border-box}body{min-height:100vh;display:flex;flex-direction:column;flex-direction:column;font-family:sans-serif;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;overflow:hidden}
+.screen{flex:1;display:flex;flex-direction:column;flex-direction:column;align-items:center;justify-content:center;padding:20px;cursor:pointer}
 .red{background:#E74C3C}.green{background:#2ECC71}.blue{background:#2C3E50}.result-bg{background:#1a1a2e}
 h1{color:#fff;font-size:28px;margin-bottom:10px}
 p{color:rgba(255,255,255,0.7);font-size:16px}
 .time{color:#fff;font-size:64px;font-weight:bold;margin:15px 0}
-.tries{display:flex;gap:8px;margin:15px 0}.dot{width:12px;height:12px;border-radius:50%;background:#555}.dot.done{background:#FFD700}.dot.cur{background:#fff}
+.tries{display:flex;flex-direction:column;gap:8px;margin:15px 0}.dot{width:12px;height:12px;border-radius:50%;background:#555}.dot.done{background:#FFD700}.dot.cur{background:#fff}
 </style></head><body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.4);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.4);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation">← 뒤로</a>
 <script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
 <div class="screen blue" id="screen" ontouchstart="tap(event)" onclick="tap(event)"></div>
 <script>
@@ -48,7 +48,7 @@ function render(){
     if(best<hs||!hs){hs=best;localStorage.setItem('react_hs',hs);}_hub('reaction',sc);
     s.classList.add('result-bg');
     s.innerHTML=`<h1>결과</h1><div class="time">${best}ms</div><p>최고 반응속도</p><p style="margin-top:8px">평균: ${avg}ms</p>
-      <div style="display:flex;gap:10px;margin:15px 0">${results.map(r=>`<div style="background:#252545;padding:6px 12px;border-radius:8px;font-size:14px;color:#FFD700">${r}ms</div>`).join('')}</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin:15px 0">${results.map(r=>`<div style="background:#252545;padding:6px 12px;border-radius:8px;font-size:14px;color:#FFD700">${r}ms</div>`).join('')}</div>
       ${best<=hs?'<p style="color:#4CAF50;font-size:18px;font-weight:bold">🎉 새 기록!</p>':''}
       <p style="margin-top:15px">탭하여 다시</p>`;
   }

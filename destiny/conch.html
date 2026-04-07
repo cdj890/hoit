@@ -7,7 +7,7 @@
 <link rel="canonical" href="https://hoit.me/destiny/conch.html">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{min-height:100vh;background:#0f0f1e;color:#e0d0ff;font-family:'Segoe UI',sans-serif;display:flex;flex-direction:column;align-items:center;padding:20px;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+body{min-height:100vh;background:#0f0f1e;color:#e0d0ff;font-family:'Segoe UI',sans-serif;display:flex;flex-direction:column;flex-direction:column;align-items:center;padding:20px;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 h1{margin:30px 0 8px;font-size:2em;text-shadow:0 0 20px rgba(120,80,200,.5)}
 .sub{color:#9988bb;margin-bottom:24px;font-size:.95em;text-align:center}
 .question-area{width:100%;max-width:420px;margin-bottom:20px}
@@ -15,7 +15,7 @@ h1{margin:30px 0 8px;font-size:2em;text-shadow:0 0 20px rgba(120,80,200,.5)}
 .question-area input:focus{border-color:rgba(120,80,200,.7)}
 .question-area input::placeholder{color:#7766aa}
 .shell-wrap{position:relative;margin:10px 0 20px;cursor:pointer;user-select:none;-webkit-user-select:none}
-.shell{width:160px;height:160px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#b388ff,#7c4dff 40%,#4a148c 80%,#1a0040);box-shadow:0 0 40px rgba(120,80,200,.4),inset 0 -8px 20px rgba(0,0,0,.4),inset 0 4px 12px rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:4.5em;transition:transform .15s,box-shadow .15s;position:relative;overflow:hidden}
+.shell{width:160px;height:160px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#b388ff,#7c4dff 40%,#4a148c 80%,#1a0040);box-shadow:0 0 40px rgba(120,80,200,.4),inset 0 -8px 20px rgba(0,0,0,.4),inset 0 4px 12px rgba(255,255,255,.1);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:4.5em;transition:transform .15s,box-shadow .15s;position:relative;overflow:hidden}
 .shell::before{content:'';position:absolute;top:10%;left:15%;width:30%;height:20%;background:radial-gradient(ellipse,rgba(255,255,255,.25),transparent);border-radius:50%;pointer-events:none}
 .shell:active{transform:scale(.95)}
 .shell.shaking{animation:shellShake .6s ease-in-out}
@@ -34,7 +34,7 @@ h1{margin:30px 0 8px;font-size:2em;text-shadow:0 0 20px rgba(120,80,200,.5)}
 @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 .reset-btn{background:linear-gradient(135deg,#7c4dff,#4a148c);color:#e0d0ff;border:none;padding:12px 30px;border-radius:12px;font-size:1em;cursor:pointer;margin-top:16px;font-weight:bold;transition:all .3s;touch-action:manipulation}
 .reset-btn:hover{transform:scale(1.05);box-shadow:0 0 20px rgba(120,80,200,.4)}
-.content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%}
+.content{position:relative;z-index:1;display:flex;flex-direction:column;flex-direction:column;align-items:center;width:100%}
 .hint{color:#7766aa;font-size:.82em;margin-top:6px;text-align:center}
 </style>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
@@ -43,7 +43,7 @@ const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app"
 </script>
 </head><body>
 <div class="bubbles" id="bubbles"></div>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
 <div class="content">
 <h1>🐚 마법의 소라고동</h1>
 <p class="sub">오 위대한 소라고동이여, 질문에 답하소서!</p>

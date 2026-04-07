@@ -9,10 +9,10 @@
 <meta name="description" content="수면 계산기로 최적의 기상·취침 시간을 알아보세요. 수면 주기에 맞춰 개운하게 일어날 시간을 계산합니다.">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:70px 16px 30px}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;min-height:100vh;display:flex;flex-direction:column;flex-direction:column;align-items:center;padding:70px 16px 30px}
 h1{font-size:1.5rem;margin-bottom:8px}
 .sub{color:#aaa;font-size:.85rem;margin-bottom:20px;text-align:center}
-.modes{display:flex;gap:10px;margin-bottom:20px}
+.modes{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
 .modes button{background:#1e1e3a;color:#ccc;border:2px solid #333;padding:10px 20px;border-radius:10px;font-size:.95rem;cursor:pointer;min-height:44px;touch-action:manipulation}
 .modes button.sel{border-color:#00e5ff;color:#00e5ff}
 .input-group{width:100%;max-width:400px;margin:12px 0}
@@ -24,7 +24,7 @@ h1{font-size:1.5rem;margin-bottom:8px}
 .result-card .label{font-size:.85rem;color:#aaa;margin-bottom:4px}
 .result-card .value{font-size:1.6rem;font-weight:bold;color:#00e5ff}
 .result-card .note{font-size:.8rem;color:#888;margin-top:4px}
-.cycles{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.cycles{display:flex;flex-direction:column;flex-wrap:wrap;gap:8px;margin-top:12px}
 .cycle-card{background:#1a1a2e;border-radius:10px;padding:12px 16px;text-align:center;flex:1;min-width:100px}
 .cycle-card .time{font-size:1.3rem;font-weight:bold;color:#00e5ff}
 .cycle-card .cyc{font-size:.8rem;color:#aaa;margin-top:2px}
@@ -33,7 +33,7 @@ h1{font-size:1.5rem;margin-bottom:8px}
 </style>
 </head>
 <body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation">← 뒤로</a>
 
 <h1>수면 계산기</h1>
 <p class="sub">90분 수면 사이클 기준 최적 시간 추천</p>

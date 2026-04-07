@@ -9,9 +9,9 @@
 <meta name="description" content="사자성어 퀴즈로 한자 실력을 테스트하세요. 다양한 사자성어의 뜻과 유래를 재미있게 배울 수 있습니다.">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:70px 16px 30px}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;min-height:100vh;display:flex;flex-direction:column;flex-direction:column;align-items:center;padding:70px 16px 30px}
 h1{font-size:1.5rem;margin-bottom:12px}
-.modes{display:flex;gap:10px;margin-bottom:16px}
+.modes{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
 .modes button{background:#1e1e3a;color:#ccc;border:2px solid #333;padding:8px 18px;border-radius:10px;font-size:.9rem;cursor:pointer;min-height:44px;touch-action:manipulation}
 .modes button.sel{border-color:#00e5ff;color:#00e5ff}
 .progress{font-size:.9rem;color:#aaa;margin-bottom:12px}
@@ -20,7 +20,7 @@ h1{font-size:1.5rem;margin-bottom:12px}
 .hanja{font-size:2.5rem;font-weight:bold;color:#00e5ff;margin-bottom:8px;letter-spacing:4px}
 .reading{font-size:1.1rem;color:#aaa;margin-bottom:12px}
 .q-text{font-size:1rem;color:#ccc;margin-bottom:16px}
-.options{display:flex;flex-direction:column;gap:10px;width:100%;max-width:440px}
+.options{display:flex;flex-direction:column;flex-direction:column;gap:10px;width:100%;max-width:440px}
 .opt-btn{padding:14px 20px;background:#1e1e3a;border:2px solid #333;border-radius:12px;color:#fff;font-size:1rem;cursor:pointer;text-align:left;min-height:44px;touch-action:manipulation;transition:all .2s}
 .opt-btn.correct{border-color:#00c853;background:#00c85322;color:#00c853}
 .opt-btn.wrong{border-color:#ff4081;background:#ff408122;color:#ff4081}
@@ -33,7 +33,7 @@ h1{font-size:1.5rem;margin-bottom:12px}
 </style>
 </head>
 <body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation">← 뒤로</a>
 
 <h1>사자성어 퀴즈</h1>
 <div class="modes">

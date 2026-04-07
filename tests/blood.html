@@ -7,7 +7,7 @@
 <meta property="og:url" content="https://hoit.me/tests/blood.html">
 <link rel="canonical" href="https://hoit.me/tests/blood.html">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center}.container{max-width:500px;width:100%;padding:20px;text-align:center}h1{font-size:32px;margin-bottom:8px}.sub{color:#888;margin-bottom:30px}
+*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center}.container{max-width:500px;width:100%;padding:20px;text-align:center}h1{font-size:32px;margin-bottom:8px}.sub{color:#888;margin-bottom:30px}
 .blood-btns{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin:30px 0}
 .blood-btn{background:#1a1a2e;border:2px solid #333;border-radius:16px;padding:30px 20px;cursor:pointer;transition:all .2s}
 .blood-btn:hover{border-color:#FF6B6B;transform:scale(1.05);box-shadow:0 8px 25px rgba(255,100,100,0.15)}
@@ -19,7 +19,7 @@
 .section{margin:15px 0;padding:15px;background:#252545;border-radius:10px}
 .section h3{color:#FFD700;font-size:15px;margin-bottom:8px}
 .section p{color:#ccc;font-size:14px;line-height:1.7}
-.compat{display:flex;gap:10px;justify-content:center;margin:15px 0;flex-wrap:wrap}
+.compat{display:flex;flex-direction:column;gap:10px;justify-content:center;margin:15px 0;flex-wrap:wrap}
 .compat-item{background:#252545;padding:8px 16px;border-radius:10px;font-size:14px}
 .compat-item.good{border:1px solid #4CAF50;color:#4CAF50}
 .compat-item.bad{border:1px solid #FF6B6B;color:#FF6B6B}
@@ -29,25 +29,25 @@
 .matrix{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;margin:10px 0;font-size:12px;text-align:center}
 .matrix .mh{color:#888;font-weight:bold;padding:6px 2px}
 .matrix .mc{background:#1a1a2e;border-radius:6px;padding:6px 2px}
-.stat-bar{margin:6px 0;display:flex;align-items:center;gap:8px;font-size:12px}
+.stat-bar{margin:6px 0;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px}
 .stat-bar .sl{width:50px;text-align:right;color:#aaa}
 .stat-bar .sb{flex:1;height:8px;background:#1a1a2e;border-radius:4px;overflow:hidden}
 .stat-bar .sf{height:100%;border-radius:4px;transition:width 1s}
 .fortune-box{background:#252545;border-radius:10px;padding:15px;margin:12px 0;text-align:center}
 .fortune-box h3{color:#FFD700;font-size:14px;margin-bottom:8px}
 .fortune-box p{color:#ccc;font-size:13px;line-height:1.6}
-.share-row{display:flex;gap:8px;justify-content:center;margin-top:15px;flex-wrap:wrap}
+.share-row{display:flex;flex-direction:column;gap:8px;justify-content:center;margin-top:15px;flex-wrap:wrap}
 .share-btn2{background:#2a2a4a;border:1px solid #555;color:#ccc;padding:10px 20px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:bold;transition:all .2s}
 .share-btn2:hover{border-color:#FF6B6B;color:#fff}
 .recommend-section{margin-top:25px;padding-top:20px;border-top:1px solid #2a2a4a}
 .recommend-section h3{color:#888;font-size:14px;margin-bottom:12px;text-align:center}
-.recommend-links{display:flex;flex-direction:column;gap:8px}
+.recommend-links{display:flex;flex-direction:column;flex-direction:column;gap:8px}
 .recommend-links a{background:#252545;border:1px solid #333;border-radius:10px;padding:12px;color:#ccc;text-decoration:none;font-size:13px;text-align:center;transition:all .2s}
 .recommend-links a:hover{border-color:#FF6B6B;color:#fff}
 .prev-result{background:#252545;border-radius:8px;padding:8px 14px;font-size:12px;color:#888;margin-bottom:15px;display:inline-block}
 .time-est{color:#666;font-size:13px;margin-bottom:15px}
 .btn{background:#FF6B6B;border:none;color:#fff;padding:12px 30px;border-radius:10px;font-size:16px;cursor:pointer;margin-top:20px;font-weight:bold;display:block;width:100%;text-align:center}
-a.back{position:fixed;top:8px;left:8px;z-index:99;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent}a.back:hover{background:rgba(0,0,0,0.85)}
+a.back{position:fixed;top:8px;left:8px;z-index:99;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent}a.back:hover{background:rgba(0,0,0,0.85)}
 </style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 <script>function _copy(t,b){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){if(b){b.textContent='복사 완료!';setTimeout(function(){b.textContent=b.dataset.orig||'📋 결과 복사'},1500);}}).catch(function(){_copyFB(t,b)});}else{_copyFB(t,b);}}function _copyFB(t,b){var ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;left:-9999px';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');if(b){b.textContent='복사 완료!';setTimeout(function(){b.textContent=b.dataset.orig||'📋 결과 복사'},1500);}}catch(e){alert('복사 실패');}document.body.removeChild(ta);}</script></head><body>
 <a class="back" href="../index.html">← 뒤로</a>

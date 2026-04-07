@@ -13,11 +13,11 @@
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center}
+body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;flex-direction:column;flex-direction:column;align-items:center}
 .wrap{max-width:550px;width:100%;padding:60px 16px 40px}
 h1{text-align:center;font-size:22px;margin-bottom:6px;color:#7ecfff}
 .sub{text-align:center;color:#888;font-size:13px;margin-bottom:20px}
-.row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.row{display:flex;flex-direction:column;gap:8px;margin-bottom:10px;flex-wrap:wrap}
 .row input{flex:1;min-width:60px;padding:10px 12px;border-radius:10px;border:1px solid #333;background:#1a1a2e;color:#fff;font-size:15px;outline:none}
 .row input:focus{border-color:#7ecfff}
 .btn{padding:10px 14px;border-radius:10px;border:none;font-size:13px;font-weight:bold;cursor:pointer;touch-action:manipulation;min-height:44px;transition:transform .1s}
@@ -28,10 +28,10 @@ h1{text-align:center;font-size:22px;margin-bottom:6px;color:#7ecfff}
 .hash-calc{background:#1a1a2e;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:13px;color:#aaa;min-height:36px;text-align:center}
 .hash-calc b{color:#f59e0b}
 .table{margin-bottom:14px}
-.bucket{display:flex;align-items:center;margin-bottom:6px;gap:6px}
-.bucket-idx{width:36px;height:36px;background:#2a2a4a;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:bold;color:#7ecfff;flex-shrink:0;transition:background .3s,box-shadow .3s}
+.bucket{display:flex;flex-direction:column;align-items:center;margin-bottom:6px;gap:6px}
+.bucket-idx{width:36px;height:36px;background:#2a2a4a;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:13px;font-weight:bold;color:#7ecfff;flex-shrink:0;transition:background .3s,box-shadow .3s}
 .bucket-idx.active{background:#f59e0b;color:#000;box-shadow:0 0 12px rgba(245,158,11,.4)}
-.bucket-chain{display:flex;gap:4px;flex-wrap:wrap;min-height:36px;align-items:center;flex:1;padding:4px 0}
+.bucket-chain{display:flex;flex-direction:column;gap:4px;flex-wrap:wrap;min-height:36px;align-items:center;flex:1;padding:4px 0}
 .chain-item{background:#1e293b;border:1px solid #7ecfff;border-radius:8px;padding:5px 10px;font-size:12px;color:#7ecfff;animation:fadeIn .3s;white-space:nowrap}
 .chain-item.found{border-color:#4caf50;background:#1b3a1b;color:#4caf50}
 .chain-arrow{color:#f59e0b;font-size:14px}
@@ -44,7 +44,7 @@ h1{text-align:center;font-size:22px;margin-bottom:6px;color:#7ecfff}
 body{overflow-x:hidden}.wrap,.container{max-width:100%;padding-left:12px;padding-right:12px}canvas{max-width:100%!important;height:auto!important}input,select,textarea,button{max-width:100%;font-size:16px!important}@media(max-width:600px){h1{font-size:22px!important}h2{font-size:18px!important}h3{font-size:15px!important}.wrap,.container{padding-left:10px;padding-right:10px;padding-top:45px}.card{padding:14px;margin:8px 0}.q-card{padding:16px}.q-text{font-size:15px!important}.opt{padding:12px;font-size:14px!important;min-height:44px}.btn{min-height:44px;font-size:15px!important}pre,code{font-size:11px!important;overflow-x:auto;word-break:break-all}.result{font-size:24px!important}.controls{flex-wrap:wrap}.controls button,.controls input{min-height:40px}.flow{flex-direction:column}.box{min-width:auto;width:100%}.arr{transform:rotate(90deg)}.grid{gap:4px}.cell{font-size:16px!important}}</style>
 </head>
 <body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation">← 뒤로</a>
 <div class="wrap">
 <h1>해시 테이블 시각화</h1><div style="background:#252545;border-radius:10px;padding:12px;margin:10px 0;text-align:left;font-size:13px;line-height:1.7"><b style="color:#FFD700">해시 테이블이란?</b> <span style="color:#ccc">키를 해시 함수로 변환해 배열 인덱스에 저장하는 자료구조. 평균 O(1) 탐색! 파이썬 dict, JS object가 해시 테이블입니다.</span></div>
 <p class="sub">키를 입력하면 해시 함수로 버킷에 저장됩니다</p>

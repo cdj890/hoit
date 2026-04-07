@@ -13,7 +13,7 @@
 <link rel="canonical" href="https://hoit.me/tools/noise.html">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0f0f1e;color:#e0e0e0;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;justify-content:center}
+body{background:#0f0f1e;color:#e0e0e0;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;flex-direction:column;justify-content:center}
 .wrap{width:100%;max-width:500px;padding:60px 16px 30px}
 h1{text-align:center;font-size:22px;margin-bottom:20px;color:#fff}
 .sounds{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px}
@@ -22,12 +22,12 @@ h1{text-align:center;font-size:22px;margin-bottom:20px;color:#fff}
 .sound .icon{font-size:36px;margin-bottom:8px;display:block}
 .sound .name{font-size:14px;font-weight:600}
 label{font-size:14px;color:#aaa;display:block;margin:16px 0 8px}
-.vol-row{display:flex;align-items:center;gap:12px}
+.vol-row{display:flex;flex-direction:column;align-items:center;gap:12px}
 .vol-row input[type=range]{flex:1;height:8px;-webkit-appearance:none;background:#1a1a2e;border-radius:4px;outline:none}
 .vol-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:#6c5ce7;cursor:pointer}
 .vol-row span{min-width:40px;text-align:right;font-size:16px;color:#6c5ce7;font-weight:bold}
 .timer{margin-top:16px}
-.timer-btns{display:flex;gap:8px;flex-wrap:wrap}
+.timer-btns{display:flex;flex-direction:column;gap:8px;flex-wrap:wrap}
 .tbtn{padding:10px 16px;background:#1a1a2e;border:1px solid #333;color:#e0e0e0;border-radius:10px;font-size:14px;cursor:pointer;min-height:44px;touch-action:manipulation;font-weight:600}
 .tbtn.active{background:#6c5ce7;color:#fff;border-color:#6c5ce7}
 .timer-info{text-align:center;margin-top:12px;font-size:18px;color:#6c5ce7;font-weight:bold;min-height:26px}
@@ -35,7 +35,7 @@ label{font-size:14px;color:#aaa;display:block;margin:16px 0 8px}
 </style>
 </head>
 <body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation">← 뒤로</a>
 <div class="wrap">
 <h1>백색소음 생성기</h1>
 <div class="sounds" id="sounds">

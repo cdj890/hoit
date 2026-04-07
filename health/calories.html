@@ -9,14 +9,14 @@
 <meta name="description" content="칼로리 계산기로 음식의 칼로리를 확인하세요. 일일 권장 칼로리와 식단 관리에 활용할 수 있습니다.">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;min-height:100vh;padding:70px 16px 30px;display:flex;flex-direction:column;align-items:center}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;min-height:100vh;padding:70px 16px 30px;display:flex;flex-direction:column;flex-direction:column;align-items:center}
 h1{font-size:1.5rem;margin-bottom:16px}
 .search-wrap{width:100%;max-width:440px;position:relative;margin-bottom:12px}
 .search-wrap input{width:100%;padding:12px 16px;border-radius:10px;border:2px solid #333;background:#1e1e3a;color:#fff;font-size:1rem}
 .results{position:absolute;top:100%;left:0;right:0;background:#1a1a2e;border-radius:0 0 10px 10px;max-height:200px;overflow-y:auto;z-index:10;border:1px solid #333;display:none}
 .results div{padding:10px 16px;cursor:pointer;font-size:.9rem;border-bottom:1px solid #222;touch-action:manipulation}
 .results div:hover,.results div:active{background:#2a2a4e}
-.goal-wrap{width:100%;max-width:440px;margin:10px 0;display:flex;align-items:center;gap:10px}
+.goal-wrap{width:100%;max-width:440px;margin:10px 0;display:flex;flex-direction:column;align-items:center;gap:10px}
 .goal-wrap label{font-size:.9rem;color:#aaa;white-space:nowrap}
 .goal-wrap input{flex:1;padding:8px;border-radius:8px;border:1px solid #333;background:#1e1e3a;color:#fff;font-size:1rem;text-align:center}
 .gauge{width:100%;max-width:440px;height:30px;background:#1e1e3a;border-radius:15px;overflow:hidden;margin:12px 0}
@@ -24,12 +24,12 @@ h1{font-size:1.5rem;margin-bottom:16px}
 .gauge-fill.over{background:linear-gradient(90deg,#ff4081,#ff1744)}
 .total{font-size:2rem;font-weight:bold;color:#00e5ff;margin:8px 0}
 .log{width:100%;max-width:440px;margin-top:12px}
-.log-item{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#1a1a2e;border-radius:8px;margin-bottom:6px;font-size:.9rem}
+.log-item{display:flex;flex-direction:column;justify-content:space-between;align-items:center;padding:10px 12px;background:#1a1a2e;border-radius:8px;margin-bottom:6px;font-size:.9rem}
 .log-item .del{color:#ff4081;cursor:pointer;padding:4px 10px;touch-action:manipulation;font-size:1.1rem}
 </style>
 </head>
 <body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation">← 뒤로</a>
 
 <h1>칼로리 계산기</h1>
 <div class="goal-wrap"><label>목표 (kcal)</label><input type="number" id="goalIn" value="2000"></div>

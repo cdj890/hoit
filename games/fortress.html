@@ -13,26 +13,26 @@
 <link rel="canonical" href="https://hoit.me/games/fortress.html">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{background:#0f0f1e;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:'Segoe UI',sans-serif;color:#fff;overflow:hidden;touch-action:none}
+body{background:#0f0f1e;display:flex;flex-direction:column;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:'Segoe UI',sans-serif;color:#fff;overflow:hidden;touch-action:none}
 canvas{display:block;border-radius:12px;margin-top:10px}
 #ui{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
 .btn{pointer-events:auto;background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.3);color:#fff;padding:10px 20px;border-radius:12px;font-size:16px;font-weight:bold;cursor:pointer;touch-action:manipulation;min-width:44px;min-height:44px}
 .btn:active{background:rgba(255,255,255,0.3)}
-#startScreen,#gameOverScreen{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(15,15,30,0.95);z-index:100;pointer-events:auto}
+#startScreen,#gameOverScreen{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;flex-direction:column;align-items:center;justify-content:center;background:rgba(15,15,30,0.95);z-index:100;pointer-events:auto}
 #gameOverScreen{display:none}
 h1{font-size:36px;margin-bottom:10px;text-shadow:0 0 20px #ff6b6b}
 .subtitle{color:#aaa;margin-bottom:30px;font-size:14px}
 .mode-btn{margin:8px;padding:14px 30px;font-size:18px}
-#hud{position:absolute;top:50px;left:0;width:100%;display:flex;justify-content:space-between;padding:0 10px;pointer-events:none;font-size:13px}
+#hud{position:absolute;top:50px;left:0;width:100%;display:flex;flex-direction:column;justify-content:space-between;padding:0 10px;pointer-events:none;font-size:13px}
 .hp-bar-outer{width:120px;height:14px;background:rgba(0,0,0,0.5);border-radius:7px;border:1px solid rgba(255,255,255,0.3)}
 .hp-bar-inner{height:100%;border-radius:7px;transition:width 0.3s}
-#controls{position:absolute;bottom:10px;left:0;width:100%;display:flex;justify-content:center;gap:10px;pointer-events:auto;flex-wrap:wrap;padding:0 10px;display:none}
+#controls{position:absolute;bottom:10px;left:0;width:100%;display:flex;flex-direction:column;justify-content:center;gap:10px;pointer-events:auto;flex-wrap:wrap;padding:0 10px;display:none}
 #windDisplay{position:absolute;top:70px;left:50%;transform:translateX(-50%);font-size:13px;color:#aef;pointer-events:none}
 #turnDisplay{position:absolute;top:90px;left:50%;transform:translateX(-50%);font-size:14px;font-weight:bold;pointer-events:none}
 #powerBar{width:150px;height:20px;background:rgba(0,0,0,0.5);border-radius:10px;border:1px solid #fff;overflow:hidden;display:inline-block;vertical-align:middle}
 #powerFill{height:100%;width:0%;background:linear-gradient(90deg,#22cc22,#88cc00,#cccc00,#cc8800,#cc2222);border-radius:10px;transition:none}
 #windArrowDisplay{font-size:18px;letter-spacing:-2px;display:inline-block}
-.weapon-select,.terrain-select{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:10px 0;max-width:360px}
+.weapon-select,.terrain-select{display:flex;flex-direction:column;flex-wrap:wrap;gap:6px;justify-content:center;margin:10px 0;max-width:360px}
 .weapon-btn,.terrain-btn{background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.25);color:#fff;padding:8px 12px;border-radius:10px;font-size:13px;cursor:pointer;touch-action:manipulation;min-height:44px;transition:all 0.2s}
 .weapon-btn.selected,.terrain-btn.selected{background:rgba(255,180,60,0.3);border-color:#ffa500;box-shadow:0 0 10px rgba(255,165,0,0.4)}
 .weapon-btn:active,.terrain-btn:active{transform:scale(0.95)}
@@ -95,13 +95,13 @@ h1{font-size:36px;margin-bottom:10px;text-shadow:0 0 20px #ff6b6b}
 <div id="controls">
 <button class="btn" id="angleLeftBtn">◀ 각도</button>
 <button class="btn" id="angleRightBtn">각도 ▶</button>
-<span style="color:#fff;display:flex;align-items:center;font-size:13px;pointer-events:none" id="angleShow">45°</span>
+<span style="color:#fff;display:flex;flex-direction:column;align-items:center;font-size:13px;pointer-events:none" id="angleShow">45°</span>
 <button class="btn" id="fireBtn">🔥 발사</button>
 <div id="powerBar"><div id="powerFill"></div></div>
 </div>
 </div>
 
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation">← 뒤로</a>
 <script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
 <script>
 const canvas=document.getElementById('c');

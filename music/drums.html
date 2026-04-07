@@ -9,10 +9,10 @@
 <meta name="description" content="온라인 드럼 패드로 비트를 만들어보세요. 키보드나 터치로 다양한 드럼 사운드를 연주할 수 있습니다.">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:70px 12px 30px}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;min-height:100vh;display:flex;flex-direction:column;flex-direction:column;align-items:center;padding:70px 12px 30px}
 h1{font-size:1.5rem;margin-bottom:20px}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;max-width:360px}
-.pad{aspect-ratio:1;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;user-select:none;font-size:2.5rem;border:2px solid #333;transition:transform .05s,box-shadow .05s}
+.pad{aspect-ratio:1;border-radius:16px;display:flex;flex-direction:column;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;user-select:none;font-size:2.5rem;border:2px solid #333;transition:transform .05s,box-shadow .05s}
 .pad span{font-size:.85rem;margin-top:6px;color:#ccc}
 .pad.hit{transform:scale(.92);box-shadow:0 0 30px rgba(255,255,255,.3)}
 .pad:nth-child(1){background:#c62828}.pad:nth-child(2){background:#ad1457}.pad:nth-child(3){background:#6a1b9a}
@@ -22,7 +22,7 @@ h1{font-size:1.5rem;margin-bottom:20px}
 </style>
 </head>
 <body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation">← 뒤로</a>
 
 <h1>드럼 패드</h1>
 <div class="grid" id="grid"></div>

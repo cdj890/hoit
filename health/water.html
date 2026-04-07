@@ -9,7 +9,7 @@
 <meta name="description" content="물 마시기 트래커로 하루 수분 섭취량을 관리하세요. 목표를 설정하고 물 마시는 습관을 만들 수 있습니다.">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:70px 16px 30px}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;min-height:100vh;display:flex;flex-direction:column;flex-direction:column;align-items:center;padding:70px 16px 30px}
 h1{font-size:1.5rem;margin-bottom:8px}
 .subtitle{color:#aaa;font-size:.9rem;margin-bottom:20px}
 .bottle{position:relative;width:120px;height:240px;border:4px solid #333;border-radius:0 0 20px 20px;margin:10px auto;overflow:hidden;background:#0a0a1a}
@@ -18,18 +18,18 @@ h1{font-size:1.5rem;margin-bottom:8px}
 .water-fill::before{content:'';position:absolute;top:-8px;left:0;right:0;height:16px;background:radial-gradient(ellipse at center,rgba(255,255,255,.15) 0%,transparent 70%);border-radius:50%}
 .count{font-size:3rem;font-weight:bold;color:#00e5ff;margin:10px 0}
 .count span{font-size:1.2rem;color:#aaa}
-.glasses{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:16px 0;max-width:350px}
-.glass{width:36px;height:36px;border-radius:50%;border:3px solid #333;display:flex;align-items:center;justify-content:center;font-size:1.2rem;transition:all .3s}
+.glasses{display:flex;flex-direction:column;gap:8px;flex-wrap:wrap;justify-content:center;margin:16px 0;max-width:350px}
+.glass{width:36px;height:36px;border-radius:50%;border:3px solid #333;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:1.2rem;transition:all .3s}
 .glass.filled{border-color:#00e5ff;background:#00e5ff22}
 .add-btn{padding:14px 40px;background:#00e5ff;color:#0f0f1e;border:none;border-radius:14px;font-size:1.2rem;font-weight:bold;cursor:pointer;min-height:50px;touch-action:manipulation;margin:10px 0}
 .undo-btn{padding:10px 24px;background:#333;color:#ccc;border:none;border-radius:10px;font-size:.9rem;cursor:pointer;min-height:44px;touch-action:manipulation}
 .history{width:100%;max-width:440px;margin-top:24px}
 .history h2{font-size:1.1rem;margin-bottom:10px;color:#aaa}
-.hist-item{display:flex;justify-content:space-between;padding:8px 12px;background:#1a1a2e;border-radius:8px;margin-bottom:4px;font-size:.85rem}
+.hist-item{display:flex;flex-direction:column;justify-content:space-between;padding:8px 12px;background:#1a1a2e;border-radius:8px;margin-bottom:4px;font-size:.85rem}
 </style>
 </head>
 <body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation">← 뒤로</a>
 
 <h1>물 마시기 트래커</h1>
 <p class="subtitle">하루 8잔 목표</p>

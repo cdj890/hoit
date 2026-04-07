@@ -9,10 +9,10 @@
 <meta name="description" content="온라인 피아노 건반으로 피아노를 연주해보세요. 키보드나 터치로 브라우저에서 바로 피아노를 칠 수 있습니다.">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:70px 8px 30px;overflow-x:hidden}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;min-height:100vh;display:flex;flex-direction:column;flex-direction:column;align-items:center;padding:70px 8px 30px;overflow-x:hidden}
 h1{font-size:1.5rem;margin-bottom:20px}
-.piano{display:flex;position:relative;margin:20px auto;max-width:100%;overflow-x:auto;padding-bottom:10px}
-.key{position:relative;cursor:pointer;touch-action:manipulation;user-select:none;display:flex;align-items:flex-end;justify-content:center;padding-bottom:10px;font-size:11px;font-weight:bold;transition:background .05s}
+.piano{display:flex;flex-direction:column;position:relative;margin:20px auto;max-width:100%;overflow-x:auto;padding-bottom:10px}
+.key{position:relative;cursor:pointer;touch-action:manipulation;user-select:none;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;padding-bottom:10px;font-size:11px;font-weight:bold;transition:background .05s}
 .white{width:44px;height:180px;background:#f5f5f5;border:1px solid #999;border-radius:0 0 6px 6px;color:#333;z-index:1}
 .white.active{background:#00e5ff}
 .black{width:30px;height:110px;background:#222;border:1px solid #000;border-radius:0 0 4px 4px;color:#aaa;margin-left:-15px;margin-right:-15px;z-index:2;font-size:9px}
@@ -21,7 +21,7 @@ h1{font-size:1.5rem;margin-bottom:20px}
 </style>
 </head>
 <body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation">← 뒤로</a>
 
 <h1>피아노 건반</h1>
 <div class="note-display" id="noteDisp"></div>

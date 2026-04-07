@@ -9,10 +9,10 @@
 <meta name="description" content="음 주파수 표로 각 음계의 정확한 주파수를 확인하세요. 악기 조율과 음악 이론 학습에 활용할 수 있습니다.">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;min-height:100vh;padding:70px 12px 30px;display:flex;flex-direction:column;align-items:center}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;min-height:100vh;padding:70px 12px 30px;display:flex;flex-direction:column;flex-direction:column;align-items:center}
 h1{font-size:1.5rem;margin-bottom:8px}
 .sub{color:#aaa;font-size:.85rem;margin-bottom:16px}
-.oct-btns{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:16px}
+.oct-btns{display:flex;flex-direction:column;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:16px}
 .oct-btns button{background:#1e1e3a;color:#ccc;border:2px solid #333;padding:8px 14px;border-radius:8px;font-size:.9rem;cursor:pointer;min-height:44px;min-width:44px;touch-action:manipulation}
 .oct-btns button.sel{border-color:#00e5ff;color:#00e5ff}
 table{border-collapse:collapse;width:100%;max-width:500px}
@@ -24,7 +24,7 @@ tr:hover td{background:#1a1a2e}
 </style>
 </head>
 <body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation">← 뒤로</a>
 
 <h1>음 주파수 표</h1>
 <p class="sub">A4 = 440 Hz 기준</p>

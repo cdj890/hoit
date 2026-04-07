@@ -13,8 +13,8 @@
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;display:flex;flex-direction:column;align-items:center;min-height:100vh;overflow-x:hidden;padding-top:50px}
-#startScreen,#gameOver{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,15,30,0.97);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;text-align:center;padding:20px}
+body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;display:flex;flex-direction:column;flex-direction:column;align-items:center;min-height:100vh;overflow-x:hidden;padding-top:50px}
+#startScreen,#gameOver{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,15,30,0.97);display:flex;flex-direction:column;flex-direction:column;align-items:center;justify-content:center;z-index:1000;text-align:center;padding:20px}
 #startScreen h1{font-size:42px;margin-bottom:10px}
 #startScreen p{font-size:15px;color:#aaa;max-width:340px;line-height:1.6;margin-bottom:20px}
 .btn{background:linear-gradient(135deg,#1abc9c,#16a085);color:#fff;border:none;padding:14px 40px;border-radius:12px;font-size:18px;font-weight:bold;cursor:pointer;touch-action:manipulation;min-width:44px;min-height:44px;margin:6px}
@@ -22,7 +22,7 @@ body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;display:fle
 #gameOver{display:none}
 #gameOver h2{font-size:32px;margin-bottom:10px}
 #gameOver p{font-size:18px;color:#ccc;margin-bottom:20px}
-#info{display:flex;justify-content:space-between;width:100%;max-width:450px;padding:8px 4px;font-size:14px;align-items:center}
+#info{display:flex;flex-direction:column;justify-content:space-between;width:100%;max-width:450px;padding:8px 4px;font-size:14px;align-items:center}
 #turn{padding:6px 14px;border-radius:8px;font-weight:bold}
 #score{font-size:16px;font-weight:bold}
 canvas{border-radius:8px;margin-top:4px;touch-action:none}
@@ -30,7 +30,7 @@ canvas{border-radius:8px;margin-top:4px;touch-action:none}
 </style>
 </head>
 <body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation">← 뒤로</a>
 <script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
 
 <div id="startScreen">

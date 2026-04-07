@@ -13,11 +13,11 @@
 <link rel="canonical" href="https://hoit.me/tools/datecalc.html">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0f0f1e;color:#e0e0e0;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;justify-content:center}
+body{background:#0f0f1e;color:#e0e0e0;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;flex-direction:column;justify-content:center}
 .wrap{width:100%;max-width:500px;padding:60px 16px 30px}
 h1{text-align:center;font-size:22px;margin-bottom:20px;color:#fff}
-.tabs{display:flex;gap:8px;margin-bottom:20px}
-.tab{flex:1;padding:10px;text-align:center;background:#1a1a2e;border:1px solid #333;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;min-height:44px;display:flex;align-items:center;justify-content:center;touch-action:manipulation}
+.tabs{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+.tab{flex:1;padding:10px;text-align:center;background:#1a1a2e;border:1px solid #333;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;touch-action:manipulation}
 .tab.active{background:#6c5ce7;color:#fff;border-color:#6c5ce7}
 .panel{display:none}.panel.active{display:block}
 label{font-size:14px;color:#aaa;display:block;margin:12px 0 6px}
@@ -31,13 +31,13 @@ input[type=date]{color-scheme:dark}
 .result .item{text-align:center;padding:10px;background:#0f0f1e;border-radius:8px}
 .result .item .v{font-size:20px;font-weight:bold;color:#fff}
 .result .item .l{font-size:12px;color:#888;margin-top:4px}
-.dir{display:flex;gap:8px;margin-top:12px}
+.dir{display:flex;flex-direction:column;gap:8px;margin-top:12px}
 .dir button{flex:1;padding:12px;border:1px solid #333;background:#1a1a2e;color:#e0e0e0;border-radius:10px;font-size:14px;cursor:pointer;min-height:44px;touch-action:manipulation;font-weight:600}
 .dir button.active{background:#6c5ce7;color:#fff;border-color:#6c5ce7}
 </style>
 </head>
 <body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation">← 뒤로</a>
 <div class="wrap">
 <h1>날짜 계산기</h1>
 <div class="tabs">

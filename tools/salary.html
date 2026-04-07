@@ -13,7 +13,7 @@
 <link rel="canonical" href="https://hoit.me/tools/salary.html">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0f0f1e;color:#e0e0e0;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;justify-content:center}
+body{background:#0f0f1e;color:#e0e0e0;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;flex-direction:column;justify-content:center}
 .wrap{width:100%;max-width:500px;padding:60px 16px 30px}
 h1{text-align:center;font-size:22px;margin-bottom:20px;color:#fff}
 label{font-size:14px;color:#aaa;display:block;margin:12px 0 6px}
@@ -27,7 +27,7 @@ input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appear
 .big .label{font-size:14px;color:rgba(255,255,255,0.8)}
 .big .val{font-size:32px;font-weight:bold;color:#fff;margin-top:6px}
 .breakdown{background:#1a1a2e;border-radius:12px;overflow:hidden}
-.row{display:flex;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #0f0f1e}
+.row{display:flex;flex-direction:column;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #0f0f1e}
 .row:last-child{border:none}
 .row .name{color:#aaa;font-size:14px}
 .row .val{font-weight:600;font-size:14px}
@@ -37,7 +37,7 @@ input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appear
 </style>
 </head>
 <body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation">← 뒤로</a>
 <div class="wrap">
 <h1>연봉 실수령액</h1>
 <label>연봉 (만원)</label>
