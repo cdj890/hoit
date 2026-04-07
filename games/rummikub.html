@@ -16,17 +16,17 @@
 body{background:#0a0a16;color:#fff;font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;touch-action:manipulation;overflow:hidden;height:100vh}
 
 /* ===== BOARD LAYOUT ===== */
-.board{display:grid;width:100%;max-width:700px;height:100vh;margin:0 auto;padding:44px 0 0;
+.board{display:grid;width:100%;max-width:700px;height:calc(100vh - 50px);margin:0 auto;padding:44px 0 0;
   grid-template-areas:"north north north" "west table east" "south south south";
-  grid-template-rows:auto 1fr auto;grid-template-columns:42px 1fr 42px;gap:0}
+  grid-template-rows:56px minmax(120px,1fr) minmax(160px,auto);grid-template-columns:42px 1fr 42px;gap:0}
 .board.p2{grid-template-columns:0 1fr 0}
 .board.p3{grid-template-columns:0 1fr 42px}
 
 /* ===== PLAYER AREAS ===== */
-.p-north{grid-area:north;display:flex;align-items:center;justify-content:center;gap:2px;padding:4px 50px;min-height:46px;background:rgba(255,255,255,.03);border-bottom:1px solid #1a1a2e;position:relative}
+.p-north{grid-area:north;display:flex;align-items:center;justify-content:center;gap:2px;padding:4px 50px;background:rgba(255,255,255,.03);border-bottom:1px solid #1a1a2e;position:relative;overflow:hidden}
 .p-east{grid-area:east;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 2px;background:rgba(255,255,255,.03);border-left:1px solid #1a1a2e;overflow:hidden}
 .p-west{grid-area:west;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 2px;background:rgba(255,255,255,.03);border-right:1px solid #1a1a2e;overflow:hidden}
-.p-south{grid-area:south;padding:0 6px 4px;background:rgba(255,255,255,.03);border-top:1px solid #1a1a2e;min-height:100px;display:flex;flex-direction:column}
+.p-south{grid-area:south;padding:4px 6px 8px;background:rgba(255,255,255,.05);border-top:2px solid #2a3a2a;display:flex;flex-direction:column;overflow-y:auto}
 .p-area.active{background:rgba(68,170,102,.08)}
 .p-area.active .p-label{color:#4a6}
 
@@ -62,14 +62,14 @@ body{background:#0a0a16;color:#fff;font-family:'Apple SD Gothic Neo','Noto Sans 
 .tile-red{color:#c0392b}.tile-blue{color:#2471a3}.tile-black{color:#1a1a1a}.tile-orange{color:#d35400}
 
 /* ===== SOUTH PLAYER ===== */
-.my-hand{display:flex;flex-wrap:wrap;gap:2px;justify-content:center;padding:4px 0;min-height:42px}
-.my-label{display:flex;justify-content:space-between;align-items:center;padding:2px 4px;font-size:11px;color:#888}
+.my-hand{display:flex;flex-wrap:wrap;gap:3px;justify-content:center;padding:6px 0;min-height:48px}
+.my-label{display:flex;justify-content:space-between;align-items:center;padding:4px 6px;font-size:13px;color:#aaa;font-weight:bold}
 .my-label .turn-indicator{color:#4a6;font-weight:bold;animation:pulse 1s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
 /* ===== ACTIONS ===== */
 #actions{display:flex;gap:4px;justify-content:center;padding:4px 0;flex-wrap:wrap}
-#actions button{padding:6px 12px;border:none;border-radius:6px;font-size:12px;font-weight:bold;cursor:pointer;color:#fff;transition:opacity .15s;touch-action:manipulation}
+#actions button{padding:8px 14px;border:none;border-radius:8px;font-size:13px;font-weight:bold;cursor:pointer;color:#fff;transition:opacity .15s;touch-action:manipulation}
 #actions button:active{opacity:.7}
 .btn-play{background:#4a6}.btn-draw{background:#c63}.btn-sort{background:#446}.btn-undo{background:#a55}.btn-end{background:#555}
 
@@ -98,12 +98,13 @@ body{background:#0a0a16;color:#fff;font-family:'Apple SD Gothic Neo','Noto Sans 
 
 /* ===== RESPONSIVE ===== */
 @media(max-width:400px){
-  .tile{width:24px;height:32px;font-size:12px}
+  .tile{width:26px;height:34px;font-size:13px}
   .tile.joker{font-size:9px}
   .tback{width:16px;height:22px}
   .tback.side{width:20px;height:14px}
   .board{grid-template-columns:34px 1fr 34px}
   .board.p3{grid-template-columns:0 1fr 34px}
+  #actions button{padding:7px 10px;font-size:12px}
 }
 </style>
 </head>
