@@ -45,4 +45,9 @@ const f=flowers[i],r=sr(f.f+new Date().toDateString()),lucky=Math.floor(r()*99)+
 const el=document.getElementById('result');
 el.innerHTML=`<div class="rbox"><div class="bigflower">${f.fl}</div><h2>${f.m}월의 탄생화: ${f.f}</h2><p style="color:#ffb0d0;font-size:1.1em;margin:8px 0">꽃말: ${f.lang}</p><br><p>${f.desc}</p><br><p>🔮 <b>오늘의 꽃 운세</b></p><p style="margin:8px 0">${f.fortune}</p><hr style="border-color:rgba(255,150,200,.15);margin:15px 0"><p>💕 연애운: ${f.love}점 | 💰 금전운: ${f.money}점</p><p>💪 건강운: ${f.health}점 | 💼 직장운: ${f.work}점</p><br><p>🔢 행운의 숫자: ${lucky}</p><p>🎨 행운의 색: ${['분홍','빨강','하늘색','노랑','보라','초록'][Math.floor(r()*6)]}</p></div><br><button onclick="document.getElementById('result').style.display='none';window.scrollTo({top:0,behavior:'smooth'})">다시 하기</button>`;
 el.style.display='block';el.scrollIntoView({behavior:'smooth'})}
-</script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div></body></html>
+</script><section style="max-width:700px;margin:30px auto;padding:20px;background:#1a1a2e;border-radius:16px;border:1px solid #2a2a4a;color:#bbb;font-size:14px;line-height:1.8">
+<h2 style="color:#FFD700;font-size:18px;margin-bottom:10px">꽃 운세 (탄생화)</h2>
+<p>생일에 해당하는 탄생화와 꽃말로 운명을 알아봅니다. 나만의 탄생화의 의미를 확인하세요.</p>
+<p style="margin-top:10px;font-size:12px;color:#888">이 콘텐츠는 <a href="../index.html" style="color:#7DF">놀이터(hoit.me)</a>에서 무료로 제공됩니다.</p>
+</section>
+<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div></body></html>

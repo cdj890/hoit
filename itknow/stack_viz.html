@@ -23,4 +23,9 @@
 <script>let stack=[];function push(){const v=document.getElementById('val').value;if(!v)return;stack.push(v);document.getElementById('val').value='';render();log('Push: '+v);}
 function pop(){if(!stack.length)return log('스택이 비어있습니다!');const v=stack.pop();render();log('Pop: '+v);}
 function render(){document.getElementById('viz').innerHTML=stack.map((v,i)=>`<div class="item" style="background:hsl(${i*40},60%,55%)">${v}${i===stack.length-1?' ← TOP':''}</div>`).join('')||'<p style="color:#555">비어있음</p>';}
-function log(m){document.getElementById('log').innerHTML=m+'<br>'+document.getElementById('log').innerHTML;}render();</script></div><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div></body></html>
+function log(m){document.getElementById('log').innerHTML=m+'<br>'+document.getElementById('log').innerHTML;}render();</script></div><section style="max-width:700px;margin:30px auto;padding:20px;background:#1a1a2e;border-radius:16px;border:1px solid #2a2a4a;color:#bbb;font-size:14px;line-height:1.8">
+<h2 style="color:#FFD700;font-size:18px;margin-bottom:10px">스택 자료구조</h2>
+<p>LIFO(후입선출) 방식의 스택 자료구조를 인터랙티브하게 체험합니다. Push, Pop, Peek 연산을 직접 실행하고 동작을 시각적으로 확인하세요.</p>
+<p style="margin-top:10px;font-size:12px;color:#888">이 콘텐츠는 <a href="../index.html" style="color:#7DF">놀이터(hoit.me)</a>에서 무료로 제공됩니다.</p>
+</section>
+<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div></body></html>

@@ -18,4 +18,9 @@ const q=Q[cur],pct=(cur/Q.length*100)|0;
 app.innerHTML='<div class="progress"><div class="progress-fill" style="width:'+pct+'%"></div></div><div class="q-card"><div style="color:#888;font-size:13px;margin-bottom:8px">🎬 '+(cur+1)+'/'+Q.length+'</div><div class="q-text">'+q.q+'</div><div class="opts">'+q.o.map((o,i)=>'<div class="opt" id="opt'+i+'" onclick="answer('+i+')">'+o+'</div>').join('')+'</div><div class="explain" id="explain">'+((q.e)||'')+'</div></div>';answered=false;}
 function answer(i){if(answered)return;answered=true;const q=Q[cur];document.getElementById('opt'+i).classList.add(i===q.a?'correct':'wrong');if(i!==q.a)document.getElementById('opt'+q.a).classList.add('correct');if(i===q.a)score++;const el=document.getElementById('explain');if(q.e)el.style.display='block';setTimeout(()=>{cur++;render();},1500);}
 render();
-</script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div></body></html>
+</script><section style="max-width:700px;margin:30px auto;padding:20px;background:#1a1a2e;border-radius:16px;border:1px solid #2a2a4a;color:#bbb;font-size:14px;line-height:1.8">
+<h2 style="color:#FFD700;font-size:18px;margin-bottom:10px">영화 퀴즈</h2>
+<p>유명 영화의 명대사, 줄거리, 배우에 관한 퀴즈입니다. 영화 마니아라면 도전해보세요.</p>
+<p style="margin-top:10px;font-size:12px;color:#888">이 콘텐츠는 <a href="../index.html" style="color:#7DF">놀이터(hoit.me)</a>에서 무료로 제공됩니다.</p>
+</section>
+<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div></body></html>
