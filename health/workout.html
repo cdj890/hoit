@@ -55,14 +55,23 @@ h1{font-size:1.5rem;margin-bottom:16px}
 <button class="ctrl-btn start" id="startBtn" onclick="toggleTimer()">시작</button>
 <button class="ctrl-btn reset" onclick="resetTimer()">리셋</button>
 </div>
+<div id="todayStat" style="margin-top:20px;text-align:center;color:#aaa;font-size:.9rem"></div>
 
 <script>
 const circ=2*Math.PI*100;
 document.getElementById('prog').style.strokeDasharray=circ;
 document.getElementById('prog').style.strokeDashoffset=circ;
 
+const WK_TODAY=new Date().toISOString().slice(0,10);
+const WK_KEY='hoit_workout';
+function wkLoad(){const raw=JSON.parse(localStorage.getItem(WK_KEY)||'{}');return raw[WK_TODAY]||{sessions:0,totalSec:0}}
+function wkSave(sessions,totalSec){const raw=JSON.parse(localStorage.getItem(WK_KEY)||'{}');raw[WK_TODAY]={sessions,totalSec};localStorage.setItem(WK_KEY,JSON.stringify(raw))}
+function wkRenderStat(){const d=wkLoad();if(d.sessions>0){const m=Math.floor(d.totalSec/60),s=d.totalSec%60;document.getElementById('todayStat').textContent=`오늘 완료: ${d.sessions}회 / 총 ${m}분 ${s}초`}else{document.getElementById('todayStat').textContent=''}}
+wkRenderStat();
+
 let mode='hiit',workSec=30,restSec=10,totalRounds=8;
 let running=false,timer=null,currentRound=1,isWork=true,timeLeft=0;
+let _sessionStartSec=0;
 
 function setMode(m,btn){
 mode=m;document.querySelectorAll('.modes button').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');
@@ -89,7 +98,7 @@ updateCircle(timeLeft/total);
 function tick(){
 if(timeLeft<=0){
 if(isWork){isWork=false;timeLeft=restSec}
-else{isWork=true;currentRound++;if(currentRound>totalRounds){running=false;clearInterval(timer);document.getElementById('startBtn').textContent='시작';document.getElementById('startBtn').className='ctrl-btn start';document.getElementById('phaseDisp').textContent='완료!';document.getElementById('phaseDisp').className='phase work';return}timeLeft=workSec}
+else{isWork=true;currentRound++;if(currentRound>totalRounds){running=false;clearInterval(timer);document.getElementById('startBtn').textContent='시작';document.getElementById('startBtn').className='ctrl-btn start';document.getElementById('phaseDisp').textContent='완료!';document.getElementById('phaseDisp').className='phase work';const elapsed=Math.round((Date.now()-_sessionStartSec)/1000);const d=wkLoad();wkSave(d.sessions+1,d.totalSec+elapsed);wkRenderStat();return}timeLeft=workSec}
 }else{timeLeft--}
 updateDisplay();
 }
@@ -100,7 +109,7 @@ workSec=parseInt(document.getElementById('workIn').value)||30;
 restSec=parseInt(document.getElementById('restIn').value)||10;
 totalRounds=parseInt(document.getElementById('roundsIn').value)||8;
 if(!timeLeft){timeLeft=workSec;isWork=true;currentRound=1}
-running=true;document.getElementById('startBtn').textContent='정지';document.getElementById('startBtn').className='ctrl-btn stop';
+running=true;_sessionStartSec=Date.now();document.getElementById('startBtn').textContent='정지';document.getElementById('startBtn').className='ctrl-btn stop';
 updateDisplay();timer=setInterval(tick,1000);
 }
 

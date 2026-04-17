@@ -68,8 +68,33 @@ h1{font-size:1.5rem;margin-bottom:8px}
 💡 수면은 약 90분 주기로 반복됩니다. 수면 주기가 끝나는 시점에 일어나면 더 개운합니다.<br>
 잠드는 데 약 15분이 걸리는 것을 고려합니다.
 </div>
+<div id="sleepHistory" style="width:100%;max-width:440px;margin-top:20px;display:none">
+<div style="font-size:.9rem;color:#aaa;margin-bottom:8px">최근 기록</div>
+<div id="sleepHistList"></div>
+</div>
 
 <script>
+const SL_KEY='hoit_sleep';
+function slLoad(){return JSON.parse(localStorage.getItem(SL_KEY)||'[]')}
+function slSave(entry){const arr=slLoad();arr.unshift(entry);arr.splice(5);localStorage.setItem(SL_KEY,JSON.stringify(arr))}
+function slRenderHistory(){
+  const arr=slLoad();
+  const wrap=document.getElementById('sleepHistory');
+  if(!arr.length){wrap.style.display='none';return}
+  wrap.style.display='block';
+  const list=document.getElementById('sleepHistList');
+  while(list.firstChild)list.removeChild(list.firstChild);
+  arr.forEach(e=>{
+    const d=document.createElement('div');
+    d.style.cssText='background:#1a1a2e;border-radius:8px;padding:8px 12px;margin-bottom:4px;font-size:.85rem;display:flex;justify-content:space-between';
+    const s=document.createElement('span');s.textContent=e.date+' '+e.type;
+    const v=document.createElement('span');v.style.color='#00e5ff';v.textContent=e.value;
+    d.appendChild(s);d.appendChild(v);
+    list.appendChild(d);
+  });
+}
+slRenderHistory();
+
 let mode='sleep';
 function setMode(m){
 mode=m;
@@ -117,6 +142,11 @@ cyc.appendChild(d);
 }
 document.getElementById('durVal').textContent='추천: 7시간 30분 (5사이클)';
 }
+const slDate=new Date().toISOString().slice(0,10);
+const slInputVal=mode==='sleep'?document.getElementById('sleepTime').value:document.getElementById('wakeTime').value;
+const slType=mode==='sleep'?'취침':'기상';
+slSave({date:slDate,type:slType,value:slInputVal});
+slRenderHistory();
 }
 </script>
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>

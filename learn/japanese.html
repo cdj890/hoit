@@ -70,6 +70,7 @@ h1{text-align:center;font-size:1.6rem;margin-bottom:6px;background:linear-gradie
 <button class="btn btn-copy" id="copyBtn">📋 복사</button>
 <button class="btn btn-bookmark" id="bookmarkBtn">♡ 저장</button>
 </div>
+<div style="text-align:center;margin-bottom:8px"><button onclick="resetProgress()" style="background:none;border:1px solid #333;color:#555;padding:8px 18px;border-radius:8px;font-size:.8rem;cursor:pointer;min-height:36px">학습 초기화</button></div>
 <div class="fav-section">
 <h3>⭐ 즐겨찾기</h3>
 <div id="favList"></div>
@@ -201,6 +202,24 @@ const sentences=[
 
 let history=[], histIdx=-1, current=null;
 const LS_FAV='jp_favs', LS_STREAK='jp_streak', LS_LAST='jp_last', LS_TOTAL='jp_total';
+const LS_KEY='hoit_learn_japanese';
+
+function saveProgress(idx){
+  try{
+    localStorage.setItem(LS_KEY,JSON.stringify({lastIdx:idx,updatedAt:new Date().toISOString().slice(0,10)}));
+  }catch(e){}
+}
+function loadProgress(){
+  try{return JSON.parse(localStorage.getItem(LS_KEY))||null}catch(e){return null}
+}
+function resetProgress(){
+  if(!confirm('학습 진행률을 초기화할까요?'))return;
+  localStorage.removeItem(LS_KEY);
+  const idx=getTodayIdx();
+  history=[idx];histIdx=0;
+  showSentence(idx);
+  showToast('초기화되었습니다');
+}
 
 function seed(d){const s=d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate();let h=s;h=((h>>16)^h)*0x45d9f3b;h=((h>>16)^h)*0x45d9f3b;h=(h>>16)^h;return Math.abs(h)}
 function getTodayIdx(){return seed(new Date())%sentences.length}
@@ -256,6 +275,7 @@ document.getElementById('nextBtn').onclick=()=>{
   if(histIdx<history.length-1)history=history.slice(0,histIdx+1);
   history.push(idx);histIdx=history.length-1;
   showSentence(idx);
+  saveProgress(idx);
 };
 document.getElementById('prevBtn').onclick=()=>{
   if(histIdx>0){histIdx--;showSentence(history[histIdx])}
@@ -288,9 +308,10 @@ function renderFavs(){
 }
 
 // Init
-const todayIdx=getTodayIdx();
-history.push(todayIdx);histIdx=0;
-showSentence(todayIdx);
+const _jpSaved=loadProgress();
+const _jpStartIdx=(_jpSaved&&_jpSaved.lastIdx!=null)?_jpSaved.lastIdx:getTodayIdx();
+history.push(_jpStartIdx);histIdx=0;
+showSentence(_jpStartIdx);
 updateStreak();
 renderFavs();
 </script>

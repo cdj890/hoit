@@ -48,10 +48,10 @@ h1{font-size:1.5rem;margin-bottom:8px}
 <script>
 const GOAL=8;
 const today=new Date().toISOString().slice(0,10);
-let data=JSON.parse(localStorage.getItem('waterData')||'{}');
+let data=JSON.parse(localStorage.getItem('hoit_water')||'{}');
 if(!data[today])data[today]=0;
 
-function save(){localStorage.setItem('waterData',JSON.stringify(data))}
+function save(){localStorage.setItem('hoit_water',JSON.stringify(data))}
 function render(){
 const count=data[today]||0;
 document.getElementById('countDisp').innerHTML=count+' <span>/ '+GOAL+'잔</span>';

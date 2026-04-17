@@ -53,7 +53,13 @@ const foods=[
 ['쿠키 1개',80],['케이크 1조각',350],['초콜릿 1개',50],['아이스크림',200],['과자 1봉',400],
 ['식빵 1장',80],['토스트',250],['죽 1그릇',200],['오므라이스',550],['카레라이스',600]
 ];
-let log=[];
+const TODAY=new Date().toISOString().slice(0,10);
+const LS_KEY='hoit_calories';
+function loadData(){const raw=JSON.parse(localStorage.getItem(LS_KEY)||'{}');return raw[TODAY]||{log:[],goal:2000}}
+function saveData(){const raw=JSON.parse(localStorage.getItem(LS_KEY)||'{}');raw[TODAY]={log,goal:parseInt(document.getElementById('goalIn').value)||2000};localStorage.setItem(LS_KEY,JSON.stringify(raw))}
+const _saved=loadData();
+let log=_saved.log;
+document.getElementById('goalIn').value=_saved.goal;
 const searchIn=document.getElementById('searchIn'),resultsEl=document.getElementById('results');
 
 searchIn.oninput=()=>{
@@ -70,8 +76,8 @@ resultsEl.appendChild(d);
 resultsEl.style.display=filtered.length?'block':'none';
 };
 
-function addFood(name,cal){log.push({name,cal});render()}
-function removeFood(i){log.splice(i,1);render()}
+function addFood(name,cal){log.push({name,cal});saveData();render()}
+function removeFood(i){log.splice(i,1);saveData();render()}
 
 function render(){
 const total=log.reduce((s,f)=>s+f.cal,0);
@@ -88,7 +94,8 @@ d.innerHTML=`<span>${f.name} - ${f.cal} kcal</span><span class="del" onclick="re
 logEl.appendChild(d);
 });
 }
-document.getElementById('goalIn').oninput=render;
+document.getElementById('goalIn').oninput=()=>{saveData();render()};
+render();
 </script>
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 

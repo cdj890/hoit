@@ -57,6 +57,7 @@ h1{font-size:1.5rem;margin-bottom:12px}
 <button class="btn-know" onclick="markKnow()">알고 있어요</button>
 </div>
 <div class="stats" id="stats"></div>
+<button onclick="resetProgress()" style="margin-top:12px;background:none;border:1px solid #444;color:#666;padding:8px 18px;border-radius:8px;font-size:.8rem;cursor:pointer;min-height:36px">학습 초기화</button>
 
 <script>
 const allWords={
@@ -114,10 +115,41 @@ const allWords={
 ['sycophantic','아첨하는'],['truculent','사나운'],['verisimilitude','사실성'],['accolade','칭찬'],['disparage','폄하하다'],['filibuster','의사진행방해'],['ignominious','불명예스러운'],['malevolent','악의있는'],['palliate','완화하다'],['ruminate','숙고하다']
 ]
 };
+const LS_KEY='hoit_learn_english';
 let level='초급',words=[],idx=0,known=new Set(),flipped=false;
+
+function saveProgress(){
+  try{
+    const knownWords=[];
+    known.forEach(i=>{if(words[i])knownWords.push(words[i][0])});
+    localStorage.setItem(LS_KEY,JSON.stringify({level,known:knownWords,lastIdx:idx,updatedAt:new Date().toISOString().slice(0,10)}));
+  }catch(e){}
+}
+function loadProgress(){
+  try{
+    const d=JSON.parse(localStorage.getItem(LS_KEY));
+    if(d&&d.level)return d;
+  }catch(e){}
+  return null;
+}
+function resetProgress(){
+  if(!confirm('학습 진행률을 초기화할까요?'))return;
+  localStorage.removeItem(LS_KEY);
+  startDeck();
+}
+
 function setLevel(lv,btn){level=lv;document.querySelectorAll('.levels button').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');startDeck()}
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-function startDeck(){words=shuffle([...allWords[level]]);idx=0;known=new Set();showCard()}
+function startDeck(savedData){
+  words=shuffle([...allWords[level]]);
+  idx=0;known=new Set();
+  if(savedData&&savedData.level===level){
+    const knownSet=new Set(savedData.known||[]);
+    words.forEach((w,i)=>{if(knownSet.has(w[0]))known.add(i)});
+    idx=Math.min(savedData.lastIdx||0,words.length);
+  }
+  showCard();
+}
 function showCard(){
 if(idx>=words.length){document.getElementById('wordEl').textContent='완료!';document.getElementById('meanEl').textContent='모든 단어를 학습했습니다';flipped=false;document.getElementById('cardInner').classList.remove('flipped');updateProg();return}
 flipped=false;document.getElementById('cardInner').classList.remove('flipped');
@@ -126,15 +158,22 @@ document.getElementById('meanEl').textContent=words[idx][1];
 updateProg();
 }
 function flipCard(){flipped=!flipped;document.getElementById('cardInner').classList.toggle('flipped')}
-function markKnow(){known.add(idx);idx++;showCard()}
-function markDont(){idx++;showCard()}
+function markKnow(){known.add(idx);idx++;saveProgress();showCard()}
+function markDont(){idx++;saveProgress();showCard()}
 function updateProg(){
 const total=words.length;
 document.getElementById('progFill').style.width=(idx/total*100)+'%';
 document.getElementById('progText').textContent=`${idx} / ${total}`;
 document.getElementById('stats').textContent=`아는 단어: ${known.size} | 모르는 단어: ${idx-known.size}`;
 }
-startDeck();
+const _saved=loadProgress();
+if(_saved&&_saved.level){
+  level=_saved.level;
+  document.querySelectorAll('.levels button').forEach(b=>{b.classList.toggle('sel',b.textContent===level)});
+  startDeck(_saved);
+}else{
+  startDeck();
+}
 </script>
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 

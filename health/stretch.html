@@ -50,6 +50,11 @@ h1{font-size:1.5rem;margin-bottom:16px}
 </div>
 
 <script>
+const ST_KEY='hoit_stretch';
+const ST_TODAY=new Date().toISOString().slice(0,10);
+function stLoad(){const raw=JSON.parse(localStorage.getItem(ST_KEY)||'{}');return raw[ST_TODAY]||{cur:0,done:false}}
+function stSave(cur,done){const raw=JSON.parse(localStorage.getItem(ST_KEY)||'{}');raw[ST_TODAY]={cur,done};localStorage.setItem(ST_KEY,JSON.stringify(raw))}
+
 const stretches=[
 {name:'목 좌우 스트레칭',emoji:'🧘',desc:'머리를 천천히 오른쪽으로 기울여 10초, 왼쪽으로 10초 유지합니다.',part:'목'},
 {name:'목 앞뒤 스트레칭',emoji:'🙆',desc:'턱을 가슴 쪽으로 당기고 10초, 하늘을 보며 10초 유지합니다.',part:'목'},
@@ -63,7 +68,8 @@ const stretches=[
 {name:'전신 기지개',emoji:'🌟',desc:'양팔을 하늘 위로 뻗고 발끝으로 서서 전신을 최대한 늘립니다.',part:'전신'}
 ];
 const TOTAL_TIME=30,circ=2*Math.PI*60;
-let cur=0,timeLeft=TOTAL_TIME,timer=null,running=false;
+const _stSaved=stLoad();
+let cur=_stSaved.cur,timeLeft=TOTAL_TIME,timer=null,running=false;
 document.getElementById('tprog').style.strokeDasharray=circ;
 
 function renderProgress(){
@@ -94,9 +100,9 @@ timeLeft--;updateTimerDisplay();
 if(timeLeft<=0){clearInterval(timer);running=false;next()}
 },1000);
 }
-function next(){if(cur<stretches.length-1){cur++;showCurrent()}else{document.getElementById('sname').textContent='완료!';document.getElementById('sdesc').textContent='모든 스트레칭을 마쳤습니다.';document.getElementById('emoji').textContent='🎉';renderProgress()}}
+function next(){if(cur<stretches.length-1){cur++;stSave(cur,false);showCurrent()}else{stSave(cur,true);document.getElementById('sname').textContent='완료!';document.getElementById('sdesc').textContent='모든 스트레칭을 마쳤습니다.';document.getElementById('emoji').textContent='🎉';renderProgress()}}
 function skip(){clearInterval(timer);running=false;next()}
-showCurrent();
+if(_stSaved.done){document.getElementById('sname').textContent='완료!';document.getElementById('sdesc').textContent='모든 스트레칭을 마쳤습니다.';document.getElementById('emoji').textContent='🎉';renderProgress()}else{showCurrent()}
 </script>
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 
