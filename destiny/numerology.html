@@ -47,7 +47,31 @@ const todayMoney=Math.max(30,Math.min(100,d.money+Math.floor(r()*30)-15));
 const todayHealth=Math.max(30,Math.min(100,d.health+Math.floor(r()*30)-15));
 const todayWork=Math.max(30,Math.min(100,d.work+Math.floor(r()*30)-15));
 const el=document.getElementById('result');
-el.innerHTML=`<div class="numbox"><p style="font-size:1.1em">당신의 인생 번호는</p><div class="bignum">${lp}</div><p style="font-size:1.4em">${d.e} ${d.t}</p><br><div>${d.traits.map(t=>`<span class="trait">${t}</span>`).join('')}</div><br><p style="text-align:left;margin:15px 0">${d.p}</p><hr style="border-color:rgba(150,100,255,.15);margin:15px 0"><h3 style="margin-bottom:10px">📊 오늘의 운세</h3><p>💕 연애운: ${todayLove}점 ${'★'.repeat(Math.round(todayLove/20))}${'☆'.repeat(5-Math.round(todayLove/20))}</p><p>💰 금전운: ${todayMoney}점 ${'★'.repeat(Math.round(todayMoney/20))}${'☆'.repeat(5-Math.round(todayMoney/20))}</p><p>💪 건강운: ${todayHealth}점 ${'★'.repeat(Math.round(todayHealth/20))}${'☆'.repeat(5-Math.round(todayHealth/20))}</p><p>💼 직장운: ${todayWork}점 ${'★'.repeat(Math.round(todayWork/20))}${'☆'.repeat(5-Math.round(todayWork/20))}</p><hr style="border-color:rgba(150,100,255,.15);margin:15px 0"><p>💡 <b>조언:</b> ${d.adv}</p></div><br><button onclick="document.getElementById('result').style.display='none'">다시 하기</button>`;
+while(el.firstChild)el.removeChild(el.firstChild);
+const numbox=document.createElement('div');numbox.className='numbox';
+const introP=document.createElement('p');introP.style.fontSize='1.1em';introP.textContent='당신의 인생 번호는';numbox.appendChild(introP);
+const bigNum=document.createElement('div');bigNum.className='bignum';bigNum.textContent=String(lp);numbox.appendChild(bigNum);
+const typeP=document.createElement('p');typeP.style.fontSize='1.4em';typeP.textContent=d.e+' '+d.t;numbox.appendChild(typeP);
+numbox.appendChild(document.createElement('br'));
+const traitsDiv=document.createElement('div');d.traits.forEach(t=>{const sp=document.createElement('span');sp.className='trait';sp.textContent=t;traitsDiv.appendChild(sp);});numbox.appendChild(traitsDiv);
+numbox.appendChild(document.createElement('br'));
+const descP=document.createElement('p');descP.style.cssText='text-align:left;margin:15px 0';descP.textContent=d.p;numbox.appendChild(descP);
+const hr1=document.createElement('hr');hr1.style.cssText='border-color:rgba(150,100,255,.15);margin:15px 0';numbox.appendChild(hr1);
+const barsH=document.createElement('h3');barsH.style.cssText='margin-bottom:10px';barsH.textContent='📊 오늘의 운세';numbox.appendChild(barsH);
+function mkNumBar(label,val){
+  const row=document.createElement('div');row.style.cssText='margin:8px 0';
+  const lbl=document.createElement('div');lbl.style.cssText='display:flex;justify-content:space-between;font-size:.85em;margin-bottom:3px';
+  const lt=document.createElement('span');lt.textContent=label;const lv=document.createElement('span');lv.textContent=val+'점';lbl.appendChild(lt);lbl.appendChild(lv);row.appendChild(lbl);
+  const track=document.createElement('div');track.style.cssText='background:rgba(255,255,255,.1);border-radius:6px;height:10px;overflow:hidden';
+  const fill=document.createElement('div');fill.style.height='100%';fill.style.borderRadius='6px';fill.style.transition='width 1s ease';fill.style.width='0';
+  fill.style.background='linear-gradient(90deg,#e84040,#e8d030 50%,#30c830)';fill.style.backgroundSize='200% 100%';fill.style.backgroundPosition=(100-val)+'% 0';
+  track.appendChild(fill);row.appendChild(track);numbox.appendChild(row);setTimeout(()=>{fill.style.width=val+'%';},80);
+}
+[{label:'💕 연애운',val:todayLove},{label:'💰 금전운',val:todayMoney},{label:'💪 건강운',val:todayHealth},{label:'💼 직장운',val:todayWork}].forEach(item=>{mkNumBar(item.label,item.val);});
+const hr2=document.createElement('hr');hr2.style.cssText='border-color:rgba(150,100,255,.15);margin:15px 0';numbox.appendChild(hr2);
+const advP=document.createElement('p');const advStrong=document.createElement('strong');advStrong.textContent='💡 조언: ';advP.appendChild(advStrong);advP.appendChild(document.createTextNode(d.adv));numbox.appendChild(advP);
+el.appendChild(numbox);el.appendChild(document.createElement('br'));
+const btn=document.createElement('button');btn.textContent='다시 하기';btn.onclick=()=>{el.style.display='none';};el.appendChild(btn);
 el.style.display='block';el.scrollIntoView({behavior:'smooth'})}
 </script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 

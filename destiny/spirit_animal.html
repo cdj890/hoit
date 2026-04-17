@@ -43,8 +43,34 @@ const bday=document.getElementById('bday').value;if(!bday){alert('생년월일�
 const r=sr(bday),idx=Math.floor(r()*animals.length),a=animals[idx];
 const r2=sr(bday+new Date().toDateString()),msg=a.msgs[Math.floor(r2()*a.msgs.length)];
 const love=Math.floor(r2()*41)+55,money=Math.floor(r2()*41)+55,health=Math.floor(r2()*41)+55,work=Math.floor(r2()*41)+55;
+const luckyNum=Math.floor(r2()*99)+1;
 const el=document.getElementById('result');
-el.innerHTML=`<div class="rbox"><div class="biganimal">${a.e}</div><h2>당신의 수호 동물: ${a.n}</h2><p style="color:#80e090;margin:8px 0">특성: ${a.traits}</p><br><p>${a.desc}</p><hr style="border-color:rgba(100,200,100,.15);margin:15px 0"><h3>📩 오늘 수호 동물의 메시지</h3><p style="font-size:1.1em;margin:12px 0;color:#b0ffb0">"${msg}"</p><hr style="border-color:rgba(100,200,100,.15);margin:15px 0"><h3>📊 오늘의 운세</h3><p>💕 연애운: ${love}점 | 💰 금전운: ${money}점</p><p>💪 건강운: ${health}점 | 💼 직장운: ${work}점</p><br><p>🔢 행운의 숫자: ${Math.floor(r2()*99)+1}</p></div><br><button onclick="document.getElementById('result').style.display='none'">다시 하기</button>`;
+while(el.firstChild)el.removeChild(el.firstChild);
+const rbox=document.createElement('div');rbox.className='rbox';
+const bigAnimal=document.createElement('div');bigAnimal.className='biganimal';bigAnimal.textContent=a.e;rbox.appendChild(bigAnimal);
+const h2=document.createElement('h2');h2.textContent='당신의 수호 동물: '+a.n;rbox.appendChild(h2);
+const traitsP=document.createElement('p');traitsP.style.cssText='color:#80e090;margin:8px 0';traitsP.textContent='특성: '+a.traits;rbox.appendChild(traitsP);
+rbox.appendChild(document.createElement('br'));
+const descP=document.createElement('p');descP.textContent=a.desc;rbox.appendChild(descP);
+const hr1=document.createElement('hr');hr1.style.cssText='border-color:rgba(100,200,100,.15);margin:15px 0';rbox.appendChild(hr1);
+const msgH=document.createElement('h3');msgH.textContent='📩 오늘 수호 동물의 메시지';rbox.appendChild(msgH);
+const msgP=document.createElement('p');msgP.style.cssText='font-size:1.1em;margin:12px 0;color:#b0ffb0';msgP.textContent='"'+msg+'"';rbox.appendChild(msgP);
+const hr2=document.createElement('hr');hr2.style.cssText='border-color:rgba(100,200,100,.15);margin:15px 0';rbox.appendChild(hr2);
+const barsH=document.createElement('h3');barsH.style.cssText='margin-bottom:10px';barsH.textContent='📊 오늘의 운세';rbox.appendChild(barsH);
+function mkAnimalBar(label,val){
+  const row=document.createElement('div');row.style.cssText='margin:8px 0';
+  const lbl=document.createElement('div');lbl.style.cssText='display:flex;justify-content:space-between;font-size:.85em;margin-bottom:3px';
+  const lt=document.createElement('span');lt.textContent=label;const lv=document.createElement('span');lv.textContent=val+'점';lbl.appendChild(lt);lbl.appendChild(lv);row.appendChild(lbl);
+  const track=document.createElement('div');track.style.cssText='background:rgba(255,255,255,.1);border-radius:6px;height:10px;overflow:hidden';
+  const fill=document.createElement('div');fill.style.height='100%';fill.style.borderRadius='6px';fill.style.transition='width 1s ease';fill.style.width='0';
+  fill.style.background='linear-gradient(90deg,#e84040,#e8d030 50%,#30c830)';fill.style.backgroundSize='200% 100%';fill.style.backgroundPosition=(100-val)+'% 0';
+  track.appendChild(fill);row.appendChild(track);rbox.appendChild(row);setTimeout(()=>{fill.style.width=val+'%';},80);
+}
+[{label:'💕 연애운',val:love},{label:'💰 금전운',val:money},{label:'💪 건강운',val:health},{label:'💼 직장운',val:work}].forEach(item=>{mkAnimalBar(item.label,item.val);});
+rbox.appendChild(document.createElement('br'));
+const luckyP=document.createElement('p');luckyP.textContent='🔢 행운의 숫자: '+luckyNum;rbox.appendChild(luckyP);
+el.appendChild(rbox);el.appendChild(document.createElement('br'));
+const btn=document.createElement('button');btn.textContent='다시 하기';btn.onclick=()=>{el.style.display='none';};el.appendChild(btn);
 el.style.display='block';el.scrollIntoView({behavior:'smooth'})}
 </script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 

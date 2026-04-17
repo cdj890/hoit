@@ -34,10 +34,38 @@ const data=[
 function sr(s){let h=0;for(let i=0;i<s.length;i++)h=((h<<5)-h)+s.charCodeAt(i),h|=0;return function(){h^=h<<13;h^=h>>17;h^=h<<5;return(h>>>0)/4294967296}}
 const container=document.getElementById('coffees');
 data.forEach((c,i)=>{const el=document.createElement('div');el.className='coffee-opt';el.innerHTML=`<span class="icon">${c.e}</span><b>${c.n}</b>`;el.onclick=()=>show(i);container.appendChild(el)});
+function mkCoffeeBar(label,val,parentEl){
+  const row=document.createElement('div');row.style.cssText='margin:8px 0';
+  const lbl=document.createElement('div');lbl.style.cssText='display:flex;justify-content:space-between;font-size:.85em;margin-bottom:3px';
+  const lt=document.createElement('span');lt.textContent=label;const lv=document.createElement('span');lv.textContent=val+'점';lbl.appendChild(lt);lbl.appendChild(lv);row.appendChild(lbl);
+  const track=document.createElement('div');track.style.cssText='background:rgba(255,255,255,.1);border-radius:6px;height:10px;overflow:hidden';
+  const fill=document.createElement('div');fill.style.height='100%';fill.style.borderRadius='6px';fill.style.transition='width 1s ease';fill.style.width='0';
+  fill.style.background='linear-gradient(90deg,#e84040,#e8d030 50%,#30c830)';fill.style.backgroundSize='200% 100%';fill.style.backgroundPosition=(100-val)+'% 0';
+  track.appendChild(fill);row.appendChild(track);parentEl.appendChild(row);setTimeout(()=>{fill.style.width=val+'%';},80);
+}
 function show(i){
 const c=data[i],r=sr(c.n+new Date().toDateString()),el=document.getElementById('result');
 const todayScore=Math.floor(r()*31)+65;
-el.innerHTML=`<div class="rbox"><p style="font-size:3.5em">${c.e}</p><h2>${c.n}</h2><br><p><b>☕ 성격 분석</b></p><p style="margin:8px 0">${c.pers}</p><br><p><b>🔮 오늘의 운세</b></p><p style="margin:8px 0">${c.fortune}</p><br><p><b>오늘의 총운: ${todayScore}점</b></p><hr style="border-color:rgba(180,120,60,.15);margin:15px 0"><p>💕 연애운: ${c.love}점 | 💰 금전운: ${c.money}점</p><p>💪 건강운: ${c.health}점 | 💼 직장운: ${c.work}점</p><br><p>💡 <b>조언:</b> ${c.adv}</p><p>🍀 <b>행운의 아이템:</b> ${c.lucky}</p></div><br><button onclick="document.getElementById('result').style.display='none';window.scrollTo({top:0,behavior:'smooth'})">다시 하기</button>`;
+while(el.firstChild)el.removeChild(el.firstChild);
+const rbox=document.createElement('div');rbox.className='rbox';
+const eP=document.createElement('p');eP.style.fontSize='3.5em';eP.textContent=c.e;rbox.appendChild(eP);
+const h2=document.createElement('h2');h2.textContent=c.n;rbox.appendChild(h2);
+rbox.appendChild(document.createElement('br'));
+const persLabel=document.createElement('p');const persStrong=document.createElement('strong');persStrong.textContent='☕ 성격 분석';persLabel.appendChild(persStrong);rbox.appendChild(persLabel);
+const persP=document.createElement('p');persP.style.margin='8px 0';persP.textContent=c.pers;rbox.appendChild(persP);
+rbox.appendChild(document.createElement('br'));
+const fortLabel=document.createElement('p');const fortStrong=document.createElement('strong');fortStrong.textContent='🔮 오늘의 운세';fortLabel.appendChild(fortStrong);rbox.appendChild(fortLabel);
+const fortP=document.createElement('p');fortP.style.margin='8px 0';fortP.textContent=c.fortune;rbox.appendChild(fortP);
+rbox.appendChild(document.createElement('br'));
+const totalP=document.createElement('p');const totalStrong=document.createElement('strong');totalStrong.textContent='오늘의 총운: '+todayScore+'점';totalP.appendChild(totalStrong);rbox.appendChild(totalP);
+const hr=document.createElement('hr');hr.style.cssText='border-color:rgba(180,120,60,.15);margin:15px 0';rbox.appendChild(hr);
+const barsH=document.createElement('h3');barsH.style.cssText='margin-bottom:10px;font-size:.95em';barsH.textContent='📊 오늘의 운세';rbox.appendChild(barsH);
+[{label:'💕 연애운',val:c.love},{label:'💰 금전운',val:c.money},{label:'💪 건강운',val:c.health},{label:'💼 직장운',val:c.work}].forEach(item=>{mkCoffeeBar(item.label,item.val,rbox);});
+rbox.appendChild(document.createElement('br'));
+const advP=document.createElement('p');const advStrong=document.createElement('strong');advStrong.textContent='💡 조언: ';advP.appendChild(advStrong);advP.appendChild(document.createTextNode(c.adv));rbox.appendChild(advP);
+const luckyP=document.createElement('p');const luckyStrong=document.createElement('strong');luckyStrong.textContent='🍀 행운의 아이템: ';luckyP.appendChild(luckyStrong);luckyP.appendChild(document.createTextNode(c.lucky));rbox.appendChild(luckyP);
+el.appendChild(rbox);el.appendChild(document.createElement('br'));
+const btn=document.createElement('button');btn.textContent='다시 하기';btn.onclick=()=>{el.style.display='none';window.scrollTo({top:0,behavior:'smooth'});};el.appendChild(btn);
 el.style.display='block';el.scrollIntoView({behavior:'smooth'})}
 </script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 

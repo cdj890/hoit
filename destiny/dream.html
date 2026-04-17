@@ -52,9 +52,26 @@ const g=document.getElementById('grid');
 dreams.forEach((d,i)=>{const el=document.createElement('div');el.className='sym';el.innerHTML=`<span class="emoji">${d.e}</span>${d.n}`;el.onclick=()=>showResult(i);g.appendChild(el)});
 function showResult(i){
 const d=dreams[i],dt=new Date(),ds=dt.getFullYear()+'-'+(dt.getMonth()+1)+'-'+dt.getDate(),r=sr(d.n+ds);
-const lucky=Math.floor(r()*45)+1,lucky2=Math.floor(r()*45)+1;
+const lucky=Math.floor(r()*45)+1,lucky2=Math.floor(r()*45)+1,luckyIdx=Math.floor(r()*40)+60;
 const el=document.getElementById('result');
-el.innerHTML=`<h2>${d.e} ${d.n} 꿈 해몽</h2><p>${d.i}</p><br><p>📊 <b>관련 운세:</b> ${d.cat}</p><p>💡 <b>조언:</b> ${d.adv}</p><br><p>🔢 <b>행운의 숫자:</b> ${lucky}, ${lucky2}</p><p>🎯 <b>행운 지수:</b> ${Math.floor(r()*40)+60}%</p><br><button onclick="document.getElementById('result').style.display='none';window.scrollTo({top:0,behavior:'smooth'})">다시 하기</button>`;
+while(el.firstChild)el.removeChild(el.firstChild);
+const h2=document.createElement('h2');h2.textContent=d.e+' '+d.n+' 꿈 해몽';el.appendChild(h2);
+const interp=document.createElement('p');interp.textContent=d.i;el.appendChild(interp);
+el.appendChild(document.createElement('br'));
+const catP=document.createElement('p');const catStrong=document.createElement('strong');catStrong.textContent='📊 관련 운세: ';catP.appendChild(catStrong);catP.appendChild(document.createTextNode(d.cat));el.appendChild(catP);
+const advP=document.createElement('p');const advStrong=document.createElement('strong');advStrong.textContent='💡 조언: ';advP.appendChild(advStrong);advP.appendChild(document.createTextNode(d.adv));el.appendChild(advP);
+el.appendChild(document.createElement('br'));
+const luckyP=document.createElement('p');const luckyStrong=document.createElement('strong');luckyStrong.textContent='🔢 행운의 숫자: ';luckyP.appendChild(luckyStrong);luckyP.appendChild(document.createTextNode(lucky+', '+lucky2));el.appendChild(luckyP);
+const barLabel=document.createElement('p');const barStrong=document.createElement('strong');barStrong.textContent='🎯 행운 지수:';barLabel.appendChild(barStrong);el.appendChild(barLabel);
+const row=document.createElement('div');row.style.cssText='margin:8px 0';
+const lbl=document.createElement('div');lbl.style.cssText='display:flex;justify-content:space-between;font-size:.9em;margin-bottom:4px';
+const lt=document.createElement('span');lt.textContent='행운 지수';const lv=document.createElement('span');lv.textContent=luckyIdx+'%';lbl.appendChild(lt);lbl.appendChild(lv);row.appendChild(lbl);
+const track=document.createElement('div');track.style.cssText='background:rgba(255,255,255,.1);border-radius:6px;height:12px;overflow:hidden';
+const fill=document.createElement('div');fill.style.height='100%';fill.style.borderRadius='6px';fill.style.transition='width 1s ease';fill.style.width='0';
+fill.style.background='linear-gradient(90deg,#e84040,#e8d030 50%,#30c830)';fill.style.backgroundSize='200% 100%';fill.style.backgroundPosition=(100-luckyIdx)+'% 0';
+track.appendChild(fill);row.appendChild(track);el.appendChild(row);setTimeout(()=>{fill.style.width=luckyIdx+'%';},80);
+el.appendChild(document.createElement('br'));
+const btn=document.createElement('button');btn.textContent='다시 하기';btn.onclick=()=>{el.style.display='none';window.scrollTo({top:0,behavior:'smooth'});};el.appendChild(btn);
 el.style.display='block';el.scrollIntoView({behavior:'smooth'})}
 </script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 

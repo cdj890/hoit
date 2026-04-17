@@ -62,9 +62,14 @@ const MAJOR=[
   {name:'세계',emoji:'🌍',num:21,up:'완성, 성취, 통합, 여행',down:'미완성, 목표 부재, 지연'},
 ];
 
+function seed(str){var h=0;for(var i=0;i<str.length;i++){h=((h<<5)-h)+str.charCodeAt(i);h|=0;}return function(){h=h*16807%2147483647;return(h-1)/2147483646;};}
+function getTodayStr(){const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
 let picked=[], state='pick';
 
-function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*i+1|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
+function shuffle(a){
+  const r=seed(getTodayStr()+'tarot');
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;
+}
 
 function show(){
   state='pick';picked=[];
@@ -82,7 +87,8 @@ function show(){
 
 function pickCard(ci,el){
   if(picked.length>=3)return;
-  const isReversed=Math.random()>0.5;
+  const r=seed(getTodayStr()+'tarot_rev'+ci+picked.length);
+  const isReversed=r()>0.5;
   picked.push({idx:ci,rev:isReversed});
   el.style.borderColor='#FFD700';
   el.style.background='linear-gradient(135deg,#3a2a6a,#2a2a5e)';
@@ -94,21 +100,6 @@ function pickCard(ci,el){
 
 function showResult(){
   const labels=['🕰️ 과거','📍 현재','🔮 미래'];
-  let html=`<h1>🔮 당신의 타로 리딩</h1><p class="sub" style="margin-bottom:20px">3장의 카드가 말하는 이야기</p>`;
-  picked.forEach((p,i)=>{
-    const c=MAJOR[p.idx];
-    const msg=p.rev?c.down:c.up;
-    const dir=p.rev?'역방향 🔄':'정방향 ✨';
-    html+=`<div class="result" style="margin-bottom:12px">
-      <div style="display:flex;gap:15px;align-items:center">
-        <div style="font-size:40px;${p.rev?'transform:rotate(180deg)':''}">${c.emoji}</div>
-        <div><div style="color:#888;font-size:12px">${labels[i]}</div>
-        <div style="font-size:18px;font-weight:bold">${c.name} <span style="font-size:12px;color:${p.rev?'#FF6B6B':'#4CAF50'}">(${dir})</span></div></div>
-      </div>
-      <p style="color:#ccc;font-size:14px;line-height:1.7;margin-top:12px">${msg}</p>
-    </div>`;
-  });
-  // Overall reading
   const positive=picked.filter(p=>!p.rev).length;
   let overall;
   if(positive===3)overall='매우 긍정적인 흐름! 앞으로 좋은 일이 가득할 거예요. ✨';
@@ -116,11 +107,46 @@ function showResult(){
   else if(positive===1)overall='도전이 있지만 극복할 수 있어요. 인내심을 가지세요.';
   else overall='시련의 시기이지만, 이것은 성장의 기회입니다. 내면의 힘을 믿으세요.';
 
-  html+=`<div style="background:#252545;border-radius:12px;padding:15px;margin-top:15px;text-align:center">
-    <h3 style="color:#FFD700;font-size:15px;margin-bottom:8px">📜 종합 해석</h3>
-    <p style="color:#ccc;font-size:14px;line-height:1.6">${overall}</p></div>
-    <button class="btn" onclick="show()">다시 뽑기</button>`;
-  document.getElementById('app').innerHTML=html;
+  const app=document.getElementById('app');
+  while(app.firstChild)app.removeChild(app.firstChild);
+  const h1=document.createElement('h1');h1.textContent='🔮 당신의 타로 리딩';app.appendChild(h1);
+  const sub=document.createElement('p');sub.className='sub';sub.style.marginBottom='20px';sub.textContent='3장의 카드가 말하는 이야기';app.appendChild(sub);
+  picked.forEach((p,i)=>{
+    const c=MAJOR[p.idx];const msg=p.rev?c.down:c.up;const dir=p.rev?'역방향 🔄':'정방향 ✨';
+    const rd=document.createElement('div');rd.className='result';rd.style.marginBottom='12px';
+    const topRow=document.createElement('div');topRow.style.cssText='display:flex;gap:15px;align-items:center';
+    const emoDiv=document.createElement('div');emoDiv.style.fontSize='40px';if(p.rev)emoDiv.style.transform='rotate(180deg)';emoDiv.textContent=c.emoji;topRow.appendChild(emoDiv);
+    const infoDiv=document.createElement('div');
+    const labelDiv=document.createElement('div');labelDiv.style.cssText='color:#888;font-size:12px';labelDiv.textContent=labels[i];infoDiv.appendChild(labelDiv);
+    const nameDiv=document.createElement('div');nameDiv.style.cssText='font-size:18px;font-weight:bold';
+    const nameText=document.createTextNode(c.name+' ');nameDiv.appendChild(nameText);
+    const dirSpan=document.createElement('span');dirSpan.style.cssText='font-size:12px;color:'+(p.rev?'#FF6B6B':'#4CAF50');dirSpan.textContent='('+dir+')';nameDiv.appendChild(dirSpan);infoDiv.appendChild(nameDiv);
+    topRow.appendChild(infoDiv);rd.appendChild(topRow);
+    const msgP=document.createElement('p');msgP.style.cssText='color:#ccc;font-size:14px;line-height:1.7;margin-top:12px';msgP.textContent=msg;rd.appendChild(msgP);
+    app.appendChild(rd);
+  });
+  const summaryDiv=document.createElement('div');summaryDiv.style.cssText='background:#252545;border-radius:12px;padding:15px;margin-top:15px;text-align:center';
+  const summaryH=document.createElement('h3');summaryH.style.cssText='color:#FFD700;font-size:15px;margin-bottom:8px';summaryH.textContent='📜 종합 해석';summaryDiv.appendChild(summaryH);
+  const summaryP=document.createElement('p');summaryP.style.cssText='color:#ccc;font-size:14px;line-height:1.6';summaryP.textContent=overall;summaryDiv.appendChild(summaryP);
+  const barsH=document.createElement('h3');barsH.style.cssText='color:#FFD700;font-size:14px;margin:14px 0 8px;text-align:left';barsH.textContent='📊 오늘의 에너지';summaryDiv.appendChild(barsH);
+  const scoreBase=Math.round(positive/3*100);
+  const scores=[
+    {label:'💕 연애 에너지',val:Math.max(20,Math.min(100,scoreBase+(picked[0].rev?-15:15)))},
+    {label:'💰 재물 에너지',val:Math.max(20,Math.min(100,scoreBase+(picked[1].rev?-15:15)))},
+    {label:'💼 직장 에너지',val:Math.max(20,Math.min(100,scoreBase+(picked[2].rev?-15:15)))},
+    {label:'✨ 종합 운세',val:Math.round(positive/3*80)+10}
+  ];
+  scores.forEach(item=>{
+    const row=document.createElement('div');row.style.cssText='margin:7px 0;text-align:left';
+    const lbl=document.createElement('div');lbl.style.cssText='display:flex;justify-content:space-between;font-size:12px;margin-bottom:2px';
+    const lt=document.createElement('span');lt.textContent=item.label;const lv=document.createElement('span');lv.textContent=item.val+'%';lbl.appendChild(lt);lbl.appendChild(lv);row.appendChild(lbl);
+    const track=document.createElement('div');track.style.cssText='background:rgba(255,255,255,.1);border-radius:5px;height:8px;overflow:hidden';
+    const fill=document.createElement('div');fill.style.height='100%';fill.style.borderRadius='5px';fill.style.transition='width 1s ease';fill.style.width='0';
+    fill.style.background='linear-gradient(90deg,#e84040,#e8d030 50%,#7B68EE)';fill.style.backgroundSize='200% 100%';fill.style.backgroundPosition=(100-item.val)+'% 0';
+    track.appendChild(fill);row.appendChild(track);summaryDiv.appendChild(row);setTimeout(()=>{fill.style.width=item.val+'%';},80);
+  });
+  app.appendChild(summaryDiv);
+  const btn=document.createElement('button');btn.className='btn';btn.onclick=show;btn.textContent='다시 뽑기';app.appendChild(btn);
 }
 show();
 </script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>

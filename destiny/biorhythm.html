@@ -32,7 +32,42 @@ const phys=Math.sin(2*Math.PI*days/23)*100;
 const emot=Math.sin(2*Math.PI*days/28)*100;
 const intel=Math.sin(2*Math.PI*days/33)*100;
 const el=document.getElementById('result');
-el.innerHTML=`<div class="rbox"><h2 style="text-align:center;margin-bottom:5px">📊 바이오리듬 그래프</h2><p style="text-align:center;color:#88aabb;font-size:.9em">오늘은 탄생 후 ${days.toLocaleString()}일째입니다</p><canvas id="chart" width="560" height="280"></canvas><div class="legend"><span><span class="dot" style="background:#ff6b6b"></span> 신체 (23일)</span><span><span class="dot" style="background:#4ecdc4"></span> 감성 (28일)</span><span><span class="dot" style="background:#ffe66d"></span> 지성 (33일)</span></div><div class="scores"><div class="score-card" style="border:1px solid rgba(255,107,107,.3)"><div style="color:#ff6b6b;font-size:.85em">💪 신체</div><div class="score-val" style="color:#ff6b6b">${Math.round(phys)}%</div></div><div class="score-card" style="border:1px solid rgba(78,205,196,.3)"><div style="color:#4ecdc4;font-size:.85em">💕 감성</div><div class="score-val" style="color:#4ecdc4">${Math.round(emot)}%</div></div><div class="score-card" style="border:1px solid rgba(255,230,109,.3)"><div style="color:#ffe66d;font-size:.85em">🧠 지성</div><div class="score-val" style="color:#ffe66d">${Math.round(intel)}%</div></div></div><hr style="border-color:rgba(100,200,255,.1);margin:15px 0"><h3 style="text-align:center">🔮 오늘의 해석</h3><p>${getInterp(phys,'신체')} ${getInterp(emot,'감성')} ${getInterp(intel,'지성')}</p><br><p style="text-align:center"><b>💡 종합 조언:</b> ${getAdvice(phys,emot,intel)}</p></div><br><button onclick="document.getElementById('result').style.display='none'">다시 하기</button>`;
+while(el.firstChild)el.removeChild(el.firstChild);
+const rbox=document.createElement('div');rbox.className='rbox';
+const chartH=document.createElement('h2');chartH.style.cssText='text-align:center;margin-bottom:5px';chartH.textContent='📊 바이오리듬 그래프';rbox.appendChild(chartH);
+const daysP=document.createElement('p');daysP.style.cssText='text-align:center;color:#88aabb;font-size:.9em';daysP.textContent='오늘은 탄생 후 '+days.toLocaleString()+'일째입니다';rbox.appendChild(daysP);
+const canvas=document.createElement('canvas');canvas.id='chart';canvas.width=560;canvas.height=280;rbox.appendChild(canvas);
+const legend=document.createElement('div');legend.className='legend';
+[{color:'#ff6b6b',label:'신체 (23일)'},{color:'#4ecdc4',label:'감성 (28일)'},{color:'#ffe66d',label:'지성 (33일)'}].forEach(item=>{
+  const sp=document.createElement('span');const dot=document.createElement('span');dot.className='dot';dot.style.background=item.color;sp.appendChild(dot);sp.appendChild(document.createTextNode(' '+item.label));legend.appendChild(sp);
+});rbox.appendChild(legend);
+const scoresDiv=document.createElement('div');scoresDiv.className='scores';
+[{color:'#ff6b6b',icon:'💪',label:'신체',val:Math.round(phys)},{color:'#4ecdc4',icon:'💕',label:'감성',val:Math.round(emot)},{color:'#ffe66d',icon:'🧠',label:'지성',val:Math.round(intel)}].forEach(item=>{
+  const card=document.createElement('div');card.className='score-card';card.style.border='1px solid '+item.color+'4d';
+  const lbl=document.createElement('div');lbl.style.cssText='color:'+item.color+';font-size:.85em';lbl.textContent=item.icon+' '+item.label;card.appendChild(lbl);
+  const val=document.createElement('div');val.className='score-val';val.style.color=item.color;val.textContent=item.val+'%';card.appendChild(val);
+  const pct=Math.round((item.val+100)/2);
+  const track=document.createElement('div');track.style.cssText='background:rgba(255,255,255,.1);border-radius:5px;height:6px;margin-top:6px;overflow:hidden';
+  const fill=document.createElement('div');fill.style.height='100%';fill.style.borderRadius='5px';fill.style.transition='width 1s ease';fill.style.width='0';
+  fill.style.background=item.color;track.appendChild(fill);card.appendChild(track);scoresDiv.appendChild(card);
+  setTimeout(()=>{fill.style.width=pct+'%';},80);
+});rbox.appendChild(scoresDiv);
+const hr=document.createElement('hr');hr.style.cssText='border-color:rgba(100,200,255,.1);margin:15px 0';rbox.appendChild(hr);
+const interpH=document.createElement('h3');interpH.style.textAlign='center';interpH.textContent='🔮 오늘의 해석';rbox.appendChild(interpH);
+const barsH=document.createElement('h3');barsH.style.cssText='margin:12px 0 8px;font-size:.95em';barsH.textContent='📊 리듬 바';rbox.appendChild(barsH);
+[{label:'💪 신체 리듬',val:Math.round((phys+100)/2),color:'#ff6b6b'},{label:'💕 감성 리듬',val:Math.round((emot+100)/2),color:'#4ecdc4'},{label:'🧠 지성 리듬',val:Math.round((intel+100)/2),color:'#ffe66d'}].forEach(item=>{
+  const row=document.createElement('div');row.style.cssText='margin:7px 0';
+  const lbl=document.createElement('div');lbl.style.cssText='display:flex;justify-content:space-between;font-size:.85em;margin-bottom:3px';
+  const lt=document.createElement('span');lt.textContent=item.label;const lv=document.createElement('span');lv.textContent=item.val+'%';lbl.appendChild(lt);lbl.appendChild(lv);row.appendChild(lbl);
+  const track=document.createElement('div');track.style.cssText='background:rgba(255,255,255,.1);border-radius:6px;height:10px;overflow:hidden';
+  const fill=document.createElement('div');fill.style.height='100%';fill.style.borderRadius='6px';fill.style.transition='width 1s ease';fill.style.width='0';fill.style.background=item.color;
+  track.appendChild(fill);row.appendChild(track);rbox.appendChild(row);setTimeout(()=>{fill.style.width=item.val+'%';},80);
+});
+const interpP=document.createElement('p');interpP.textContent=getInterp(phys,'신체')+' '+getInterp(emot,'감성')+' '+getInterp(intel,'지성');rbox.appendChild(interpP);
+rbox.appendChild(document.createElement('br'));
+const advP=document.createElement('p');advP.style.textAlign='center';const advStrong=document.createElement('strong');advStrong.textContent='💡 종합 조언: ';advP.appendChild(advStrong);advP.appendChild(document.createTextNode(getAdvice(phys,emot,intel)));rbox.appendChild(advP);
+el.appendChild(rbox);el.appendChild(document.createElement('br'));
+const btn=document.createElement('button');btn.textContent='다시 하기';btn.onclick=()=>{el.style.display='none';};el.appendChild(btn);
 el.style.display='block';
 drawChart(days);
 el.scrollIntoView({behavior:'smooth'})}

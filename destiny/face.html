@@ -50,13 +50,35 @@ const q=questions[cur],step=document.createElement('div');step.className='step a
 step.innerHTML=`<h2>${q.q}</h2><div class="opts">${q.opts.map(o=>`<div class="opt" onclick="pick(${o.v})"><span class="emo">${o.e}</span>${o.t}</div>`).join('')}</div>`;
 stepsEl.appendChild(step)}
 function pick(v){ans.push(v);cur++;render()}
+function mkFaceBar(label,val,parentEl){
+  const row=document.createElement('div');row.style.cssText='margin:8px 0';
+  const lbl=document.createElement('div');lbl.style.cssText='display:flex;justify-content:space-between;font-size:.85em;margin-bottom:3px';
+  const lt=document.createElement('span');lt.textContent=label;const lv=document.createElement('span');lv.textContent=val+'점';lbl.appendChild(lt);lbl.appendChild(lv);row.appendChild(lbl);
+  const track=document.createElement('div');track.style.cssText='background:rgba(255,255,255,.1);border-radius:6px;height:10px;overflow:hidden';
+  const fill=document.createElement('div');fill.style.height='100%';fill.style.borderRadius='6px';fill.style.transition='width 1s ease';fill.style.width='0';
+  fill.style.background='linear-gradient(90deg,#e84040,#e8d030 50%,#30c830)';fill.style.backgroundSize='200% 100%';fill.style.backgroundPosition=(100-val)+'% 0';
+  track.appendChild(fill);row.appendChild(track);parentEl.appendChild(row);setTimeout(()=>{fill.style.width=val+'%';},80);
+}
 function showResult(){
 const sum=ans.reduce((a,b)=>a+b,0);const idx=sum%readings.length;const rd=readings[idx];
 function sr(s){let h=0;for(let i=0;i<s.length;i++)h=((h<<5)-h)+s.charCodeAt(i),h|=0;return function(){h^=h<<13;h^=h>>17;h^=h<<5;return(h>>>0)/4294967296}}
 const r=sr(ans.join('')+new Date().toDateString());
+const luckyNum=Math.floor(r()*99)+1;const luckyColor=['빨강','파랑','초록','노랑','보라','분홍'][Math.floor(r()*6)];
 const el=document.getElementById('result');
-el.innerHTML=`<div class="rbox"><p style="font-size:3em">${rd.emoji}</p><h2 style="margin:10px 0;font-size:1.5em">${rd.type}</h2><p style="margin:15px 0">${rd.desc}</p><hr style="border-color:rgba(150,100,255,.15);margin:15px 0"><h3>📊 운세 점수</h3><p>💕 연애운: ${rd.love}점 | 💰 금전운: ${rd.money}점</p><p>💪 건강운: ${rd.health}점 | 💼 직장운: ${rd.work}점</p><br><p>🔢 행운의 숫자: ${Math.floor(r()*99)+1}</p><p>🎨 행운의 색: ${['빨강','파랑','초록','노랑','보라','분홍'][Math.floor(r()*6)]}</p></div><br><button onclick="cur=0;ans=[];document.getElementById('result').style.display='none';render()">다시 하기</button>`;
-el.style.display='block';stepsEl.innerHTML=''}
+while(el.firstChild)el.removeChild(el.firstChild);
+const rbox=document.createElement('div');rbox.className='rbox';
+const emoP=document.createElement('p');emoP.style.fontSize='3em';emoP.textContent=rd.emoji;rbox.appendChild(emoP);
+const h2=document.createElement('h2');h2.style.cssText='margin:10px 0;font-size:1.5em';h2.textContent=rd.type;rbox.appendChild(h2);
+const descP=document.createElement('p');descP.style.margin='15px 0';descP.textContent=rd.desc;rbox.appendChild(descP);
+const hr=document.createElement('hr');hr.style.cssText='border-color:rgba(150,100,255,.15);margin:15px 0';rbox.appendChild(hr);
+const barsH=document.createElement('h3');barsH.style.cssText='margin-bottom:10px';barsH.textContent='📊 운세 점수';rbox.appendChild(barsH);
+[{label:'💕 연애운',val:rd.love},{label:'💰 금전운',val:rd.money},{label:'💪 건강운',val:rd.health},{label:'💼 직장운',val:rd.work}].forEach(item=>{mkFaceBar(item.label,item.val,rbox);});
+rbox.appendChild(document.createElement('br'));
+const luckyP=document.createElement('p');luckyP.textContent='🔢 행운의 숫자: '+luckyNum;rbox.appendChild(luckyP);
+const colorP=document.createElement('p');colorP.textContent='🎨 행운의 색: '+luckyColor;rbox.appendChild(colorP);
+el.appendChild(rbox);el.appendChild(document.createElement('br'));
+const btn=document.createElement('button');btn.textContent='다시 하기';btn.onclick=()=>{cur=0;ans=[];el.style.display='none';render();};el.appendChild(btn);
+el.style.display='block';while(stepsEl.firstChild)stepsEl.removeChild(stepsEl.firstChild);}
 render();
 </script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 

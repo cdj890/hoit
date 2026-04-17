@@ -40,10 +40,37 @@ const flowers=[
 function sr(s){let h=0;for(let i=0;i<s.length;i++)h=((h<<5)-h)+s.charCodeAt(i),h|=0;return function(){h^=h<<13;h^=h>>17;h^=h<<5;return(h>>>0)/4294967296}}
 const container=document.getElementById('months');
 flowers.forEach(f=>{const el=document.createElement('div');el.className='month';el.innerHTML=`<span class="emo">${f.e}</span>${f.m}월`;el.onclick=()=>show(f.m-1);container.appendChild(el)});
+function mkFlowerBar(label,val,parentEl){
+  const row=document.createElement('div');row.style.cssText='margin:8px 0';
+  const lbl=document.createElement('div');lbl.style.cssText='display:flex;justify-content:space-between;font-size:.85em;margin-bottom:3px';
+  const lt=document.createElement('span');lt.textContent=label;const lv=document.createElement('span');lv.textContent=val+'점';lbl.appendChild(lt);lbl.appendChild(lv);row.appendChild(lbl);
+  const track=document.createElement('div');track.style.cssText='background:rgba(255,255,255,.1);border-radius:6px;height:10px;overflow:hidden';
+  const fill=document.createElement('div');fill.style.height='100%';fill.style.borderRadius='6px';fill.style.transition='width 1s ease';fill.style.width='0';
+  fill.style.background='linear-gradient(90deg,#e84040,#e8d030 50%,#30c830)';fill.style.backgroundSize='200% 100%';fill.style.backgroundPosition=(100-val)+'% 0';
+  track.appendChild(fill);row.appendChild(track);parentEl.appendChild(row);setTimeout(()=>{fill.style.width=val+'%';},80);
+}
 function show(i){
 const f=flowers[i],r=sr(f.f+new Date().toDateString()),lucky=Math.floor(r()*99)+1;
+const luckyColor=['분홍','빨강','하늘색','노랑','보라','초록'][Math.floor(r()*6)];
 const el=document.getElementById('result');
-el.innerHTML=`<div class="rbox"><div class="bigflower">${f.fl}</div><h2>${f.m}월의 탄생화: ${f.f}</h2><p style="color:#ffb0d0;font-size:1.1em;margin:8px 0">꽃말: ${f.lang}</p><br><p>${f.desc}</p><br><p>🔮 <b>오늘의 꽃 운세</b></p><p style="margin:8px 0">${f.fortune}</p><hr style="border-color:rgba(255,150,200,.15);margin:15px 0"><p>💕 연애운: ${f.love}점 | 💰 금전운: ${f.money}점</p><p>💪 건강운: ${f.health}점 | 💼 직장운: ${f.work}점</p><br><p>🔢 행운의 숫자: ${lucky}</p><p>🎨 행운의 색: ${['분홍','빨강','하늘색','노랑','보라','초록'][Math.floor(r()*6)]}</p></div><br><button onclick="document.getElementById('result').style.display='none';window.scrollTo({top:0,behavior:'smooth'})">다시 하기</button>`;
+while(el.firstChild)el.removeChild(el.firstChild);
+const rbox=document.createElement('div');rbox.className='rbox';
+const bigFlower=document.createElement('div');bigFlower.className='bigflower';bigFlower.textContent=f.fl;rbox.appendChild(bigFlower);
+const h2=document.createElement('h2');h2.textContent=f.m+'월의 탄생화: '+f.f;rbox.appendChild(h2);
+const langP=document.createElement('p');langP.style.cssText='color:#ffb0d0;font-size:1.1em;margin:8px 0';langP.textContent='꽃말: '+f.lang;rbox.appendChild(langP);
+rbox.appendChild(document.createElement('br'));
+const descP=document.createElement('p');descP.textContent=f.desc;rbox.appendChild(descP);
+rbox.appendChild(document.createElement('br'));
+const fortuneLabel=document.createElement('p');const fortuneStrong=document.createElement('strong');fortuneStrong.textContent='🔮 오늘의 꽃 운세';fortuneLabel.appendChild(fortuneStrong);rbox.appendChild(fortuneLabel);
+const fortuneP=document.createElement('p');fortuneP.style.margin='8px 0';fortuneP.textContent=f.fortune;rbox.appendChild(fortuneP);
+const hr=document.createElement('hr');hr.style.cssText='border-color:rgba(255,150,200,.15);margin:15px 0';rbox.appendChild(hr);
+const barsH=document.createElement('h3');barsH.style.cssText='margin-bottom:10px;font-size:.95em';barsH.textContent='📊 오늘의 운세';rbox.appendChild(barsH);
+[{label:'💕 연애운',val:f.love},{label:'💰 금전운',val:f.money},{label:'💪 건강운',val:f.health},{label:'💼 직장운',val:f.work}].forEach(item=>{mkFlowerBar(item.label,item.val,rbox);});
+rbox.appendChild(document.createElement('br'));
+const luckyP=document.createElement('p');luckyP.textContent='🔢 행운의 숫자: '+lucky;rbox.appendChild(luckyP);
+const colorP=document.createElement('p');colorP.textContent='🎨 행운의 색: '+luckyColor;rbox.appendChild(colorP);
+el.appendChild(rbox);el.appendChild(document.createElement('br'));
+const btn=document.createElement('button');btn.textContent='다시 하기';btn.onclick=()=>{el.style.display='none';window.scrollTo({top:0,behavior:'smooth'});};el.appendChild(btn);
 el.style.display='block';el.scrollIntoView({behavior:'smooth'})}
 </script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 

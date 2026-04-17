@@ -43,12 +43,31 @@ tick();}
 function sr(s){let h=0;for(let i=0;i<s.length;i++)h=((h<<5)-h)+s.charCodeAt(i),h|=0;return function(){h^=h<<13;h^=h>>17;h^=h<<5;return(h>>>0)/4294967296}}
 function showResult(a,b){
 const sum=a+b,f=fortunes[sum],r=sr(sum+new Date().toDateString());
-let catScores=cats.map(c=>({n:c,v:Math.floor(r()*41)+f.s-20}));
-catScores=catScores.map(c=>({...c,v:Math.max(10,Math.min(100,c.v))}));
-let html=`<div class="result-box"><div class="sum-display">${a} + ${b} = ${sum}</div><h2>${f.t}</h2><p style="margin:15px 0;font-size:1.1em">${f.m}</p><p><b>운세 점수:</b> ${f.s}점</p><br>`;
-catScores.forEach(c=>{html+=`<p>${c.n}: ${'★'.repeat(Math.round(c.v/20))}${'☆'.repeat(5-Math.round(c.v/20))} ${c.v}점</p>`});
-html+=`<br><p>🔢 행운의 숫자: ${Math.floor(r()*99)+1}</p></div><br><button onclick="document.getElementById('result').style.display='none';document.getElementById('d1').textContent='?';document.getElementById('d2').textContent='?'">다시 하기</button>`;
-const el=document.getElementById('result');el.innerHTML=html;el.style.display='block';el.scrollIntoView({behavior:'smooth'})}
+let catScores=cats.map(c=>({n:c,v:Math.max(10,Math.min(100,Math.floor(r()*41)+f.s-20))}));
+const luckyNum=Math.floor(r()*99)+1;
+const el=document.getElementById('result');
+while(el.firstChild)el.removeChild(el.firstChild);
+const rbox=document.createElement('div');rbox.className='result-box';
+const sumDisp=document.createElement('div');sumDisp.className='sum-display';sumDisp.textContent=a+' + '+b+' = '+sum;rbox.appendChild(sumDisp);
+const h2=document.createElement('h2');h2.textContent=f.t;rbox.appendChild(h2);
+const msgP=document.createElement('p');msgP.style.cssText='margin:15px 0;font-size:1.1em';msgP.textContent=f.m;rbox.appendChild(msgP);
+const totalP=document.createElement('p');const totalStrong=document.createElement('strong');totalStrong.textContent='운세 점수: '+f.s+'점';totalP.appendChild(totalStrong);rbox.appendChild(totalP);
+rbox.appendChild(document.createElement('br'));
+const barsH=document.createElement('h3');barsH.style.cssText='margin-bottom:10px;font-size:.95em';barsH.textContent='📊 카테고리별 운세';rbox.appendChild(barsH);
+catScores.forEach(c=>{
+  const row=document.createElement('div');row.style.cssText='margin:8px 0';
+  const lbl=document.createElement('div');lbl.style.cssText='display:flex;justify-content:space-between;font-size:.85em;margin-bottom:3px';
+  const lt=document.createElement('span');lt.textContent=c.n;const lv=document.createElement('span');lv.textContent=c.v+'점';lbl.appendChild(lt);lbl.appendChild(lv);row.appendChild(lbl);
+  const track=document.createElement('div');track.style.cssText='background:rgba(255,255,255,.1);border-radius:6px;height:10px;overflow:hidden';
+  const fill=document.createElement('div');fill.style.height='100%';fill.style.borderRadius='6px';fill.style.transition='width 1s ease';fill.style.width='0';
+  fill.style.background='linear-gradient(90deg,#e84040,#e8d030 50%,#30c830)';fill.style.backgroundSize='200% 100%';fill.style.backgroundPosition=(100-c.v)+'% 0';
+  track.appendChild(fill);row.appendChild(track);rbox.appendChild(row);setTimeout(()=>{fill.style.width=c.v+'%';},80);
+});
+rbox.appendChild(document.createElement('br'));
+const luckyP=document.createElement('p');luckyP.textContent='🔢 행운의 숫자: '+luckyNum;rbox.appendChild(luckyP);
+el.appendChild(rbox);el.appendChild(document.createElement('br'));
+const btn=document.createElement('button');btn.textContent='다시 하기';btn.onclick=()=>{el.style.display='none';document.getElementById('d1').textContent='?';document.getElementById('d2').textContent='?';};el.appendChild(btn);
+el.style.display='block';el.scrollIntoView({behavior:'smooth'})}
 </script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 
 <style>

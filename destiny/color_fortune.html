@@ -43,7 +43,36 @@ const d=new Date(),ds=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
 const r=sr(ds+'color'),idx=Math.floor(r()*colors.length),c=colors[idx];
 const lucky=Math.floor(r()*99)+1;
 const el=document.getElementById('result');
-el.innerHTML=`<div class="rbox"><p style="font-size:.9em;color:#9988bb">${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일의 행운 색</p><div class="color-circle" style="background:${c.hex}"></div><h2 style="font-size:1.8em;color:${c.hex}">${c.n}</h2><br><p>🎨 <b>의미:</b> ${c.meaning}</p><br><p>👗 <b>오늘 뭘 입을까?</b></p><p>${c.wear}</p><br><h3>🤝 어울리는 색</h3><div class="compat-colors">${c.compat.map(cn=>{const cc=colors.find(x=>x.n===cn);return`<div class="compat-dot" style="background:${cc?cc.hex:'#888'}">${cn}</div>`}).join('')}</div><hr style="border-color:rgba(255,150,200,.1);margin:15px 0"><h3>📊 오늘의 운세</h3><p>💕 연애운: ${c.love}점 | 💰 금전운: ${c.money}점</p><p>💪 건강운: ${c.health}점 | 💼 직장운: ${c.work}점</p><br><p>🔢 행운의 숫자: ${lucky}</p></div><br><button onclick="document.getElementById('result').style.display='none';window.scrollTo({top:0,behavior:'smooth'})">다시 하기</button>`;
+while(el.firstChild)el.removeChild(el.firstChild);
+const rbox=document.createElement('div');rbox.className='rbox';
+const dateP=document.createElement('p');dateP.style.cssText='font-size:.9em;color:#9988bb';dateP.textContent=d.getFullYear()+'년 '+(d.getMonth()+1)+'월 '+d.getDate()+'일의 행운 색';rbox.appendChild(dateP);
+const circle=document.createElement('div');circle.className='color-circle';circle.style.background=c.hex;rbox.appendChild(circle);
+const h2=document.createElement('h2');h2.style.cssText='font-size:1.8em;color:'+c.hex;h2.textContent=c.n;rbox.appendChild(h2);
+rbox.appendChild(document.createElement('br'));
+const meaningP=document.createElement('p');const meaningStrong=document.createElement('strong');meaningStrong.textContent='🎨 의미: ';meaningP.appendChild(meaningStrong);meaningP.appendChild(document.createTextNode(c.meaning));rbox.appendChild(meaningP);
+rbox.appendChild(document.createElement('br'));
+const wearLabel=document.createElement('p');const wearStrong=document.createElement('strong');wearStrong.textContent='👗 오늘 뭘 입을까?';wearLabel.appendChild(wearStrong);rbox.appendChild(wearLabel);
+const wearP=document.createElement('p');wearP.textContent=c.wear;rbox.appendChild(wearP);
+rbox.appendChild(document.createElement('br'));
+const compatH=document.createElement('h3');compatH.textContent='🤝 어울리는 색';rbox.appendChild(compatH);
+const compatDiv=document.createElement('div');compatDiv.className='compat-colors';
+c.compat.forEach(cn=>{const cc=colors.find(x=>x.n===cn);const dot=document.createElement('div');dot.className='compat-dot';dot.style.background=cc?cc.hex:'#888';dot.textContent=cn;compatDiv.appendChild(dot);});rbox.appendChild(compatDiv);
+const hr=document.createElement('hr');hr.style.cssText='border-color:rgba(255,150,200,.1);margin:15px 0';rbox.appendChild(hr);
+const barsH=document.createElement('h3');barsH.style.cssText='margin-bottom:10px';barsH.textContent='📊 오늘의 운세';rbox.appendChild(barsH);
+function mkColorBar(label,val){
+  const row=document.createElement('div');row.style.cssText='margin:8px 0';
+  const lbl=document.createElement('div');lbl.style.cssText='display:flex;justify-content:space-between;font-size:.85em;margin-bottom:3px';
+  const lt=document.createElement('span');lt.textContent=label;const lv=document.createElement('span');lv.textContent=val+'점';lbl.appendChild(lt);lbl.appendChild(lv);row.appendChild(lbl);
+  const track=document.createElement('div');track.style.cssText='background:rgba(255,255,255,.1);border-radius:6px;height:10px;overflow:hidden';
+  const fill=document.createElement('div');fill.style.height='100%';fill.style.borderRadius='6px';fill.style.transition='width 1s ease';fill.style.width='0';
+  fill.style.background='linear-gradient(90deg,#e84040,#e8d030 50%,#30c830)';fill.style.backgroundSize='200% 100%';fill.style.backgroundPosition=(100-val)+'% 0';
+  track.appendChild(fill);row.appendChild(track);rbox.appendChild(row);setTimeout(()=>{fill.style.width=val+'%';},80);
+}
+[{label:'💕 연애운',val:c.love},{label:'💰 금전운',val:c.money},{label:'💪 건강운',val:c.health},{label:'💼 직장운',val:c.work}].forEach(item=>{mkColorBar(item.label,item.val);});
+rbox.appendChild(document.createElement('br'));
+const luckyP=document.createElement('p');luckyP.textContent='🔢 행운의 숫자: '+lucky;rbox.appendChild(luckyP);
+el.appendChild(rbox);el.appendChild(document.createElement('br'));
+const btn=document.createElement('button');btn.textContent='다시 하기';btn.onclick=()=>{el.style.display='none';window.scrollTo({top:0,behavior:'smooth'});};el.appendChild(btn);
 el.style.display='block';el.scrollIntoView({behavior:'smooth'})}
 generate();
 </script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>

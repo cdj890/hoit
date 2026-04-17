@@ -32,20 +32,22 @@ function _copyFallback(text,btn){
 <div class="wrap" id="app"></div>
 <script>
 const FORTUNES=[
-  {leaf:3,emoji:'☘️',title:'세잎 클로버',luck:'보통',color:'#4CAF50',msgs:['평범하지만 안정적인 하루','작은 행운이 찾아올 거예요','꾸준함이 당신의 무기!','오늘은 조용히 충전하는 날']},
-  {leaf:4,emoji:'🍀',title:'네잎 클로버!',luck:'행운',color:'#FFD700',msgs:['오늘은 행운의 날!','뜻밖의 좋은 일이 생겨요','도전하면 좋은 결과가!','소원을 빌어보세요~']},
-  {leaf:5,emoji:'✨🍀✨',title:'다섯잎 클로버!!',luck:'대박 행운',color:'#FF69B4',msgs:['엄청난 행운이 찾아옵니다!','로또를 사볼까?!','인생 전환점이 될 수 있어요','모든 일이 술술 풀려요!']},
-  {leaf:2,emoji:'🌿',title:'두잎...',luck:'약간 아쉬움',color:'#FF9800',msgs:['오늘은 조심스럽게','큰 결정은 미루세요','쉬어가는 것도 전략이에요','내일은 더 나아질 거예요']},
-  {leaf:1,emoji:'🥀',title:'한잎...',luck:'주의!',color:'#F44336',msgs:['오늘은 조용히 보내세요','계획을 재점검하세요','건강을 챙기는 날','인내가 필요한 시기']},
+  {leaf:3,emoji:'☘️',title:'세잎 클로버',luck:'보통',color:'#4CAF50',msgs:['평범하지만 안정적인 하루','작은 행운이 찾아올 거예요','꾸준함이 당신의 무기!','오늘은 조용히 충전하는 날'],love:70,money:68,health:75,work:72},
+  {leaf:4,emoji:'🍀',title:'네잎 클로버!',luck:'행운',color:'#FFD700',msgs:['오늘은 행운의 날!','뜻밖의 좋은 일이 생겨요','도전하면 좋은 결과가!','소원을 빌어보세요~'],love:85,money:88,health:80,work:82},
+  {leaf:5,emoji:'✨🍀✨',title:'다섯잎 클로버!!',luck:'대박 행운',color:'#FF69B4',msgs:['엄청난 행운이 찾아옵니다!','로또를 사볼까?!','인생 전환점이 될 수 있어요','모든 일이 술술 풀려요!'],love:95,money:98,health:92,work:95},
+  {leaf:2,emoji:'🌿',title:'두잎...',luck:'약간 아쉬움',color:'#FF9800',msgs:['오늘은 조심스럽게','큰 결정은 미루세요','쉬어가는 것도 전략이에요','내일은 더 나아질 거예요'],love:55,money:52,health:60,work:58},
+  {leaf:1,emoji:'🥀',title:'한잎...',luck:'주의!',color:'#F44336',msgs:['오늘은 조용히 보내세요','계획을 재점검하세요','건강을 챙기는 날','인내가 필요한 시기'],love:40,money:38,health:50,work:42},
 ];
 
 let clovers=[];
 
+function seed(str){var h=0;for(var i=0;i<str.length;i++){h=((h<<5)-h)+str.charCodeAt(i);h|=0;}return function(){h=h*16807%2147483647;return(h-1)/2147483646;};}
+function getTodayStr(){const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
 function showField(){
   clovers=[];
+  const dailySeed=seed(getTodayStr()+'clover');
   for(let i=0;i<20;i++){
-    // 확률: 3잎 60%, 4잎 15%, 5잎 3%, 2잎 15%, 1잎 7%
-    const r=Math.random();
+    const r=dailySeed();
     let type=0;
     if(r<0.03)type=2; // 5잎
     else if(r<0.18)type=1; // 4잎
@@ -55,10 +57,10 @@ function showField(){
 
     clovers.push({
       type,
-      x:10+Math.random()*80,
-      y:10+Math.random()*80,
-      size:24+Math.random()*12,
-      delay:Math.random()*2
+      x:10+dailySeed()*80,
+      y:10+dailySeed()*80,
+      size:24+dailySeed()*12,
+      delay:dailySeed()*2
     });
   }
 
@@ -72,30 +74,55 @@ function showField(){
     <p style="color:#555;font-size:11px">클로버를 클릭하여 뽑으세요</p>`;
 }
 
+function mkCloverBar(label,val,parentEl){
+  const row=document.createElement('div');row.style.cssText='margin:6px 0';
+  const lbl=document.createElement('div');lbl.style.cssText='display:flex;justify-content:space-between;font-size:13px;margin-bottom:2px';
+  const lt=document.createElement('span');lt.textContent=label;
+  const lv=document.createElement('span');lv.textContent=val+'점';
+  lbl.appendChild(lt);lbl.appendChild(lv);row.appendChild(lbl);
+  const track=document.createElement('div');track.style.cssText='background:rgba(255,255,255,.1);border-radius:5px;height:9px;overflow:hidden';
+  const fill=document.createElement('div');
+  fill.style.height='100%';fill.style.borderRadius='5px';fill.style.transition='width 1s ease';fill.style.width='0';
+  fill.style.background='linear-gradient(90deg,#e84040,#e8d030 50%,#30c830)';
+  fill.style.backgroundSize='200% 100%';fill.style.backgroundPosition=(100-val)+'% 0';
+  track.appendChild(fill);row.appendChild(track);parentEl.appendChild(row);
+  setTimeout(()=>{fill.style.width=val+'%';},80);
+}
 function pickClover(i){
   const c=clovers[i];
   const f=FORTUNES[c.type];
-  const msg=f.msgs[Math.floor(Math.random()*f.msgs.length)];
+  const r=seed(getTodayStr()+'clover_msg'+i);
+  const msg=f.msgs[Math.floor(r()*f.msgs.length)];
 
-  document.getElementById('app').innerHTML=`<div class="result">
-    <div style="font-size:70px;margin-bottom:10px">${f.emoji}</div>
-    <h2 style="color:${f.color};font-size:26px">${f.title}</h2>
-    <div style="background:${f.color};color:#000;display:inline-block;padding:4px 16px;border-radius:20px;font-size:14px;font-weight:bold;margin:10px 0">${f.luck}</div>
-    <p style="font-size:18px;margin:15px 0;line-height:1.6">${msg}</p>
+  const app=document.getElementById('app');
+  while(app.firstChild)app.removeChild(app.firstChild);
 
-    <div style="background:#252545;border-radius:10px;padding:15px;margin:15px 0;text-align:left">
-      <h3 style="color:#FFD700;font-size:14px;margin-bottom:8px">🍀 클로버 잎사귀의 의미</h3>
-      <p style="color:#ccc;font-size:12px;line-height:1.8">
-        🌿 1잎: 기도 · 희망의 시작<br>
-        🌿 2잎: 사랑 · 인연<br>
-        ☘️ 3잎: 믿음 · 사랑 · 희망<br>
-        🍀 4잎: 행운! (믿음+사랑+희망+행운)<br>
-        ✨ 5잎: 재물운 대박!
-      </p>
-    </div>
+  const wrap=document.createElement('div');wrap.className='result';
 
-    <button class="btn" onclick="showField()">다시 뽑기</button>
-  </div>`;
+  const emojiDiv=document.createElement('div');emojiDiv.style.cssText='font-size:70px;margin-bottom:10px';emojiDiv.textContent=f.emoji;wrap.appendChild(emojiDiv);
+
+  const h2=document.createElement('h2');h2.style.cssText='color:'+f.color+';font-size:26px';h2.textContent=f.title;wrap.appendChild(h2);
+
+  const badge=document.createElement('div');badge.style.cssText='background:'+f.color+';color:#000;display:inline-block;padding:4px 16px;border-radius:20px;font-size:14px;font-weight:bold;margin:10px 0';badge.textContent=f.luck;wrap.appendChild(badge);
+
+  const msgP=document.createElement('p');msgP.style.cssText='font-size:18px;margin:15px 0;line-height:1.6';msgP.textContent=msg;wrap.appendChild(msgP);
+
+  const scoreBox=document.createElement('div');scoreBox.style.cssText='background:#252545;border-radius:10px;padding:15px;margin:15px 0;text-align:left';
+  const scoreTitle=document.createElement('h3');scoreTitle.style.cssText='color:#FFD700;font-size:14px;margin-bottom:10px';scoreTitle.textContent='📊 오늘의 운세';scoreBox.appendChild(scoreTitle);
+  mkCloverBar('💕 연애운',f.love,scoreBox);
+  mkCloverBar('💰 금전운',f.money,scoreBox);
+  mkCloverBar('💪 건강운',f.health,scoreBox);
+  mkCloverBar('💼 직장운',f.work,scoreBox);
+  wrap.appendChild(scoreBox);
+
+  const leafBox=document.createElement('div');leafBox.style.cssText='background:#252545;border-radius:10px;padding:15px;margin:15px 0;text-align:left';
+  const leafTitle=document.createElement('h3');leafTitle.style.cssText='color:#FFD700;font-size:14px;margin-bottom:8px';leafTitle.textContent='🍀 클로버 잎사귀의 의미';leafBox.appendChild(leafTitle);
+  const leafLines=['🌿 1잎: 기도 · 희망의 시작','🌿 2잎: 사랑 · 인연','☘️ 3잎: 믿음 · 사랑 · 희망','🍀 4잎: 행운! (믿음+사랑+희망+행운)','✨ 5잎: 재물운 대박!'];
+  leafLines.forEach((line,idx)=>{const lp=document.createElement('p');lp.style.cssText='color:#ccc;font-size:12px;line-height:1.8'+(idx>0?';margin-top:2px':'');lp.textContent=line;leafBox.appendChild(lp);});
+  wrap.appendChild(leafBox);
+
+  const btn=document.createElement('button');btn.className='btn';btn.textContent='다시 뽑기';btn.onclick=showField;wrap.appendChild(btn);
+  app.appendChild(wrap);
 }
 showField();
 </script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>

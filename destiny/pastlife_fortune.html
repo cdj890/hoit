@@ -43,9 +43,37 @@ const name=document.getElementById('name').value.trim(),bday=document.getElement
 if(!name||!bday){alert('이름과 생년월일을 모두 입력해주세요!');return}
 const r=sr(name+bday),idx=Math.floor(r()*lives.length),l=lives[idx];
 const r2=sr(name+bday+new Date().toDateString());
-const todayLuck=Math.floor(r2()*31)+65;
+const todayLuck=Math.floor(r2()*31)+65;const luckyNum=Math.floor(r2()*99)+1;
 const el=document.getElementById('result');
-el.innerHTML=`<div class="rbox"><div class="bigemo">${l.e}</div><h2>${l.t}</h2><p style="color:#a088cc;margin:8px 0">${l.era}</p><br><p><b>🔮 전생의 삶</b></p><p style="margin:8px 0">${l.desc}</p><br><p><b>✨ 현세에 미치는 영향</b></p><p style="margin:8px 0">${l.effect}</p><hr style="border-color:rgba(150,100,255,.15);margin:15px 0"><p><b>📊 오늘의 운세 (전생 영향 반영)</b></p><p>오늘의 총운: ${todayLuck}점</p><br><p>💕 연애운: ${l.love}점 | 💰 금전운: ${l.money}점</p><p>💪 건강운: ${l.health}점 | 💼 직장운: ${l.work}점</p><br><p>🔢 전생과 연결된 행운의 숫자: ${Math.floor(r2()*99)+1}</p></div><br><button onclick="document.getElementById('result').style.display='none'">다시 하기</button>`;
+while(el.firstChild)el.removeChild(el.firstChild);
+const rbox=document.createElement('div');rbox.className='rbox';
+const bigEmo=document.createElement('div');bigEmo.className='bigemo';bigEmo.textContent=l.e;rbox.appendChild(bigEmo);
+const h2=document.createElement('h2');h2.textContent=l.t;rbox.appendChild(h2);
+const eraP=document.createElement('p');eraP.style.cssText='color:#a088cc;margin:8px 0';eraP.textContent=l.era;rbox.appendChild(eraP);
+rbox.appendChild(document.createElement('br'));
+const descLabel=document.createElement('p');const descStrong=document.createElement('strong');descStrong.textContent='🔮 전생의 삶';descLabel.appendChild(descStrong);rbox.appendChild(descLabel);
+const descP=document.createElement('p');descP.style.margin='8px 0';descP.textContent=l.desc;rbox.appendChild(descP);
+rbox.appendChild(document.createElement('br'));
+const effLabel=document.createElement('p');const effStrong=document.createElement('strong');effStrong.textContent='✨ 현세에 미치는 영향';effLabel.appendChild(effStrong);rbox.appendChild(effLabel);
+const effP=document.createElement('p');effP.style.margin='8px 0';effP.textContent=l.effect;rbox.appendChild(effP);
+const hr=document.createElement('hr');hr.style.cssText='border-color:rgba(150,100,255,.15);margin:15px 0';rbox.appendChild(hr);
+const scoreLabel=document.createElement('p');const scoreStrong=document.createElement('strong');scoreStrong.textContent='📊 오늘의 운세 (전생 영향 반영)';scoreLabel.appendChild(scoreStrong);rbox.appendChild(scoreLabel);
+const totalP=document.createElement('p');totalP.textContent='오늘의 총운: '+todayLuck+'점';rbox.appendChild(totalP);
+rbox.appendChild(document.createElement('br'));
+function mkPastBar(label,val){
+  const row=document.createElement('div');row.style.cssText='margin:8px 0';
+  const lbl=document.createElement('div');lbl.style.cssText='display:flex;justify-content:space-between;font-size:.85em;margin-bottom:3px';
+  const lt=document.createElement('span');lt.textContent=label;const lv=document.createElement('span');lv.textContent=val+'점';lbl.appendChild(lt);lbl.appendChild(lv);row.appendChild(lbl);
+  const track=document.createElement('div');track.style.cssText='background:rgba(255,255,255,.1);border-radius:6px;height:10px;overflow:hidden';
+  const fill=document.createElement('div');fill.style.height='100%';fill.style.borderRadius='6px';fill.style.transition='width 1s ease';fill.style.width='0';
+  fill.style.background='linear-gradient(90deg,#e84040,#e8d030 50%,#30c830)';fill.style.backgroundSize='200% 100%';fill.style.backgroundPosition=(100-val)+'% 0';
+  track.appendChild(fill);row.appendChild(track);rbox.appendChild(row);setTimeout(()=>{fill.style.width=val+'%';},80);
+}
+[{label:'💕 연애운',val:l.love},{label:'💰 금전운',val:l.money},{label:'💪 건강운',val:l.health},{label:'💼 직장운',val:l.work}].forEach(item=>{mkPastBar(item.label,item.val);});
+rbox.appendChild(document.createElement('br'));
+const luckyP=document.createElement('p');luckyP.textContent='🔢 전생과 연결된 행운의 숫자: '+luckyNum;rbox.appendChild(luckyP);
+el.appendChild(rbox);el.appendChild(document.createElement('br'));
+const btn=document.createElement('button');btn.textContent='다시 하기';btn.onclick=()=>{el.style.display='none';};el.appendChild(btn);
 el.style.display='block';el.scrollIntoView({behavior:'smooth'})}
 </script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 

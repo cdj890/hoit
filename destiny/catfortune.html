@@ -39,7 +39,9 @@ const fortunes=[
 const catFaces=['🐱','😺','😸','😻','🙀','😽','😹','😿','😾','🐈'];
 const sounds=['냐옹~','냥냥!','프르르르...','야옹~','먀우!','그르르르...','냥?','삐뽀삐뽀냥!'];
 let asking=false;
+function seed(str){var h=0;for(var i=0;i<str.length;i++){h=((h<<5)-h)+str.charCodeAt(i);h|=0;}return function(){h=h*16807%2147483647;return(h-1)/2147483646;};}
 function sr(s){let h=0;for(let i=0;i<s.length;i++)h=((h<<5)-h)+s.charCodeAt(i),h|=0;return function(){h^=h<<13;h^=h>>17;h^=h<<5;return(h>>>0)/4294967296}}
+function getTodayStr(){const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
 function askCat(){
 if(asking)return;asking=true;
 document.getElementById('askBtn').disabled=true;
@@ -47,10 +49,39 @@ document.getElementById('result').style.display='none';
 const cat=document.getElementById('cat'),bub=document.getElementById('bubble');
 cat.classList.add('thinking');bub.style.display='block';
 let count=0;const iv=setInterval(()=>{cat.textContent=catFaces[Math.floor(Math.random()*catFaces.length)];bub.textContent=sounds[Math.floor(Math.random()*sounds.length)];count++;if(count>10){clearInterval(iv);cat.textContent='😺';cat.classList.remove('thinking');bub.textContent='이거다냥! 🐾';setTimeout(()=>{bub.style.display='none';showResult()},800)}},200)}
+function mkBar(label,val,accentColor){
+  const row=document.createElement('div');row.style.cssText='margin:8px 0';
+  const lbl=document.createElement('div');lbl.style.cssText='display:flex;justify-content:space-between;font-size:.85em;margin-bottom:3px';
+  const lt=document.createElement('span');lt.textContent=label;
+  const lv=document.createElement('span');lv.textContent=val+'점';
+  lbl.appendChild(lt);lbl.appendChild(lv);row.appendChild(lbl);
+  const track=document.createElement('div');track.style.cssText='background:rgba(255,255,255,.1);border-radius:6px;height:10px;overflow:hidden';
+  const fill=document.createElement('div');
+  fill.style.height='100%';fill.style.borderRadius='6px';fill.style.transition='width 1s ease';fill.style.width='0';
+  fill.style.background='linear-gradient(90deg,#e84040,#e8d030 50%,#30c830)';
+  fill.style.backgroundSize='200% 100%';fill.style.backgroundPosition=(100-val)+'% 0';
+  track.appendChild(fill);row.appendChild(track);
+  setTimeout(()=>{fill.style.width=val+'%';},80);
+  return row;
+}
 function showResult(){
-const r=sr(Date.now().toString()),f=fortunes[Math.floor(r()*fortunes.length)];
+const r=seed(getTodayStr()+'catfortune'),f=fortunes[Math.floor(r()*fortunes.length)];
+const luckyNum=Math.floor(r()*99)+1;
 const el=document.getElementById('result');
-el.innerHTML=`<div class="card"><span class="paw" style="font-size:3em">🐾</span><h2>${f.t}</h2><p style="margin:15px 0;font-size:1.05em">${f.m}</p><hr style="border-color:rgba(255,180,100,.15);margin:15px 0"><p>💕 연애운: ${f.love}점 | 💰 금전운: ${f.money}점</p><p>💪 건강운: ${f.health}점 | 💼 직장운: ${f.work}점</p><br><p>🐾 <b>고양이의 조언:</b> ${f.adv}</p><p>🔢 <b>행운의 숫자:</b> ${Math.floor(r()*99)+1}</p></div><br><button onclick="document.getElementById('result').style.display='none';document.getElementById('cat').textContent='🐱';asking=false;document.getElementById('askBtn').disabled=false">다시 하기</button>`;
+while(el.firstChild)el.removeChild(el.firstChild);
+const card=document.createElement('div');card.className='card';
+const pawSpan=document.createElement('span');pawSpan.className='paw';pawSpan.style.fontSize='3em';pawSpan.textContent='🐾';card.appendChild(pawSpan);
+const h2=document.createElement('h2');h2.textContent=f.t;card.appendChild(h2);
+const mp=document.createElement('p');mp.style.cssText='margin:15px 0;font-size:1.05em';mp.textContent=f.m;card.appendChild(mp);
+const hr1=document.createElement('hr');hr1.style.cssText='border-color:rgba(255,180,100,.15);margin:15px 0';card.appendChild(hr1);
+const barsH=document.createElement('h3');barsH.style.cssText='margin-bottom:10px;font-size:.95em';barsH.textContent='📊 오늘의 운세';card.appendChild(barsH);
+[{label:'💕 연애운',val:f.love},{label:'💰 금전운',val:f.money},{label:'💪 건강운',val:f.health},{label:'💼 직장운',val:f.work}].forEach(item=>{card.appendChild(mkBar(item.label,item.val));});
+const hr2=document.createElement('hr');hr2.style.cssText='border-color:rgba(255,180,100,.15);margin:15px 0';card.appendChild(hr2);
+const advp=document.createElement('p');const advs=document.createElement('strong');advs.textContent='🐾 고양이의 조언: ';advp.appendChild(advs);advp.appendChild(document.createTextNode(f.adv));card.appendChild(advp);
+const luckp=document.createElement('p');const lucks=document.createElement('strong');lucks.textContent='🔢 행운의 숫자: ';luckp.appendChild(lucks);luckp.appendChild(document.createTextNode(String(luckyNum)));card.appendChild(luckp);
+el.appendChild(card);
+el.appendChild(document.createElement('br'));
+const btn2=document.createElement('button');btn2.textContent='다시 하기';btn2.onclick=()=>{el.style.display='none';document.getElementById('cat').textContent='🐱';asking=false;document.getElementById('askBtn').disabled=false;};el.appendChild(btn2);
 el.style.display='block';asking=false;document.getElementById('askBtn').disabled=false;el.scrollIntoView({behavior:'smooth'})}
 </script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 

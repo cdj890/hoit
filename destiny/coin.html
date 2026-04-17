@@ -34,6 +34,17 @@ const trigrams=[
 {k:'☲',n:'이(離)',c:'HTH',t:'🔥 밝음 - 불의 기운',m:'밝은 지혜가 빛나는 때입니다. 명석한 판단으로 좋은 결과를 얻을 수 있습니다.',love:75,money:82,health:70,work:85,adv:'직감을 믿고 밝은 마음을 유지하세요.'},
 {k:'☱',n:'태(兌)',c:'THH',t:'😊 기쁨 - 연못의 기운',m:'기쁨과 즐거움이 가득한 날입니다. 사교 활동에서 좋은 인연을 만날 수 있습니다.',love:90,money:72,health:78,work:70,adv:'웃음을 잃지 마세요. 즐거운 일이 생깁니다.'}
 ];
+function seed(str){var h=0;for(var i=0;i<str.length;i++){h=((h<<5)-h)+str.charCodeAt(i);h|=0;}return function(){h=h*16807%2147483647;return(h-1)/2147483646;};}
+function getTodayStr(){const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+function mkCoinBar(label,val,parentEl){
+  const row=document.createElement('div');row.style.cssText='margin:8px 0';
+  const lbl=document.createElement('div');lbl.style.cssText='display:flex;justify-content:space-between;font-size:.85em;margin-bottom:3px';
+  const lt=document.createElement('span');lt.textContent=label;const lv=document.createElement('span');lv.textContent=val+'점';lbl.appendChild(lt);lbl.appendChild(lv);row.appendChild(lbl);
+  const track=document.createElement('div');track.style.cssText='background:rgba(255,255,255,.1);border-radius:6px;height:10px;overflow:hidden';
+  const fill=document.createElement('div');fill.style.height='100%';fill.style.borderRadius='6px';fill.style.transition='width 1s ease';fill.style.width='0';
+  fill.style.background='linear-gradient(90deg,#e84040,#e8d030 50%,#30c830)';fill.style.backgroundSize='200% 100%';fill.style.backgroundPosition=(100-val)+'% 0';
+  track.appendChild(fill);row.appendChild(track);parentEl.appendChild(row);setTimeout(()=>{fill.style.width=val+'%';},80);
+}
 let flipping=false;
 function flipCoins(){
 if(flipping)return;flipping=true;
@@ -58,7 +69,19 @@ if(document.querySelectorAll('.coin.flipping').length===0&&results.length===3)se
 function showResult(combo){
 const tri=trigrams.find(t=>t.c===combo)||trigrams[0];
 const el=document.getElementById('result');
-el.innerHTML=`<div class="rbox"><div class="combo">${combo.split('').map(c=>c==='H'?'🟡':'⚫').join('')}</div><h2>${tri.k} ${tri.n}</h2><h3 style="color:#d4a832;margin:10px 0">${tri.t}</h3><p style="margin:15px 0;font-size:1.05em">${tri.m}</p><hr style="border-color:rgba(212,168,50,.2);margin:15px 0"><p>💕 연애운: ${tri.love}점 ${'★'.repeat(Math.round(tri.love/20))}${'☆'.repeat(5-Math.round(tri.love/20))}</p><p>💰 금전운: ${tri.money}점 ${'★'.repeat(Math.round(tri.money/20))}${'☆'.repeat(5-Math.round(tri.money/20))}</p><p>💪 건강운: ${tri.health}점 ${'★'.repeat(Math.round(tri.health/20))}${'☆'.repeat(5-Math.round(tri.health/20))}</p><p>💼 직장운: ${tri.work}점 ${'★'.repeat(Math.round(tri.work/20))}${'☆'.repeat(5-Math.round(tri.work/20))}</p><hr style="border-color:rgba(212,168,50,.2);margin:15px 0"><p>💡 <b>조언:</b> ${tri.adv}</p></div><br><button onclick="document.getElementById('result').style.display='none';for(let i=0;i<3;i++){let e=document.getElementById('c'+i);e.className='coin unknown';e.textContent='?'}">다시 하기</button>`;
+while(el.firstChild)el.removeChild(el.firstChild);
+const rbox=document.createElement('div');rbox.className='rbox';
+const comboDiv=document.createElement('div');comboDiv.className='combo';comboDiv.textContent=combo.split('').map(c=>c==='H'?'🟡':'⚫').join('');rbox.appendChild(comboDiv);
+const h2=document.createElement('h2');h2.textContent=tri.k+' '+tri.n;rbox.appendChild(h2);
+const h3=document.createElement('h3');h3.style.cssText='color:#d4a832;margin:10px 0';h3.textContent=tri.t;rbox.appendChild(h3);
+const mp=document.createElement('p');mp.style.cssText='margin:15px 0;font-size:1.05em';mp.textContent=tri.m;rbox.appendChild(mp);
+const hr1=document.createElement('hr');hr1.style.cssText='border-color:rgba(212,168,50,.2);margin:15px 0';rbox.appendChild(hr1);
+const barsH=document.createElement('h3');barsH.style.cssText='margin-bottom:10px;font-size:.95em';barsH.textContent='📊 오늘의 운세';rbox.appendChild(barsH);
+[{label:'💕 연애운',val:tri.love},{label:'💰 금전운',val:tri.money},{label:'💪 건강운',val:tri.health},{label:'💼 직장운',val:tri.work}].forEach(item=>{mkCoinBar(item.label,item.val,rbox);});
+const hr2=document.createElement('hr');hr2.style.cssText='border-color:rgba(212,168,50,.2);margin:15px 0';rbox.appendChild(hr2);
+const advp=document.createElement('p');const advs=document.createElement('strong');advs.textContent='💡 조언: ';advp.appendChild(advs);advp.appendChild(document.createTextNode(tri.adv));rbox.appendChild(advp);
+el.appendChild(rbox);el.appendChild(document.createElement('br'));
+const btn2=document.createElement('button');btn2.textContent='다시 하기';btn2.onclick=()=>{el.style.display='none';for(let i=0;i<3;i++){let e=document.getElementById('c'+i);e.className='coin unknown';e.textContent='?'}};el.appendChild(btn2);
 el.style.display='block';el.scrollIntoView({behavior:'smooth'});flipping=false;document.getElementById('flipBtn').disabled=false;}
 </script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 

@@ -38,25 +38,33 @@ function _copyFallback(text,btn){
 <div class="wrap" id="app"></div>
 <script>
 const MONTHS=[
-  {m:1,name:'송학',flower:'🌸',emoji:'🏔️',desc:'소나무와 학',fortune:'새로운 시작의 기운! 높은 이상을 향해 나아가세요. 학처럼 우아하게, 소나무처럼 꿋꿋하게.',love:'고귀한 인연이 찾아올 수 있어요',money:'장기 투자에 유리',lucky:'동쪽 방향'},
-  {m:2,name:'매조',flower:'🌺',emoji:'🐦',desc:'매화와 꾀꼬리',fortune:'봄의 기운처럼 새로운 기회가 다가옵니다. 적극적으로 움직이세요!',love:'달콤한 사랑의 시작',money:'작은 수입이 모여 큰 부로',lucky:'남쪽 방향'},
-  {m:3,name:'벚꽃',flower:'🌸',emoji:'🎌',desc:'벚꽃과 막',fortune:'화려하지만 짧은 기회! 지금 이 순간을 잡으세요. 망설이면 흩어져요.',love:'짧지만 강렬한 만남',money:'한 번의 큰 기회가 온다',lucky:'서쪽 방향'},
-  {m:4,name:'등나무',flower:'💐',emoji:'🐦',desc:'등나무와 두견새',fortune:'인내의 시기. 등나무처럼 천천히 올라가세요. 기다림이 결실을 맺습니다.',love:'기다리면 좋은 인연이',money:'절약이 곧 재산',lucky:'북쪽 방향'},
-  {m:5,name:'난초',flower:'🌿',emoji:'🌉',desc:'난초와 다리',fortune:'다리가 이어지듯 좋은 인연이 연결됩니다. 소통을 중시하세요.',love:'소울메이트를 만날 수 있어요',money:'협업으로 큰 수익',lucky:'중앙'},
-  {m:6,name:'모란',flower:'🌹',emoji:'🦋',desc:'모란과 나비',fortune:'부귀영화의 상징! 큰 행운이 찾아올 수 있어요. 자신감을 가지세요.',love:'화려하고 로맨틱한 사랑',money:'큰 재물운! 적극적으로',lucky:'동남쪽'},
-  {m:7,name:'홍싸리',flower:'🌾',emoji:'🐗',desc:'싸리와 멧돼지',fortune:'돌진하는 기운! 목표를 정했으면 주저하지 마세요.',love:'직진 사랑이 통해요',money:'과감한 투자가 유리',lucky:'남서쪽'},
-  {m:8,name:'공산',flower:'🌕',emoji:'🦢',desc:'억새와 기러기',fortune:'보름달처럼 둥근 완성의 기운. 하던 일이 마무리됩니다.',love:'완성된 사랑, 깊은 신뢰',money:'안정적인 수입',lucky:'서북쪽'},
-  {m:9,name:'국진',flower:'🌼',emoji:'🍶',desc:'국화와 술잔',fortune:'풍류와 여유의 기운. 쉬어가며 즐기세요. 인생은 마라톤입니다.',love:'여유로운 만남이 좋아요',money:'부업이나 취미가 수익으로',lucky:'동북쪽'},
-  {m:10,name:'단풍',flower:'🍁',emoji:'🦌',desc:'단풍과 사슴',fortune:'변화의 시기. 단풍처럼 아름다운 변화를 받아들이세요.',love:'관계의 전환점',money:'변화 속에 기회가',lucky:'서쪽'},
-  {m:11,name:'오동',flower:'🍂',emoji:'🐓',desc:'오동나무와 봉황',fortune:'봉황이 오동나무에 앉듯, 준비된 자에게 기회가! 실력을 갈고닦으세요.',love:'운명적 만남의 가능성',money:'준비한 만큼의 보상',lucky:'남쪽'},
-  {m:12,name:'비',flower:'🌧️',emoji:'⛩️',desc:'비와 대감',fortune:'비 온 뒤 땅이 굳는다! 힘든 시기가 지나고 단단해집니다.',love:'시련 후 더 강한 사랑',money:'어려움 뒤 큰 보상',lucky:'북쪽'},
+  {m:1,name:'송학',flower:'🌸',emoji:'🏔️',desc:'소나무와 학',fortune:'새로운 시작의 기운! 높은 이상을 향해 나아가세요. 학처럼 우아하게, 소나무처럼 꿋꿋하게.',love:'고귀한 인연이 찾아올 수 있어요',money:'장기 투자에 유리',lucky:'동쪽 방향',loveScore:78,moneyScore:72,healthScore:80,workScore:88},
+  {m:2,name:'매조',flower:'🌺',emoji:'🐦',desc:'매화와 꾀꼬리',fortune:'봄의 기운처럼 새로운 기회가 다가옵니다. 적극적으로 움직이세요!',love:'달콤한 사랑의 시작',money:'작은 수입이 모여 큰 부로',lucky:'남쪽 방향',loveScore:88,moneyScore:75,healthScore:78,workScore:80},
+  {m:3,name:'벚꽃',flower:'🌸',emoji:'🎌',desc:'벚꽃과 막',fortune:'화려하지만 짧은 기회! 지금 이 순간을 잡으세요. 망설이면 흩어져요.',love:'짧지만 강렬한 만남',money:'한 번의 큰 기회가 온다',lucky:'서쪽 방향',loveScore:90,moneyScore:80,healthScore:72,workScore:75},
+  {m:4,name:'등나무',flower:'💐',emoji:'🐦',desc:'등나무와 두견새',fortune:'인내의 시기. 등나무처럼 천천히 올라가세요. 기다림이 결실을 맺습니다.',love:'기다리면 좋은 인연이',money:'절약이 곧 재산',lucky:'북쪽 방향',loveScore:65,moneyScore:68,healthScore:75,workScore:72},
+  {m:5,name:'난초',flower:'🌿',emoji:'🌉',desc:'난초와 다리',fortune:'다리가 이어지듯 좋은 인연이 연결됩니다. 소통을 중시하세요.',love:'소울메이트를 만날 수 있어요',money:'협업으로 큰 수익',lucky:'중앙',loveScore:85,moneyScore:82,healthScore:78,workScore:80},
+  {m:6,name:'모란',flower:'🌹',emoji:'🦋',desc:'모란과 나비',fortune:'부귀영화의 상징! 큰 행운이 찾아올 수 있어요. 자신감을 가지세요.',love:'화려하고 로맨틱한 사랑',money:'큰 재물운! 적극적으로',lucky:'동남쪽',loveScore:92,moneyScore:90,healthScore:75,workScore:82},
+  {m:7,name:'홍싸리',flower:'🌾',emoji:'🐗',desc:'싸리와 멧돼지',fortune:'돌진하는 기운! 목표를 정했으면 주저하지 마세요.',love:'직진 사랑이 통해요',money:'과감한 투자가 유리',lucky:'남서쪽',loveScore:75,moneyScore:78,healthScore:70,workScore:88},
+  {m:8,name:'공산',flower:'🌕',emoji:'🦢',desc:'억새와 기러기',fortune:'보름달처럼 둥근 완성의 기운. 하던 일이 마무리됩니다.',love:'완성된 사랑, 깊은 신뢰',money:'안정적인 수입',lucky:'서북쪽',loveScore:82,moneyScore:80,healthScore:82,workScore:78},
+  {m:9,name:'국진',flower:'🌼',emoji:'🍶',desc:'국화와 술잔',fortune:'풍류와 여유의 기운. 쉬어가며 즐기세요. 인생은 마라톤입니다.',love:'여유로운 만남이 좋아요',money:'부업이나 취미가 수익으로',lucky:'동북쪽',loveScore:72,moneyScore:75,healthScore:85,workScore:70},
+  {m:10,name:'단풍',flower:'🍁',emoji:'🦌',desc:'단풍과 사슴',fortune:'변화의 시기. 단풍처럼 아름다운 변화를 받아들이세요.',love:'관계의 전환점',money:'변화 속에 기회가',lucky:'서쪽',loveScore:70,moneyScore:72,healthScore:78,workScore:82},
+  {m:11,name:'오동',flower:'🍂',emoji:'🐓',desc:'오동나무와 봉황',fortune:'봉황이 오동나무에 앉듯, 준비된 자에게 기회가! 실력을 갈고닦으세요.',love:'운명적 만남의 가능성',money:'준비한 만큼의 보상',lucky:'남쪽',loveScore:80,moneyScore:85,healthScore:72,workScore:90},
+  {m:12,name:'비',flower:'🌧️',emoji:'⛩️',desc:'비와 대감',fortune:'비 온 뒤 땅이 굳는다! 힘든 시기가 지나고 단단해집니다.',love:'시련 후 더 강한 사랑',money:'어려움 뒤 큰 보상',lucky:'북쪽',loveScore:68,moneyScore:70,healthScore:75,workScore:75},
 ];
 
+function seed(str){var h=0;for(var i=0;i<str.length;i++){h=((h<<5)-h)+str.charCodeAt(i);h|=0;}return function(){h=h*16807%2147483647;return(h-1)/2147483646;};}
+function getTodayStr(){const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+function seededShuffle(arr){
+  const r=seed(getTodayStr()+'hwatu');
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
 let picked=[];
 
 function show(){
   picked=[];
-  const shuffled=[...Array(12).keys()].sort(()=>Math.random()-0.5);
+  const shuffled=seededShuffle([...Array(12).keys()]);
   document.getElementById('app').innerHTML=`
     <h1>🎴 화투 운세</h1>
     <p class="sub">마음을 가다듬고 3장의 화투를 뽑아주세요</p>
@@ -80,28 +88,41 @@ function pick(i,el){
   if(picked.length===3)setTimeout(showResult,750);
 }
 
+function mkHwaBar(label,val,parentEl){
+  const row=document.createElement('div');row.style.cssText='margin:6px 0';
+  const lbl=document.createElement('div');lbl.style.cssText='display:flex;justify-content:space-between;font-size:12px;margin-bottom:2px';
+  const lt=document.createElement('span');lt.textContent=label;const lv=document.createElement('span');lv.textContent=val+'점';lbl.appendChild(lt);lbl.appendChild(lv);row.appendChild(lbl);
+  const track=document.createElement('div');track.style.cssText='background:rgba(255,255,255,.1);border-radius:5px;height:8px;overflow:hidden';
+  const fill=document.createElement('div');fill.style.height='100%';fill.style.borderRadius='5px';fill.style.transition='width 1s ease';fill.style.width='0';
+  fill.style.background='linear-gradient(90deg,#e84040,#e8d030 50%,#30c830)';fill.style.backgroundSize='200% 100%';fill.style.backgroundPosition=(100-val)+'% 0';
+  track.appendChild(fill);row.appendChild(track);parentEl.appendChild(row);setTimeout(()=>{fill.style.width=val+'%';},80);
+}
 function showResult(){
   const labels=['첫째 패: 현재 상황','둘째 패: 조언','셋째 패: 미래 전망'];
-  let html=`<h1>🎴 화투 운세 결과</h1><p class="sub" style="margin-bottom:15px">세 장의 화투가 전하는 메시지</p>`;
+  const app=document.getElementById('app');
+  while(app.firstChild)app.removeChild(app.firstChild);
+  const h1=document.createElement('h1');h1.textContent='🎴 화투 운세 결과';app.appendChild(h1);
+  const sub=document.createElement('p');sub.className='sub';sub.style.marginBottom='15px';sub.textContent='세 장의 화투가 전하는 메시지';app.appendChild(sub);
   picked.forEach((idx,i)=>{
     const m=MONTHS[idx];
-    html+=`<div class="result" style="margin-bottom:12px;animation-delay:${i*0.15}s">
-      <div style="color:#B8860B;font-size:12px;margin-bottom:6px">${labels[i]}</div>
-      <div style="display:flex;gap:12px;align-items:center">
-        <div style="font-size:40px">${m.flower}${m.emoji}</div>
-        <div><div style="font-size:18px;font-weight:bold;color:#FFD700">${m.m}월 ${m.name}</div>
-        <div style="color:#888;font-size:12px">${m.desc}</div></div>
-      </div>
-      <p style="color:#ccc;font-size:14px;line-height:1.7;margin-top:10px">${m.fortune}</p>
-      <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
-        <span style="background:#252545;padding:4px 10px;border-radius:6px;font-size:11px">💕 ${m.love}</span>
-        <span style="background:#252545;padding:4px 10px;border-radius:6px;font-size:11px">💰 ${m.money}</span>
-        <span style="background:#252545;padding:4px 10px;border-radius:6px;font-size:11px">🧭 행운방향: ${m.lucky}</span>
-      </div>
-    </div>`;
+    const card=document.createElement('div');card.className='result';card.style.cssText='margin-bottom:12px;animation-delay:'+(i*0.15)+'s';
+    const labelDiv=document.createElement('div');labelDiv.style.cssText='color:#B8860B;font-size:12px;margin-bottom:6px';labelDiv.textContent=labels[i];card.appendChild(labelDiv);
+    const row=document.createElement('div');row.style.cssText='display:flex;gap:12px;align-items:center';
+    const flowerDiv=document.createElement('div');flowerDiv.style.fontSize='40px';flowerDiv.textContent=m.flower+m.emoji;row.appendChild(flowerDiv);
+    const infoDiv=document.createElement('div');
+    const nameDiv=document.createElement('div');nameDiv.style.cssText='font-size:18px;font-weight:bold;color:#FFD700';nameDiv.textContent=m.m+'월 '+m.name;infoDiv.appendChild(nameDiv);
+    const descDiv=document.createElement('div');descDiv.style.cssText='color:#888;font-size:12px';descDiv.textContent=m.desc;infoDiv.appendChild(descDiv);
+    row.appendChild(infoDiv);card.appendChild(row);
+    const fortuneP=document.createElement('p');fortuneP.style.cssText='color:#ccc;font-size:14px;line-height:1.7;margin-top:10px';fortuneP.textContent=m.fortune;card.appendChild(fortuneP);
+    const scoreDiv=document.createElement('div');scoreDiv.style.cssText='margin-top:10px';
+    const scoreTitle=document.createElement('div');scoreTitle.style.cssText='font-size:12px;color:#FFD700;margin-bottom:4px';scoreTitle.textContent='📊 운세 점수';scoreDiv.appendChild(scoreTitle);
+    mkHwaBar('💕 연애운',m.loveScore,scoreDiv);mkHwaBar('💰 금전운',m.moneyScore,scoreDiv);mkHwaBar('💪 건강운',m.healthScore,scoreDiv);mkHwaBar('💼 직장운',m.workScore,scoreDiv);
+    card.appendChild(scoreDiv);
+    const tagsDiv=document.createElement('div');tagsDiv.style.cssText='display:flex;gap:8px;margin-top:8px;flex-wrap:wrap';
+    [{text:'💕 '+m.love},{text:'💰 '+m.money},{text:'🧭 행운방향: '+m.lucky}].forEach(t=>{const sp=document.createElement('span');sp.style.cssText='background:#252545;padding:4px 10px;border-radius:6px;font-size:11px';sp.textContent=t.text;tagsDiv.appendChild(sp);});
+    card.appendChild(tagsDiv);app.appendChild(card);
   });
-  html+=`<button class="btn" onclick="show()">다시 뽑기</button>`;
-  document.getElementById('app').innerHTML=html;
+  const btn=document.createElement('button');btn.className='btn';btn.textContent='다시 뽑기';btn.onclick=show;app.appendChild(btn);
 }
 show();
 </script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
