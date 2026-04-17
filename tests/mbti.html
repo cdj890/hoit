@@ -222,6 +222,7 @@ function showResult(){
       <div class="share-row">
         <div class="share-btn2" onclick="_copy('나의 MBTI: ${type} (${info.title}) ${info.emoji}',this)">📋 결과 복사</div>
         <div class="share-btn2" onclick="_copy(location.href,this)">🔗 링크 공유</div>
+        <div class="share-btn2" id="compareLinkBtn" onclick="_compareGenLink({type:'${type}',label:'${info.title}',emoji:'${info.emoji}'},this)">🔗 비교 링크 생성</div>
         <div class="share-btn2" onclick="_saveResultImage({testName:'MBTI 성격유형 테스트',resultType:'${type} ${info.title}',emoji:'${info.emoji}',desc:'${info.desc.replace(/'/g,String.fromCharCode(39))}',accentColor:'#7B68EE',filename:'mbti_${type}'})">📸 결과 이미지 저장</div>
       </div>
       <button class="btn" onclick="cur=0;answers={EI:0,SN:0,TF:0,JP:0};window._started=false;render()">다시 하기</button>
@@ -231,7 +232,31 @@ function showResult(){
       </div>
     </div>`;
 }
+/* 친구 결과 표시 */
+function _renderFriendMbti(data){
+  var existing=document.getElementById('friendResultBox');
+  if(existing)existing.parentNode.removeChild(existing);
+  var box=document.createElement('div');
+  box.id='friendResultBox';
+  box.style.cssText='background:#1a2a3a;border:2px solid #FFD700;border-radius:14px;padding:16px;margin-bottom:18px;text-align:center;max-width:500px;width:100%';
+  var title=document.createElement('div');
+  title.style.cssText='color:#FFD700;font-size:13px;font-weight:bold;margin-bottom:8px';
+  title.textContent='친구의 결과';
+  var emoji=document.createElement('div');
+  emoji.style.cssText='font-size:36px;margin:4px 0';
+  emoji.textContent=data.emoji||'';
+  var typeEl=document.createElement('div');
+  typeEl.style.cssText='font-size:22px;color:#FFD700;font-weight:bold';
+  typeEl.textContent=data.type||'';
+  var labelEl=document.createElement('div');
+  labelEl.style.cssText='color:#aaa;font-size:14px;margin-top:4px';
+  labelEl.textContent=data.label||'';
+  box.appendChild(title);box.appendChild(emoji);box.appendChild(typeEl);box.appendChild(labelEl);
+  var app=document.getElementById('app');
+  app.insertBefore(box,app.firstChild);
+}
 render();
+_compareCheckHash(_renderFriendMbti);
 </script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 
 <style>
@@ -270,4 +295,5 @@ render();
 <script src="../js/recommend.js"></script>
 <script src="../js/share.js"></script>
 <script src="../js/save-image.js"></script>
+<script src="../js/compare.js"></script>
 </body></html>

@@ -91,6 +91,7 @@ function setG(g){
       localStorage.setItem('hoit_tool_alcohol',JSON.stringify(d));
     });
   });
+  document.addEventListener('keydown',function(e){if(e.key==='Enter'&&document.activeElement&&['INPUT','SELECT'].includes(document.activeElement.tagName))calc();});
 })();
 function calc(){
   const w=parseFloat(document.getElementById('weight').value)||70;

@@ -83,6 +83,7 @@ function calc(){
     });
   });
   renderBmiHistory();
+  document.addEventListener('keydown',function(e){if(e.key==='Enter'&&document.activeElement&&['INPUT','SELECT'].includes(document.activeElement.tagName))calc();});
 })();
 </script></div><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 

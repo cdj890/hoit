@@ -174,6 +174,7 @@ fetchRates();
       localStorage.setItem(KEY,JSON.stringify(d));
     });
   });
+  document.addEventListener('keydown',function(e){if(e.key==='Enter'&&document.activeElement&&['INPUT','SELECT'].includes(document.activeElement.tagName))calc();});
 })();
 
 // 히스토리

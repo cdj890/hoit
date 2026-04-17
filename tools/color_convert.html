@@ -40,6 +40,11 @@ function hue2rgb(p,q,t){if(t<0)t+=1;if(t>1)t-=1;if(t<1/6)return p+(q-p)*6*t;if(t
     document.getElementById('preview').style.background=saved.hex;
     document.getElementById('picker').value=saved.hex;
   }
+  document.addEventListener('keydown',function(e){
+    if(e.key!=='Enter'||!document.activeElement||document.activeElement.tagName!=='INPUT')return;
+    var id=document.activeElement.id;
+    if(id==='hex')fromHex();else if(id==='rgb')fromRgb();else if(id==='hsl')fromHsl();
+  });
 })();
 </script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 

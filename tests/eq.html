@@ -76,6 +76,7 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 <button class="share-btn share-copy" onclick="copyResult()">결과 복사</button>
 <button class="share-btn share-other" onclick="location.href='brain.html'">좌뇌우뇌 테스트</button>
 <button class="share-btn share-other" onclick="location.href='disc.html'">DISC 테스트</button>
+<button class="share-btn share-other" id="eqCompareBtn">🔗 비교 링크 생성</button>
 <button class="share-btn share-other" onclick="saveEqImage()">📸 이미지 저장</button>
 </div>
 <button class="btn start-btn" onclick="location.reload()">다시 하기</button>
@@ -126,7 +127,24 @@ else if(score>=60){emoji='😊';type='감성 우수';desc='꽤 높은 감성지�
 else if(score>=40){emoji='🙂';type='감성 보통';desc='평균적인 감성지능 수준입니다. 감정을 인식하는 능력은 있지만, 조절과 표현에서 개선의 여지가 있어요. 타인의 감정에 좀 더 관심을 가져보세요.';}
 else{emoji='💪';type='감성 성장 중';desc='감성지능을 키울 여지가 많아요! 자신의 감정을 일기로 기록하고, 상대방의 입장에서 생각하는 연습을 해보세요. 작은 노력이 큰 변화를 만들어요.';}
 document.getElementById('rEmoji').textContent=emoji;document.getElementById('rType').textContent=type+' ('+score+'점)';document.getElementById('rDesc').textContent=desc;
-localStorage.setItem('eq_result',JSON.stringify({score:score,type:type,date:new Date().toLocaleDateString('ko-KR')}));}
+localStorage.setItem('eq_result',JSON.stringify({score:score,type:type,date:new Date().toLocaleDateString('ko-KR')}));
+var eqCompBtn=document.getElementById('eqCompareBtn');
+if(eqCompBtn){eqCompBtn.onclick=function(){_compareGenLink({type:type,label:score+'점',emoji:emoji},eqCompBtn);};}
+}
+function _renderFriendEq(data){
+  var existing=document.getElementById('friendResultBox');
+  if(existing)existing.parentNode.removeChild(existing);
+  var box=document.createElement('div');
+  box.id='friendResultBox';
+  box.style.cssText='background:#1a2a3a;border:2px solid #fdcb6e;border-radius:14px;padding:16px;margin-bottom:18px;text-align:center';
+  var title=document.createElement('div');title.style.cssText='color:#FFD700;font-size:13px;font-weight:bold;margin-bottom:8px';title.textContent='친구의 결과';
+  var emoji=document.createElement('div');emoji.style.cssText='font-size:36px;margin:4px 0';emoji.textContent=data.emoji||'';
+  var typeEl=document.createElement('div');typeEl.style.cssText='font-size:16px;color:#fdcb6e;font-weight:bold';typeEl.textContent=data.type||'';
+  var labelEl=document.createElement('div');labelEl.style.cssText='color:#aaa;font-size:13px;margin-top:4px';labelEl.textContent=data.label||'';
+  box.appendChild(title);box.appendChild(emoji);box.appendChild(typeEl);box.appendChild(labelEl);
+  var card=document.querySelector('.card');
+  if(card)card.insertBefore(box,card.firstChild);
+}
 function copyResult(){const t=document.getElementById('rType').textContent+'\n'+document.getElementById('rPercentile').textContent;_copy('[EQ 테스트 결과]\n'+t,document.querySelector('.share-btn'));}
 function saveEqImage(){const rType=document.getElementById('rType');const rDesc=document.getElementById('rDesc');const rEmoji=document.getElementById('rEmoji');const rPct=document.getElementById('rPercentile');if(!rType||!rDesc)return;_saveResultImage({testName:'감성지능(EQ) 테스트',resultType:rType.textContent,emoji:rEmoji?rEmoji.textContent:'💛',desc:rPct?rPct.textContent:rDesc.textContent,accentColor:'#fdcb6e',filename:'eq_result'});}
 (function(){const p=localStorage.getItem('eq_result');if(p){try{const d=JSON.parse(p);document.getElementById('prevResult').innerHTML='<div class="prev-result">이전 결과: '+d.type+' - '+d.score+'점 ('+d.date+')</div>';}catch(e){}}})();
@@ -168,4 +186,6 @@ function saveEqImage(){const rType=document.getElementById('rType');const rDesc=
 <script src="../js/recommend.js"></script>
 <script src="../js/share.js"></script>
 <script src="../js/save-image.js"></script>
+<script src="../js/compare.js"></script>
+<script>_compareCheckHash(_renderFriendEq);</script>
 </body></html>

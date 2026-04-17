@@ -72,6 +72,7 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 <button class="share-btn share-copy" onclick="copyResult()">결과 복사</button>
 <button class="share-btn share-other" onclick="location.href='disc.html'">DISC 테스트</button>
 <button class="share-btn share-other" onclick="location.href='eq.html'">EQ 테스트</button>
+<button class="share-btn share-other" id="careerCompareBtn">🔗 비교 링크 생성</button>
 <button class="share-btn share-other" onclick="saveCareerImage()">📸 이미지 저장</button>
 </div>
 <button class="btn start-btn" onclick="location.reload()">다시 하기</button>
@@ -117,7 +118,24 @@ function showResult(){const top=Object.entries(scores).sort((a,b)=>b[1]-a[1])[0]
 drawHexagon(scores);
 const salIcons=['','💰','💰💰','💰💰💰','💰💰💰💰'];const detailEl=document.getElementById('rCareersDetail');detailEl.innerHTML='';r.careers.forEach(c=>{detailEl.innerHTML+='<div class="career-item"><div class="career-name">'+c.name+'</div><div class="career-desc">'+c.desc+'</div><div class="career-salary">연봉 수준: '+salIcons[c.sal]+'</div></div>';});
 document.getElementById('rMajors').innerHTML='<strong>추천 학과/전공:</strong><br>'+r.majors.split(', ').map(m=>'• '+m).join('<br>');
-localStorage.setItem('career_result',JSON.stringify({type:r.n,emoji:r.e,date:new Date().toLocaleDateString('ko-KR')}));}
+localStorage.setItem('career_result',JSON.stringify({type:r.n,emoji:r.e,date:new Date().toLocaleDateString('ko-KR')}));
+var careerCompBtn=document.getElementById('careerCompareBtn');
+if(careerCompBtn){careerCompBtn.onclick=function(){_compareGenLink({type:r.n,label:r.d.slice(0,20),emoji:r.e},careerCompBtn);};}
+}
+function _renderFriendCareer(data){
+  var existing=document.getElementById('friendResultBox');
+  if(existing)existing.parentNode.removeChild(existing);
+  var box=document.createElement('div');
+  box.id='friendResultBox';
+  box.style.cssText='background:#1a2a3a;border:2px solid #fd79a8;border-radius:14px;padding:16px;margin-bottom:18px;text-align:center';
+  var title=document.createElement('div');title.style.cssText='color:#FFD700;font-size:13px;font-weight:bold;margin-bottom:8px';title.textContent='친구의 결과';
+  var emoji=document.createElement('div');emoji.style.cssText='font-size:36px;margin:4px 0';emoji.textContent=data.emoji||'';
+  var typeEl=document.createElement('div');typeEl.style.cssText='font-size:16px;color:#fd79a8;font-weight:bold';typeEl.textContent=data.type||'';
+  var labelEl=document.createElement('div');labelEl.style.cssText='color:#aaa;font-size:13px;margin-top:4px';labelEl.textContent=data.label||'';
+  box.appendChild(title);box.appendChild(emoji);box.appendChild(typeEl);box.appendChild(labelEl);
+  var card=document.querySelector('.card');
+  if(card)card.insertBefore(box,card.firstChild);
+}
 function copyResult(){const t=document.getElementById('rType').textContent+'\n'+document.getElementById('rDesc').textContent;_copy('[직업 적성 테스트 결과]\n'+t,document.querySelector('.share-btn'));}
 function saveCareerImage(){const rType=document.getElementById('rType');const rDesc=document.getElementById('rDesc');const rEmoji=document.getElementById('rEmoji');if(!rType||!rDesc)return;_saveResultImage({testName:'직업 적성 테스트',resultType:rType.textContent,emoji:rEmoji?rEmoji.textContent:'💼',desc:rDesc.textContent,accentColor:'#fd79a8',filename:'career_result'});}
 (function(){const p=localStorage.getItem('career_result');if(p){try{const d=JSON.parse(p);document.getElementById('prevResult').innerHTML='<div class="prev-result">이전 결과: '+d.emoji+' '+d.type+' ('+d.date+')</div>';}catch(e){}}})();
@@ -159,4 +177,6 @@ function saveCareerImage(){const rType=document.getElementById('rType');const rD
 <script src="../js/recommend.js"></script>
 <script src="../js/share.js"></script>
 <script src="../js/save-image.js"></script>
+<script src="../js/compare.js"></script>
+<script>_compareCheckHash(_renderFriendCareer);</script>
 </body></html>

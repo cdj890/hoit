@@ -31,6 +31,9 @@ h1{font-size:1.5rem;margin-bottom:12px}
 .btn-dont{background:#ff4081;color:#fff}
 .btn-next{background:#333;color:#ccc}
 .stats{font-size:.85rem;color:#aaa;margin-top:16px}
+.review-mode-banner{background:linear-gradient(135deg,#ff4081,#7B68EE);border-radius:10px;padding:10px 16px;margin-bottom:12px;text-align:center;font-size:.85rem;font-weight:bold;width:100%;max-width:440px}
+.btn-review{background:linear-gradient(135deg,#7B68EE,#00CED1);color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:.9rem;font-weight:bold;cursor:pointer;min-height:44px;touch-action:manipulation;margin-top:10px}
+.btn-review.active{background:linear-gradient(135deg,#ff4081,#FF6B6B)}
 </style>
 </head>
 <body>
@@ -57,7 +60,8 @@ h1{font-size:1.5rem;margin-bottom:12px}
 <button class="btn-know" onclick="markKnow()">알고 있어요</button>
 </div>
 <div class="stats" id="stats"></div>
-<button onclick="resetProgress()" style="margin-top:12px;background:none;border:1px solid #444;color:#666;padding:8px 18px;border-radius:8px;font-size:.8rem;cursor:pointer;min-height:36px">학습 초기화</button>
+<button class="btn-review" id="reviewBtn" onclick="toggleReviewMode()">복습 모드</button>
+<button onclick="resetProgress()" style="margin-top:8px;background:none;border:1px solid #444;color:#666;padding:8px 18px;border-radius:8px;font-size:.8rem;cursor:pointer;min-height:36px">학습 초기화</button>
 
 <script>
 const allWords={
@@ -117,6 +121,7 @@ const allWords={
 };
 const LS_KEY='hoit_learn_english';
 let level='초급',words=[],idx=0,known=new Set(),flipped=false;
+let reviewMode=false,reviewWords=[],reviewIdx=0,reviewKnown=new Set();
 
 function saveProgress(){
   try{
@@ -158,8 +163,56 @@ document.getElementById('meanEl').textContent=words[idx][1];
 updateProg();
 }
 function flipCard(){flipped=!flipped;document.getElementById('cardInner').classList.toggle('flipped')}
-function markKnow(){known.add(idx);idx++;saveProgress();showCard()}
-function markDont(){idx++;saveProgress();showCard()}
+function markKnow(){
+  if(reviewMode){reviewKnown.add(reviewIdx);reviewIdx++;showReviewCard();return;}
+  known.add(idx);idx++;saveProgress();showCard();
+}
+function markDont(){
+  if(reviewMode){reviewIdx++;showReviewCard();return;}
+  idx++;saveProgress();showCard();
+}
+
+function toggleReviewMode(){
+  if(reviewMode){
+    reviewMode=false;
+    document.getElementById('reviewBtn').textContent='복습 모드';
+    document.getElementById('reviewBtn').classList.remove('active');
+    var banner=document.getElementById('reviewBanner');if(banner)banner.parentNode.removeChild(banner);
+    showCard();return;
+  }
+  const saved=loadProgress();
+  const knownWords=new Set(saved&&saved.known?saved.known:[]);
+  reviewWords=allWords[level].filter(w=>!knownWords.has(w[0]));
+  if(reviewWords.length===0){
+    alert('모든 단어를 알고 있습니다!');return;
+  }
+  reviewMode=true;reviewIdx=0;reviewKnown=new Set();
+  document.getElementById('reviewBtn').textContent='복습 모드 종료';
+  document.getElementById('reviewBtn').classList.add('active');
+  var existing=document.getElementById('reviewBanner');if(existing)existing.parentNode.removeChild(existing);
+  var banner=document.createElement('div');
+  banner.id='reviewBanner';banner.className='review-mode-banner';
+  banner.textContent='복습 모드: 모르는 단어 '+reviewWords.length+'개';
+  document.querySelector('.progress-bar').parentNode.insertBefore(banner,document.querySelector('.progress-bar'));
+  showReviewCard();
+}
+function showReviewCard(){
+  if(reviewIdx>=reviewWords.length){
+    document.getElementById('wordEl').textContent='완료!';
+    document.getElementById('meanEl').textContent='복습 완료 ('+reviewKnown.size+'/'+reviewWords.length+'개 학습)';
+    flipped=false;document.getElementById('cardInner').classList.remove('flipped');
+    document.getElementById('progFill').style.width='100%';
+    document.getElementById('progText').textContent=reviewIdx+' / '+reviewWords.length;
+    document.getElementById('stats').textContent='이번 복습: '+reviewKnown.size+'개 학습 완료';
+    return;
+  }
+  flipped=false;document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('wordEl').textContent=reviewWords[reviewIdx][0];
+  document.getElementById('meanEl').textContent=reviewWords[reviewIdx][1];
+  document.getElementById('progFill').style.width=(reviewIdx/reviewWords.length*100)+'%';
+  document.getElementById('progText').textContent=(reviewIdx+1)+' / '+reviewWords.length;
+  document.getElementById('stats').textContent='복습 모드 | 완료: '+reviewKnown.size;
+}
 function updateProg(){
 const total=words.length;
 document.getElementById('progFill').style.width=(idx/total*100)+'%';

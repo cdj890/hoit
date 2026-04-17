@@ -78,6 +78,7 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 <button class="share-btn share-copy" onclick="copyResult()">결과 복사</button>
 <button class="share-btn share-other" onclick="location.href='eq.html'">EQ 테스트</button>
 <button class="share-btn share-other" onclick="location.href='career.html'">직업 적성</button>
+<button class="share-btn share-other" id="brainCompareBtn">🔗 비교 링크 생성</button>
 <button class="share-btn share-other" onclick="saveBrainImage()">📸 이미지 저장</button>
 </div>
 <button class="btn start-btn" onclick="location.reload()">다시 하기</button>
@@ -115,7 +116,26 @@ const sEl=document.getElementById('rStats');sEl.innerHTML='';stats.forEach(s=>{c
 if(lp>rp){document.getElementById('rEmoji').textContent='🔵';document.getElementById('rType').textContent='좌뇌 우세형 (논리적/분석적)';document.getElementById('rDesc').textContent='당신은 논리적이고 분석적인 좌뇌형! 체계적인 사고와 언어 능력이 뛰어나며, 데이터와 근거를 중시합니다. 계획적이고 꼼꼼한 성격으로 문제 해결 능력이 탁월해요.';}
 else if(rp>lp){document.getElementById('rEmoji').textContent='🔴';document.getElementById('rType').textContent='우뇌 우세형 (창의적/감성적)';document.getElementById('rDesc').textContent='당신은 창의적이고 감성적인 우뇌형! 상상력과 직관력이 뛰어나며, 예술적 감각이 넘칩니다. 자유로운 사고로 독창적인 아이디어를 잘 떠올려요.';}
 else{document.getElementById('rEmoji').textContent='🟣';document.getElementById('rType').textContent='균형형 (좌뇌 = 우뇌)';document.getElementById('rDesc').textContent='당신은 좌뇌와 우뇌가 균형 잡힌 타입! 논리와 감성을 모두 갖추고 있어 상황에 따라 유연하게 사고할 수 있습니다. 정말 멋진 능력이에요!';}
-localStorage.setItem('brain_result',JSON.stringify({left:lp,right:rp,date:new Date().toLocaleDateString('ko-KR')}));}
+localStorage.setItem('brain_result',JSON.stringify({left:lp,right:rp,date:new Date().toLocaleDateString('ko-KR')}));
+var brainCompBtn=document.getElementById('brainCompareBtn');
+var brainTypeText=document.getElementById('rType').textContent;
+var brainEmoji=document.getElementById('rEmoji').textContent;
+if(brainCompBtn){brainCompBtn.onclick=function(){_compareGenLink({type:brainTypeText,label:'좌뇌 '+lp+'% / 우뇌 '+rp+'%',emoji:brainEmoji},brainCompBtn);};}
+}
+function _renderFriendBrain(data){
+  var existing=document.getElementById('friendResultBox');
+  if(existing)existing.parentNode.removeChild(existing);
+  var box=document.createElement('div');
+  box.id='friendResultBox';
+  box.style.cssText='background:#1a2a3a;border:2px solid #55efc4;border-radius:14px;padding:16px;margin-bottom:18px;text-align:center';
+  var title=document.createElement('div');title.style.cssText='color:#FFD700;font-size:13px;font-weight:bold;margin-bottom:8px';title.textContent='친구의 결과';
+  var emoji=document.createElement('div');emoji.style.cssText='font-size:36px;margin:4px 0';emoji.textContent=data.emoji||'';
+  var typeEl=document.createElement('div');typeEl.style.cssText='font-size:15px;color:#55efc4;font-weight:bold';typeEl.textContent=data.type||'';
+  var labelEl=document.createElement('div');labelEl.style.cssText='color:#aaa;font-size:13px;margin-top:4px';labelEl.textContent=data.label||'';
+  box.appendChild(title);box.appendChild(emoji);box.appendChild(typeEl);box.appendChild(labelEl);
+  var card=document.querySelector('.card');
+  if(card)card.insertBefore(box,card.firstChild);
+}
 function copyResult(){const t=document.getElementById('rType').textContent+'\n'+document.getElementById('pctText').textContent;_copy('[좌뇌우뇌 테스트 결과]\n'+t,document.querySelector('.share-btn'));}
 function saveBrainImage(){const rType=document.getElementById('rType');const rDesc=document.getElementById('rDesc');const rEmoji=document.getElementById('rEmoji');const pctText=document.getElementById('pctText');if(!rType)return;_saveResultImage({testName:'좌뇌우뇌 테스트',resultType:rType.textContent,emoji:rEmoji?rEmoji.textContent:'🧠',desc:pctText?pctText.textContent:(rDesc?rDesc.textContent:''),accentColor:'#00b894',filename:'brain_result'});}
 (function(){const p=localStorage.getItem('brain_result');if(p){try{const d=JSON.parse(p);document.getElementById('prevResult').innerHTML='<div class="prev-result">이전 결과: 좌뇌 '+d.left+'% / 우뇌 '+d.right+'% ('+d.date+')</div>';}catch(e){}}})();
@@ -157,4 +177,6 @@ function saveBrainImage(){const rType=document.getElementById('rType');const rDe
 <script src="../js/recommend.js"></script>
 <script src="../js/share.js"></script>
 <script src="../js/save-image.js"></script>
+<script src="../js/compare.js"></script>
+<script>_compareCheckHash(_renderFriendBrain);</script>
 </body></html>
