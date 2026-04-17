@@ -13,7 +13,7 @@
 <link rel="canonical" href="https://hoit.me/tools/noise.html">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0f0f1e;color:#e0e0e0;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;flex-direction:column;justify-content:center}
+body{background:#0f0f1e;color:#e0e0e0;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;justify-content:center}
 .wrap{width:100%;max-width:500px;padding:60px 16px 30px}
 h1{text-align:center;font-size:22px;margin-bottom:20px;color:#fff}
 .sounds{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px}
@@ -22,12 +22,12 @@ h1{text-align:center;font-size:22px;margin-bottom:20px;color:#fff}
 .sound .icon{font-size:36px;margin-bottom:8px;display:block}
 .sound .name{font-size:14px;font-weight:600}
 label{font-size:14px;color:#aaa;display:block;margin:16px 0 8px}
-.vol-row{display:flex;flex-direction:column;align-items:center;gap:12px}
+.vol-row{display:flex;align-items:center;gap:12px}
 .vol-row input[type=range]{flex:1;height:8px;-webkit-appearance:none;background:#1a1a2e;border-radius:4px;outline:none}
 .vol-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:#6c5ce7;cursor:pointer}
 .vol-row span{min-width:40px;text-align:right;font-size:16px;color:#6c5ce7;font-weight:bold}
 .timer{margin-top:16px}
-.timer-btns{display:flex;flex-direction:column;gap:8px;flex-wrap:wrap}
+.timer-btns{display:flex;gap:8px;flex-wrap:wrap}
 .tbtn{padding:10px 16px;background:#1a1a2e;border:1px solid #333;color:#e0e0e0;border-radius:10px;font-size:14px;cursor:pointer;min-height:44px;touch-action:manipulation;font-weight:600}
 .tbtn.active{background:#6c5ce7;color:#fff;border-color:#6c5ce7}
 .timer-info{text-align:center;margin-top:12px;font-size:18px;color:#6c5ce7;font-weight:bold;min-height:26px}
@@ -35,7 +35,7 @@ label{font-size:14px;color:#aaa;display:block;margin:16px 0 8px}
 </style>
 </head>
 <body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
 <div class="wrap">
 <h1>백색소음 생성기</h1>
 <div class="sounds" id="sounds">
@@ -159,10 +159,42 @@ function stopAll(){
   nodes={};
 }
 </script>
-<section style="max-width:700px;margin:30px auto;padding:20px;background:#1a1a2e;border-radius:16px;border:1px solid #2a2a4a;color:#bbb;font-size:14px;line-height:1.8">
-<h2 style="color:#FFD700;font-size:18px;margin-bottom:10px">백색소음 생성기</h2>
-<p>빗소리, 파도 소리, 바람 소리 등 백색소음을 생성합니다. 집중, 수면, 명상에 활용하세요.</p>
-<p style="margin-top:10px;font-size:12px;color:#888">이 도구는 <a href="../index.html" style="color:#7DF">놀이터(hoit.me)</a>에서 무료로 제공됩니다.</p>
+<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+<style>
+.seo-content{max-width:700px;margin:40px auto 80px;padding:0 20px;color:#bbb;font-size:14px;line-height:1.8}
+.seo-content h2{color:#FFD700;font-size:20px;margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid #2a2a4a}
+.seo-content h3{color:#ddd;font-size:16px;margin:16px 0 8px}
+.seo-content p{margin:8px 0;color:#999}
+.seo-content ul{margin:8px 0 8px 20px;color:#999}
+.seo-content li{margin:4px 0}
+.seo-content .seo-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.seo-content .seo-tag{background:#1a1a2e;border:1px solid #2a2a4a;padding:4px 12px;border-radius:15px;font-size:12px;color:#888}
+.seo-content .seo-nav{margin-top:20px;padding-top:16px;border-top:1px solid #2a2a4a;text-align:center}
+.seo-content .seo-nav a{color:#666;text-decoration:none;font-size:12px;margin:0 10px}
+.seo-content .seo-nav a:hover{color:#FFD700}
+</style>
+<section class="seo-content" aria-label="백색소음 생성기 소개">
+<h2>백색소음 생성기</h2>
+<p>집중력 향상과 수면을 위한 백색소음(화이트 노이즈), 핑크 노이즈, 브라운 노이즈 등을 재생하는 도구입니다.</p>
+
+<h3>사용 방법</h3>
+<p>원하는 소음 유형을 선택하고 재생 버튼을 누르세요. 볼륨을 조절하여 편안한 환경을 만드세요.</p>
+
+<h3>팁</h3>
+<p>화이트 노이즈는 집중에, 핑크 노이즈는 수면에, 브라운 노이즈는 깊은 이완에 효과적입니다.</p>
+
+<div class="seo-tags"><span class="seo-tag">백색소음</span><span class="seo-tag">집중</span><span class="seo-tag">수면</span></div>
+
+<div class="seo-nav">
+<a href="../index.html">홈으로</a>
+<a href="../about.html">소개</a>
+<a href="../terms.html">이용약관</a>
+<a href="../privacy.html">개인정보처리방침</a>
+</div>
 </section>
-<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div></body>
+<script src="../js/catalog.js"></script>
+<script src="../js/recommend.js"></script>
+<script src="../js/share.js"></script>
+</body>
 </html>

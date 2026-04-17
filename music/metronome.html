@@ -6,20 +6,19 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 <title>메트로놈</title>
-<meta name="description" content="온라인 메트로놈으로 정확한 박자를 맞추세요. BPM 조절이 가능한 무료 웹 메트로놈입니다.">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;min-height:100vh;display:flex;flex-direction:column;flex-direction:column;align-items:center;padding:70px 16px 30px}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:70px 16px 30px}
 h1{font-size:1.6rem;margin-bottom:24px}
 .bpm-display{font-size:4rem;font-weight:bold;color:#00e5ff;margin:10px 0}
 .bpm-label{font-size:1rem;color:#aaa;margin-bottom:16px}
 input[type=range]{-webkit-appearance:none;width:90%;max-width:400px;height:8px;background:#333;border-radius:4px;outline:none;margin:10px 0}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:#00e5ff;border-radius:50%;cursor:pointer}
-.beats{display:flex;flex-direction:column;gap:14px;margin:30px 0}
+.beats{display:flex;gap:14px;margin:30px 0}
 .beat-dot{width:30px;height:30px;border-radius:50%;background:#333;transition:background .05s,transform .05s}
 .beat-dot.active{background:#00e5ff;transform:scale(1.4);box-shadow:0 0 16px #00e5ff}
 .beat-dot.accent{background:#ff4081;box-shadow:0 0 16px #ff4081}
-.time-sig{display:flex;flex-direction:column;gap:10px;margin:20px 0;flex-wrap:wrap;justify-content:center}
+.time-sig{display:flex;gap:10px;margin:20px 0;flex-wrap:wrap;justify-content:center}
 .time-sig button{background:#1e1e3a;color:#ccc;border:2px solid #333;padding:10px 20px;border-radius:10px;font-size:1rem;cursor:pointer;min-width:60px;min-height:44px;touch-action:manipulation}
 .time-sig button.sel{border-color:#00e5ff;color:#00e5ff}
 .start-btn{margin-top:20px;padding:16px 50px;font-size:1.3rem;border:none;border-radius:14px;cursor:pointer;font-weight:bold;min-height:54px;touch-action:manipulation;transition:background .2s}
@@ -28,7 +27,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
 </style>
 </head>
 <body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
 
 <h1>메트로놈</h1>
 <div class="bpm-display" id="bpmVal">120</div>
@@ -52,10 +51,42 @@ function startMetronome(){playing=true;startBtn.textContent='정지';startBtn.cl
 function stopMetronome(){playing=false;startBtn.textContent='시작';startBtn.className='start-btn stopped';clearInterval(timerId);timerId=null;document.querySelectorAll('.beat-dot').forEach(d=>{d.classList.remove('active','accent')})}
 startBtn.onclick=()=>{if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();playing?stopMetronome():startMetronome()};
 </script>
-<section style="max-width:700px;margin:30px auto;padding:20px;background:#1a1a2e;border-radius:16px;border:1px solid #2a2a4a;color:#bbb;font-size:14px;line-height:1.8">
-<h2 style="color:#FFD700;font-size:18px;margin-bottom:10px">온라인 메트로놈</h2>
-<p>BPM을 조절하여 정확한 박자를 제공하는 메트로놈입니다. 악기 연습이나 리듬 훈련에 활용하세요.</p>
-<p style="margin-top:10px;font-size:12px;color:#888">이 콘텐츠는 <a href="../index.html" style="color:#7DF">놀이터(hoit.me)</a>에서 무료로 제공됩니다.</p>
+<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+<style>
+.seo-content{max-width:700px;margin:40px auto 80px;padding:0 20px;color:#bbb;font-size:14px;line-height:1.8}
+.seo-content h2{color:#FFD700;font-size:20px;margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid #2a2a4a}
+.seo-content h3{color:#ddd;font-size:16px;margin:16px 0 8px}
+.seo-content p{margin:8px 0;color:#999}
+.seo-content ul{margin:8px 0 8px 20px;color:#999}
+.seo-content li{margin:4px 0}
+.seo-content .seo-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.seo-content .seo-tag{background:#1a1a2e;border:1px solid #2a2a4a;padding:4px 12px;border-radius:15px;font-size:12px;color:#888}
+.seo-content .seo-nav{margin-top:20px;padding-top:16px;border-top:1px solid #2a2a4a;text-align:center}
+.seo-content .seo-nav a{color:#666;text-decoration:none;font-size:12px;margin:0 10px}
+.seo-content .seo-nav a:hover{color:#FFD700}
+</style>
+<section class="seo-content" aria-label="메트로놈 소개">
+<h2>메트로놈</h2>
+<p>정확한 BPM(Beats Per Minute)으로 박자를 제공하는 온라인 메트로놈입니다. 악기 연습, 노래 연습 시 일정한 템포를 유지하는 데 필수적인 도구입니다.</p>
+
+<h3>사용 방법</h3>
+<p>BPM을 설정하고 시작 버튼을 누르면 정확한 간격으로 박자 소리가 울립니다.</p>
+
+<h3>팁</h3>
+<p>느린 템포(60~80 BPM)부터 시작하여 점진적으로 올리세요.</p>
+
+<div class="seo-tags"><span class="seo-tag">메트로놈</span><span class="seo-tag">박자</span><span class="seo-tag">연습</span></div>
+
+<div class="seo-nav">
+<a href="../index.html">홈으로</a>
+<a href="../about.html">소개</a>
+<a href="../terms.html">이용약관</a>
+<a href="../privacy.html">개인정보처리방침</a>
+</div>
 </section>
-<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div></body>
+<script src="../js/catalog.js"></script>
+<script src="../js/recommend.js"></script>
+<script src="../js/share.js"></script>
+</body>
 </html>

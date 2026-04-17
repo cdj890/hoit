@@ -8,14 +8,14 @@
 <link rel="canonical" href="https://hoit.me/tests/mbti.html">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center}
+body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center}
 .container{max-width:500px;width:100%;padding:20px;text-align:center}
 h1{font-size:32px;margin-bottom:8px}
 .sub{color:#888;margin-bottom:30px}
 .q-card{background:#1a1a2e;border-radius:16px;padding:24px;margin-bottom:20px;border:1px solid #2a2a4a}
 .q-num{color:#888;font-size:13px;margin-bottom:8px}
 .q-text{font-size:17px;margin-bottom:18px;line-height:1.5}
-.opts{display:flex;flex-direction:column;flex-direction:column;gap:10px}
+.opts{display:flex;flex-direction:column;gap:10px}
 .opt{background:#252545;border:2px solid #333;border-radius:12px;padding:14px;cursor:pointer;font-size:15px;transition:all .2s;text-align:left}
 .opt:hover{border-color:#7B68EE;transform:scale(1.02)}
 .opt.selected{border-color:#7B68EE;background:#3a3a6e;position:relative}
@@ -30,7 +30,7 @@ h1{font-size:32px;margin-bottom:8px}
 .result-card::before{content:'';position:absolute;inset:-2px;border-radius:22px;background:linear-gradient(135deg,#7B68EE,#FF6B6B,#FFD700,#7B68EE);z-index:-1}
 .result-card .big-emoji{font-size:64px;margin:10px 0}
 .axis-bar{margin:10px 0;font-size:13px}
-.axis-labels{display:flex;flex-direction:column;justify-content:space-between;margin-bottom:3px}
+.axis-labels{display:flex;justify-content:space-between;margin-bottom:3px}
 .axis-labels .label{font-weight:bold}
 .axis-track{position:relative;height:14px;background:#252545;border-radius:7px;overflow:hidden}
 .axis-left{position:absolute;right:50%;height:100%;border-radius:7px 0 0 7px;transition:width 1s ease-out}
@@ -39,16 +39,16 @@ h1{font-size:32px;margin-bottom:8px}
 .mini-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:15px 0}
 .mini-grid .cell{background:#252545;border-radius:6px;padding:6px 2px;font-size:11px;text-align:center;color:#888}
 .mini-grid .cell.me{background:#7B68EE;color:#fff;font-weight:bold;box-shadow:0 0 8px rgba(123,104,238,0.5)}
-.compat-section{display:flex;flex-direction:column;gap:10px;justify-content:center;flex-wrap:wrap;margin:10px 0}
+.compat-section{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:10px 0}
 .compat-tag{padding:6px 14px;border-radius:10px;font-size:13px}
 .compat-tag.good{background:rgba(76,175,80,0.15);border:1px solid #4CAF50;color:#4CAF50}
 .compat-tag.warn{background:rgba(255,107,107,0.15);border:1px solid #FF6B6B;color:#FF6B6B}
-.share-row{display:flex;flex-direction:column;gap:8px;justify-content:center;margin-top:15px;flex-wrap:wrap}
+.share-row{display:flex;gap:8px;justify-content:center;margin-top:15px;flex-wrap:wrap}
 .share-btn2{background:#2a2a4a;border:1px solid #555;color:#ccc;padding:10px 20px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:bold;transition:all .2s}
 .share-btn2:hover{border-color:#7B68EE;color:#fff}
 .recommend-section{margin-top:25px;padding-top:20px;border-top:1px solid #2a2a4a}
 .recommend-section h3{color:#888;font-size:14px;margin-bottom:12px}
-.recommend-links{display:flex;flex-direction:column;flex-direction:column;gap:8px}
+.recommend-links{display:flex;flex-direction:column;gap:8px}
 .recommend-links a{background:#252545;border:1px solid #333;border-radius:10px;padding:12px;color:#ccc;text-decoration:none;font-size:13px;transition:all .2s}
 .recommend-links a:hover{border-color:#7B68EE;color:#fff}
 .prev-result{background:#252545;border-radius:8px;padding:8px 14px;font-size:12px;color:#888;margin-bottom:15px;display:inline-block}
@@ -61,10 +61,10 @@ h1{font-size:32px;margin-bottom:8px}
 .result-desc{color:#aaa;font-size:14px;line-height:1.7;text-align:left}
 .btn{background:#7B68EE;border:none;color:#fff;padding:12px 30px;border-radius:10px;font-size:16px;cursor:pointer;margin-top:20px;font-weight:bold}
 .btn:hover{background:#6a5acd}
-.share-btns{display:flex;flex-direction:column;gap:8px;justify-content:center;margin-top:15px;flex-wrap:wrap}
+.share-btns{display:flex;gap:8px;justify-content:center;margin-top:15px;flex-wrap:wrap}
 .share-btn{background:#2a2a4a;border:1px solid #444;color:#aaa;padding:6px 14px;border-radius:8px;cursor:pointer;font-size:12px}
 .share-btn:hover{border-color:#888;color:#fff}
-a.back{position:fixed;top:8px;left:8px;z-index:99;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+a.back{position:fixed;top:8px;left:8px;z-index:99;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 a.back:hover{background:rgba(0,0,0,0.85)}
 </style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 <script>function _copy(t,b){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){if(b){b.textContent='복사 완료!';setTimeout(function(){b.textContent=b.dataset.orig||'📋 결과 복사'},1500);}}).catch(function(){_copyFB(t,b)});}else{_copyFB(t,b);}}function _copyFB(t,b){var ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;left:-9999px';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');if(b){b.textContent='복사 완료!';setTimeout(function(){b.textContent=b.dataset.orig||'📋 결과 복사'},1500);}}catch(e){alert('복사 실패');}document.body.removeChild(ta);}</script></head><body>
@@ -231,9 +231,41 @@ function showResult(){
     </div>`;
 }
 render();
-</script><section style="max-width:700px;margin:30px auto;padding:20px;background:#1a1a2e;border-radius:16px;border:1px solid #2a2a4a;color:#bbb;font-size:14px;line-height:1.8">
-<h2 style="color:#FFD700;font-size:18px;margin-bottom:10px">MBTI 성격 유형 테스트</h2>
-<p>12문항의 간이 MBTI 테스트로 나의 성격 유형을 알아보세요. 외향(E)/내향(I), 감각(S)/직관(N), 사고(T)/감정(F), 판단(J)/인식(P) 4가지 선호 경향을 분석하여 16가지 성격 유형 중 나에게 맞는 유형을 찾아드립니다. 각 유형별 성격 특성, 강점, 추천 직업, 궁합 유형까지 상세한 결과를 제공합니다.</p>
-<p style="margin-top:10px;font-size:12px;color:#888">이 콘텐츠는 <a href="../index.html" style="color:#7DF">놀이터(hoit.me)</a>에서 무료로 제공됩니다.</p>
+</script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+<style>
+.seo-content{max-width:700px;margin:40px auto 80px;padding:0 20px;color:#bbb;font-size:14px;line-height:1.8}
+.seo-content h2{color:#FFD700;font-size:20px;margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid #2a2a4a}
+.seo-content h3{color:#ddd;font-size:16px;margin:16px 0 8px}
+.seo-content p{margin:8px 0;color:#999}
+.seo-content ul{margin:8px 0 8px 20px;color:#999}
+.seo-content li{margin:4px 0}
+.seo-content .seo-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.seo-content .seo-tag{background:#1a1a2e;border:1px solid #2a2a4a;padding:4px 12px;border-radius:15px;font-size:12px;color:#888}
+.seo-content .seo-nav{margin-top:20px;padding-top:16px;border-top:1px solid #2a2a4a;text-align:center}
+.seo-content .seo-nav a{color:#666;text-decoration:none;font-size:12px;margin:0 10px}
+.seo-content .seo-nav a:hover{color:#FFD700}
+</style>
+<section class="seo-content" aria-label="MBTI 성격유형 테스트 소개">
+<h2>MBTI 성격유형 테스트</h2>
+<p>12개의 질문으로 알아보는 간이 MBTI 성격유형 테스트입니다. 외향(E)/내향(I), 감각(S)/직관(N), 사고(T)/감정(F), 판단(J)/인식(P) 4가지 축으로 16가지 성격유형을 분석합니다.</p>
+
+<h3>사용 방법</h3>
+<p>제시되는 질문에 자신과 가장 가까운 답변을 선택하세요. 총 12문항이며, 모든 문항을 답하면 MBTI 유형과 성향 비율이 나타납니다.</p>
+
+<h3>팁</h3>
+<p>너무 오래 고민하지 말고 직감적으로 답하세요. 정답이 없으므로 솔직하게 답변하는 것이 정확한 결과를 얻는 비결입니다. 결과를 친구와 공유하여 비교해보세요.</p>
+
+<div class="seo-tags"><span class="seo-tag">성격</span><span class="seo-tag">MBTI</span><span class="seo-tag">심리</span></div>
+
+<div class="seo-nav">
+<a href="../index.html">홈으로</a>
+<a href="../about.html">소개</a>
+<a href="../terms.html">이용약관</a>
+<a href="../privacy.html">개인정보처리방침</a>
+</div>
 </section>
-<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div></body></html>
+<script src="../js/catalog.js"></script>
+<script src="../js/recommend.js"></script>
+<script src="../js/share.js"></script>
+</body></html>

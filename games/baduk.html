@@ -13,8 +13,8 @@
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;display:flex;flex-direction:column;flex-direction:column;align-items:center;min-height:100vh;overflow-x:hidden;padding-top:50px}
-#startScreen,#gameOver{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,15,30,0.97);display:flex;flex-direction:column;flex-direction:column;align-items:center;justify-content:center;z-index:1000;text-align:center;padding:20px}
+body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;display:flex;flex-direction:column;align-items:center;min-height:100vh;overflow-x:hidden;padding-top:50px}
+#startScreen,#gameOver{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,15,30,0.97);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;text-align:center;padding:20px}
 #startScreen h1{font-size:42px;margin-bottom:10px}
 #startScreen p{font-size:15px;color:#aaa;max-width:340px;line-height:1.6;margin-bottom:20px}
 .btn{background:linear-gradient(135deg,#2ecc71,#27ae60);color:#fff;border:none;padding:14px 40px;border-radius:12px;font-size:18px;font-weight:bold;cursor:pointer;touch-action:manipulation;min-width:44px;min-height:44px;margin:6px}
@@ -23,17 +23,17 @@ body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;display:fle
 #gameOver{display:none}
 #gameOver h2{font-size:32px;margin-bottom:10px}
 #gameOver p{font-size:18px;color:#ccc;margin-bottom:20px}
-#info{display:flex;flex-direction:column;justify-content:space-between;width:100%;max-width:450px;padding:8px 4px;font-size:14px;align-items:center}
+#info{display:flex;justify-content:space-between;width:100%;max-width:450px;padding:8px 4px;font-size:14px;align-items:center}
 #turn{padding:6px 14px;border-radius:8px;font-weight:bold}
 #score{font-size:14px}
 canvas{border-radius:8px;margin-top:4px;touch-action:none}
-#controls{display:flex;flex-direction:column;gap:8px;margin-top:8px;flex-wrap:wrap;justify-content:center}
+#controls{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;justify-content:center}
 .hidden{display:none!important}
 .diff-select{background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:8px;padding:8px 12px;font-size:14px;cursor:pointer;margin:6px}
 .diff-select option{background:#1a1a2e;color:#fff}
-#timer{width:100%;max-width:450px;display:flex;flex-direction:column;justify-content:space-between;font-size:13px;padding:4px 8px;color:#aaa}
+#timer{width:100%;max-width:450px;display:flex;justify-content:space-between;font-size:13px;padding:4px 8px;color:#aaa}
 #record{font-size:12px;color:#888}
-#captured{width:100%;max-width:450px;display:flex;flex-direction:column;justify-content:space-between;font-size:14px;padding:6px 8px;color:#ddd;font-weight:bold}
+#captured{width:100%;max-width:450px;display:flex;justify-content:space-between;font-size:14px;padding:6px 8px;color:#ddd;font-weight:bold}
 .btn-undo{background:linear-gradient(135deg,#e67e22,#d35400)!important}
 .btn-new{background:linear-gradient(135deg,#27ae60,#2ecc71)!important}
 .btn-toggle{background:linear-gradient(135deg,#9b59b6,#8e44ad)!important}
@@ -41,7 +41,7 @@ canvas{border-radius:8px;margin-top:4px;touch-action:none}
 </style>
 </head>
 <body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
 <script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
 
 <div id="startScreen">
@@ -555,10 +555,43 @@ function startGame(){
 
 window.addEventListener('resize',resize);
 </script>
-<section style="max-width:700px;margin:30px auto;padding:20px;background:#1a1a2e;border-radius:16px;border:1px solid #2a2a4a;color:#bbb;font-size:14px;line-height:1.8">
-<h2 style="color:#FFD700;font-size:18px;margin-bottom:10px">바둑</h2>
-<p>9x9 바둑판에서 AI와 대국하는 전략 보드게임입니다. 영토를 최대한 넓혀 승리하세요.</p>
-<p style="margin-top:10px;font-size:12px;color:#888">이 게임은 <a href="../index.html" style="color:#7DF">놀이터(hoit.me)</a>에서 무료로 제공됩니다. 설치 없이 브라우저에서 바로 플레이하세요.</p>
+<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+<style>
+.seo-content{max-width:700px;margin:40px auto 80px;padding:0 20px;color:#bbb;font-size:14px;line-height:1.8}
+.seo-content h2{color:#FFD700;font-size:20px;margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid #2a2a4a}
+.seo-content h3{color:#ddd;font-size:16px;margin:16px 0 8px}
+.seo-content p{margin:8px 0;color:#999}
+.seo-content ul{margin:8px 0 8px 20px;color:#999}
+.seo-content li{margin:4px 0}
+.seo-content .seo-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.seo-content .seo-tag{background:#1a1a2e;border:1px solid #2a2a4a;padding:4px 12px;border-radius:15px;font-size:12px;color:#888}
+.seo-content .seo-nav{margin-top:20px;padding-top:16px;border-top:1px solid #2a2a4a;text-align:center}
+.seo-content .seo-nav a{color:#666;text-decoration:none;font-size:12px;margin:0 10px}
+.seo-content .seo-nav a:hover{color:#FFD700}
+</style>
+<section class="seo-content" aria-label="바둑 소개">
+<h2>바둑</h2>
+<p>동양의 대표적 전략 보드게임 바둑을 온라인으로 즐기세요. 흑과 백이 번갈아 돌을 놓으며 더 많은 영역을 차지하는 것이 목표입니다. 수천 년의 역사를 가진 깊이 있는 게임입니다.</p>
+
+<h3>사용 방법</h3>
+<p>교차점에 돌을 놓아 영역을 둘러싸세요. 상대 돌의 활로(숨길)를 모두 막으면 잡을 수 있습니다. 게임 종료 시 차지한 영역이 더 넓은 쪽이 승리합니다.</p>
+
+<h3>팁</h3>
+<p>초반에는 귀(코너)에서 시작하여 변(사이드)으로 확장하세요. 중앙보다 귀와 변에서 적은 수로 영역을 만들 수 있습니다. 사활(삶과 죽음) 문제를 많이 풀어보면 실력이 향상됩니다.</p>
+
+<div class="seo-tags"><span class="seo-tag">보드게임</span><span class="seo-tag">전략</span><span class="seo-tag">바둑</span></div>
+
+<div class="seo-nav">
+<a href="../index.html">홈으로</a>
+<a href="../about.html">소개</a>
+<a href="../terms.html">이용약관</a>
+<a href="../privacy.html">개인정보처리방침</a>
+</div>
 </section>
-<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div></body>
+<script src="../js/sfx.js"></script>
+<script src="../js/catalog.js"></script>
+<script src="../js/recommend.js"></script>
+<script src="../js/share.js"></script>
+</body>
 </html>

@@ -12,14 +12,14 @@
 <link rel="canonical" href="https://hoit.me/games/hangman.html">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI','Noto Sans KR',sans-serif;min-height:100vh;display:flex;flex-direction:column;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI','Noto Sans KR',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
 .container{text-align:center;max-width:500px;width:90%;padding:20px}
 h1{font-size:2em;margin-bottom:10px;background:linear-gradient(135deg,#ff9a9e,#fad0c4);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .subtitle{color:#aaa;font-size:0.9em;margin-bottom:20px}
 canvas{background:#1a1a2e;border-radius:16px;margin:15px auto;display:block;box-shadow:0 4px 20px rgba(0,0,0,0.4)}
 .word-display{font-size:2em;letter-spacing:12px;margin:20px 0;font-weight:bold;color:#fad0c4;min-height:50px}
 .hint{color:#ff9a9e;font-size:0.9em;margin-bottom:15px}
-.keyboard{display:flex;flex-direction:column;flex-wrap:wrap;justify-content:center;gap:6px;margin:15px 0}
+.keyboard{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:15px 0}
 .keyboard button{width:38px;height:38px;border:none;border-radius:10px;background:#1e1e3a;color:#e0e0e0;font-size:14px;cursor:pointer;transition:all 0.2s;font-weight:bold}
 .keyboard button:hover:not(:disabled){background:#3a3a6a;transform:scale(1.1)}
 .keyboard button:disabled{opacity:0.3;cursor:default}
@@ -30,7 +30,7 @@ canvas{background:#1a1a2e;border-radius:16px;margin:15px auto;display:block;box-
 .btn{padding:12px 32px;border:none;border-radius:12px;font-size:1em;cursor:pointer;transition:all 0.2s;font-weight:bold;margin:5px}
 .btn-primary{background:linear-gradient(135deg,#ff9a9e,#fad0c4);color:#0f0f1e}
 .btn-primary:hover{transform:scale(1.05);box-shadow:0 4px 15px rgba(255,154,158,0.4)}
-.overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,15,30,0.95);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100}
+.overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,15,30,0.95);display:flex;align-items:center;justify-content:center;z-index:100}
 .overlay-box{background:#1a1a2e;border-radius:20px;padding:40px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.6);max-width:400px;width:90%}
 .overlay-box h2{font-size:1.8em;margin-bottom:15px;background:linear-gradient(135deg,#ff9a9e,#fad0c4);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .overlay-box p{color:#ccc;margin:8px 0;font-size:1em}
@@ -41,7 +41,7 @@ canvas{max-width:100%!important;height:auto!important;display:block;margin:0 aut
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 </head>
 <body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
 <script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
 
 <div id="startScreen" class="overlay">
@@ -325,10 +325,43 @@ ctx.beginPath();ctx.moveTo(130,125);ctx.lineTo(150,155);ctx.stroke();
 loadScore();
 document.getElementById('startHighScore').textContent=highScore>0?`최고 기록: ${highScore}회`:'';
 </script>
-<section style="max-width:700px;margin:30px auto;padding:20px;background:#1a1a2e;border-radius:16px;border:1px solid #2a2a4a;color:#bbb;font-size:14px;line-height:1.8">
-<h2 style="color:#FFD700;font-size:18px;margin-bottom:10px">단어 맞추기 (행맨)</h2>
-<p>숨겨진 단어의 글자를 하나씩 추측하는 단어 퀴즈 게임입니다. 틀릴수록 행맨이 완성되며, 완성되기 전에 단어를 맞추세요.</p>
-<p style="margin-top:10px;font-size:12px;color:#888">이 게임은 <a href="../index.html" style="color:#7DF">놀이터(hoit.me)</a>에서 무료로 제공됩니다. 설치 없이 브라우저에서 바로 플레이하세요.</p>
+<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+<style>
+.seo-content{max-width:700px;margin:40px auto 80px;padding:0 20px;color:#bbb;font-size:14px;line-height:1.8}
+.seo-content h2{color:#FFD700;font-size:20px;margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid #2a2a4a}
+.seo-content h3{color:#ddd;font-size:16px;margin:16px 0 8px}
+.seo-content p{margin:8px 0;color:#999}
+.seo-content ul{margin:8px 0 8px 20px;color:#999}
+.seo-content li{margin:4px 0}
+.seo-content .seo-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.seo-content .seo-tag{background:#1a1a2e;border:1px solid #2a2a4a;padding:4px 12px;border-radius:15px;font-size:12px;color:#888}
+.seo-content .seo-nav{margin-top:20px;padding-top:16px;border-top:1px solid #2a2a4a;text-align:center}
+.seo-content .seo-nav a{color:#666;text-decoration:none;font-size:12px;margin:0 10px}
+.seo-content .seo-nav a:hover{color:#FFD700}
+</style>
+<section class="seo-content" aria-label="행맨 (단어 맞추기) 소개">
+<h2>행맨 (단어 맞추기)</h2>
+<p>숨겨진 단어의 글자를 한 글자씩 추측하는 단어 퍼즐 게임입니다. 틀릴 때마다 그림이 그려지며, 그림이 완성되기 전에 단어를 맞추면 승리합니다.</p>
+
+<h3>사용 방법</h3>
+<p>알파벳을 하나씩 선택합니다. 단어에 해당 글자가 있으면 해당 위치에 표시되고, 없으면 오답 횟수가 올라갑니다. 제한된 오답 횟수 안에 단어를 맞추세요.</p>
+
+<h3>팁</h3>
+<p>E, A, I, O, U 등 자주 쓰이는 모음부터 시작하세요. 영어에서 자주 쓰이는 자음(T, N, S, R)도 초반에 시도하면 유리합니다.</p>
+
+<div class="seo-tags"><span class="seo-tag">단어</span><span class="seo-tag">퍼즐</span><span class="seo-tag">교육</span></div>
+
+<div class="seo-nav">
+<a href="../index.html">홈으로</a>
+<a href="../about.html">소개</a>
+<a href="../terms.html">이용약관</a>
+<a href="../privacy.html">개인정보처리방침</a>
+</div>
 </section>
-<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div></body>
+<script src="../js/sfx.js"></script>
+<script src="../js/catalog.js"></script>
+<script src="../js/recommend.js"></script>
+<script src="../js/share.js"></script>
+</body>
 </html>

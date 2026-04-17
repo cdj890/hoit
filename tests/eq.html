@@ -7,7 +7,7 @@
 <meta property="og:url" content="https://hoit.me/tests/eq.html">
 <link rel="canonical" href="https://hoit.me/tests/eq.html">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px}
+*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px}
 .card{background:#1a1a2e;border-radius:16px;padding:30px;max-width:500px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.4);text-align:center}
 h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-size:.9em}
 .progress{height:6px;background:#2a2a3e;border-radius:3px;margin-bottom:24px;overflow:hidden}
@@ -32,12 +32,12 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 .btn.selected::after{content:' \2713';font-weight:bold}
 .result-card{background:linear-gradient(135deg,#1a1a2e,#2a2a3e);border:2px solid transparent;border-image:linear-gradient(135deg,#fdcb6e,#f39c12) 1;border-radius:16px;padding:24px;margin-bottom:16px;box-shadow:0 8px 32px rgba(243,156,18,.15)}
 .sub-scores{text-align:left;margin:16px 0}
-.sub-score{margin:8px 0}.sub-score label{font-size:.85em;color:#aaa;display:flex;flex-direction:column;justify-content:space-between}
+.sub-score{margin:8px 0}.sub-score label{font-size:.85em;color:#aaa;display:flex;justify-content:space-between}
 .sub-score .bar{height:10px;background:#2a2a3e;border-radius:5px;overflow:hidden;margin-top:3px}
 .sub-score .bar-fill{height:100%;border-radius:5px;transition:width 1s ease}
 .percentile{background:linear-gradient(135deg,#fdcb6e,#f39c12);color:#1a1a2e;border-radius:10px;padding:12px;margin:12px 0;font-weight:bold;font-size:.95em}
 .tip-box{background:#2a2a3e;border-radius:10px;padding:14px;margin:12px 0;text-align:left;font-size:.88em;line-height:1.7;color:#ddd}
-.share-box{display:flex;flex-direction:column;gap:8px;margin-top:14px;justify-content:center}
+.share-box{display:flex;gap:8px;margin-top:14px;justify-content:center}
 .share-btn{padding:10px 18px;border:none;border-radius:10px;font-size:.85em;cursor:pointer;font-weight:bold;transition:opacity .2s}
 .share-btn:hover{opacity:.8}
 .share-copy{background:#fdcb6e;color:#1a1a2e}
@@ -46,7 +46,7 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 .time-est{color:#888;font-size:.85em;margin-top:8px}
 </style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 <script>function _copy(t,b){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){if(b){b.textContent='복사 완료!';setTimeout(function(){b.textContent=b.dataset.orig||'📋 결과 복사'},1500);}}).catch(function(){_copyFB(t,b)});}else{_copyFB(t,b);}}function _copyFB(t,b){var ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;left:-9999px';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');if(b){b.textContent='복사 완료!';setTimeout(function(){b.textContent=b.dataset.orig||'📋 결과 복사'},1500);}}catch(e){alert('복사 실패');}document.body.removeChild(ta);}</script></head><body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
 <div class="card">
 <div id="intro">
 <div style="font-size:3em;margin-bottom:10px">💛</div>
@@ -119,9 +119,41 @@ document.getElementById('rEmoji').textContent=emoji;document.getElementById('rTy
 localStorage.setItem('eq_result',JSON.stringify({score:score,type:type,date:new Date().toLocaleDateString('ko-KR')}));}
 function copyResult(){const t=document.getElementById('rType').textContent+'\n'+document.getElementById('rPercentile').textContent;_copy('[EQ 테스트 결과]\n'+t,document.querySelector('.share-btn'));}
 (function(){const p=localStorage.getItem('eq_result');if(p){try{const d=JSON.parse(p);document.getElementById('prevResult').innerHTML='<div class="prev-result">이전 결과: '+d.type+' - '+d.score+'점 ('+d.date+')</div>';}catch(e){}}})();
-</script><section style="max-width:700px;margin:30px auto;padding:20px;background:#1a1a2e;border-radius:16px;border:1px solid #2a2a4a;color:#bbb;font-size:14px;line-height:1.8">
-<h2 style="color:#FFD700;font-size:18px;margin-bottom:10px">감성지능(EQ) 테스트</h2>
-<p>감정 인식, 감정 조절, 공감 능력 등 감성 지능 수준을 측정하는 테스트입니다. EQ 점수와 함께 감성 지능 향상 방법을 안내합니다.</p>
-<p style="margin-top:10px;font-size:12px;color:#888">이 콘텐츠는 <a href="../index.html" style="color:#7DF">놀이터(hoit.me)</a>에서 무료로 제공됩니다.</p>
+</script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+<style>
+.seo-content{max-width:700px;margin:40px auto 80px;padding:0 20px;color:#bbb;font-size:14px;line-height:1.8}
+.seo-content h2{color:#FFD700;font-size:20px;margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid #2a2a4a}
+.seo-content h3{color:#ddd;font-size:16px;margin:16px 0 8px}
+.seo-content p{margin:8px 0;color:#999}
+.seo-content ul{margin:8px 0 8px 20px;color:#999}
+.seo-content li{margin:4px 0}
+.seo-content .seo-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.seo-content .seo-tag{background:#1a1a2e;border:1px solid #2a2a4a;padding:4px 12px;border-radius:15px;font-size:12px;color:#888}
+.seo-content .seo-nav{margin-top:20px;padding-top:16px;border-top:1px solid #2a2a4a;text-align:center}
+.seo-content .seo-nav a{color:#666;text-decoration:none;font-size:12px;margin:0 10px}
+.seo-content .seo-nav a:hover{color:#FFD700}
+</style>
+<section class="seo-content" aria-label="EQ (감성지수) 테스트 소개">
+<h2>EQ (감성지수) 테스트</h2>
+<p>감성지수(EQ)를 측정하는 심리테스트입니다. 자기 인식, 자기 조절, 동기부여, 공감 능력, 사회적 기술 등 5가지 영역에서 감성지능을 평가합니다.</p>
+
+<h3>사용 방법</h3>
+<p>상황별 질문에 평소 자신의 반응과 가장 가까운 답변을 선택하세요. 5가지 영역별 점수와 종합 EQ 점수를 확인할 수 있습니다.</p>
+
+<h3>팁</h3>
+<p>직장, 학교, 대인관계에서의 실제 경험을 떠올리며 답하세요.</p>
+
+<div class="seo-tags"><span class="seo-tag">EQ</span><span class="seo-tag">감성</span><span class="seo-tag">심리</span></div>
+
+<div class="seo-nav">
+<a href="../index.html">홈으로</a>
+<a href="../about.html">소개</a>
+<a href="../terms.html">이용약관</a>
+<a href="../privacy.html">개인정보처리방침</a>
+</div>
 </section>
-<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div></body></html>
+<script src="../js/catalog.js"></script>
+<script src="../js/recommend.js"></script>
+<script src="../js/share.js"></script>
+</body></html>

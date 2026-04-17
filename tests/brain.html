@@ -7,7 +7,7 @@
 <meta property="og:url" content="https://hoit.me/tests/brain.html">
 <link rel="canonical" href="https://hoit.me/tests/brain.html">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px}
+*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px}
 .card{background:#1a1a2e;border-radius:16px;padding:30px;max-width:500px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.4);text-align:center}
 h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-size:.9em}
 .progress{height:6px;background:#2a2a3e;border-radius:3px;margin-bottom:24px;overflow:hidden}
@@ -22,7 +22,7 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 .bar-wrap{background:#2a2a3e;border-radius:10px;height:30px;margin:16px 0;position:relative;overflow:hidden}
 .bar-left{height:100%;background:linear-gradient(90deg,#0984e3,#74b9ff);border-radius:10px 0 0 10px;transition:width .5s;float:left}
 .bar-right{height:100%;background:linear-gradient(90deg,#e17055,#fab1a0);border-radius:0 10px 10px 0;transition:width .5s;float:right}
-.bar-labels{display:flex;flex-direction:column;justify-content:space-between;font-size:.85em;color:#aaa}
+.bar-labels{display:flex;justify-content:space-between;font-size:.85em;color:#aaa}
 @keyframes slideIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
 @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1)}}
 .q-slide{animation:slideIn .35s ease}
@@ -32,10 +32,10 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 .pie-chart{width:160px;height:160px;border-radius:50%;margin:16px auto;position:relative}
 .pie-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:.85em;text-align:center;color:#fff;font-weight:bold;line-height:1.3}
 .stat-bars{text-align:left;margin:16px 0}
-.stat-bar{margin:8px 0}.stat-bar label{font-size:.8em;color:#aaa;display:flex;flex-direction:column;justify-content:space-between}
+.stat-bar{margin:8px 0}.stat-bar label{font-size:.8em;color:#aaa;display:flex;justify-content:space-between}
 .stat-bar .bar{height:10px;background:#2a2a3e;border-radius:5px;overflow:hidden;margin-top:3px}
 .stat-bar .bar-fill{height:100%;border-radius:5px;transition:width 1s ease}
-.share-box{display:flex;flex-direction:column;gap:8px;margin-top:14px;justify-content:center}
+.share-box{display:flex;gap:8px;margin-top:14px;justify-content:center}
 .share-btn{padding:10px 18px;border:none;border-radius:10px;font-size:.85em;cursor:pointer;font-weight:bold;transition:opacity .2s}
 .share-btn:hover{opacity:.8}
 .share-copy{background:#55efc4;color:#1a1a2e}
@@ -47,7 +47,7 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 .color-word{font-size:2em;font-weight:bold;margin:12px 0}
 </style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 <script>function _copy(t,b){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){if(b){b.textContent='복사 완료!';setTimeout(function(){b.textContent=b.dataset.orig||'📋 결과 복사'},1500);}}).catch(function(){_copyFB(t,b)});}else{_copyFB(t,b);}}function _copyFB(t,b){var ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;left:-9999px';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');if(b){b.textContent='복사 완료!';setTimeout(function(){b.textContent=b.dataset.orig||'📋 결과 복사'},1500);}}catch(e){alert('복사 실패');}document.body.removeChild(ta);}</script></head><body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
 <div class="card">
 <div id="intro">
 <div style="font-size:3em;margin-bottom:10px">🧠</div>
@@ -117,9 +117,41 @@ else{document.getElementById('rEmoji').textContent='🟣';document.getElementByI
 localStorage.setItem('brain_result',JSON.stringify({left:lp,right:rp,date:new Date().toLocaleDateString('ko-KR')}));}
 function copyResult(){const t=document.getElementById('rType').textContent+'\n'+document.getElementById('pctText').textContent;_copy('[좌뇌우뇌 테스트 결과]\n'+t,document.querySelector('.share-btn'));}
 (function(){const p=localStorage.getItem('brain_result');if(p){try{const d=JSON.parse(p);document.getElementById('prevResult').innerHTML='<div class="prev-result">이전 결과: 좌뇌 '+d.left+'% / 우뇌 '+d.right+'% ('+d.date+')</div>';}catch(e){}}})();
-</script><section style="max-width:700px;margin:30px auto;padding:20px;background:#1a1a2e;border-radius:16px;border:1px solid #2a2a4a;color:#bbb;font-size:14px;line-height:1.8">
-<h2 style="color:#FFD700;font-size:18px;margin-bottom:10px">좌뇌우뇌 테스트</h2>
-<p>논리적 사고의 좌뇌와 창의적 감성의 우뇌, 어느 쪽이 더 발달했는지 분석하는 테스트입니다. 뇌 유형에 따른 성격 특성과 적합한 활동을 안내합니다.</p>
-<p style="margin-top:10px;font-size:12px;color:#888">이 콘텐츠는 <a href="../index.html" style="color:#7DF">놀이터(hoit.me)</a>에서 무료로 제공됩니다.</p>
+</script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+<style>
+.seo-content{max-width:700px;margin:40px auto 80px;padding:0 20px;color:#bbb;font-size:14px;line-height:1.8}
+.seo-content h2{color:#FFD700;font-size:20px;margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid #2a2a4a}
+.seo-content h3{color:#ddd;font-size:16px;margin:16px 0 8px}
+.seo-content p{margin:8px 0;color:#999}
+.seo-content ul{margin:8px 0 8px 20px;color:#999}
+.seo-content li{margin:4px 0}
+.seo-content .seo-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.seo-content .seo-tag{background:#1a1a2e;border:1px solid #2a2a4a;padding:4px 12px;border-radius:15px;font-size:12px;color:#888}
+.seo-content .seo-nav{margin-top:20px;padding-top:16px;border-top:1px solid #2a2a4a;text-align:center}
+.seo-content .seo-nav a{color:#666;text-decoration:none;font-size:12px;margin:0 10px}
+.seo-content .seo-nav a:hover{color:#FFD700}
+</style>
+<section class="seo-content" aria-label="좌뇌/우뇌 테스트 소개">
+<h2>좌뇌/우뇌 테스트</h2>
+<p>좌뇌형인지 우뇌형인지 알아보는 테스트입니다. 좌뇌는 논리적·분석적 사고, 우뇌는 창의적·직관적 사고와 관련됩니다.</p>
+
+<h3>사용 방법</h3>
+<p>일상적인 상황에서의 선호도와 습관에 대한 질문에 답하세요. 좌뇌와 우뇌의 활용 비율과 성향을 분석합니다.</p>
+
+<h3>팁</h3>
+<p>이 테스트는 재미를 위한 것으로, 실제 뇌과학적 좌뇌/우뇌 이론과는 다릅니다.</p>
+
+<div class="seo-tags"><span class="seo-tag">좌뇌</span><span class="seo-tag">우뇌</span><span class="seo-tag">사고방식</span></div>
+
+<div class="seo-nav">
+<a href="../index.html">홈으로</a>
+<a href="../about.html">소개</a>
+<a href="../terms.html">이용약관</a>
+<a href="../privacy.html">개인정보처리방침</a>
+</div>
 </section>
-<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div></body></html>
+<script src="../js/catalog.js"></script>
+<script src="../js/recommend.js"></script>
+<script src="../js/share.js"></script>
+</body></html>

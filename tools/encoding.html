@@ -5,8 +5,8 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://hoit.me/tools/encoding.html">
 <link rel="canonical" href="https://hoit.me/tools/encoding.html"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;min-height:100vh}.wrap{max-width:450px;margin:0 auto;padding:50px 16px 30px;text-align:center}.card{background:#1a1a2e;border-radius:16px;padding:20px;margin:10px 0;border:1px solid #2a2a4a}textarea{background:#252545;border:2px solid #333;color:#fff;padding:10px;border-radius:10px;font-size:14px;width:100%;height:80px;resize:vertical;font-family:monospace;margin:4px 0}textarea:focus{border-color:#7B68EE;outline:none}.btns{display:flex;flex-direction:column;gap:6px;flex-wrap:wrap;justify-content:center;margin:8px 0}.btn{background:#7B68EE;border:none;color:#fff;padding:8px 14px;border-radius:8px;font-size:13px;cursor:pointer;font-weight:bold}.btn:hover{opacity:.9}.btn.red{background:#EF5350}body{overflow-x:hidden}.wrap,.container{max-width:100%;padding-left:12px;padding-right:12px}canvas{max-width:100%!important;height:auto!important}input,select,textarea,button{max-width:100%;font-size:16px!important}@media(max-width:600px){h1{font-size:22px!important}h2{font-size:18px!important}h3{font-size:15px!important}.wrap,.container{padding-left:10px;padding-right:10px;padding-top:45px}.card{padding:14px;margin:8px 0}.q-card{padding:16px}.q-text{font-size:15px!important}.opt{padding:12px;font-size:14px!important;min-height:44px}.btn{min-height:44px;font-size:15px!important}pre,code{font-size:11px!important;overflow-x:auto;word-break:break-all}.result{font-size:24px!important}.controls{flex-wrap:wrap}.controls button,.controls input{min-height:40px}.flow{flex-direction:column}.box{min-width:auto;width:100%}.arr{transform:rotate(90deg)}.grid{gap:4px}.cell{font-size:16px!important}}</style></head><body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center">← 뒤로</a>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;min-height:100vh}.wrap{max-width:450px;margin:0 auto;padding:50px 16px 30px;text-align:center}.card{background:#1a1a2e;border-radius:16px;padding:20px;margin:10px 0;border:1px solid #2a2a4a}textarea{background:#252545;border:2px solid #333;color:#fff;padding:10px;border-radius:10px;font-size:14px;width:100%;height:80px;resize:vertical;font-family:monospace;margin:4px 0}textarea:focus{border-color:#7B68EE;outline:none}.btns{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:8px 0}.btn{background:#7B68EE;border:none;color:#fff;padding:8px 14px;border-radius:8px;font-size:13px;cursor:pointer;font-weight:bold}.btn:hover{opacity:.9}.btn.red{background:#EF5350}body{overflow-x:hidden}.wrap,.container{max-width:100%;padding-left:12px;padding-right:12px}canvas{max-width:100%!important;height:auto!important}input,select,textarea,button{max-width:100%;font-size:16px!important}@media(max-width:600px){h1{font-size:22px!important}h2{font-size:18px!important}h3{font-size:15px!important}.wrap,.container{padding-left:10px;padding-right:10px;padding-top:45px}.card{padding:14px;margin:8px 0}.q-card{padding:16px}.q-text{font-size:15px!important}.opt{padding:12px;font-size:14px!important;min-height:44px}.btn{min-height:44px;font-size:15px!important}pre,code{font-size:11px!important;overflow-x:auto;word-break:break-all}.result{font-size:24px!important}.controls{flex-wrap:wrap}.controls button,.controls input{min-height:40px}.flow{flex-direction:column}.box{min-width:auto;width:100%}.arr{transform:rotate(90deg)}.grid{gap:4px}.cell{font-size:16px!important}}</style></head><body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center">← 뒤로</a>
 <div class="wrap"><h1 style="font-size:24px;margin-bottom:12px">🔤 인코딩 도구</h1>
 <div class="card"><p style="color:#aaa;font-size:13px;margin-bottom:8px">입력</p><textarea id="input" placeholder="텍스트를 입력하세요">안녕하세요 Hello!</textarea>
 <div class="btns">
@@ -22,9 +22,41 @@ else if(t==='b64d')r=decodeURIComponent(escape(atob(v)));
 else if(t==='urle')r=encodeURIComponent(v);
 else if(t==='urld')r=decodeURIComponent(v);
 else if(t==='htmle')r=v.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}catch(e){r='변환 오류: '+e.message;}document.getElementById('output').value=r;}</script><section style="max-width:700px;margin:30px auto;padding:20px;background:#1a1a2e;border-radius:16px;border:1px solid #2a2a4a;color:#bbb;font-size:14px;line-height:1.8">
-<h2 style="color:#FFD700;font-size:18px;margin-bottom:10px">인코딩/디코딩 도구</h2>
-<p>Base64, URL 인코딩/디코딩을 수행합니다. 텍스트를 인코딩하거나 인코딩된 데이터를 복원하세요.</p>
-<p style="margin-top:10px;font-size:12px;color:#888">이 도구는 <a href="../index.html" style="color:#7DF">놀이터(hoit.me)</a>에서 무료로 제공됩니다.</p>
+}catch(e){r='변환 오류: '+e.message;}document.getElementById('output').value=r;}</script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+<style>
+.seo-content{max-width:700px;margin:40px auto 80px;padding:0 20px;color:#bbb;font-size:14px;line-height:1.8}
+.seo-content h2{color:#FFD700;font-size:20px;margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid #2a2a4a}
+.seo-content h3{color:#ddd;font-size:16px;margin:16px 0 8px}
+.seo-content p{margin:8px 0;color:#999}
+.seo-content ul{margin:8px 0 8px 20px;color:#999}
+.seo-content li{margin:4px 0}
+.seo-content .seo-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.seo-content .seo-tag{background:#1a1a2e;border:1px solid #2a2a4a;padding:4px 12px;border-radius:15px;font-size:12px;color:#888}
+.seo-content .seo-nav{margin-top:20px;padding-top:16px;border-top:1px solid #2a2a4a;text-align:center}
+.seo-content .seo-nav a{color:#666;text-decoration:none;font-size:12px;margin:0 10px}
+.seo-content .seo-nav a:hover{color:#FFD700}
+</style>
+<section class="seo-content" aria-label="URL/Base64 인코딩 소개">
+<h2>URL/Base64 인코딩</h2>
+<p>URL 인코딩/디코딩, Base64 인코딩/디코딩을 지원하는 도구입니다. 웹 개발 시 필수적인 인코딩 작업을 쉽게 처리합니다.</p>
+
+<h3>사용 방법</h3>
+<p>인코딩 방식(URL 또는 Base64)을 선택하고 텍스트를 입력하면 변환 결과가 표시됩니다.</p>
+
+<h3>팁</h3>
+<p>URL에 한글이나 특수문자가 포함될 때 URL 인코딩이 필요합니다.</p>
+
+<div class="seo-tags"><span class="seo-tag">인코딩</span><span class="seo-tag">개발</span><span class="seo-tag">변환</span></div>
+
+<div class="seo-nav">
+<a href="../index.html">홈으로</a>
+<a href="../about.html">소개</a>
+<a href="../terms.html">이용약관</a>
+<a href="../privacy.html">개인정보처리방침</a>
+</div>
 </section>
-<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div></body></html>
+<script src="../js/catalog.js"></script>
+<script src="../js/recommend.js"></script>
+<script src="../js/share.js"></script>
+</body></html>

@@ -13,7 +13,7 @@
 <link rel="canonical" href="https://hoit.me/tools/salary.html">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0f0f1e;color:#e0e0e0;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;flex-direction:column;justify-content:center}
+body{background:#0f0f1e;color:#e0e0e0;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;justify-content:center}
 .wrap{width:100%;max-width:500px;padding:60px 16px 30px}
 h1{text-align:center;font-size:22px;margin-bottom:20px;color:#fff}
 label{font-size:14px;color:#aaa;display:block;margin:12px 0 6px}
@@ -27,7 +27,7 @@ input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appear
 .big .label{font-size:14px;color:rgba(255,255,255,0.8)}
 .big .val{font-size:32px;font-weight:bold;color:#fff;margin-top:6px}
 .breakdown{background:#1a1a2e;border-radius:12px;overflow:hidden}
-.row{display:flex;flex-direction:column;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #0f0f1e}
+.row{display:flex;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #0f0f1e}
 .row:last-child{border:none}
 .row .name{color:#aaa;font-size:14px}
 .row .val{font-weight:600;font-size:14px}
@@ -37,7 +37,7 @@ input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appear
 </style>
 </head>
 <body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
 <div class="wrap">
 <h1>연봉 실수령액</h1>
 <label>연봉 (만원)</label>
@@ -108,10 +108,84 @@ function calc(){
   document.getElementById('ded').textContent='-'+fmt(totalDed);
 }
 </script>
-<section style="max-width:700px;margin:30px auto;padding:20px;background:#1a1a2e;border-radius:16px;border:1px solid #2a2a4a;color:#bbb;font-size:14px;line-height:1.8">
-<h2 style="color:#FFD700;font-size:18px;margin-bottom:10px">연봉 실수령액 계산기</h2>
-<p>연봉을 입력하면 4대보험과 소득세를 공제한 월 실수령액을 계산합니다.</p>
-<p style="margin-top:10px;font-size:12px;color:#888">이 도구는 <a href="../index.html" style="color:#7DF">놀이터(hoit.me)</a>에서 무료로 제공됩니다.</p>
+<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+<style>
+.seo-content{max-width:700px;margin:40px auto 80px;padding:0 20px;color:#bbb;font-size:14px;line-height:1.8}
+.seo-content h2{color:#FFD700;font-size:20px;margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid #2a2a4a}
+.seo-content h3{color:#ddd;font-size:16px;margin:16px 0 8px}
+.seo-content p{margin:8px 0;color:#999}
+.seo-content ul{margin:8px 0 8px 20px;color:#999}
+.seo-content li{margin:4px 0}
+.seo-content .seo-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.seo-content .seo-tag{background:#1a1a2e;border:1px solid #2a2a4a;padding:4px 12px;border-radius:15px;font-size:12px;color:#888}
+.seo-content .seo-nav{margin-top:20px;padding-top:16px;border-top:1px solid #2a2a4a;text-align:center}
+.seo-content .seo-nav a{color:#666;text-decoration:none;font-size:12px;margin:0 10px}
+.seo-content .seo-nav a:hover{color:#FFD700}
+</style>
+<section class="seo-content" aria-label="연봉 실수령액 계산기 소개">
+<h2>연봉 실수령액 계산기</h2>
+<p>연봉에서 세금과 4대 보험료를 제외한 실수령액을 계산하는 도구입니다. 소득세, 지방소득세, 국민연금, 건강보험, 고용보험 등을 고려합니다.</p>
+
+<h3>사용 방법</h3>
+<p>연봉을 입력하면 각종 공제 항목과 월 실수령액을 확인할 수 있습니다.</p>
+
+<h3>팁</h3>
+<p>부양가족 수에 따라 소득세가 달라집니다. 정확한 계산은 국세청 간이세액표를 참고하세요.</p>
+
+<div class="seo-tags"><span class="seo-tag">연봉</span><span class="seo-tag">세금</span><span class="seo-tag">계산기</span></div>
+
+<div class="seo-nav">
+<a href="../index.html">홈으로</a>
+<a href="../about.html">소개</a>
+<a href="../terms.html">이용약관</a>
+<a href="../privacy.html">개인정보처리방침</a>
+</div>
 </section>
-<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div></body>
+<script>
+(function(){
+  var btn=null,toast=null;
+  function showToast(){
+    if(!toast){toast=document.createElement('div');toast.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 20px;border-radius:20px;font-size:14px;z-index:99999;pointer-events:none;transition:opacity 0.3s';document.body.appendChild(toast);}
+    toast.textContent='복사되었습니다!';toast.style.opacity='1';
+    setTimeout(function(){toast.style.opacity='0';},2000);
+  }
+  function copyResult(){
+    var res=document.getElementById('res');
+    if(!res)return;
+    var rows=res.querySelectorAll('.row');
+    var text='월 실수령액: '+(document.getElementById('net')?document.getElementById('net').textContent:'')+'\n';
+    rows.forEach(function(r){
+      var name=r.querySelector('.name');var val=r.querySelector('.val');
+      if(name&&val)text+=name.textContent.trim()+': '+val.textContent.trim()+'\n';
+    });
+    text=text.trim();
+    if(!text)return;
+    if(navigator.clipboard){navigator.clipboard.writeText(text).then(showToast);}
+    else{var ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast();}
+  }
+  function checkResult(){
+    var res=document.getElementById('res');
+    if(res&&window.getComputedStyle(res).display!=='none'){
+      if(!btn){
+        btn=document.createElement('button');
+        btn.textContent='복사';
+        btn.setAttribute('aria-label','결과 복사');
+        btn.style.cssText='display:block;margin:12px auto 0;padding:10px 28px;background:#7B68EE;color:#fff;border:none;border-radius:20px;font-size:15px;font-weight:bold;cursor:pointer;width:100%;box-sizing:border-box;';
+        btn.addEventListener('click',copyResult);
+        var wrap=document.querySelector('.wrap');
+        if(wrap)wrap.appendChild(btn);
+      }
+      btn.style.display='block';
+    }
+  }
+  var observer=new MutationObserver(checkResult);
+  observer.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['style']});
+  checkResult();
+})();
+</script>
+<script src="../js/catalog.js"></script>
+<script src="../js/recommend.js"></script>
+<script src="../js/share.js"></script>
+</body>
 </html>

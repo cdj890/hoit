@@ -7,14 +7,14 @@
 <link rel="canonical" href="https://hoit.me/itknow/queue_viz.html"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;min-height:100vh}
 .wrap{max-width:500px;margin:0 auto;padding:50px 16px 30px;text-align:center}
-.viz{background:#1a1a2e;border-radius:16px;padding:20px;margin:15px 0;border:1px solid #2a2a4a;min-height:150px;display:flex;flex-direction:column;flex-wrap:wrap;gap:8px;justify-content:center;align-items:flex-end}
+.viz{background:#1a1a2e;border-radius:16px;padding:20px;margin:15px 0;border:1px solid #2a2a4a;min-height:150px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:flex-end}
 .item{background:#7B68EE;color:#fff;padding:10px 16px;border-radius:10px;font-size:16px;font-weight:bold;transition:all .3s;animation:popIn .3s}
 @keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
-.controls{display:flex;flex-direction:column;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px 0}
+.controls{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px 0}
 .controls input{background:#1a1a2e;border:2px solid #333;color:#fff;padding:8px 12px;border-radius:8px;width:100px;font-size:14px;text-align:center}
 .controls button{background:#7B68EE;border:none;color:#fff;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:bold}
 .controls button:hover{opacity:0.85}
-.log{color:#888;font-size:12px;margin-top:10px;max-height:100px;overflow-y:auto}body{overflow-x:hidden}.wrap,.container{max-width:100%;padding-left:12px;padding-right:12px}canvas{max-width:100%!important;height:auto!important}input,select,textarea,button{max-width:100%;font-size:16px!important}@media(max-width:600px){h1{font-size:22px!important}h2{font-size:18px!important}h3{font-size:15px!important}.wrap,.container{padding-left:10px;padding-right:10px;padding-top:45px}.card{padding:14px;margin:8px 0}.q-card{padding:16px}.q-text{font-size:15px!important}.opt{padding:12px;font-size:14px!important;min-height:44px}.btn{min-height:44px;font-size:15px!important}pre,code{font-size:11px!important;overflow-x:auto;word-break:break-all}.result{font-size:24px!important}.controls{flex-wrap:wrap}.controls button,.controls input{min-height:40px}.flow{flex-direction:column}.box{min-width:auto;width:100%}.arr{transform:rotate(90deg)}.grid{gap:4px}.cell{font-size:16px!important}}</style></head><body><a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation">← 뒤로</a>
+.log{color:#888;font-size:12px;margin-top:10px;max-height:100px;overflow-y:auto}body{overflow-x:hidden}.wrap,.container{max-width:100%;padding-left:12px;padding-right:12px}canvas{max-width:100%!important;height:auto!important}input,select,textarea,button{max-width:100%;font-size:16px!important}@media(max-width:600px){h1{font-size:22px!important}h2{font-size:18px!important}h3{font-size:15px!important}.wrap,.container{padding-left:10px;padding-right:10px;padding-top:45px}.card{padding:14px;margin:8px 0}.q-card{padding:16px}.q-text{font-size:15px!important}.opt{padding:12px;font-size:14px!important;min-height:44px}.btn{min-height:44px;font-size:15px!important}pre,code{font-size:11px!important;overflow-x:auto;word-break:break-all}.result{font-size:24px!important}.controls{flex-wrap:wrap}.controls button,.controls input{min-height:40px}.flow{flex-direction:column}.box{min-width:auto;width:100%}.arr{transform:rotate(90deg)}.grid{gap:4px}.cell{font-size:16px!important}}</style></head><body><a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
 <div class="wrap"><h1 style="font-size:24px;margin-bottom:5px">🚶 큐</h1><div style="background:#252545;border-radius:10px;padding:12px;margin:10px 0;text-align:left;font-size:13px;line-height:1.7"><b style="color:#FFD700">큐란?</b> <span style="color:#ccc">FIFO(선입선출) - 먼저 넣은 것이 먼저 나오는 자료구조. 줄 서기, 프린터 대기열, 메시지 큐가 대표적입니다.</span></div><p style="color:#888;font-size:14px;margin-bottom:15px">FIFO - 선입선출 자료구조</p>
 
 <div class="viz" id="viz"></div>
@@ -23,9 +23,41 @@
 <script>let q=[];function enq(){const v=document.getElementById('val').value;if(!v)return;q.push(v);document.getElementById('val').value='';render();log('Enqueue: '+v);}
 function deq(){if(!q.length)return log('큐가 비어있습니다!');const v=q.shift();render();log('Dequeue: '+v);}
 function render(){document.getElementById('viz').innerHTML=q.map((v,i)=>`<div class="item" style="background:hsl(${i*35},60%,55%)">${i===0?'FRONT → ':''}${v}${i===q.length-1?' → REAR':''}</div>`).join('')||'<p style="color:#555">비어있음</p>';}
-function log(m){document.getElementById('log').innerHTML=m+'<br>'+document.getElementById('log').innerHTML;}render();</script></div><section style="max-width:700px;margin:30px auto;padding:20px;background:#1a1a2e;border-radius:16px;border:1px solid #2a2a4a;color:#bbb;font-size:14px;line-height:1.8">
-<h2 style="color:#FFD700;font-size:18px;margin-bottom:10px">큐 자료구조</h2>
-<p>FIFO(선입선출) 방식의 큐 자료구조를 시각화합니다. Enqueue, Dequeue 연산을 직접 실행해보세요.</p>
-<p style="margin-top:10px;font-size:12px;color:#888">이 콘텐츠는 <a href="../index.html" style="color:#7DF">놀이터(hoit.me)</a>에서 무료로 제공됩니다.</p>
+function log(m){document.getElementById('log').innerHTML=m+'<br>'+document.getElementById('log').innerHTML;}render();</script></div><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+<style>
+.seo-content{max-width:700px;margin:40px auto 80px;padding:0 20px;color:#bbb;font-size:14px;line-height:1.8}
+.seo-content h2{color:#FFD700;font-size:20px;margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid #2a2a4a}
+.seo-content h3{color:#ddd;font-size:16px;margin:16px 0 8px}
+.seo-content p{margin:8px 0;color:#999}
+.seo-content ul{margin:8px 0 8px 20px;color:#999}
+.seo-content li{margin:4px 0}
+.seo-content .seo-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.seo-content .seo-tag{background:#1a1a2e;border:1px solid #2a2a4a;padding:4px 12px;border-radius:15px;font-size:12px;color:#888}
+.seo-content .seo-nav{margin-top:20px;padding-top:16px;border-top:1px solid #2a2a4a;text-align:center}
+.seo-content .seo-nav a{color:#666;text-decoration:none;font-size:12px;margin:0 10px}
+.seo-content .seo-nav a:hover{color:#FFD700}
+</style>
+<section class="seo-content" aria-label="큐 자료구조 시각화 소개">
+<h2>큐 자료구조 시각화</h2>
+<p>큐(Queue) 자료구조의 동작을 인터랙티브하게 체험합니다. 선입선출(FIFO, First In First Out) 원리를 시각적으로 이해할 수 있습니다.</p>
+
+<h3>사용 방법</h3>
+<p>Enqueue 버튼으로 데이터를 넣고, Dequeue 버튼으로 꺼냅니다. 가장 먼저 넣은 데이터가 먼저 나옵니다.</p>
+
+<h3>팁</h3>
+<p>큐는 프린터 대기열, BFS 탐색, 메시지 큐, 태스크 스케줄링 등에 사용됩니다.</p>
+
+<div class="seo-tags"><span class="seo-tag">자료구조</span><span class="seo-tag">큐</span><span class="seo-tag">FIFO</span></div>
+
+<div class="seo-nav">
+<a href="../index.html">홈으로</a>
+<a href="../about.html">소개</a>
+<a href="../terms.html">이용약관</a>
+<a href="../privacy.html">개인정보처리방침</a>
+</div>
 </section>
-<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div></body></html>
+<script src="../js/catalog.js"></script>
+<script src="../js/recommend.js"></script>
+<script src="../js/share.js"></script>
+</body></html>

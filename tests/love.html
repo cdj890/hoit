@@ -6,7 +6,7 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://hoit.me/tests/love.html">
 <link rel="canonical" href="https://hoit.me/tests/love.html">
-<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center}.wrap{max-width:500px;width:100%;padding:20px;text-align:center}h1{font-size:30px;margin-bottom:8px}.sub{color:#888;margin-bottom:25px}.q-card{background:#1a1a2e;border-radius:16px;padding:22px;border:1px solid #2a2a4a;margin-bottom:15px}.q-num{color:#888;font-size:13px;margin-bottom:8px}.q-text{font-size:16px;margin-bottom:16px;line-height:1.5}.opts{display:flex;flex-direction:column;flex-direction:column;gap:8px}.opt{background:#252545;border:2px solid #333;border-radius:12px;padding:13px;cursor:pointer;font-size:14px;transition:all .2s;text-align:left}.opt:hover{border-color:#FF69B4;transform:scale(1.02)}
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center}.wrap{max-width:500px;width:100%;padding:20px;text-align:center}h1{font-size:30px;margin-bottom:8px}.sub{color:#888;margin-bottom:25px}.q-card{background:#1a1a2e;border-radius:16px;padding:22px;border:1px solid #2a2a4a;margin-bottom:15px}.q-num{color:#888;font-size:13px;margin-bottom:8px}.q-text{font-size:16px;margin-bottom:16px;line-height:1.5}.opts{display:flex;flex-direction:column;gap:8px}.opt{background:#252545;border:2px solid #333;border-radius:12px;padding:13px;cursor:pointer;font-size:14px;transition:all .2s;text-align:left}.opt:hover{border-color:#FF69B4;transform:scale(1.02)}
 .opt.selected{border-color:#FF69B4;background:#3a2a4a;position:relative}
 .opt.selected::after{content:'✓';position:absolute;right:14px;top:50%;transform:translateY(-50%);color:#FF69B4;font-weight:bold;font-size:18px}
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,105,180,0.5)}70%{box-shadow:0 0 0 12px rgba(255,105,180,0)}100%{box-shadow:0 0 0 0 rgba(255,105,180,0)}}
@@ -18,7 +18,7 @@
 .result-card{background:#1a1a2e;border-radius:20px;padding:28px;position:relative;box-shadow:0 8px 32px rgba(255,105,180,0.15);border:2px solid transparent;background-clip:padding-box}
 .result-card::before{content:'';position:absolute;inset:-2px;border-radius:22px;background:linear-gradient(135deg,#FF69B4,#FFD700,#FF4444,#FF69B4);z-index:-1}
 .big-emoji{font-size:64px;text-align:center;margin:10px 0}
-.stat-bar{margin:6px 0;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px}
+.stat-bar{margin:6px 0;display:flex;align-items:center;gap:8px;font-size:12px}
 .stat-bar .sl{width:50px;text-align:right;color:#aaa}
 .stat-bar .sb{flex:1;height:8px;background:#1a1a2e;border-radius:4px;overflow:hidden}
 .stat-bar .sf{height:100%;border-radius:4px;transition:width 1s}
@@ -26,12 +26,12 @@
 .advice-box h3{font-size:14px;margin-bottom:8px}
 .advice-box ul{list-style:none;padding:0}
 .advice-box ul li{color:#ccc;font-size:13px;padding:3px 0}
-.share-row{display:flex;flex-direction:column;gap:8px;justify-content:center;margin-top:15px;flex-wrap:wrap}
+.share-row{display:flex;gap:8px;justify-content:center;margin-top:15px;flex-wrap:wrap}
 .share-btn2{background:#2a2a4a;border:1px solid #555;color:#ccc;padding:10px 20px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:bold;transition:all .2s}
 .share-btn2:hover{border-color:#FF69B4;color:#fff}
 .recommend-section{margin-top:25px;padding-top:20px;border-top:1px solid #2a2a4a}
 .recommend-section h3{color:#888;font-size:14px;margin-bottom:12px;text-align:center}
-.recommend-links{display:flex;flex-direction:column;flex-direction:column;gap:8px}
+.recommend-links{display:flex;flex-direction:column;gap:8px}
 .recommend-links a{background:#252545;border:1px solid #333;border-radius:10px;padding:12px;color:#ccc;text-decoration:none;font-size:13px;text-align:center;transition:all .2s}
 .recommend-links a:hover{border-color:#FF69B4;color:#fff}
 .prev-result{background:#252545;border-radius:8px;padding:8px 14px;font-size:12px;color:#888;margin-bottom:15px;display:inline-block}
@@ -40,7 +40,7 @@
 .couple-section h3{color:#FF69B4;font-size:14px;margin-bottom:10px}
 .couple-btn{background:#FF69B4;border:none;color:#fff;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;margin:5px}
 .couple-result{margin-top:10px;color:#ccc;font-size:13px;line-height:1.6}
-.progress{background:#1a1a2e;border-radius:10px;height:8px;margin-bottom:18px;overflow:hidden}.progress-fill{background:linear-gradient(90deg,#FF69B4,#FFD700);height:100%;border-radius:10px;transition:width .3s}.result{background:#1a1a2e;border-radius:16px;padding:28px;border:1px solid #2a2a4a}.btn{background:#FF69B4;border:none;color:#fff;padding:12px 30px;border-radius:10px;font-size:15px;cursor:pointer;margin-top:18px;font-weight:bold;width:100%}a.back{position:fixed;top:8px;left:8px;z-index:99;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent}a.back:hover{background:rgba(0,0,0,0.85)}</style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
+.progress{background:#1a1a2e;border-radius:10px;height:8px;margin-bottom:18px;overflow:hidden}.progress-fill{background:linear-gradient(90deg,#FF69B4,#FFD700);height:100%;border-radius:10px;transition:width .3s}.result{background:#1a1a2e;border-radius:16px;padding:28px;border:1px solid #2a2a4a}.btn{background:#FF69B4;border:none;color:#fff;padding:12px 30px;border-radius:10px;font-size:15px;cursor:pointer;margin-top:18px;font-weight:bold;width:100%}a.back{position:fixed;top:8px;left:8px;z-index:99;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent}a.back:hover{background:rgba(0,0,0,0.85)}</style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 <script>function _copy(t,b){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){if(b){b.textContent='복사 완료!';setTimeout(function(){b.textContent=b.dataset.orig||'📋 결과 복사'},1500);}}).catch(function(){_copyFB(t,b)});}else{_copyFB(t,b);}}function _copyFB(t,b){var ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;left:-9999px';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');if(b){b.textContent='복사 완료!';setTimeout(function(){b.textContent=b.dataset.orig||'📋 결과 복사'},1500);}}catch(e){alert('복사 실패');}document.body.removeChild(ta);}</script></head><body>
 <a class="back" href="../index.html">← 뒤로</a>
 <div class="wrap" id="app"></div>
@@ -158,9 +158,41 @@ function pickLove(s,el){
   setTimeout(()=>{cur++;window._answering=false;render();},400);
 }
 render();
-</script><section style="max-width:700px;margin:30px auto;padding:20px;background:#1a1a2e;border-radius:16px;border:1px solid #2a2a4a;color:#bbb;font-size:14px;line-height:1.8">
-<h2 style="color:#FFD700;font-size:18px;margin-bottom:10px">연애 유형 테스트</h2>
-<p>나의 연애 스타일을 분석하는 심리테스트입니다. 이상형, 연애 패턴, 관계에서의 강점과 약점을 파악하세요.</p>
-<p style="margin-top:10px;font-size:12px;color:#888">이 콘텐츠는 <a href="../index.html" style="color:#7DF">놀이터(hoit.me)</a>에서 무료로 제공됩니다.</p>
+</script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+<style>
+.seo-content{max-width:700px;margin:40px auto 80px;padding:0 20px;color:#bbb;font-size:14px;line-height:1.8}
+.seo-content h2{color:#FFD700;font-size:20px;margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid #2a2a4a}
+.seo-content h3{color:#ddd;font-size:16px;margin:16px 0 8px}
+.seo-content p{margin:8px 0;color:#999}
+.seo-content ul{margin:8px 0 8px 20px;color:#999}
+.seo-content li{margin:4px 0}
+.seo-content .seo-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.seo-content .seo-tag{background:#1a1a2e;border:1px solid #2a2a4a;padding:4px 12px;border-radius:15px;font-size:12px;color:#888}
+.seo-content .seo-nav{margin-top:20px;padding-top:16px;border-top:1px solid #2a2a4a;text-align:center}
+.seo-content .seo-nav a{color:#666;text-decoration:none;font-size:12px;margin:0 10px}
+.seo-content .seo-nav a:hover{color:#FFD700}
+</style>
+<section class="seo-content" aria-label="연애 유형 테스트 소개">
+<h2>연애 유형 테스트</h2>
+<p>나의 연애 스타일과 이상형을 분석하는 심리테스트입니다. 연애에서 중요하게 생각하는 가치, 표현 방식, 갈등 해결 방식 등을 파악합니다.</p>
+
+<h3>사용 방법</h3>
+<p>연애 상황에 대한 질문에 솔직하게 답하세요. 모든 질문에 답하면 나의 연애 유형과 잘 맞는 상대 유형이 분석됩니다.</p>
+
+<h3>팁</h3>
+<p>과거 연애 경험을 떠올리며 답하면 더 정확한 결과를 얻을 수 있습니다.</p>
+
+<div class="seo-tags"><span class="seo-tag">연애</span><span class="seo-tag">심리</span><span class="seo-tag">유형</span></div>
+
+<div class="seo-nav">
+<a href="../index.html">홈으로</a>
+<a href="../about.html">소개</a>
+<a href="../terms.html">이용약관</a>
+<a href="../privacy.html">개인정보처리방침</a>
+</div>
 </section>
-<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div></body></html>
+<script src="../js/catalog.js"></script>
+<script src="../js/recommend.js"></script>
+<script src="../js/share.js"></script>
+</body></html>

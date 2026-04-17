@@ -6,7 +6,7 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://hoit.me/destiny/zodiac.html">
 <link rel="canonical" href="https://hoit.me/destiny/zodiac.html">
-<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center}.wrap{max-width:550px;width:100%;padding:20px;text-align:center}h1{font-size:30px;margin-bottom:8px}.sub{color:#888;margin-bottom:20px}.signs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:20px 0}.sign{background:#1a1a2e;border:2px solid #333;border-radius:12px;padding:12px 8px;cursor:pointer;transition:all .2s}.sign:hover{border-color:#FFD700;transform:scale(1.05)}.sign .emoji{font-size:28px}.sign .name{font-size:12px;margin-top:4px}.sign .date{font-size:10px;color:#666;margin-top:2px}.result{background:#1a1a2e;border-radius:16px;padding:25px;border:1px solid #2a2a4a;text-align:left}.fortune-bar{display:flex;flex-direction:column;align-items:center;gap:8px;margin:8px 0}.fortune-bar .label{width:50px;font-size:12px;color:#888}.fortune-bar .bar{flex:1;height:8px;background:#252545;border-radius:4px;overflow:hidden}.fortune-bar .fill{height:100%;border-radius:4px}.btn{background:#FFD700;border:none;color:#000;padding:12px 30px;border-radius:10px;font-size:15px;cursor:pointer;margin-top:15px;font-weight:bold;width:100%}a.back{position:fixed;top:8px;left:8px;z-index:99;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent}a.back:hover{background:rgba(0,0,0,0.85)}</style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous">
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center}.wrap{max-width:550px;width:100%;padding:20px;text-align:center}h1{font-size:30px;margin-bottom:8px}.sub{color:#888;margin-bottom:20px}.signs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:20px 0}.sign{background:#1a1a2e;border:2px solid #333;border-radius:12px;padding:12px 8px;cursor:pointer;transition:all .2s}.sign:hover{border-color:#FFD700;transform:scale(1.05)}.sign .emoji{font-size:28px}.sign .name{font-size:12px;margin-top:4px}.sign .date{font-size:10px;color:#666;margin-top:2px}.result{background:#1a1a2e;border-radius:16px;padding:25px;border:1px solid #2a2a4a;text-align:left}.fortune-bar{display:flex;align-items:center;gap:8px;margin:8px 0}.fortune-bar .label{width:50px;font-size:12px;color:#888}.fortune-bar .bar{flex:1;height:8px;background:#252545;border-radius:4px;overflow:hidden}.fortune-bar .fill{height:100%;border-radius:4px}.btn{background:#FFD700;border:none;color:#000;padding:12px 30px;border-radius:10px;font-size:15px;cursor:pointer;margin-top:15px;font-weight:bold;width:100%}a.back{position:fixed;top:8px;left:8px;z-index:99;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent}a.back:hover{background:rgba(0,0,0,0.85)}</style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous">
 function _copy(text,btn){
   if(navigator.clipboard&&navigator.clipboard.writeText){
     _copy(text,this).catch(()=>_copyFallback(text,btn));
@@ -80,16 +80,48 @@ function fortune(i){
     <p style="color:#ccc;font-size:13px;margin:0 0 12px 58px">${workMsg}</p>
     <div class="fortune-bar"><span class="label">🏥 건강</span><div class="bar"><div class="fill" style="width:${scores.health}%;background:${barColor(scores.health)}"></div></div><span style="font-size:12px;color:#aaa;width:30px">${scores.health}</span></div>
     <p style="color:#ccc;font-size:13px;margin:0 0 12px 58px">${healthMsg}</p>
-    <div style="display:flex;flex-direction:column;gap:10px;justify-content:center;margin:15px 0">
+    <div style="display:flex;gap:10px;justify-content:center;margin:15px 0">
       <div style="background:#252545;padding:10px 18px;border-radius:10px;font-size:13px">🎨 행운 색: <b style="color:#FFD700">${lucky}</b></div>
       <div style="background:#252545;padding:10px 18px;border-radius:10px;font-size:13px">🔢 행운 수: <b style="color:#FFD700">${luckyNum}</b></div>
     </div>
     <button class="btn" onclick="show()">다른 별자리 보기</button></div>`;
 }
 show();
-</script><section style="max-width:700px;margin:30px auto;padding:20px;background:#1a1a2e;border-radius:16px;border:1px solid #2a2a4a;color:#bbb;font-size:14px;line-height:1.8">
-<h2 style="color:#FFD700;font-size:18px;margin-bottom:10px">별자리 운세</h2>
-<p>12별자리별 오늘의 운세를 확인하세요. 전체운, 애정운, 금전운, 건강운을 별자리에 맞춰 매일 제공합니다.</p>
-<p style="margin-top:10px;font-size:12px;color:#888">이 콘텐츠는 <a href="../index.html" style="color:#7DF">놀이터(hoit.me)</a>에서 무료로 제공됩니다.</p>
+</script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+<style>
+.seo-content{max-width:700px;margin:40px auto 80px;padding:0 20px;color:#bbb;font-size:14px;line-height:1.8}
+.seo-content h2{color:#FFD700;font-size:20px;margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid #2a2a4a}
+.seo-content h3{color:#ddd;font-size:16px;margin:16px 0 8px}
+.seo-content p{margin:8px 0;color:#999}
+.seo-content ul{margin:8px 0 8px 20px;color:#999}
+.seo-content li{margin:4px 0}
+.seo-content .seo-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.seo-content .seo-tag{background:#1a1a2e;border:1px solid #2a2a4a;padding:4px 12px;border-radius:15px;font-size:12px;color:#888}
+.seo-content .seo-nav{margin-top:20px;padding-top:16px;border-top:1px solid #2a2a4a;text-align:center}
+.seo-content .seo-nav a{color:#666;text-decoration:none;font-size:12px;margin:0 10px}
+.seo-content .seo-nav a:hover{color:#FFD700}
+</style>
+<section class="seo-content" aria-label="별자리 운세 소개">
+<h2>별자리 운세</h2>
+<p>12가지 별자리별 오늘의 운세를 확인하세요. 연애운, 금전운, 건강운, 직장운 등 다양한 운세를 별자리에 맞춰 제공합니다.</p>
+
+<h3>사용 방법</h3>
+<p>자신의 별자리를 선택하면 오늘의 종합 운세와 세부 운세를 확인할 수 있습니다.</p>
+
+<h3>팁</h3>
+<p>별자리 운세는 태양 별자리를 기준으로 합니다. 생일에 따른 별자리를 확인하세요.</p>
+
+<div class="seo-tags"><span class="seo-tag">별자리</span><span class="seo-tag">운세</span><span class="seo-tag">점성술</span></div>
+
+<div class="seo-nav">
+<a href="../index.html">홈으로</a>
+<a href="../about.html">소개</a>
+<a href="../terms.html">이용약관</a>
+<a href="../privacy.html">개인정보처리방침</a>
+</div>
 </section>
-<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div></body></html>
+<script src="../js/catalog.js"></script>
+<script src="../js/recommend.js"></script>
+<script src="../js/share.js"></script>
+</body></html>

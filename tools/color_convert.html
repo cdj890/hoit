@@ -27,9 +27,41 @@ const h=p[0]/360,s=p[1]/100,l=p[2]/100;let r,g,b;if(s===0){r=g=b=l;}else{const q
 r=Math.round(r*255);g=Math.round(g*255);b=Math.round(b*255);document.getElementById('rgb').value=`${r}, ${g}, ${b}`;
 document.getElementById('hex').value='#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');document.getElementById('preview').style.background=`rgb(${r},${g},${b})`;}
 function hue2rgb(p,q,t){if(t<0)t+=1;if(t>1)t-=1;if(t<1/6)return p+(q-p)*6*t;if(t<1/2)return q;if(t<2/3)return p+(q-p)*(2/3-t)*6;return p;}
-</script><section style="max-width:700px;margin:30px auto;padding:20px;background:#1a1a2e;border-radius:16px;border:1px solid #2a2a4a;color:#bbb;font-size:14px;line-height:1.8">
-<h2 style="color:#FFD700;font-size:18px;margin-bottom:10px">색상 변환기</h2>
-<p>HEX, RGB, HSL 색상 코드를 상호 변환합니다. 색상 미리보기와 함께 웹 개발에 필요한 색상 코드를 쉽게 변환하세요.</p>
-<p style="margin-top:10px;font-size:12px;color:#888">이 도구는 <a href="../index.html" style="color:#7DF">놀이터(hoit.me)</a>에서 무료로 제공됩니다.</p>
+</script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+<style>
+.seo-content{max-width:700px;margin:40px auto 80px;padding:0 20px;color:#bbb;font-size:14px;line-height:1.8}
+.seo-content h2{color:#FFD700;font-size:20px;margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid #2a2a4a}
+.seo-content h3{color:#ddd;font-size:16px;margin:16px 0 8px}
+.seo-content p{margin:8px 0;color:#999}
+.seo-content ul{margin:8px 0 8px 20px;color:#999}
+.seo-content li{margin:4px 0}
+.seo-content .seo-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.seo-content .seo-tag{background:#1a1a2e;border:1px solid #2a2a4a;padding:4px 12px;border-radius:15px;font-size:12px;color:#888}
+.seo-content .seo-nav{margin-top:20px;padding-top:16px;border-top:1px solid #2a2a4a;text-align:center}
+.seo-content .seo-nav a{color:#666;text-decoration:none;font-size:12px;margin:0 10px}
+.seo-content .seo-nav a:hover{color:#FFD700}
+</style>
+<section class="seo-content" aria-label="색상 변환기 소개">
+<h2>색상 변환기</h2>
+<p>HEX, RGB, HSL 색상 코드를 서로 변환하는 도구입니다. 웹 디자인, 그래픽 작업 시 색상 코드를 빠르게 변환할 수 있습니다.</p>
+
+<h3>사용 방법</h3>
+<p>한 형식의 색상 코드를 입력하면 다른 형식으로 자동 변환됩니다. 색상 미리보기도 함께 제공됩니다.</p>
+
+<h3>팁</h3>
+<p>HEX는 웹에서, RGB는 디자인 도구에서, HSL은 색상 조절 시 직관적으로 사용됩니다.</p>
+
+<div class="seo-tags"><span class="seo-tag">색상</span><span class="seo-tag">디자인</span><span class="seo-tag">변환</span></div>
+
+<div class="seo-nav">
+<a href="../index.html">홈으로</a>
+<a href="../about.html">소개</a>
+<a href="../terms.html">이용약관</a>
+<a href="../privacy.html">개인정보처리방침</a>
+</div>
 </section>
-<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div></body></html>
+<script src="../js/catalog.js"></script>
+<script src="../js/recommend.js"></script>
+<script src="../js/share.js"></script>
+</body></html>

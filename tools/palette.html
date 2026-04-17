@@ -5,8 +5,8 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://hoit.me/tools/palette.html">
 <link rel="canonical" href="https://hoit.me/tools/palette.html"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;min-height:100vh}.wrap{max-width:450px;margin:0 auto;padding:50px 16px 30px;text-align:center}.colors{display:flex;flex-direction:column;flex-direction:column;gap:8px;margin:15px 0}.color{height:60px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:monospace;font-size:16px;font-weight:bold;cursor:pointer;transition:transform .2s}.color:hover{transform:scale(1.03)}.color:active{transform:scale(.97)}.btn{background:#7B68EE;border:none;color:#fff;padding:12px 24px;border-radius:10px;font-size:16px;cursor:pointer;font-weight:bold;width:100%;margin:8px 0}body{overflow-x:hidden}.wrap,.container{max-width:100%;padding-left:12px;padding-right:12px}canvas{max-width:100%!important;height:auto!important}input,select,textarea,button{max-width:100%;font-size:16px!important}@media(max-width:600px){h1{font-size:22px!important}h2{font-size:18px!important}h3{font-size:15px!important}.wrap,.container{padding-left:10px;padding-right:10px;padding-top:45px}.card{padding:14px;margin:8px 0}.q-card{padding:16px}.q-text{font-size:15px!important}.opt{padding:12px;font-size:14px!important;min-height:44px}.btn{min-height:44px;font-size:15px!important}pre,code{font-size:11px!important;overflow-x:auto;word-break:break-all}.result{font-size:24px!important}.controls{flex-wrap:wrap}.controls button,.controls input{min-height:40px}.flow{flex-direction:column}.box{min-width:auto;width:100%}.arr{transform:rotate(90deg)}.grid{gap:4px}.cell{font-size:16px!important}}</style></head><body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center">← 뒤로</a>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;min-height:100vh}.wrap{max-width:450px;margin:0 auto;padding:50px 16px 30px;text-align:center}.colors{display:flex;flex-direction:column;gap:8px;margin:15px 0}.color{height:60px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:16px;font-weight:bold;cursor:pointer;transition:transform .2s}.color:hover{transform:scale(1.03)}.color:active{transform:scale(.97)}.btn{background:#7B68EE;border:none;color:#fff;padding:12px 24px;border-radius:10px;font-size:16px;cursor:pointer;font-weight:bold;width:100%;margin:8px 0}body{overflow-x:hidden}.wrap,.container{max-width:100%;padding-left:12px;padding-right:12px}canvas{max-width:100%!important;height:auto!important}input,select,textarea,button{max-width:100%;font-size:16px!important}@media(max-width:600px){h1{font-size:22px!important}h2{font-size:18px!important}h3{font-size:15px!important}.wrap,.container{padding-left:10px;padding-right:10px;padding-top:45px}.card{padding:14px;margin:8px 0}.q-card{padding:16px}.q-text{font-size:15px!important}.opt{padding:12px;font-size:14px!important;min-height:44px}.btn{min-height:44px;font-size:15px!important}pre,code{font-size:11px!important;overflow-x:auto;word-break:break-all}.result{font-size:24px!important}.controls{flex-wrap:wrap}.controls button,.controls input{min-height:40px}.flow{flex-direction:column}.box{min-width:auto;width:100%}.arr{transform:rotate(90deg)}.grid{gap:4px}.cell{font-size:16px!important}}</style></head><body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center">← 뒤로</a>
 <div class="wrap"><h1 style="font-size:24px;margin-bottom:12px">🎨 색상 팔레트</h1><p style="color:#888;font-size:13px;margin-bottom:5px">클릭하면 HEX 코드가 복사됩니다</p>
 <div class="colors" id="colors"></div><button class="btn" onclick="gen()">🎨 새 팔레트</button></div>
 <script>
@@ -15,9 +15,41 @@ function gen(){const base=Math.random()*360;const colors=[];for(let i=0;i<5;i++)
 document.getElementById('colors').innerHTML=colors.map(c=>{const lum=parseInt(c.substr(1,2),16)*0.299+parseInt(c.substr(3,2),16)*0.587+parseInt(c.substr(5,2),16)*0.114;
 return`<div class="color" style="background:${c};color:${lum>128?'#000':'#fff'}" onclick="navigator.clipboard.writeText('${c}');this.textContent='복사됨!';setTimeout(()=>this.textContent='${c}',1000)">${c}</div>`;}).join('');}
 gen();
-</script><section style="max-width:700px;margin:30px auto;padding:20px;background:#1a1a2e;border-radius:16px;border:1px solid #2a2a4a;color:#bbb;font-size:14px;line-height:1.8">
-<h2 style="color:#FFD700;font-size:18px;margin-bottom:10px">색상 팔레트 생성기</h2>
-<p>랜덤 색상 팔레트를 생성합니다. 디자인, 웹 개발에 활용할 수 있는 조화로운 색상 조합을 만들어보세요.</p>
-<p style="margin-top:10px;font-size:12px;color:#888">이 도구는 <a href="../index.html" style="color:#7DF">놀이터(hoit.me)</a>에서 무료로 제공됩니다.</p>
+</script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+<style>
+.seo-content{max-width:700px;margin:40px auto 80px;padding:0 20px;color:#bbb;font-size:14px;line-height:1.8}
+.seo-content h2{color:#FFD700;font-size:20px;margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid #2a2a4a}
+.seo-content h3{color:#ddd;font-size:16px;margin:16px 0 8px}
+.seo-content p{margin:8px 0;color:#999}
+.seo-content ul{margin:8px 0 8px 20px;color:#999}
+.seo-content li{margin:4px 0}
+.seo-content .seo-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.seo-content .seo-tag{background:#1a1a2e;border:1px solid #2a2a4a;padding:4px 12px;border-radius:15px;font-size:12px;color:#888}
+.seo-content .seo-nav{margin-top:20px;padding-top:16px;border-top:1px solid #2a2a4a;text-align:center}
+.seo-content .seo-nav a{color:#666;text-decoration:none;font-size:12px;margin:0 10px}
+.seo-content .seo-nav a:hover{color:#FFD700}
+</style>
+<section class="seo-content" aria-label="색상 팔레트 생성기 소개">
+<h2>색상 팔레트 생성기</h2>
+<p>조화로운 색상 조합(팔레트)을 생성하는 도구입니다. 기본 색상을 선택하면 보색, 유사색, 삼색 조화 등의 팔레트를 자동으로 만듭니다.</p>
+
+<h3>사용 방법</h3>
+<p>기본 색상을 선택하고 조화 방식(보색, 유사색, 삼색 등)을 선택하면 팔레트가 생성됩니다.</p>
+
+<h3>팁</h3>
+<p>디자인 프로젝트의 메인 컬러를 먼저 정하고 이 도구로 보조 색상을 찾으세요.</p>
+
+<div class="seo-tags"><span class="seo-tag">색상</span><span class="seo-tag">팔레트</span><span class="seo-tag">디자인</span></div>
+
+<div class="seo-nav">
+<a href="../index.html">홈으로</a>
+<a href="../about.html">소개</a>
+<a href="../terms.html">이용약관</a>
+<a href="../privacy.html">개인정보처리방침</a>
+</div>
 </section>
-<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div></body></html>
+<script src="../js/catalog.js"></script>
+<script src="../js/recommend.js"></script>
+<script src="../js/share.js"></script>
+</body></html>

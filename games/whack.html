@@ -6,16 +6,16 @@
 <meta property="og:url" content="https://hoit.me/games/whack.html">
 <link rel="canonical" href="https://hoit.me/games/whack.html">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;display:flex;flex-direction:column;flex-direction:column;align-items:center;min-height:100vh;overflow:hidden;touch-action:manipulation}
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;display:flex;flex-direction:column;align-items:center;min-height:100vh;overflow:hidden;touch-action:manipulation}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:320px;width:90%;margin:15px auto}
-.hole{background:#3a2a1a;border-radius:16px;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:48px;cursor:pointer;transition:background .1s;-webkit-tap-highlight-color:transparent;user-select:none}
+.hole{background:#3a2a1a;border-radius:16px;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:48px;cursor:pointer;transition:background .1s;-webkit-tap-highlight-color:transparent;user-select:none}
 .hole.active{background:#5a4a2a;animation:pop .15s}
 .hole.hit{background:#4CAF50}
 @keyframes pop{0%{transform:scale(0.8)}100%{transform:scale(1)}}
-.hud{display:flex;flex-direction:column;justify-content:space-between;width:90%;max-width:320px;margin-top:15px;font-size:16px}
+.hud{display:flex;justify-content:space-between;width:90%;max-width:320px;margin-top:15px;font-size:16px}
 .btn{background:#8D6E63;border:none;color:#fff;padding:14px 36px;border-radius:12px;font-size:18px;font-weight:bold;cursor:pointer;margin-top:20px;touch-action:manipulation}
 </style></head><body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
 <script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
 <div id="app" style="text-align:center;padding:50px 20px"></div>
 <script>
@@ -50,10 +50,42 @@ function hit(i,e){e.preventDefault();if(state!=='playing')return;if(moles[i]===0
   render();setTimeout(()=>{if(moles[i]===2)moles[i]=0;},200);}
 function backToMenu(e){e.preventDefault();clearInterval(timer);clearInterval(spawnTimer);state='menu';render();}
 render();
-</script>
-<section style="max-width:700px;margin:30px auto;padding:20px;background:#1a1a2e;border-radius:16px;border:1px solid #2a2a4a;color:#bbb;font-size:14px;line-height:1.8">
-<h2 style="color:#FFD700;font-size:18px;margin-bottom:10px">두더지 잡기</h2>
-<p>올라오는 두더지를 빠르게 클릭하여 잡는 반응속도 게임입니다. 제한 시간 내에 최대한 많은 두더지를 잡으세요.</p>
-<p style="margin-top:10px;font-size:12px;color:#888">이 게임은 <a href="../index.html" style="color:#7DF">놀이터(hoit.me)</a>에서 무료로 제공됩니다. 설치 없이 브라우저에서 바로 플레이하세요.</p>
+</script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+<style>
+.seo-content{max-width:700px;margin:40px auto 80px;padding:0 20px;color:#bbb;font-size:14px;line-height:1.8}
+.seo-content h2{color:#FFD700;font-size:20px;margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid #2a2a4a}
+.seo-content h3{color:#ddd;font-size:16px;margin:16px 0 8px}
+.seo-content p{margin:8px 0;color:#999}
+.seo-content ul{margin:8px 0 8px 20px;color:#999}
+.seo-content li{margin:4px 0}
+.seo-content .seo-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.seo-content .seo-tag{background:#1a1a2e;border:1px solid #2a2a4a;padding:4px 12px;border-radius:15px;font-size:12px;color:#888}
+.seo-content .seo-nav{margin-top:20px;padding-top:16px;border-top:1px solid #2a2a4a;text-align:center}
+.seo-content .seo-nav a{color:#666;text-decoration:none;font-size:12px;margin:0 10px}
+.seo-content .seo-nav a:hover{color:#FFD700}
+</style>
+<section class="seo-content" aria-label="두더지 잡기 소개">
+<h2>두더지 잡기</h2>
+<p>구멍에서 튀어나오는 두더지를 빠르게 잡는 반사신경 게임입니다. 제한 시간 내에 최대한 많은 두더지를 잡으세요. 빠른 반응 속도가 필요합니다.</p>
+
+<h3>사용 방법</h3>
+<p>두더지가 구멍에서 나오면 빠르게 클릭(터치)하세요. 시간 내에 많이 잡을수록 높은 점수입니다.</p>
+
+<h3>팁</h3>
+<p>화면 전체를 시야에 넣고 주변시로 감지하세요. 두더지가 나올 패턴을 예측하면 더 빠르게 반응할 수 있습니다.</p>
+
+<div class="seo-tags"><span class="seo-tag">반사신경</span><span class="seo-tag">캐주얼</span><span class="seo-tag">아케이드</span></div>
+
+<div class="seo-nav">
+<a href="../index.html">홈으로</a>
+<a href="../about.html">소개</a>
+<a href="../terms.html">이용약관</a>
+<a href="../privacy.html">개인정보처리방침</a>
+</div>
 </section>
-<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div></body></html>
+<script src="../js/sfx.js"></script>
+<script src="../js/catalog.js"></script>
+<script src="../js/recommend.js"></script>
+<script src="../js/share.js"></script>
+</body></html>

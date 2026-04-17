@@ -7,7 +7,7 @@
 <meta property="og:url" content="https://hoit.me/tests/disc.html">
 <link rel="canonical" href="https://hoit.me/tests/disc.html">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px}
+*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px}
 .card{background:#1a1a2e;border-radius:16px;padding:30px;max-width:500px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.4);text-align:center}
 h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-size:.9em}
 .progress{height:6px;background:#2a2a3e;border-radius:3px;margin-bottom:24px;overflow:hidden}
@@ -28,14 +28,14 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 .btn.selected::after{content:' \2713';font-weight:bold}
 .result-card{background:linear-gradient(135deg,#1a1a2e,#2a2a3e);border:2px solid transparent;border-image:linear-gradient(135deg,#e74c3c,#e67e22) 1;border-radius:16px;padding:24px;margin-bottom:16px;box-shadow:0 8px 32px rgba(231,76,60,.15)}
 .quadrant{width:240px;height:240px;margin:16px auto;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:3px;position:relative}
-.quadrant .q{border-radius:8px;display:flex;flex-direction:column;flex-direction:column;align-items:center;justify-content:center;font-size:.8em;font-weight:bold;opacity:.4;transition:opacity .5s}
+.quadrant .q{border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.8em;font-weight:bold;opacity:.4;transition:opacity .5s}
 .quadrant .q.active{opacity:1}
 .quadrant .q-D{background:#e74c3c}.quadrant .q-I{background:#f1c40f;color:#333}.quadrant .q-S{background:#2ecc71}.quadrant .q-C{background:#3498db}
 .quadrant .dot{position:absolute;width:14px;height:14px;background:#fff;border-radius:50%;border:2px solid #1a1a2e;transition:all 1s ease;z-index:2;box-shadow:0 0 10px rgba(255,255,255,.5)}
 .work-card{background:#2a2a3e;border-radius:10px;padding:14px;margin:10px 0;text-align:left;font-size:.88em;line-height:1.7;color:#ddd}
 .work-card .card-title{font-weight:bold;color:#e67e22;margin-bottom:4px}
 .famous-box{background:#2a2a3e;border-radius:10px;padding:14px;margin:10px 0;text-align:left;font-size:.88em;line-height:1.7;color:#ddd}
-.share-box{display:flex;flex-direction:column;gap:8px;margin-top:14px;justify-content:center}
+.share-box{display:flex;gap:8px;margin-top:14px;justify-content:center}
 .share-btn{padding:10px 18px;border:none;border-radius:10px;font-size:.85em;cursor:pointer;font-weight:bold;transition:opacity .2s}
 .share-btn:hover{opacity:.8}
 .share-copy{background:#e67e22;color:#fff}
@@ -44,7 +44,7 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 .time-est{color:#888;font-size:.85em;margin-top:8px}
 </style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 <script>function _copy(t,b){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){if(b){b.textContent='복사 완료!';setTimeout(function(){b.textContent=b.dataset.orig||'📋 결과 복사'},1500);}}).catch(function(){_copyFB(t,b)});}else{_copyFB(t,b);}}function _copyFB(t,b){var ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;left:-9999px';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');if(b){b.textContent='복사 완료!';setTimeout(function(){b.textContent=b.dataset.orig||'📋 결과 복사'},1500);}}catch(e){alert('복사 실패');}document.body.removeChild(ta);}</script></head><body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
 <div class="card">
 <div id="intro">
 <div style="font-size:3em;margin-bottom:10px">🎯</div>
@@ -116,9 +116,41 @@ document.getElementById('rFamous').innerHTML='<strong>같은 유형 유명인:</
 localStorage.setItem('disc_result',JSON.stringify({type:r.n,emoji:r.e,date:new Date().toLocaleDateString('ko-KR')}));}
 function copyResult(){const t=document.getElementById('rType').textContent+'\n'+document.getElementById('rDesc').textContent;_copy('[DISC 성격 테스트 결과]\n'+t,document.querySelector('.share-btn'));}
 (function(){const p=localStorage.getItem('disc_result');if(p){try{const d=JSON.parse(p);document.getElementById('prevResult').innerHTML='<div class="prev-result">이전 결과: '+d.emoji+' '+d.type+' ('+d.date+')</div>';}catch(e){}}})();
-</script><section style="max-width:700px;margin:30px auto;padding:20px;background:#1a1a2e;border-radius:16px;border:1px solid #2a2a4a;color:#bbb;font-size:14px;line-height:1.8">
-<h2 style="color:#FFD700;font-size:18px;margin-bottom:10px">DISC 성격 유형 테스트</h2>
-<p>주도형(D), 사교형(I), 안정형(S), 신중형(C) 4가지 행동 유형 중 나의 업무 스타일을 분석합니다.</p>
-<p style="margin-top:10px;font-size:12px;color:#888">이 콘텐츠는 <a href="../index.html" style="color:#7DF">놀이터(hoit.me)</a>에서 무료로 제공됩니다.</p>
+</script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+<style>
+.seo-content{max-width:700px;margin:40px auto 80px;padding:0 20px;color:#bbb;font-size:14px;line-height:1.8}
+.seo-content h2{color:#FFD700;font-size:20px;margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid #2a2a4a}
+.seo-content h3{color:#ddd;font-size:16px;margin:16px 0 8px}
+.seo-content p{margin:8px 0;color:#999}
+.seo-content ul{margin:8px 0 8px 20px;color:#999}
+.seo-content li{margin:4px 0}
+.seo-content .seo-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.seo-content .seo-tag{background:#1a1a2e;border:1px solid #2a2a4a;padding:4px 12px;border-radius:15px;font-size:12px;color:#888}
+.seo-content .seo-nav{margin-top:20px;padding-top:16px;border-top:1px solid #2a2a4a;text-align:center}
+.seo-content .seo-nav a{color:#666;text-decoration:none;font-size:12px;margin:0 10px}
+.seo-content .seo-nav a:hover{color:#FFD700}
+</style>
+<section class="seo-content" aria-label="DISC 성격유형 테스트 소개">
+<h2>DISC 성격유형 테스트</h2>
+<p>DISC 행동유형 검사입니다. 주도형(D), 사교형(I), 안정형(S), 신중형(C) 4가지 유형으로 나의 행동 패턴과 커뮤니케이션 스타일을 분석합니다.</p>
+
+<h3>사용 방법</h3>
+<p>직장/학교에서의 행동 습관에 대한 질문에 답하세요. 4가지 DISC 유형 중 나의 주된 유형과 보조 유형을 확인할 수 있습니다.</p>
+
+<h3>팁</h3>
+<p>DISC는 기업에서도 많이 활용하는 행동유형 검사입니다. 팀워크와 소통 방식을 이해하는 데 도움이 됩니다.</p>
+
+<div class="seo-tags"><span class="seo-tag">DISC</span><span class="seo-tag">행동유형</span><span class="seo-tag">소통</span></div>
+
+<div class="seo-nav">
+<a href="../index.html">홈으로</a>
+<a href="../about.html">소개</a>
+<a href="../terms.html">이용약관</a>
+<a href="../privacy.html">개인정보처리방침</a>
+</div>
 </section>
-<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div></body></html>
+<script src="../js/catalog.js"></script>
+<script src="../js/recommend.js"></script>
+<script src="../js/share.js"></script>
+</body></html>

@@ -4,7 +4,7 @@
 <meta property="og:description" content="hoit.me - 수비학 | 무료 운세. 설치 없이 브라우저에서 바로 즐기세요!">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://hoit.me/destiny/numerology.html">
-<link rel="canonical" href="https://hoit.me/destiny/numerology.html"><style>*{margin:0;padding:0;box-sizing:border-box}body{min-height:100vh;background:linear-gradient(135deg,#0a0a1a,#1a0a2e,#0a1a2e);color:#e0d0ff;font-family:'Segoe UI',sans-serif;display:flex;flex-direction:column;flex-direction:column;align-items:center;padding:20px}h1{margin:30px 0 10px;font-size:2em;text-shadow:0 0 20px rgba(150,100,255,.5)}.sub{color:#9988bb;margin-bottom:25px}.input-area{text-align:center;margin:20px 0}input[type=date]{background:rgba(255,255,255,.08);border:1px solid rgba(150,100,255,.3);color:#fff;padding:12px 20px;border-radius:12px;font-size:1.1em;outline:none}input[type=date]:focus{border-color:rgba(150,100,255,.7)}button{background:linear-gradient(135deg,#6a3de8,#4a2db8);color:#fff;border:none;padding:12px 30px;border-radius:12px;font-size:1em;cursor:pointer;margin-top:15px;transition:all .3s}button:hover{transform:scale(1.05)}.result{display:none;max-width:500px;width:100%;animation:fadeIn .8s;margin-top:25px}.numbox{background:rgba(255,255,255,.05);border:1px solid rgba(150,100,255,.15);border-radius:16px;padding:25px;line-height:1.8;text-align:center}.bignum{font-size:4em;font-weight:bold;background:linear-gradient(135deg,#e84de8,#6a3de8,#3de8c7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:15px 0}.trait{display:inline-block;background:rgba(150,100,255,.15);border-radius:20px;padding:5px 14px;margin:3px;font-size:.9em}@keyframes fadeIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}</style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous">
+<link rel="canonical" href="https://hoit.me/destiny/numerology.html"><style>*{margin:0;padding:0;box-sizing:border-box}body{min-height:100vh;background:linear-gradient(135deg,#0a0a1a,#1a0a2e,#0a1a2e);color:#e0d0ff;font-family:'Segoe UI',sans-serif;display:flex;flex-direction:column;align-items:center;padding:20px}h1{margin:30px 0 10px;font-size:2em;text-shadow:0 0 20px rgba(150,100,255,.5)}.sub{color:#9988bb;margin-bottom:25px}.input-area{text-align:center;margin:20px 0}input[type=date]{background:rgba(255,255,255,.08);border:1px solid rgba(150,100,255,.3);color:#fff;padding:12px 20px;border-radius:12px;font-size:1.1em;outline:none}input[type=date]:focus{border-color:rgba(150,100,255,.7)}button{background:linear-gradient(135deg,#6a3de8,#4a2db8);color:#fff;border:none;padding:12px 30px;border-radius:12px;font-size:1em;cursor:pointer;margin-top:15px;transition:all .3s}button:hover{transform:scale(1.05)}.result{display:none;max-width:500px;width:100%;animation:fadeIn .8s;margin-top:25px}.numbox{background:rgba(255,255,255,.05);border:1px solid rgba(150,100,255,.15);border-radius:16px;padding:25px;line-height:1.8;text-align:center}.bignum{font-size:4em;font-weight:bold;background:linear-gradient(135deg,#e84de8,#6a3de8,#3de8c7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:15px 0}.trait{display:inline-block;background:rgba(150,100,255,.15);border-radius:20px;padding:5px 14px;margin:3px;font-size:.9em}@keyframes fadeIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}</style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous">
 function _copy(text,btn){
   if(navigator.clipboard&&navigator.clipboard.writeText){
     _copy(text,this).catch(()=>_copyFallback(text,btn));
@@ -18,7 +18,7 @@ function _copyFallback(text,btn){
 }
 </script>
 </head><body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
 <h1>🔢 수비학 운세</h1><p class="sub">생년월일로 알아보는 인생 번호와 운명</p>
 <div class="input-area"><input type="date" id="bday"><br><button onclick="calc()">인생 번호 계산</button></div>
 <div class="result" id="result"></div>
@@ -49,9 +49,41 @@ const todayWork=Math.max(30,Math.min(100,d.work+Math.floor(r()*30)-15));
 const el=document.getElementById('result');
 el.innerHTML=`<div class="numbox"><p style="font-size:1.1em">당신의 인생 번호는</p><div class="bignum">${lp}</div><p style="font-size:1.4em">${d.e} ${d.t}</p><br><div>${d.traits.map(t=>`<span class="trait">${t}</span>`).join('')}</div><br><p style="text-align:left;margin:15px 0">${d.p}</p><hr style="border-color:rgba(150,100,255,.15);margin:15px 0"><h3 style="margin-bottom:10px">📊 오늘의 운세</h3><p>💕 연애운: ${todayLove}점 ${'★'.repeat(Math.round(todayLove/20))}${'☆'.repeat(5-Math.round(todayLove/20))}</p><p>💰 금전운: ${todayMoney}점 ${'★'.repeat(Math.round(todayMoney/20))}${'☆'.repeat(5-Math.round(todayMoney/20))}</p><p>💪 건강운: ${todayHealth}점 ${'★'.repeat(Math.round(todayHealth/20))}${'☆'.repeat(5-Math.round(todayHealth/20))}</p><p>💼 직장운: ${todayWork}점 ${'★'.repeat(Math.round(todayWork/20))}${'☆'.repeat(5-Math.round(todayWork/20))}</p><hr style="border-color:rgba(150,100,255,.15);margin:15px 0"><p>💡 <b>조언:</b> ${d.adv}</p></div><br><button onclick="document.getElementById('result').style.display='none'">다시 하기</button>`;
 el.style.display='block';el.scrollIntoView({behavior:'smooth'})}
-</script><section style="max-width:700px;margin:30px auto;padding:20px;background:#1a1a2e;border-radius:16px;border:1px solid #2a2a4a;color:#bbb;font-size:14px;line-height:1.8">
-<h2 style="color:#FFD700;font-size:18px;margin-bottom:10px">수비학 운세</h2>
-<p>생일 날짜의 숫자로 숨겨진 운명의 비밀을 풀어봅니다. 운명수, 성격수, 영혼수를 분석합니다.</p>
-<p style="margin-top:10px;font-size:12px;color:#888">이 콘텐츠는 <a href="../index.html" style="color:#7DF">놀이터(hoit.me)</a>에서 무료로 제공됩니다.</p>
+</script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+<style>
+.seo-content{max-width:700px;margin:40px auto 80px;padding:0 20px;color:#bbb;font-size:14px;line-height:1.8}
+.seo-content h2{color:#FFD700;font-size:20px;margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid #2a2a4a}
+.seo-content h3{color:#ddd;font-size:16px;margin:16px 0 8px}
+.seo-content p{margin:8px 0;color:#999}
+.seo-content ul{margin:8px 0 8px 20px;color:#999}
+.seo-content li{margin:4px 0}
+.seo-content .seo-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.seo-content .seo-tag{background:#1a1a2e;border:1px solid #2a2a4a;padding:4px 12px;border-radius:15px;font-size:12px;color:#888}
+.seo-content .seo-nav{margin-top:20px;padding-top:16px;border-top:1px solid #2a2a4a;text-align:center}
+.seo-content .seo-nav a{color:#666;text-decoration:none;font-size:12px;margin:0 10px}
+.seo-content .seo-nav a:hover{color:#FFD700}
+</style>
+<section class="seo-content" aria-label="수비학 운세 소개">
+<h2>수비학 운세</h2>
+<p>생년월일의 숫자로 알아보는 수비학(Numerology) 운세입니다. 생명수, 운명수, 영혼수 등을 계산하여 성격과 운세를 분석합니다.</p>
+
+<h3>사용 방법</h3>
+<p>생년월일을 입력하면 개인 수비학 숫자를 계산하고 의미를 풀이합니다.</p>
+
+<h3>팁</h3>
+<p>수비학에서 각 숫자(1~9, 11, 22)는 고유한 에너지를 가지고 있습니다.</p>
+
+<div class="seo-tags"><span class="seo-tag">수비학</span><span class="seo-tag">숫자</span><span class="seo-tag">운세</span></div>
+
+<div class="seo-nav">
+<a href="../index.html">홈으로</a>
+<a href="../about.html">소개</a>
+<a href="../terms.html">이용약관</a>
+<a href="../privacy.html">개인정보처리방침</a>
+</div>
 </section>
-<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div></body></html>
+<script src="../js/catalog.js"></script>
+<script src="../js/recommend.js"></script>
+<script src="../js/share.js"></script>
+</body></html>

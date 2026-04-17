@@ -4,7 +4,7 @@
 <meta property="og:description" content="hoit.me - 오행 운세 | 무료 운세. 설치 없이 브라우저에서 바로 즐기세요!">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://hoit.me/destiny/ohang.html">
-<link rel="canonical" href="https://hoit.me/destiny/ohang.html"><style>*{margin:0;padding:0;box-sizing:border-box}body{min-height:100vh;background:linear-gradient(135deg,#0a0a1a,#1a0a2e,#0a1a2e);color:#e0d0ff;font-family:'Segoe UI',sans-serif;display:flex;flex-direction:column;flex-direction:column;align-items:center;padding:20px}h1{margin:30px 0 10px;font-size:2em;text-shadow:0 0 20px rgba(150,100,255,.5)}.sub{color:#9988bb;margin-bottom:25px}.elements{display:flex;flex-direction:column;flex-wrap:wrap;gap:15px;justify-content:center;margin:20px 0}.elem{width:120px;height:130px;border-radius:16px;display:flex;flex-direction:column;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .3s;border:2px solid transparent;font-size:.95em}.elem:hover{transform:translateY(-5px)}.elem .icon{font-size:2.8em;margin-bottom:8px}.result{display:none;max-width:520px;width:100%;animation:fadeIn .8s;margin-top:25px}.rbox{background:rgba(255,255,255,.05);border-radius:16px;padding:25px;line-height:1.8}.compat{display:flex;flex-direction:column;flex-wrap:wrap;gap:8px;margin:10px 0}.compat-item{background:rgba(255,255,255,.08);border-radius:10px;padding:6px 12px;font-size:.85em}button{background:linear-gradient(135deg,#6a3de8,#4a2db8);color:#fff;border:none;padding:12px 28px;border-radius:12px;font-size:1em;cursor:pointer;margin-top:15px;transition:all .3s}button:hover{transform:scale(1.05)}@keyframes fadeIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}</style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous">
+<link rel="canonical" href="https://hoit.me/destiny/ohang.html"><style>*{margin:0;padding:0;box-sizing:border-box}body{min-height:100vh;background:linear-gradient(135deg,#0a0a1a,#1a0a2e,#0a1a2e);color:#e0d0ff;font-family:'Segoe UI',sans-serif;display:flex;flex-direction:column;align-items:center;padding:20px}h1{margin:30px 0 10px;font-size:2em;text-shadow:0 0 20px rgba(150,100,255,.5)}.sub{color:#9988bb;margin-bottom:25px}.elements{display:flex;flex-wrap:wrap;gap:15px;justify-content:center;margin:20px 0}.elem{width:120px;height:130px;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .3s;border:2px solid transparent;font-size:.95em}.elem:hover{transform:translateY(-5px)}.elem .icon{font-size:2.8em;margin-bottom:8px}.result{display:none;max-width:520px;width:100%;animation:fadeIn .8s;margin-top:25px}.rbox{background:rgba(255,255,255,.05);border-radius:16px;padding:25px;line-height:1.8}.compat{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.compat-item{background:rgba(255,255,255,.08);border-radius:10px;padding:6px 12px;font-size:.85em}button{background:linear-gradient(135deg,#6a3de8,#4a2db8);color:#fff;border:none;padding:12px 28px;border-radius:12px;font-size:1em;cursor:pointer;margin-top:15px;transition:all .3s}button:hover{transform:scale(1.05)}@keyframes fadeIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}</style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous">
 function _copy(text,btn){
   if(navigator.clipboard&&navigator.clipboard.writeText){
     _copy(text,this).catch(()=>_copyFallback(text,btn));
@@ -18,7 +18,7 @@ function _copyFallback(text,btn){
 }
 </script>
 </head><body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
 <h1>☯️ 오행 운세</h1><p class="sub">당신의 오행을 선택하세요</p>
 <div class="elements" id="elems"></div>
 <div class="result" id="result"></div>
@@ -41,9 +41,41 @@ const msg=msgs[Math.floor(r()*msgs.length)];
 const el=document.getElementById('result');
 el.innerHTML=`<div class="rbox" style="border:1px solid ${e.bc}30"><h2 style="color:${e.bc}">${e.n} 오늘의 운세</h2><br><p>${e.desc}</p><br><div class="compat">${e.traits.map(t=>`<span class="compat-item">${t}</span>`).join('')}</div><br><p style="font-size:1.05em">🌟 ${msg}</p><br><h3>📊 오늘의 운세 점수</h3><p>💕 연애운: ${love}점 | 💰 금전운: ${money}점</p><p>💪 건강운: ${health}점 | 💼 직장운: ${work}점</p><br><h3>☯️ 오행 상성</h3><p>✅ <b>상생 (생해주는 관계):</b> ${e.gen}</p><p>⚔️ <b>상극 (이기는 관계):</b> ${e.over}</p><p>⚠️ <b>주의 (조심할 관계):</b> ${e.fear}</p><p>🤝 <b>도움 (도움받는 관계):</b> ${e.help}</p><br><p>💡 <b>오늘의 조언:</b> ${e.help}의 기운을 가진 사람과 함께하면 좋은 하루가 될 것입니다.</p></div><br><button onclick="document.getElementById('result').style.display='none';window.scrollTo({top:0,behavior:'smooth'})">다시 하기</button>`;
 el.style.display='block';el.scrollIntoView({behavior:'smooth'})}
-</script><section style="max-width:700px;margin:30px auto;padding:20px;background:#1a1a2e;border-radius:16px;border:1px solid #2a2a4a;color:#bbb;font-size:14px;line-height:1.8">
-<h2 style="color:#FFD700;font-size:18px;margin-bottom:10px">오행 운세</h2>
-<p>목(木), 화(火), 토(土), 금(金), 수(水) 다섯 가지 기운 중 나의 오행을 분석하고 오늘의 운세를 알려줍니다.</p>
-<p style="margin-top:10px;font-size:12px;color:#888">이 콘텐츠는 <a href="../index.html" style="color:#7DF">놀이터(hoit.me)</a>에서 무료로 제공됩니다.</p>
+</script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+<style>
+.seo-content{max-width:700px;margin:40px auto 80px;padding:0 20px;color:#bbb;font-size:14px;line-height:1.8}
+.seo-content h2{color:#FFD700;font-size:20px;margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid #2a2a4a}
+.seo-content h3{color:#ddd;font-size:16px;margin:16px 0 8px}
+.seo-content p{margin:8px 0;color:#999}
+.seo-content ul{margin:8px 0 8px 20px;color:#999}
+.seo-content li{margin:4px 0}
+.seo-content .seo-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.seo-content .seo-tag{background:#1a1a2e;border:1px solid #2a2a4a;padding:4px 12px;border-radius:15px;font-size:12px;color:#888}
+.seo-content .seo-nav{margin-top:20px;padding-top:16px;border-top:1px solid #2a2a4a;text-align:center}
+.seo-content .seo-nav a{color:#666;text-decoration:none;font-size:12px;margin:0 10px}
+.seo-content .seo-nav a:hover{color:#FFD700}
+</style>
+<section class="seo-content" aria-label="오행 운세 소개">
+<h2>오행 운세</h2>
+<p>동양 철학의 오행(목·화·토·금·수)으로 분석하는 운세입니다. 생년월일로 나의 오행 속성을 파악하고 운세와 궁합을 확인합니다.</p>
+
+<h3>사용 방법</h3>
+<p>생년월일을 입력하면 오행 속성과 그에 따른 성격, 운세를 분석합니다.</p>
+
+<h3>팁</h3>
+<p>오행은 서로 상생(돕는)과 상극(충돌하는) 관계가 있어 궁합에도 활용됩니다.</p>
+
+<div class="seo-tags"><span class="seo-tag">오행</span><span class="seo-tag">동양철학</span><span class="seo-tag">운세</span></div>
+
+<div class="seo-nav">
+<a href="../index.html">홈으로</a>
+<a href="../about.html">소개</a>
+<a href="../terms.html">이용약관</a>
+<a href="../privacy.html">개인정보처리방침</a>
+</div>
 </section>
-<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div></body></html>
+<script src="../js/catalog.js"></script>
+<script src="../js/recommend.js"></script>
+<script src="../js/share.js"></script>
+</body></html>

@@ -12,10 +12,10 @@
 <link rel="canonical" href="https://hoit.me/games/snake.html">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { background: #1a1a2e; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+body { background: #1a1a2e; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
 canvas { border-radius: 12px; box-shadow: 0 0 40px rgba(100,200,150,0.15); }
 canvas{max-width:100%!important;height:auto!important;display:block;margin:0 auto}body{overflow-x:hidden}
-.menu-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,15,30,0.97);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;flex-direction:column}
+.menu-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,15,30,0.97);display:flex;align-items:center;justify-content:center;z-index:100;flex-direction:column}
 .menu-box{background:#1a1a2e;border-radius:20px;padding:30px;text-align:center;max-width:420px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.6)}
 .menu-box h2{font-size:1.6em;color:#7EC8A0;margin-bottom:15px}
 .menu-box p{color:#aaa;font-size:0.9em;margin:6px 0}
@@ -30,7 +30,7 @@ canvas{max-width:100%!important;height:auto!important;display:block;margin:0 aut
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 </head>
 <body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
 <script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
 
 <div id="menuScreen" class="menu-overlay">
@@ -701,11 +701,43 @@ canvas.addEventListener('touchend', e => {
 started = false;
 requestAnimationFrame(gameLoop);
 </script>
-<section style="max-width:700px;margin:30px auto;padding:20px;background:#1a1a2e;border-radius:16px;border:1px solid #2a2a4a;color:#bbb;font-size:14px;line-height:1.8">
-<h2 style="color:#FFD700;font-size:18px;margin-bottom:10px">뱀 키우기</h2>
-<p>뱀을 조작하여 먹이를 먹고 점점 길어지는 클래식 아케이드 게임입니다. 자신의 몸이나 벽에 부딪히면 게임 오버!</p>
-<p>방향키로 뱀을 조작하세요.</p>
-<p style="margin-top:10px;font-size:12px;color:#888">이 게임은 <a href="../index.html" style="color:#7DF">놀이터(hoit.me)</a>에서 무료로 제공됩니다. 설치 없이 브라우저에서 바로 플레이하세요.</p>
+<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+<style>
+.seo-content{max-width:700px;margin:40px auto 80px;padding:0 20px;color:#bbb;font-size:14px;line-height:1.8}
+.seo-content h2{color:#FFD700;font-size:20px;margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid #2a2a4a}
+.seo-content h3{color:#ddd;font-size:16px;margin:16px 0 8px}
+.seo-content p{margin:8px 0;color:#999}
+.seo-content ul{margin:8px 0 8px 20px;color:#999}
+.seo-content li{margin:4px 0}
+.seo-content .seo-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.seo-content .seo-tag{background:#1a1a2e;border:1px solid #2a2a4a;padding:4px 12px;border-radius:15px;font-size:12px;color:#888}
+.seo-content .seo-nav{margin-top:20px;padding-top:16px;border-top:1px solid #2a2a4a;text-align:center}
+.seo-content .seo-nav a{color:#666;text-decoration:none;font-size:12px;margin:0 10px}
+.seo-content .seo-nav a:hover{color:#FFD700}
+</style>
+<section class="seo-content" aria-label="뱀 게임 (스네이크) 소개">
+<h2>뱀 게임 (스네이크)</h2>
+<p>클래식 뱀 게임을 브라우저에서 즐기세요. 먹이를 먹으면 뱀이 길어지며, 벽이나 자신의 몸에 부딪히면 게임오버입니다. 단순하지만 중독성 있는 아케이드 게임입니다.</p>
+
+<h3>사용 방법</h3>
+<p>방향키로 뱀의 이동 방향을 조절합니다. 먹이를 먹으면 점수가 오르고 뱀이 길어집니다. 벽이나 자신의 몸에 닿지 않도록 주의하세요.</p>
+
+<h3>팁</h3>
+<p>맵 가장자리보다 중앙에서 움직이는 것이 안전합니다. 뱀이 길어지면 나선형으로 이동하세요. 먹이 위치를 미리 파악하고 경로를 계획하세요.</p>
+
+<div class="seo-tags"><span class="seo-tag">아케이드</span><span class="seo-tag">클래식</span><span class="seo-tag">캐주얼</span></div>
+
+<div class="seo-nav">
+<a href="../index.html">홈으로</a>
+<a href="../about.html">소개</a>
+<a href="../terms.html">이용약관</a>
+<a href="../privacy.html">개인정보처리방침</a>
+</div>
 </section>
-<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div></body>
+<script src="../js/sfx.js"></script>
+<script src="../js/catalog.js"></script>
+<script src="../js/recommend.js"></script>
+<script src="../js/share.js"></script>
+</body>
 </html>

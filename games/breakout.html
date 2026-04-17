@@ -12,11 +12,11 @@
 <link rel="canonical" href="https://hoit.me/games/breakout.html">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI','Noto Sans KR',sans-serif;min-height:100vh;display:flex;flex-direction:column;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI','Noto Sans KR',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
 h1{font-size:1.8em;margin:10px 0 5px;background:linear-gradient(135deg,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .info{color:#aaa;font-size:0.85em;margin-bottom:8px}
 canvas{border-radius:12px;display:block;box-shadow:0 4px 24px rgba(0,0,0,0.5);cursor:none}
-.overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,15,30,0.95);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100}
+.overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,15,30,0.95);display:flex;align-items:center;justify-content:center;z-index:100}
 .overlay-box{background:#1a1a2e;border-radius:20px;padding:35px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.6);max-width:440px;width:90%}
 .overlay-box h2{font-size:1.8em;margin-bottom:15px;background:linear-gradient(135deg,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .overlay-box p{color:#ccc;margin:8px 0}
@@ -32,7 +32,7 @@ canvas{max-width:100%!important;height:auto!important;display:block;margin:0 aut
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 </head>
 <body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
 <script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
 
 <div id="startScreen" class="overlay">
@@ -851,10 +851,43 @@ document.addEventListener('touchmove',e=>{
 loadHS();
 document.getElementById('startHighScore').textContent=highScore>0?`최고 기록: ${highScore}점`:'';
 </script>
-<section style="max-width:700px;margin:30px auto;padding:20px;background:#1a1a2e;border-radius:16px;border:1px solid #2a2a4a;color:#bbb;font-size:14px;line-height:1.8">
-<h2 style="color:#FFD700;font-size:18px;margin-bottom:10px">벽돌깨기</h2>
-<p>공을 패들로 튕겨 벽돌을 모두 깨는 클래식 아케이드 게임입니다. 공을 놓치지 않고 모든 벽돌을 깨세요.</p>
-<p style="margin-top:10px;font-size:12px;color:#888">이 게임은 <a href="../index.html" style="color:#7DF">놀이터(hoit.me)</a>에서 무료로 제공됩니다. 설치 없이 브라우저에서 바로 플레이하세요.</p>
+<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+<style>
+.seo-content{max-width:700px;margin:40px auto 80px;padding:0 20px;color:#bbb;font-size:14px;line-height:1.8}
+.seo-content h2{color:#FFD700;font-size:20px;margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid #2a2a4a}
+.seo-content h3{color:#ddd;font-size:16px;margin:16px 0 8px}
+.seo-content p{margin:8px 0;color:#999}
+.seo-content ul{margin:8px 0 8px 20px;color:#999}
+.seo-content li{margin:4px 0}
+.seo-content .seo-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.seo-content .seo-tag{background:#1a1a2e;border:1px solid #2a2a4a;padding:4px 12px;border-radius:15px;font-size:12px;color:#888}
+.seo-content .seo-nav{margin-top:20px;padding-top:16px;border-top:1px solid #2a2a4a;text-align:center}
+.seo-content .seo-nav a{color:#666;text-decoration:none;font-size:12px;margin:0 10px}
+.seo-content .seo-nav a:hover{color:#FFD700}
+</style>
+<section class="seo-content" aria-label="벽돌깨기 소개">
+<h2>벽돌깨기</h2>
+<p>공을 튕겨 벽돌을 깨는 클래식 아케이드 게임입니다. 패들을 좌우로 움직여 공이 아래로 떨어지지 않도록 하면서 모든 벽돌을 깨면 스테이지 클리어입니다.</p>
+
+<h3>사용 방법</h3>
+<p>마우스 또는 터치로 패들을 좌우로 움직입니다. 공이 패들에 맞으면 반사되어 위로 올라갑니다. 모든 벽돌을 깨면 다음 스테이지로 진행합니다.</p>
+
+<h3>팁</h3>
+<p>패들의 가장자리에 맞으면 공의 각도가 변합니다. 이를 이용해 원하는 방향으로 공을 보내세요. 위쪽 벽돌이 더 높은 점수를 줍니다.</p>
+
+<div class="seo-tags"><span class="seo-tag">아케이드</span><span class="seo-tag">클래식</span><span class="seo-tag">캐주얼</span></div>
+
+<div class="seo-nav">
+<a href="../index.html">홈으로</a>
+<a href="../about.html">소개</a>
+<a href="../terms.html">이용약관</a>
+<a href="../privacy.html">개인정보처리방침</a>
+</div>
 </section>
-<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div></body>
+<script src="../js/sfx.js"></script>
+<script src="../js/catalog.js"></script>
+<script src="../js/recommend.js"></script>
+<script src="../js/share.js"></script>
+</body>
 </html>

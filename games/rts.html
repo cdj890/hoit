@@ -13,13 +13,13 @@
 <link rel="canonical" href="https://hoit.me/games/rts.html">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-body{background:#0f0f1e;display:flex;flex-direction:column;flex-direction:column;align-items:center;font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:#fff;overflow:hidden;touch-action:none;user-select:none;}
+body{background:#0f0f1e;display:flex;flex-direction:column;align-items:center;font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:#fff;overflow:hidden;touch-action:none;user-select:none;}
 canvas{display:block;border-radius:0 0 8px 8px;}
 #controls{width:100%;max-width:500px;display:none;padding:8px;gap:6px;display:none;flex-wrap:wrap;justify-content:center;}
 .ubtn{background:linear-gradient(135deg,#3a5a8a,#2a3a5a);border:2px solid #5a8aba;color:#fff;padding:8px 10px;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;flex:1;min-width:80px;max-width:120px;text-align:center;touch-action:manipulation;min-height:44px;}
 .ubtn:active{transform:scale(0.95);background:#4a6a9a;}
 .ubtn .cost{font-size:11px;color:#ffd700;}
-#overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,15,30,0.93);display:flex;flex-direction:column;flex-direction:column;align-items:center;justify-content:center;z-index:100;}
+#overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,15,30,0.93);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;}
 #overlay h1{font-size:30px;color:#5af;margin-bottom:8px;}
 #overlay p{color:#aaa;font-size:14px;margin-bottom:16px;text-align:center;padding:0 20px;}
 #overlay h2{font-size:26px;color:#5af;margin-bottom:10px;}
@@ -37,7 +37,7 @@ canvas{display:block;border-radius:0 0 8px 8px;}
 .round-stat{background:#252545;padding:10px;border-radius:10px}
 .round-stat .val{font-size:20px;font-weight:bold;color:#5af}
 .round-stat .lbl{font-size:11px;color:#888;margin-top:2px}
-.round-btns{display:flex;flex-direction:column;gap:10px;justify-content:center;margin-top:15px}
+.round-btns{display:flex;gap:10px;justify-content:center;margin-top:15px}
 .round-btns button{padding:12px 24px;border:none;border-radius:12px;font-size:16px;font-weight:bold;cursor:pointer;min-height:44px;touch-action:manipulation}
 .btn-next{background:linear-gradient(135deg,#FFD700,#FFA000);color:#000}
 .btn-next:hover{box-shadow:0 4px 15px rgba(255,215,0,0.4)}
@@ -62,7 +62,7 @@ canvas{display:block;border-radius:0 0 8px 8px;}
 </style>
 </head>
 <body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
 <script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
 
 <div id="hud">
@@ -683,10 +683,43 @@ window.upgradeUnit=upgradeUnit;
 window.useSkill=useSkill;
 window.setFormation=setFormation;
 </script>
-<section style="max-width:700px;margin:30px auto;padding:20px;background:#1a1a2e;border-radius:16px;border:1px solid #2a2a4a;color:#bbb;font-size:14px;line-height:1.8">
-<h2 style="color:#FFD700;font-size:18px;margin-bottom:10px">미니 전략 (RTS)</h2>
-<p>유닛을 생산하고 자원을 관리하며 적 기지를 파괴하는 실시간 전략 게임입니다. 빠른 판단과 전략적 사고가 필요합니다.</p>
-<p style="margin-top:10px;font-size:12px;color:#888">이 게임은 <a href="../index.html" style="color:#7DF">놀이터(hoit.me)</a>에서 무료로 제공됩니다. 설치 없이 브라우저에서 바로 플레이하세요.</p>
+<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+<style>
+.seo-content{max-width:700px;margin:40px auto 80px;padding:0 20px;color:#bbb;font-size:14px;line-height:1.8}
+.seo-content h2{color:#FFD700;font-size:20px;margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid #2a2a4a}
+.seo-content h3{color:#ddd;font-size:16px;margin:16px 0 8px}
+.seo-content p{margin:8px 0;color:#999}
+.seo-content ul{margin:8px 0 8px 20px;color:#999}
+.seo-content li{margin:4px 0}
+.seo-content .seo-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.seo-content .seo-tag{background:#1a1a2e;border:1px solid #2a2a4a;padding:4px 12px;border-radius:15px;font-size:12px;color:#888}
+.seo-content .seo-nav{margin-top:20px;padding-top:16px;border-top:1px solid #2a2a4a;text-align:center}
+.seo-content .seo-nav a{color:#666;text-decoration:none;font-size:12px;margin:0 10px}
+.seo-content .seo-nav a:hover{color:#FFD700}
+</style>
+<section class="seo-content" aria-label="RTS 전략 게임 소개">
+<h2>RTS 전략 게임</h2>
+<p>실시간으로 유닛을 생산하고 지휘하는 전략 시뮬레이션 게임입니다. 자원을 관리하고 군대를 편성하여 적 기지를 파괴하세요.</p>
+
+<h3>사용 방법</h3>
+<p>자원을 수집하여 건물과 유닛을 생산합니다. 유닛을 선택하고 이동/공격 명령을 내립니다. 적의 기지를 파괴하면 승리합니다.</p>
+
+<h3>팁</h3>
+<p>초반 자원 관리가 중요합니다. 정찰을 통해 적의 전략을 파악하세요. 유닛 간 상성을 활용하세요.</p>
+
+<div class="seo-tags"><span class="seo-tag">전략</span><span class="seo-tag">RTS</span><span class="seo-tag">시뮬레이션</span></div>
+
+<div class="seo-nav">
+<a href="../index.html">홈으로</a>
+<a href="../about.html">소개</a>
+<a href="../terms.html">이용약관</a>
+<a href="../privacy.html">개인정보처리방침</a>
+</div>
 </section>
-<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div></body>
+<script src="../js/sfx.js"></script>
+<script src="../js/catalog.js"></script>
+<script src="../js/recommend.js"></script>
+<script src="../js/share.js"></script>
+</body>
 </html>

@@ -12,21 +12,21 @@
 <link rel="canonical" href="https://hoit.me/games/colormatch.html">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI','Noto Sans KR',sans-serif;min-height:100vh;display:flex;flex-direction:column;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;user-select:none}
+body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI','Noto Sans KR',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;user-select:none}
 .container{text-align:center;max-width:460px;width:90%;padding:20px}
 h1{font-size:2em;margin-bottom:8px;background:linear-gradient(135deg,#f472b6,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.info-bar{display:flex;flex-direction:column;justify-content:space-between;margin:12px 0;color:#aaa;font-size:0.9em}
+.info-bar{display:flex;justify-content:space-between;margin:12px 0;color:#aaa;font-size:0.9em}
 .color-word{font-size:3.5em;font-weight:900;margin:30px 0;min-height:80px;transition:transform 0.1s}
 .color-word.shake{animation:shake 0.3s}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
-.choices{display:flex;flex-direction:column;flex-wrap:wrap;justify-content:center;gap:10px;margin:20px 0}
+.choices{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:20px 0}
 .choice-btn{padding:14px 24px;border:2px solid transparent;border-radius:14px;font-size:1.1em;font-weight:bold;cursor:pointer;transition:all 0.15s;min-width:100px;color:#fff}
 .choice-btn:hover{transform:scale(1.08);box-shadow:0 4px 15px rgba(0,0,0,0.3)}
 .choice-btn:active{transform:scale(0.95)}
 .timer-bar{width:100%;height:8px;background:#1e1e3a;border-radius:4px;margin:15px 0;overflow:hidden}
 .timer-fill{height:100%;border-radius:4px;transition:width 0.1s linear;background:linear-gradient(90deg,#f472b6,#a78bfa)}
 .feedback{font-size:1.5em;min-height:40px;margin:10px 0}
-.overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,15,30,0.95);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100}
+.overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,15,30,0.95);display:flex;align-items:center;justify-content:center;z-index:100}
 .overlay-box{background:#1a1a2e;border-radius:20px;padding:40px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.6);max-width:400px;width:90%}
 .overlay-box h2{font-size:1.8em;margin-bottom:15px;background:linear-gradient(135deg,#f472b6,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .overlay-box p{color:#ccc;margin:8px 0}
@@ -40,7 +40,7 @@ canvas{max-width:100%!important;height:auto!important;display:block;margin:0 aut
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 </head>
 <body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
 <script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
 
 <div id="startScreen" class="overlay">
@@ -193,10 +193,43 @@ document.getElementById('resultHighScore').textContent=`최고 기록: ${highSco
 loadHS();
 document.getElementById('startHighScore').textContent=highScore>0?`최고 기록: ${highScore}점`:'';
 </script>
-<section style="max-width:700px;margin:30px auto;padding:20px;background:#1a1a2e;border-radius:16px;border:1px solid #2a2a4a;color:#bbb;font-size:14px;line-height:1.8">
-<h2 style="color:#FFD700;font-size:18px;margin-bottom:10px">색 맞추기 (스트룹 테스트)</h2>
-<p>글자의 색깔과 의미가 다를 때 정확하게 색을 판별하는 인지 반응 테스트입니다. 스트룹 효과를 체험하며 두뇌를 훈련하세요.</p>
-<p style="margin-top:10px;font-size:12px;color:#888">이 게임은 <a href="../index.html" style="color:#7DF">놀이터(hoit.me)</a>에서 무료로 제공됩니다. 설치 없이 브라우저에서 바로 플레이하세요.</p>
+<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+<style>
+.seo-content{max-width:700px;margin:40px auto 80px;padding:0 20px;color:#bbb;font-size:14px;line-height:1.8}
+.seo-content h2{color:#FFD700;font-size:20px;margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid #2a2a4a}
+.seo-content h3{color:#ddd;font-size:16px;margin:16px 0 8px}
+.seo-content p{margin:8px 0;color:#999}
+.seo-content ul{margin:8px 0 8px 20px;color:#999}
+.seo-content li{margin:4px 0}
+.seo-content .seo-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.seo-content .seo-tag{background:#1a1a2e;border:1px solid #2a2a4a;padding:4px 12px;border-radius:15px;font-size:12px;color:#888}
+.seo-content .seo-nav{margin-top:20px;padding-top:16px;border-top:1px solid #2a2a4a;text-align:center}
+.seo-content .seo-nav a{color:#666;text-decoration:none;font-size:12px;margin:0 10px}
+.seo-content .seo-nav a:hover{color:#FFD700}
+</style>
+<section class="seo-content" aria-label="컬러 매치 소개">
+<h2>컬러 매치</h2>
+<p>표시된 색상과 단어가 일치하는지 빠르게 판단하는 두뇌 게임입니다. 스트룹 효과를 경험하며 인지 능력을 테스트해보세요.</p>
+
+<h3>사용 방법</h3>
+<p>표시된 단어의 의미와 글자 색상이 일치하면 O, 다르면 X를 누르세요. 빠르고 정확하게 판단할수록 높은 점수를 얻습니다.</p>
+
+<h3>팁</h3>
+<p>글자의 "의미"가 아닌 "색상"에 집중하세요. 이 게임은 뇌의 자동 반응과 의식적 판단 사이의 충돌(스트룹 효과)을 활용합니다.</p>
+
+<div class="seo-tags"><span class="seo-tag">두뇌</span><span class="seo-tag">인지</span><span class="seo-tag">심리</span></div>
+
+<div class="seo-nav">
+<a href="../index.html">홈으로</a>
+<a href="../about.html">소개</a>
+<a href="../terms.html">이용약관</a>
+<a href="../privacy.html">개인정보처리방침</a>
+</div>
 </section>
-<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div></body>
+<script src="../js/sfx.js"></script>
+<script src="../js/catalog.js"></script>
+<script src="../js/recommend.js"></script>
+<script src="../js/share.js"></script>
+</body>
 </html>

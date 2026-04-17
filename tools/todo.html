@@ -13,24 +13,24 @@
 <link rel="canonical" href="https://hoit.me/tools/todo.html">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0f0f1e;color:#e0e0e0;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;flex-direction:column;justify-content:center}
+body{background:#0f0f1e;color:#e0e0e0;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;justify-content:center}
 .wrap{width:100%;max-width:500px;padding:60px 16px 30px}
 h1{text-align:center;font-size:22px;margin-bottom:16px;color:#fff}
 .progress{background:#1a1a2e;border-radius:10px;height:12px;margin-bottom:16px;overflow:hidden}
 .progress-bar{height:100%;background:linear-gradient(90deg,#6c5ce7,#a29bfe);border-radius:10px;transition:width 0.3s;width:0}
 .pct{text-align:center;font-size:13px;color:#888;margin-bottom:16px}
-.add-row{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.add-row{display:flex;gap:8px;margin-bottom:12px}
 .add-row input{flex:1;background:#1a1a2e;border:1px solid #333;border-radius:12px;color:#e0e0e0;padding:12px;font-size:16px;outline:none}
 .add-row input:focus{border-color:#6c5ce7}
 .add-row select{background:#1a1a2e;border:1px solid #333;border-radius:12px;color:#e0e0e0;padding:12px;font-size:14px;outline:none}
 .add-row button{padding:12px 18px;background:#6c5ce7;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:bold;cursor:pointer;min-height:44px;touch-action:manipulation}
-.filters{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.filters{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
 .flt{padding:8px 14px;background:#1a1a2e;border:1px solid #333;border-radius:20px;font-size:13px;cursor:pointer;touch-action:manipulation}
 .flt.active{background:#6c5ce7;color:#fff;border-color:#6c5ce7}
 .list{list-style:none}
-.todo{display:flex;flex-direction:column;align-items:center;gap:10px;background:#1a1a2e;border-radius:12px;padding:14px;margin-bottom:8px}
+.todo{display:flex;align-items:center;gap:10px;background:#1a1a2e;border-radius:12px;padding:14px;margin-bottom:8px}
 .todo.done{opacity:0.5}
-.todo .check{width:24px;height:24px;border:2px solid #6c5ce7;border-radius:6px;cursor:pointer;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;touch-action:manipulation}
+.todo .check{width:24px;height:24px;border:2px solid #6c5ce7;border-radius:6px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;touch-action:manipulation}
 .todo.done .check{background:#6c5ce7}
 .todo.done .check::after{content:'✓';color:#fff;font-size:14px;font-weight:bold}
 .todo .text{flex:1;font-size:15px}
@@ -44,7 +44,7 @@ h1{text-align:center;font-size:22px;margin-bottom:16px;color:#fff}
 </style>
 </head>
 <body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
 <div class="wrap">
 <h1>할일 목록</h1>
 <div class="progress"><div class="progress-bar" id="bar"></div></div>
@@ -100,10 +100,42 @@ function render(){
 }
 render();
 </script>
-<section style="max-width:700px;margin:30px auto;padding:20px;background:#1a1a2e;border-radius:16px;border:1px solid #2a2a4a;color:#bbb;font-size:14px;line-height:1.8">
-<h2 style="color:#FFD700;font-size:18px;margin-bottom:10px">할일 목록 (투두리스트)</h2>
-<p>카테고리별로 할일을 관리하는 투두리스트입니다. 브라우저에 자동 저장되어 편리합니다.</p>
-<p style="margin-top:10px;font-size:12px;color:#888">이 도구는 <a href="../index.html" style="color:#7DF">놀이터(hoit.me)</a>에서 무료로 제공됩니다.</p>
+<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+<style>
+.seo-content{max-width:700px;margin:40px auto 80px;padding:0 20px;color:#bbb;font-size:14px;line-height:1.8}
+.seo-content h2{color:#FFD700;font-size:20px;margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid #2a2a4a}
+.seo-content h3{color:#ddd;font-size:16px;margin:16px 0 8px}
+.seo-content p{margin:8px 0;color:#999}
+.seo-content ul{margin:8px 0 8px 20px;color:#999}
+.seo-content li{margin:4px 0}
+.seo-content .seo-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.seo-content .seo-tag{background:#1a1a2e;border:1px solid #2a2a4a;padding:4px 12px;border-radius:15px;font-size:12px;color:#888}
+.seo-content .seo-nav{margin-top:20px;padding-top:16px;border-top:1px solid #2a2a4a;text-align:center}
+.seo-content .seo-nav a{color:#666;text-decoration:none;font-size:12px;margin:0 10px}
+.seo-content .seo-nav a:hover{color:#FFD700}
+</style>
+<section class="seo-content" aria-label="할 일 목록 (To-Do) 소개">
+<h2>할 일 목록 (To-Do)</h2>
+<p>할 일을 추가, 완료, 삭제할 수 있는 간단한 투두리스트 도구입니다. 로컬 스토리지에 저장되어 브라우저를 닫아도 유지됩니다.</p>
+
+<h3>사용 방법</h3>
+<p>할 일을 입력하고 추가하세요. 완료한 항목은 체크하고, 불필요한 항목은 삭제할 수 있습니다.</p>
+
+<h3>팁</h3>
+<p>가장 중요한 일을 맨 위에 놓고 하나씩 처리하세요.</p>
+
+<div class="seo-tags"><span class="seo-tag">할일</span><span class="seo-tag">생산성</span><span class="seo-tag">관리</span></div>
+
+<div class="seo-nav">
+<a href="../index.html">홈으로</a>
+<a href="../about.html">소개</a>
+<a href="../terms.html">이용약관</a>
+<a href="../privacy.html">개인정보처리방침</a>
+</div>
 </section>
-<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div></body>
+<script src="../js/catalog.js"></script>
+<script src="../js/recommend.js"></script>
+<script src="../js/share.js"></script>
+</body>
 </html>

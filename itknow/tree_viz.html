@@ -13,18 +13,18 @@
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;flex-direction:column;flex-direction:column;align-items:center}
+body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center}
 .wrap{max-width:550px;width:100%;padding:60px 16px 40px}
 h1{text-align:center;font-size:22px;margin-bottom:6px;color:#7ecfff}
 .sub{text-align:center;color:#888;font-size:13px;margin-bottom:20px}
-.row{display:flex;flex-direction:column;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
 .row input{flex:1;min-width:80px;padding:10px 12px;border-radius:10px;border:1px solid #333;background:#1a1a2e;color:#fff;font-size:15px;outline:none}
 .row input:focus{border-color:#7ecfff}
 .btn{padding:10px 14px;border-radius:10px;border:none;font-size:13px;font-weight:bold;cursor:pointer;touch-action:manipulation;min-height:44px;transition:transform .1s}
 .btn:active{transform:scale(0.95)}
 .btn-ins{background:#4caf50;color:#fff}
 .btn-clr{background:#f44336;color:#fff}
-.trav-row{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.trav-row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
 .btn-trav{background:#7c4dff;color:#fff;font-size:12px;padding:8px 12px;border-radius:8px;border:none;cursor:pointer;font-weight:bold;touch-action:manipulation;min-height:40px}
 .btn-trav:active{transform:scale(0.95)}
 canvas{width:100%;background:#12122a;border-radius:12px;display:block;margin-bottom:10px}
@@ -36,7 +36,7 @@ canvas{width:100%;background:#12122a;border-radius:12px;display:block;margin-bot
 body{overflow-x:hidden}.wrap,.container{max-width:100%;padding-left:12px;padding-right:12px}canvas{max-width:100%!important;height:auto!important}input,select,textarea,button{max-width:100%;font-size:16px!important}@media(max-width:600px){h1{font-size:22px!important}h2{font-size:18px!important}h3{font-size:15px!important}.wrap,.container{padding-left:10px;padding-right:10px;padding-top:45px}.card{padding:14px;margin:8px 0}.q-card{padding:16px}.q-text{font-size:15px!important}.opt{padding:12px;font-size:14px!important;min-height:44px}.btn{min-height:44px;font-size:15px!important}pre,code{font-size:11px!important;overflow-x:auto;word-break:break-all}.result{font-size:24px!important}.controls{flex-wrap:wrap}.controls button,.controls input{min-height:40px}.flow{flex-direction:column}.box{min-width:auto;width:100%}.arr{transform:rotate(90deg)}.grid{gap:4px}.cell{font-size:16px!important}}</style>
 </head>
 <body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
 <div class="wrap">
 <h1>이진 탐색 트리 (BST)</h1><div style="background:#252545;border-radius:10px;padding:12px;margin:10px 0;text-align:left;font-size:13px;line-height:1.7"><b style="color:#FFD700">이진 탐색 트리(BST)란?</b> <span style="color:#ccc">왼쪽 자식은 부모보다 작고, 오른쪽 자식은 부모보다 큰 트리. 평균 O(log n) 탐색이 가능합니다.</span></div>
 <p class="sub">숫자를 삽입하고 트리 구조와 순회를 확인해보세요</p>
@@ -139,10 +139,42 @@ i++;
 inp.addEventListener('keydown',e=>{if(e.key==='Enter')insertVal()});
 draw();
 </script>
-<section style="max-width:700px;margin:30px auto;padding:20px;background:#1a1a2e;border-radius:16px;border:1px solid #2a2a4a;color:#bbb;font-size:14px;line-height:1.8">
-<h2 style="color:#FFD700;font-size:18px;margin-bottom:10px">이진 트리</h2>
-<p>이진 탐색 트리의 삽입, 삭제, 순회(전위/중위/후위)를 시각적으로 학습합니다.</p>
-<p style="margin-top:10px;font-size:12px;color:#888">이 콘텐츠는 <a href="../index.html" style="color:#7DF">놀이터(hoit.me)</a>에서 무료로 제공됩니다.</p>
+<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+<style>
+.seo-content{max-width:700px;margin:40px auto 80px;padding:0 20px;color:#bbb;font-size:14px;line-height:1.8}
+.seo-content h2{color:#FFD700;font-size:20px;margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid #2a2a4a}
+.seo-content h3{color:#ddd;font-size:16px;margin:16px 0 8px}
+.seo-content p{margin:8px 0;color:#999}
+.seo-content ul{margin:8px 0 8px 20px;color:#999}
+.seo-content li{margin:4px 0}
+.seo-content .seo-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.seo-content .seo-tag{background:#1a1a2e;border:1px solid #2a2a4a;padding:4px 12px;border-radius:15px;font-size:12px;color:#888}
+.seo-content .seo-nav{margin-top:20px;padding-top:16px;border-top:1px solid #2a2a4a;text-align:center}
+.seo-content .seo-nav a{color:#666;text-decoration:none;font-size:12px;margin:0 10px}
+.seo-content .seo-nav a:hover{color:#FFD700}
+</style>
+<section class="seo-content" aria-label="트리 자료구조 시각화 소개">
+<h2>트리 자료구조 시각화</h2>
+<p>이진 트리(Binary Tree)와 이진 탐색 트리(BST)의 동작을 시각적으로 보여줍니다. 삽입, 삭제, 탐색 과정과 전위/중위/후위 순회를 체험할 수 있습니다.</p>
+
+<h3>사용 방법</h3>
+<p>노드를 추가하며 트리 구조를 만들고, 다양한 순회 방법을 실행해보세요.</p>
+
+<h3>팁</h3>
+<p>이진 탐색 트리에서 삽입, 검색, 삭제의 평균 시간 복잡도는 O(log n)입니다.</p>
+
+<div class="seo-tags"><span class="seo-tag">자료구조</span><span class="seo-tag">트리</span><span class="seo-tag">BST</span></div>
+
+<div class="seo-nav">
+<a href="../index.html">홈으로</a>
+<a href="../about.html">소개</a>
+<a href="../terms.html">이용약관</a>
+<a href="../privacy.html">개인정보처리방침</a>
+</div>
 </section>
-<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div></body>
+<script src="../js/catalog.js"></script>
+<script src="../js/recommend.js"></script>
+<script src="../js/share.js"></script>
+</body>
 </html>

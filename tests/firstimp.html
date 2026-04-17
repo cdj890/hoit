@@ -7,7 +7,7 @@
 <meta property="og:url" content="https://hoit.me/tests/firstimp.html">
 <link rel="canonical" href="https://hoit.me/tests/firstimp.html">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px}
+*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px}
 .card{background:#1a1a2e;border-radius:16px;padding:30px;max-width:500px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.4);text-align:center}
 h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-size:.9em}
 .progress{height:6px;background:#2a2a3e;border-radius:3px;margin-bottom:24px;overflow:hidden}
@@ -54,7 +54,7 @@ function _copyFallback(text,btn){
 }
 </script>
 </head><body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
 <div class="card">
 <div id="intro">
 <div style="font-size:3em;margin-bottom:10px">👤</div>
@@ -106,9 +106,41 @@ document.getElementById('rTraits').innerHTML=r.t;document.getElementById('rFashi
 localStorage.setItem('hoit_firstimp',JSON.stringify({type:r.n,style:r.style,date:new Date().toISOString()}));}
 function copyResult(){const d=JSON.parse(localStorage.getItem('hoit_firstimp'));_copy('[hoit.me] 첫인상: '+d.type+' ('+d.style+') - https://hoit.me/tests/firstimp.html',document.querySelector('.share-btn'));}
 (function(){const prev=localStorage.getItem('hoit_firstimp');if(prev){const d=JSON.parse(prev);document.querySelector('.sub').textContent='이전 결과: '+d.type+' | 다시 해볼까요?';}})();
-</script><section style="max-width:700px;margin:30px auto;padding:20px;background:#1a1a2e;border-radius:16px;border:1px solid #2a2a4a;color:#bbb;font-size:14px;line-height:1.8">
-<h2 style="color:#FFD700;font-size:18px;margin-bottom:10px">첫인상 테스트</h2>
-<p>다른 사람이 나를 처음 만났을 때 어떤 인상을 받는지 분석합니다. 첫인상 유형과 개선 포인트를 제시합니다.</p>
-<p style="margin-top:10px;font-size:12px;color:#888">이 콘텐츠는 <a href="../index.html" style="color:#7DF">놀이터(hoit.me)</a>에서 무료로 제공됩니다.</p>
+</script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+<style>
+.seo-content{max-width:700px;margin:40px auto 80px;padding:0 20px;color:#bbb;font-size:14px;line-height:1.8}
+.seo-content h2{color:#FFD700;font-size:20px;margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid #2a2a4a}
+.seo-content h3{color:#ddd;font-size:16px;margin:16px 0 8px}
+.seo-content p{margin:8px 0;color:#999}
+.seo-content ul{margin:8px 0 8px 20px;color:#999}
+.seo-content li{margin:4px 0}
+.seo-content .seo-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.seo-content .seo-tag{background:#1a1a2e;border:1px solid #2a2a4a;padding:4px 12px;border-radius:15px;font-size:12px;color:#888}
+.seo-content .seo-nav{margin-top:20px;padding-top:16px;border-top:1px solid #2a2a4a;text-align:center}
+.seo-content .seo-nav a{color:#666;text-decoration:none;font-size:12px;margin:0 10px}
+.seo-content .seo-nav a:hover{color:#FFD700}
+</style>
+<section class="seo-content" aria-label="첫인상 테스트 소개">
+<h2>첫인상 테스트</h2>
+<p>다른 사람들이 나를 처음 봤을 때 어떤 인상을 받는지 알아보는 테스트입니다. 외적 이미지와 행동 패턴을 분석하여 첫인상 유형을 파악합니다.</p>
+
+<h3>사용 방법</h3>
+<p>외모, 행동, 대화 스타일에 대한 질문에 답하세요. 나의 첫인상 유형과 다른 사람들이 느끼는 나의 이미지를 확인할 수 있습니다.</p>
+
+<h3>팁</h3>
+<p>자신이 보는 자신이 아닌, 다른 사람의 시선에서 답해보세요.</p>
+
+<div class="seo-tags"><span class="seo-tag">첫인상</span><span class="seo-tag">이미지</span><span class="seo-tag">대인관계</span></div>
+
+<div class="seo-nav">
+<a href="../index.html">홈으로</a>
+<a href="../about.html">소개</a>
+<a href="../terms.html">이용약관</a>
+<a href="../privacy.html">개인정보처리방침</a>
+</div>
 </section>
-<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div></body></html>
+<script src="../js/catalog.js"></script>
+<script src="../js/recommend.js"></script>
+<script src="../js/share.js"></script>
+</body></html>

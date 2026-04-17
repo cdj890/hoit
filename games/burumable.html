@@ -13,16 +13,16 @@
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;overflow:hidden;touch-action:manipulation;user-select:none;width:100vw;height:100vh;display:flex;flex-direction:column;flex-direction:column;align-items:center}
-#game{display:flex;flex-direction:column;flex-direction:column;align-items:center;width:100%;max-width:500px;height:100%;padding:50px 4px 4px}
+body{background:#0f0f1e;color:#fff;font-family:'Apple SD Gothic Neo',sans-serif;overflow:hidden;touch-action:manipulation;user-select:none;width:100vw;height:100vh;display:flex;flex-direction:column;align-items:center}
+#game{display:flex;flex-direction:column;align-items:center;width:100%;max-width:500px;height:100%;padding:50px 4px 4px}
 #boardWrap{position:relative;width:100%;aspect-ratio:1;flex-shrink:0}
 canvas{width:100%;height:100%;display:block;border-radius:8px}
-#info{display:flex;flex-direction:column;gap:6px;width:100%;margin-top:4px;flex-wrap:wrap;justify-content:center}
+#info{display:flex;gap:6px;width:100%;margin-top:4px;flex-wrap:wrap;justify-content:center}
 .pinfo{background:rgba(255,255,255,.08);border-radius:8px;padding:6px 10px;font-size:12px;text-align:center;flex:1;min-width:90px}
 .pinfo .name{font-weight:bold;margin-bottom:2px}
 .pinfo .gold{color:#ffd700}
 .pinfo.dead{opacity:.35}
-#actions{display:flex;flex-direction:column;gap:8px;margin-top:6px;flex-wrap:wrap;justify-content:center;width:100%;min-height:44px;align-items:center}
+#actions{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;justify-content:center;width:100%;min-height:44px;align-items:center}
 #actions button{background:#4a6fa5;color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:15px;font-weight:bold;font-family:inherit;cursor:pointer;min-width:44px;min-height:44px;touch-action:manipulation}
 #actions button:active{transform:scale(.95)}
 #msg{text-align:center;font-size:13px;margin-top:4px;min-height:20px;color:#ccc;padding:0 8px}
@@ -30,7 +30,7 @@ canvas{width:100%;height:100%;display:block;border-radius:8px}
 </style>
 </head>
 <body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
 <script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
 <div id="game">
 <div id="boardWrap"><canvas id="c"></canvas></div>
@@ -345,10 +345,40 @@ function init(){
 }
 init();
 </script>
-<section style="max-width:700px;margin:30px auto;padding:20px;background:#1a1a2e;border-radius:16px;border:1px solid #2a2a4a;color:#bbb;font-size:14px;line-height:1.8">
-<h2 style="color:#FFD700;font-size:18px;margin-bottom:10px">부루마블</h2>
-<p>주사위를 굴려 부동산을 사고 건물을 짓는 보드게임입니다. 상대의 땅에 도착하면 통행료를 내야 합니다.</p>
-<p style="margin-top:10px;font-size:12px;color:#888">이 게임은 <a href="../index.html" style="color:#7DF">놀이터(hoit.me)</a>에서 무료로 제공됩니다. 설치 없이 브라우저에서 바로 플레이하세요.</p>
+<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+<style>
+.seo-content{max-width:700px;margin:40px auto 80px;padding:0 20px;color:#bbb;font-size:14px;line-height:1.8}
+.seo-content h2{color:#FFD700;font-size:20px;margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid #2a2a4a}
+.seo-content h3{color:#ddd;font-size:16px;margin:16px 0 8px}
+.seo-content p{margin:8px 0;color:#999}
+.seo-content .seo-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.seo-content .seo-tag{background:#1a1a2e;border:1px solid #2a2a4a;padding:4px 12px;border-radius:15px;font-size:12px;color:#888}
+.seo-content .seo-nav{margin-top:20px;padding-top:16px;border-top:1px solid #2a2a4a;text-align:center}
+.seo-content .seo-nav a{color:#666;text-decoration:none;font-size:12px;margin:0 10px}
+.seo-content .seo-nav a:hover{color:#FFD700}
+</style>
+<section class="seo-content" aria-label="부루마블 소개">
+<h2>부루마블</h2>
+<p>한국의 대표적인 보드게임 부루마블을 온라인으로 즐기세요. 주사위를 굴려 세계 각국의 도시를 여행하며 땅을 사고 건물을 짓는 부동산 경영 보드게임입니다. 상대방이 내 땅에 들르면 통행료를 받을 수 있습니다.</p>
+
+<h3>사용 방법</h3>
+<p>주사위를 굴려 나온 수만큼 이동합니다. 빈 땅에 도착하면 구매할 수 있고, 소유한 땅에는 건물을 지어 통행료를 올릴 수 있습니다. 상대의 땅에 도착하면 통행료를 지불합니다. 상대를 파산시키면 승리합니다.</p>
+
+<h3>팁</h3>
+<p>초반에는 가능한 많은 땅을 확보하세요. 같은 색 지역의 땅을 모두 모으면 건물을 지을 수 있어 통행료가 크게 올라갑니다. 황금 열쇠와 찬스 카드를 잘 활용하고, 무인도에 갇히지 않도록 주의하세요.</p>
+
+<div class="seo-tags"><span class="seo-tag">보드게임</span><span class="seo-tag">부동산</span><span class="seo-tag">전략</span></div>
+
+<div class="seo-nav">
+<a href="../index.html">홈으로</a>
+<a href="../about.html">소개</a>
+<a href="../terms.html">이용약관</a>
+<a href="../privacy.html">개인정보처리방침</a>
+</div>
 </section>
-<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div></body>
+<script src="../js/sfx.js"></script>
+<script src="../js/catalog.js"></script>
+<script src="../js/recommend.js"></script>
+<script src="../js/share.js"></script>
+</body>
 </html>

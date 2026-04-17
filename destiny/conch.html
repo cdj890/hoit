@@ -7,7 +7,7 @@
 <link rel="canonical" href="https://hoit.me/destiny/conch.html">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{min-height:100vh;background:#0f0f1e;color:#e0d0ff;font-family:'Segoe UI',sans-serif;display:flex;flex-direction:column;flex-direction:column;align-items:center;padding:20px;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+body{min-height:100vh;background:#0f0f1e;color:#e0d0ff;font-family:'Segoe UI',sans-serif;display:flex;flex-direction:column;align-items:center;padding:20px;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 h1{margin:30px 0 8px;font-size:2em;text-shadow:0 0 20px rgba(120,80,200,.5)}
 .sub{color:#9988bb;margin-bottom:24px;font-size:.95em;text-align:center}
 .question-area{width:100%;max-width:420px;margin-bottom:20px}
@@ -15,7 +15,7 @@ h1{margin:30px 0 8px;font-size:2em;text-shadow:0 0 20px rgba(120,80,200,.5)}
 .question-area input:focus{border-color:rgba(120,80,200,.7)}
 .question-area input::placeholder{color:#7766aa}
 .shell-wrap{position:relative;margin:10px 0 20px;cursor:pointer;user-select:none;-webkit-user-select:none}
-.shell{width:160px;height:160px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#b388ff,#7c4dff 40%,#4a148c 80%,#1a0040);box-shadow:0 0 40px rgba(120,80,200,.4),inset 0 -8px 20px rgba(0,0,0,.4),inset 0 4px 12px rgba(255,255,255,.1);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:4.5em;transition:transform .15s,box-shadow .15s;position:relative;overflow:hidden}
+.shell{width:160px;height:160px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#b388ff,#7c4dff 40%,#4a148c 80%,#1a0040);box-shadow:0 0 40px rgba(120,80,200,.4),inset 0 -8px 20px rgba(0,0,0,.4),inset 0 4px 12px rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:4.5em;transition:transform .15s,box-shadow .15s;position:relative;overflow:hidden}
 .shell::before{content:'';position:absolute;top:10%;left:15%;width:30%;height:20%;background:radial-gradient(ellipse,rgba(255,255,255,.25),transparent);border-radius:50%;pointer-events:none}
 .shell:active{transform:scale(.95)}
 .shell.shaking{animation:shellShake .6s ease-in-out}
@@ -34,7 +34,7 @@ h1{margin:30px 0 8px;font-size:2em;text-shadow:0 0 20px rgba(120,80,200,.5)}
 @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 .reset-btn{background:linear-gradient(135deg,#7c4dff,#4a148c);color:#e0d0ff;border:none;padding:12px 30px;border-radius:12px;font-size:1em;cursor:pointer;margin-top:16px;font-weight:bold;transition:all .3s;touch-action:manipulation}
 .reset-btn:hover{transform:scale(1.05);box-shadow:0 0 20px rgba(120,80,200,.4)}
-.content{position:relative;z-index:1;display:flex;flex-direction:column;flex-direction:column;align-items:center;width:100%}
+.content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%}
 .hint{color:#7766aa;font-size:.82em;margin-top:6px;text-align:center}
 </style>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
@@ -43,7 +43,7 @@ const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app"
 </script>
 </head><body>
 <div class="bubbles" id="bubbles"></div>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
 <div class="content">
 <h1>🐚 마법의 소라고동</h1>
 <p class="sub">오 위대한 소라고동이여, 질문에 답하소서!</p>
@@ -122,9 +122,41 @@ cont.appendChild(b);
 }
 })();
 </script>
-<section style="max-width:700px;margin:30px auto;padding:20px;background:#1a1a2e;border-radius:16px;border:1px solid #2a2a4a;color:#bbb;font-size:14px;line-height:1.8">
-<h2 style="color:#FFD700;font-size:18px;margin-bottom:10px">마법의 소라고동</h2>
-<p>궁금한 것을 물어보면 소라고동이 답해주는 재미있는 운세입니다. 예/아니오 형태의 답변을 받아보세요.</p>
-<p style="margin-top:10px;font-size:12px;color:#888">이 콘텐츠는 <a href="../index.html" style="color:#7DF">놀이터(hoit.me)</a>에서 무료로 제공됩니다.</p>
+<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+<style>
+.seo-content{max-width:700px;margin:40px auto 80px;padding:0 20px;color:#bbb;font-size:14px;line-height:1.8}
+.seo-content h2{color:#FFD700;font-size:20px;margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid #2a2a4a}
+.seo-content h3{color:#ddd;font-size:16px;margin:16px 0 8px}
+.seo-content p{margin:8px 0;color:#999}
+.seo-content ul{margin:8px 0 8px 20px;color:#999}
+.seo-content li{margin:4px 0}
+.seo-content .seo-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.seo-content .seo-tag{background:#1a1a2e;border:1px solid #2a2a4a;padding:4px 12px;border-radius:15px;font-size:12px;color:#888}
+.seo-content .seo-nav{margin-top:20px;padding-top:16px;border-top:1px solid #2a2a4a;text-align:center}
+.seo-content .seo-nav a{color:#666;text-decoration:none;font-size:12px;margin:0 10px}
+.seo-content .seo-nav a:hover{color:#FFD700}
+</style>
+<section class="seo-content" aria-label="소라고둥 점 소개">
+<h2>소라고둥 점</h2>
+<p>마법의 소라고둥에게 질문하고 답을 들어보세요. 예/아니오 질문에 대한 답을 랜덤으로 제공하는 재미있는 점술입니다.</p>
+
+<h3>사용 방법</h3>
+<p>마음속으로 질문을 떠올리고 소라고둥을 클릭하세요. 소라고둥이 답을 알려줍니다.</p>
+
+<h3>팁</h3>
+<p>심각한 결정보다 가벼운 질문에 활용하세요!</p>
+
+<div class="seo-tags"><span class="seo-tag">소라고둥</span><span class="seo-tag">재미</span><span class="seo-tag">점</span></div>
+
+<div class="seo-nav">
+<a href="../index.html">홈으로</a>
+<a href="../about.html">소개</a>
+<a href="../terms.html">이용약관</a>
+<a href="../privacy.html">개인정보처리방침</a>
+</div>
 </section>
-<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div></body></html>
+<script src="../js/catalog.js"></script>
+<script src="../js/recommend.js"></script>
+<script src="../js/share.js"></script>
+</body></html>

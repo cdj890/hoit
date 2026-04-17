@@ -7,17 +7,17 @@
 <meta property="og:url" content="https://hoit.me/tests/color.html">
 <link rel="canonical" href="https://hoit.me/tests/color.html">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center}.wrap{max-width:500px;width:100%;padding:20px;text-align:center}h1{font-size:30px;margin-bottom:8px}.sub{color:#888;margin-bottom:25px}
+*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center}.wrap{max-width:500px;width:100%;padding:20px;text-align:center}h1{font-size:30px;margin-bottom:8px}.sub{color:#888;margin-bottom:25px}
 .colors{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0}
 .color-btn{border-radius:16px;padding:35px 10px;cursor:pointer;font-size:14px;font-weight:bold;transition:all .2s;border:3px solid transparent}
 .color-btn:hover{transform:scale(1.08);border-color:#fff3}
 .result{background:#1a1a2e;border-radius:16px;padding:28px;border:1px solid #2a2a4a;text-align:left}
-.r-color{width:80px;height:80px;border-radius:50%;margin:0 auto 15px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:36px}
+.r-color{width:80px;height:80px;border-radius:50%;margin:0 auto 15px;display:flex;align-items:center;justify-content:center;font-size:36px}
 .section{margin:12px 0;padding:13px;background:#252545;border-radius:10px}
 .section h3{font-size:14px;margin-bottom:6px}
 .section p{color:#ccc;font-size:13px;line-height:1.6}
 .btn{background:#7B68EE;border:none;color:#fff;padding:12px 30px;border-radius:10px;font-size:15px;cursor:pointer;margin-top:18px;font-weight:bold;width:100%}
-a.back{position:fixed;top:8px;left:8px;z-index:99;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent}a.back:hover{background:rgba(0,0,0,0.85)}
+a.back{position:fixed;top:8px;left:8px;z-index:99;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent}a.back:hover{background:rgba(0,0,0,0.85)}
 @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.08)}100%{transform:scale(1)}}
 .color-btn.selected{border-color:#fff!important;animation:pulse .4s ease}
@@ -29,7 +29,7 @@ a.back{position:fixed;top:8px;left:8px;z-index:99;background:rgba(0,0,0,0.75);co
 .recommend a:hover{background:#353565}
 .combo-section{margin:12px 0;padding:13px;background:#252545;border-radius:10px;text-align:center}
 .combo-section h3{font-size:14px;margin-bottom:8px}
-.combo-colors{display:flex;flex-direction:column;justify-content:center;gap:8px;margin:8px 0}
+.combo-colors{display:flex;justify-content:center;gap:8px;margin:8px 0}
 .combo-swatch{width:40px;height:40px;border-radius:50%;border:2px solid #fff3}
 .lucky-color{background:linear-gradient(135deg,#252545,#1a1a2e);border:1px solid #353565;border-radius:10px;padding:13px;margin:12px 0;text-align:center}
 .interior-tip{background:#252545;border-radius:10px;padding:13px;margin:12px 0;text-align:left;font-size:13px;line-height:1.6;color:#ccc}
@@ -119,9 +119,41 @@ function showResult(i,j){
 }
 function copyResult(){const d=JSON.parse(localStorage.getItem('hoit_color'));_copy('[hoit.me] 색깔 심리: '+d.name+' - https://hoit.me/tests/color.html',document.querySelector('.share-btn'));}
 showColors();
-</script><section style="max-width:700px;margin:30px auto;padding:20px;background:#1a1a2e;border-radius:16px;border:1px solid #2a2a4a;color:#bbb;font-size:14px;line-height:1.8">
-<h2 style="color:#FFD700;font-size:18px;margin-bottom:10px">색깔 심리 테스트</h2>
-<p>끌리는 색깔로 현재 심리 상태를 분석하는 테스트입니다. 색채 심리학을 기반으로 성격과 감정 상태를 파악합니다.</p>
-<p style="margin-top:10px;font-size:12px;color:#888">이 콘텐츠는 <a href="../index.html" style="color:#7DF">놀이터(hoit.me)</a>에서 무료로 제공됩니다.</p>
+</script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+<style>
+.seo-content{max-width:700px;margin:40px auto 80px;padding:0 20px;color:#bbb;font-size:14px;line-height:1.8}
+.seo-content h2{color:#FFD700;font-size:20px;margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid #2a2a4a}
+.seo-content h3{color:#ddd;font-size:16px;margin:16px 0 8px}
+.seo-content p{margin:8px 0;color:#999}
+.seo-content ul{margin:8px 0 8px 20px;color:#999}
+.seo-content li{margin:4px 0}
+.seo-content .seo-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.seo-content .seo-tag{background:#1a1a2e;border:1px solid #2a2a4a;padding:4px 12px;border-radius:15px;font-size:12px;color:#888}
+.seo-content .seo-nav{margin-top:20px;padding-top:16px;border-top:1px solid #2a2a4a;text-align:center}
+.seo-content .seo-nav a{color:#666;text-decoration:none;font-size:12px;margin:0 10px}
+.seo-content .seo-nav a:hover{color:#FFD700}
+</style>
+<section class="seo-content" aria-label="컬러 심리 테스트 소개">
+<h2>컬러 심리 테스트</h2>
+<p>좋아하는 색상으로 심리 상태와 성격을 분석하는 테스트입니다. 색채 심리학을 기반으로 현재 감정 상태와 성격 특성을 파악합니다.</p>
+
+<h3>사용 방법</h3>
+<p>제시되는 색상 중 끌리는 색상을 선택하세요. 선택한 색상 조합으로 심리 상태와 성격을 분석합니다.</p>
+
+<h3>팁</h3>
+<p>머리로 고르지 말고 직감적으로 끌리는 색을 선택하세요.</p>
+
+<div class="seo-tags"><span class="seo-tag">색채</span><span class="seo-tag">심리</span><span class="seo-tag">성격</span></div>
+
+<div class="seo-nav">
+<a href="../index.html">홈으로</a>
+<a href="../about.html">소개</a>
+<a href="../terms.html">이용약관</a>
+<a href="../privacy.html">개인정보처리방침</a>
+</div>
 </section>
-<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div></body></html>
+<script src="../js/catalog.js"></script>
+<script src="../js/recommend.js"></script>
+<script src="../js/share.js"></script>
+</body></html>

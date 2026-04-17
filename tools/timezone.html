@@ -5,8 +5,8 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://hoit.me/tools/timezone.html">
 <link rel="canonical" href="https://hoit.me/tools/timezone.html"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;min-height:100vh}.wrap{max-width:450px;margin:0 auto;padding:50px 16px 30px;text-align:center}.card{background:#1a1a2e;border-radius:16px;padding:16px;margin:8px 0;border:1px solid #2a2a4a;display:flex;flex-direction:column;justify-content:space-between;align-items:center}.city{font-size:16px;font-weight:bold}.time{font-size:22px;font-family:monospace;color:#FFD700}.date{font-size:11px;color:#888}body{overflow-x:hidden}.wrap,.container{max-width:100%;padding-left:12px;padding-right:12px}canvas{max-width:100%!important;height:auto!important}input,select,textarea,button{max-width:100%;font-size:16px!important}@media(max-width:600px){h1{font-size:22px!important}h2{font-size:18px!important}h3{font-size:15px!important}.wrap,.container{padding-left:10px;padding-right:10px;padding-top:45px}.card{padding:14px;margin:8px 0}.q-card{padding:16px}.q-text{font-size:15px!important}.opt{padding:12px;font-size:14px!important;min-height:44px}.btn{min-height:44px;font-size:15px!important}pre,code{font-size:11px!important;overflow-x:auto;word-break:break-all}.result{font-size:24px!important}.controls{flex-wrap:wrap}.controls button,.controls input{min-height:40px}.flow{flex-direction:column}.box{min-width:auto;width:100%}.arr{transform:rotate(90deg)}.grid{gap:4px}.cell{font-size:16px!important}}</style></head><body>
-<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center">← 뒤로</a>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;min-height:100vh}.wrap{max-width:450px;margin:0 auto;padding:50px 16px 30px;text-align:center}.card{background:#1a1a2e;border-radius:16px;padding:16px;margin:8px 0;border:1px solid #2a2a4a;display:flex;justify-content:space-between;align-items:center}.city{font-size:16px;font-weight:bold}.time{font-size:22px;font-family:monospace;color:#FFD700}.date{font-size:11px;color:#888}body{overflow-x:hidden}.wrap,.container{max-width:100%;padding-left:12px;padding-right:12px}canvas{max-width:100%!important;height:auto!important}input,select,textarea,button{max-width:100%;font-size:16px!important}@media(max-width:600px){h1{font-size:22px!important}h2{font-size:18px!important}h3{font-size:15px!important}.wrap,.container{padding-left:10px;padding-right:10px;padding-top:45px}.card{padding:14px;margin:8px 0}.q-card{padding:16px}.q-text{font-size:15px!important}.opt{padding:12px;font-size:14px!important;min-height:44px}.btn{min-height:44px;font-size:15px!important}pre,code{font-size:11px!important;overflow-x:auto;word-break:break-all}.result{font-size:24px!important}.controls{flex-wrap:wrap}.controls button,.controls input{min-height:40px}.flow{flex-direction:column}.box{min-width:auto;width:100%}.arr{transform:rotate(90deg)}.grid{gap:4px}.cell{font-size:16px!important}}</style></head><body>
+<a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center">← 뒤로</a>
 <div class="wrap"><h1 style="font-size:24px;margin-bottom:12px">🕐 세계 시간</h1><div id="clocks"></div></div>
 <script>
 const CITIES=[{name:'🇰🇷 서울',tz:'Asia/Seoul'},{name:'🇯🇵 도쿄',tz:'Asia/Tokyo'},{name:'🇨🇳 베이징',tz:'Asia/Shanghai'},{name:'🇺🇸 뉴욕',tz:'America/New_York'},{name:'🇺🇸 LA',tz:'America/Los_Angeles'},{name:'🇬🇧 런던',tz:'Europe/London'},{name:'🇫🇷 파리',tz:'Europe/Paris'},{name:'🇦🇺 시드니',tz:'Australia/Sydney'}];
@@ -15,9 +15,41 @@ const t=now.toLocaleTimeString('ko',{timeZone:c.tz,hour:'2-digit',minute:'2-digi
 const d=now.toLocaleDateString('ko',{timeZone:c.tz,month:'short',day:'numeric',weekday:'short'});
 return`<div class="card"><div><div class="city">${c.name}</div><div class="date">${d}</div></div><div class="time">${t}</div></div>`;}).join('');}
 update();setInterval(update,1000);
-</script><section style="max-width:700px;margin:30px auto;padding:20px;background:#1a1a2e;border-radius:16px;border:1px solid #2a2a4a;color:#bbb;font-size:14px;line-height:1.8">
-<h2 style="color:#FFD700;font-size:18px;margin-bottom:10px">세계 시간대 변환</h2>
-<p>전 세계 주요 도시의 현재 시간을 비교합니다. 시간대 간 변환으로 해외 미팅 시간을 쉽게 계산하세요.</p>
-<p style="margin-top:10px;font-size:12px;color:#888">이 도구는 <a href="../index.html" style="color:#7DF">놀이터(hoit.me)</a>에서 무료로 제공됩니다.</p>
+</script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+<style>
+.seo-content{max-width:700px;margin:40px auto 80px;padding:0 20px;color:#bbb;font-size:14px;line-height:1.8}
+.seo-content h2{color:#FFD700;font-size:20px;margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid #2a2a4a}
+.seo-content h3{color:#ddd;font-size:16px;margin:16px 0 8px}
+.seo-content p{margin:8px 0;color:#999}
+.seo-content ul{margin:8px 0 8px 20px;color:#999}
+.seo-content li{margin:4px 0}
+.seo-content .seo-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.seo-content .seo-tag{background:#1a1a2e;border:1px solid #2a2a4a;padding:4px 12px;border-radius:15px;font-size:12px;color:#888}
+.seo-content .seo-nav{margin-top:20px;padding-top:16px;border-top:1px solid #2a2a4a;text-align:center}
+.seo-content .seo-nav a{color:#666;text-decoration:none;font-size:12px;margin:0 10px}
+.seo-content .seo-nav a:hover{color:#FFD700}
+</style>
+<section class="seo-content" aria-label="세계 시간 변환기 소개">
+<h2>세계 시간 변환기</h2>
+<p>전 세계 주요 도시의 현재 시간과 시차를 확인하는 도구입니다. 해외 미팅, 여행 계획 시 시간대를 쉽게 변환할 수 있습니다.</p>
+
+<h3>사용 방법</h3>
+<p>도시를 선택하면 해당 도시의 현재 시간과 한국과의 시차를 확인할 수 있습니다.</p>
+
+<h3>팁</h3>
+<p>서머타임(DST)을 적용하는 국가는 시차가 계절에 따라 달라집니다.</p>
+
+<div class="seo-tags"><span class="seo-tag">시간</span><span class="seo-tag">시차</span><span class="seo-tag">세계시간</span></div>
+
+<div class="seo-nav">
+<a href="../index.html">홈으로</a>
+<a href="../about.html">소개</a>
+<a href="../terms.html">이용약관</a>
+<a href="../privacy.html">개인정보처리방침</a>
+</div>
 </section>
-<div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div></body></html>
+<script src="../js/catalog.js"></script>
+<script src="../js/recommend.js"></script>
+<script src="../js/share.js"></script>
+</body></html>
