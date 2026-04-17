@@ -61,13 +61,87 @@ input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appear
 </div>
 </div>
 <script>
+var percentHistory=JSON.parse(localStorage.getItem('hoit_hist_percent')||'[]');
+function renderPercentHistory(){
+  var existing=document.getElementById('percent-history');
+  if(existing)existing.parentNode.removeChild(existing);
+  if(percentHistory.length===0)return;
+  var wrap=document.querySelector('.wrap');
+  var box=document.createElement('div');
+  box.id='percent-history';
+  box.style.cssText='margin-top:16px;background:#1a1a2e;border-radius:12px;padding:16px';
+  var title=document.createElement('p');
+  title.style.cssText='color:#888;font-size:13px;margin-bottom:8px';
+  title.textContent='최근 계산 기록';
+  box.appendChild(title);
+  var ul=document.createElement('ul');
+  ul.style.cssText='list-style:none;padding:0;margin:0';
+  percentHistory.slice().reverse().forEach(function(item){
+    var li=document.createElement('li');
+    li.style.cssText='padding:6px 0;border-bottom:1px solid #0f0f1e;font-size:13px;color:#ccc';
+    li.textContent=item.time+' | '+item.expr+' = '+item.result;
+    ul.appendChild(li);
+  });
+  box.appendChild(ul);
+  var clearBtn=document.createElement('button');
+  clearBtn.textContent='히스토리 지우기';
+  clearBtn.style.cssText='margin-top:10px;padding:8px 16px;background:#333;color:#aaa;border:none;border-radius:8px;font-size:13px;cursor:pointer;width:100%';
+  clearBtn.addEventListener('click',function(){
+    percentHistory=[];
+    localStorage.removeItem('hoit_hist_percent');
+    renderPercentHistory();
+  });
+  box.appendChild(clearBtn);
+  wrap.appendChild(box);
+}
+function pushPercentHistory(expr,result){
+  var now=new Date();
+  var ts=(now.getMonth()+1)+'/'+(now.getDate())+' '+now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+  percentHistory.push({time:ts,expr:expr,result:result});
+  if(percentHistory.length>5)percentHistory.shift();
+  localStorage.setItem('hoit_hist_percent',JSON.stringify(percentHistory));
+  renderPercentHistory();
+}
 function setTab(n){
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===n));
   document.querySelectorAll('.panel').forEach((p,i)=>p.classList.toggle('active',i===n));
 }
-function calc0(){const a=+document.getElementById('a0').value,b=+document.getElementById('b0').value,r=document.getElementById('r0');r.style.display='block';r.textContent=(a*b/100).toLocaleString('ko-KR',{maximumFractionDigits:2})}
-function calc1(){const a=+document.getElementById('a1').value,b=+document.getElementById('b1').value,r=document.getElementById('r1');r.style.display='block';r.textContent=(a/b*100).toLocaleString('ko-KR',{maximumFractionDigits:2})+'%'}
-function calc2(d){const a=+document.getElementById('a2').value,b=+document.getElementById('b2').value,r=document.getElementById('r2');r.style.display='block';const v=a*(1+d*b/100);r.textContent=v.toLocaleString('ko-KR',{maximumFractionDigits:2})}
+function calc0(){
+  const a=+document.getElementById('a0').value,b=+document.getElementById('b0').value,r=document.getElementById('r0');
+  r.style.display='block';
+  const v=(a*b/100).toLocaleString('ko-KR',{maximumFractionDigits:2});
+  r.textContent=v;
+  pushPercentHistory(a+'의 '+b+'%',v);
+}
+function calc1(){
+  const a=+document.getElementById('a1').value,b=+document.getElementById('b1').value,r=document.getElementById('r1');
+  r.style.display='block';
+  const v=(a/b*100).toLocaleString('ko-KR',{maximumFractionDigits:2})+'%';
+  r.textContent=v;
+  pushPercentHistory(a+'는 '+b+'의 몇%',v);
+}
+function calc2(dir){
+  const a=+document.getElementById('a2').value,b=+document.getElementById('b2').value,r=document.getElementById('r2');
+  r.style.display='block';
+  const val=a*(1+dir*b/100);
+  const v=val.toLocaleString('ko-KR',{maximumFractionDigits:2});
+  r.textContent=v;
+  pushPercentHistory(a+(dir>0?' 증가 ':' 감소 ')+b+'%',v);
+}
+(function(){
+  var KEY='hoit_tool_percent';
+  var saved=JSON.parse(localStorage.getItem(KEY)||'{}');
+  ['a0','b0','a1','b1','a2','b2'].forEach(function(id){var el=document.getElementById(id);if(el&&saved[id]!==undefined)el.value=saved[id];});
+  document.querySelectorAll('input').forEach(function(el){
+    if(!el.id)return;
+    el.addEventListener('change',function(){
+      var d=JSON.parse(localStorage.getItem(KEY)||'{}');
+      d[el.id]=el.value;
+      localStorage.setItem(KEY,JSON.stringify(d));
+    });
+  });
+  renderPercentHistory();
+})();
 </script>
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 

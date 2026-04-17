@@ -15,15 +15,48 @@ const U=[[{n:'mm',f:.001},{n:'cm',f:.01},{n:'m',f:1},{n:'km',f:1000},{n:'인치'
 [{n:'mg',f:.001},{n:'g',f:1},{n:'kg',f:1000},{n:'톤',f:1e6},{n:'온스',f:28.35},{n:'파운드',f:453.6}],
 [{n:'°C',f:'C'},{n:'°F',f:'F'},{n:'K',f:'K'}],
 [{n:'m²',f:1},{n:'km²',f:1e6},{n:'평',f:3.306},{n:'에이커',f:4046.86},{n:'헥타르',f:1e4}]];
-const TN=['길이','무게','온도','넓이'];let tab=0;
-function init(){document.getElementById('tabs').innerHTML=TN.map((n,i)=>`<div class="tab${i===tab?' on':''}" onclick="tab=${i};init()">${n}</div>`).join('');
-const u=U[tab],f=document.getElementById('f'),t=document.getElementById('t');
-f.innerHTML=u.map((x,i)=>`<option value=${i}>${x.n}</option>`).join('');
-t.innerHTML=u.map((x,i)=>`<option value=${i}${i===1?' selected':''}>${x.n}</option>`).join('');calc();}
-function calc(){const v=+document.getElementById('v').value,fi=+document.getElementById('f').value,ti=+document.getElementById('t').value,u=U[tab];let r;
-if(tab===2){let c;const ff=u[fi].f;if(ff==='C')c=v;else if(ff==='F')c=(v-32)*5/9;else c=v-273.15;const tf=u[ti].f;if(tf==='C')r=c;else if(tf==='F')r=c*9/5+32;else r=c+273.15;}
-else r=v*u[fi].f/u[ti].f;document.getElementById('r').textContent=parseFloat(r.toPrecision(8));}
-init();
+const TN=['길이','무게','온도','넓이'];
+var _unitSaved=JSON.parse(localStorage.getItem('hoit_tool_unit')||'{}');
+let tab=_unitSaved.tab||0;
+function saveUnit(){
+  var d={tab:tab,v:document.getElementById('v').value,f:document.getElementById('f').value,t:document.getElementById('t').value};
+  localStorage.setItem('hoit_tool_unit',JSON.stringify(d));
+}
+function init(restoreSelects){
+  var tabsEl=document.getElementById('tabs');
+  while(tabsEl.firstChild)tabsEl.removeChild(tabsEl.firstChild);
+  TN.forEach(function(n,i){
+    var div=document.createElement('div');
+    div.className='tab'+(i===tab?' on':'');
+    div.textContent=n;
+    div.addEventListener('click',function(){tab=i;init(false);});
+    tabsEl.appendChild(div);
+  });
+  var u=U[tab],fEl=document.getElementById('f'),tEl=document.getElementById('t');
+  while(fEl.firstChild)fEl.removeChild(fEl.firstChild);
+  while(tEl.firstChild)tEl.removeChild(tEl.firstChild);
+  u.forEach(function(x,i){
+    var of=document.createElement('option');of.value=i;of.textContent=x.n;fEl.appendChild(of);
+    var ot=document.createElement('option');ot.value=i;ot.textContent=x.n;tEl.appendChild(ot);
+  });
+  if(restoreSelects&&_unitSaved.f!==undefined)fEl.value=_unitSaved.f;
+  if(restoreSelects&&_unitSaved.t!==undefined)tEl.value=_unitSaved.t;
+  else tEl.value=1;
+  calc();
+}
+function calc(){
+  var v=+document.getElementById('v').value,fi=+document.getElementById('f').value,ti=+document.getElementById('t').value,u=U[tab];
+  var r;
+  if(tab===2){var c;var ff=u[fi].f;if(ff==='C')c=v;else if(ff==='F')c=(v-32)*5/9;else c=v-273.15;var tf=u[ti].f;if(tf==='C')r=c;else if(tf==='F')r=c*9/5+32;else r=c+273.15;}
+  else r=v*u[fi].f/u[ti].f;
+  document.getElementById('r').textContent=parseFloat(r.toPrecision(8));
+  saveUnit();
+}
+document.getElementById('v').addEventListener('input',function(){saveUnit();});
+document.getElementById('f').addEventListener('change',function(){saveUnit();});
+document.getElementById('t').addEventListener('change',function(){saveUnit();});
+if(_unitSaved.v!==undefined)document.getElementById('v').value=_unitSaved.v;
+init(true);
 </script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 
 <style>

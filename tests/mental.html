@@ -97,13 +97,22 @@ const questions=[
 {q:"목표 달성이 어려워 보이면?",a:[["포기하고 싶어진다",1],["방법을 바꿔본다",3],["더 열심히 한다",4]]},
 {q:"주변 사람의 부정적 에너지에?",a:[["쉽게 영향받는다",1],["약간 영향받지만 회복한다",2],["나만의 경계를 유지한다",4]]},
 {q:"예상치 못한 문제가 발생하면?",a:[["패닉에 빠진다",1],["당황하지만 곧 대처한다",3],["침착하게 해결한다",4]]},
-{q:"과거의 실수를?",a:[["자주 곱씹으며 후회한다",1],["가끔 생각나지만 넘긴다",2],["교훈으로 삼고 잊는다",4]]}
+{q:"과거의 실수를?",a:[["자주 곱씹으며 후회한다",1],["가끔 생각나지만 넘긴다",2],["교훈으로 삼고 잊는다",4]]},
+{q:"비교당하는 상황에서?",a:[["심하게 위축된다",1],["기분 나쁘지만 참는다",2],["나만의 기준이 있어 크게 신경 안 쓴다",4]]},
+{q:"오랫동안 결과가 나오지 않는 상황에서?",a:[["쉽게 포기하게 된다",1],["불안하지만 버텨본다",3],["과정 자체에 의미를 두며 지속한다",4]]},
+{q:"극심한 피로 상태에서 중요한 일이 생기면?",a:[["아무것도 못 한다",1],["힘들지만 어떻게든 한다",2],["우선순위를 정해 핵심만 해낸다",4]]},
+{q:"인간관계에서 상처를 받았을 때?",a:[["오랫동안 마음에 걸린다",1],["슬프지만 시간이 해결해준다",2],["감정을 정리하고 관계를 재정립한다",4]]},
+{q:"막다른 상황에서 나의 대처는?",a:[["패닉이 오고 멈춰버린다",1],["당황하지만 방법을 찾는다",3],["위기에서 오히려 평정심이 생긴다",4]]},
+{q:"반복적으로 같은 문제가 생길 때?",a:[["점점 더 지쳐간다",1],["짜증나지만 다시 해결한다",2],["근본적인 원인을 찾아 끊어낸다",4]]},
+{q:"주변 사람들이 나에 대해 부정적인 말을 할 때?",a:[["크게 상처받는다",1],["마음에 걸리지만 넘긴다",2],["객관적으로 수용할 부분만 받아들인다",4]]},
+{q:"갑자기 계획이 무산됐을 때?",a:[["의욕을 잃고 무기력해진다",1],["실망하지만 대안을 찾는다",3],["더 나은 방향을 모색하는 기회로 삼는다",4]]},
+{q:"매우 힘든 시기를 보낸 후 나의 변화는?",a:[["상처가 오래 남는다",1],["어느 정도 회복되지만 흔적이 남는다",2],["더 단단해지고 성장한다",4]]}
 ];
 let cur=0,total=0;
 function startQuiz(){_shuf(questions);document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();}
 function showQ(){if(!window._qs){_shuf(questions);window._qs=1;}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';document.getElementById('quiz').classList.add('q-slide');setTimeout(()=>document.getElementById('quiz').classList.remove('q-slide'),350);q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=function(){this.classList.add('selected');setTimeout(()=>pick(a[1]),350)};o.appendChild(b);});}
 function pick(v){total+=v;cur++;if(cur<questions.length)showQ();else showResult();}
-function showResult(){const score=Math.min(100,Math.round(total/40*100));
+function showResult(){const score=Math.min(100,Math.round(total/80*100));
 document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');
 document.getElementById('rScore').textContent='멘탈 강도: '+score+'점';
 const fill=document.getElementById('meterFill');fill.style.width=score+'%';

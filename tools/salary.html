@@ -68,6 +68,39 @@ input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appear
 </div>
 </div>
 <script>
+var salaryHistory=JSON.parse(localStorage.getItem('hoit_hist_salary')||'[]');
+function renderSalaryHistory(){
+  var existing=document.getElementById('salary-history');
+  if(existing)existing.parentNode.removeChild(existing);
+  if(salaryHistory.length===0)return;
+  var wrap=document.querySelector('.wrap');
+  var box=document.createElement('div');
+  box.id='salary-history';
+  box.style.cssText='margin-top:16px;background:#1a1a2e;border-radius:12px;padding:16px';
+  var title=document.createElement('p');
+  title.style.cssText='color:#888;font-size:13px;margin-bottom:8px';
+  title.textContent='최근 계산 기록';
+  box.appendChild(title);
+  var ul=document.createElement('ul');
+  ul.style.cssText='list-style:none;padding:0;margin:0';
+  salaryHistory.slice().reverse().forEach(function(item){
+    var li=document.createElement('li');
+    li.style.cssText='padding:6px 0;border-bottom:1px solid #0f0f1e;font-size:13px;color:#ccc';
+    li.textContent=item.time+' | 연봉 '+item.salary+'만원 ('+item.dep+'명) → 월 실수령 '+item.net;
+    ul.appendChild(li);
+  });
+  box.appendChild(ul);
+  var clearBtn=document.createElement('button');
+  clearBtn.textContent='히스토리 지우기';
+  clearBtn.style.cssText='margin-top:10px;padding:8px 16px;background:#333;color:#aaa;border:none;border-radius:8px;font-size:13px;cursor:pointer;width:100%';
+  clearBtn.addEventListener('click',function(){
+    salaryHistory=[];
+    localStorage.removeItem('hoit_hist_salary');
+    renderSalaryHistory();
+  });
+  box.appendChild(clearBtn);
+  wrap.appendChild(box);
+}
 function fmt(n){return Math.round(n).toLocaleString()+'원'}
 function calc(){
   const annual=parseFloat(document.getElementById('salary').value)*10000;
@@ -106,7 +139,29 @@ function calc(){
   document.getElementById('itx').textContent='-'+fmt(monthlyTax);
   document.getElementById('ltx').textContent='-'+fmt(localTax);
   document.getElementById('ded').textContent='-'+fmt(totalDed);
+  var now=new Date();
+  var ts=(now.getMonth()+1)+'/'+(now.getDate())+' '+now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+  var salary=document.getElementById('salary').value;
+  var depVal=document.getElementById('dep').value;
+  salaryHistory.push({time:ts,salary:salary,dep:depVal,net:fmt(netPay)});
+  if(salaryHistory.length>5)salaryHistory.shift();
+  localStorage.setItem('hoit_hist_salary',JSON.stringify(salaryHistory));
+  renderSalaryHistory();
 }
+(function(){
+  var KEY='hoit_tool_salary';
+  var saved=JSON.parse(localStorage.getItem(KEY)||'{}');
+  ['salary','dep'].forEach(function(id){var el=document.getElementById(id);if(el&&saved[id]!==undefined)el.value=saved[id];});
+  document.querySelectorAll('input,select').forEach(function(el){
+    if(!el.id)return;
+    el.addEventListener('change',function(){
+      var d=JSON.parse(localStorage.getItem(KEY)||'{}');
+      d[el.id]=el.value;
+      localStorage.setItem(KEY,JSON.stringify(d));
+    });
+  });
+  renderSalaryHistory();
+})();
 </script>
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 

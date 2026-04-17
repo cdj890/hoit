@@ -20,6 +20,16 @@ h1{text-align:center;font-size:1.4em;margin-bottom:12px}
 .canvas-wrap{display:flex;justify-content:center;overflow:auto;margin-bottom:12px}
 #pixelCanvas{border:1px solid #333;touch-action:none;image-rendering:pixelated}
 .export-wrap{text-align:center}
+.gallery-section{max-width:540px;margin:0 auto 16px;padding:0 4px}
+.gallery-title{font-size:13px;color:#aaa;text-align:center;margin-bottom:8px}
+.gallery-slots{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.gallery-slot{background:#1a1a2e;border:1px solid #333;border-radius:10px;padding:8px;display:flex;flex-direction:column;align-items:center;gap:6px;width:140px}
+.gallery-slot .slot-thumb{width:96px;height:96px;border-radius:6px;background:#0f0f1e;image-rendering:pixelated;border:1px solid #2a2a3e}
+.gallery-slot .slot-thumb.empty{display:flex;align-items:center;justify-content:center;color:#444;font-size:11px}
+.gallery-slot .slot-btns{display:flex;gap:4px;width:100%}
+.gallery-slot .slot-btns button{flex:1;font-size:12px;padding:6px 4px;border-radius:6px;border:1px solid #333;cursor:pointer;min-height:36px;touch-action:manipulation;font-family:inherit}
+.gallery-slot .slot-btns .s-save{background:#1e3a5f;color:#4fc3f7}
+.gallery-slot .slot-btns .s-load{background:#1a1a2e;color:#fff}
 </style>
 </head>
 <body>
@@ -42,6 +52,11 @@ h1{text-align:center;font-size:1.4em;margin-bottom:12px}
 
 <div class="canvas-wrap">
 <canvas id="pixelCanvas"></canvas>
+</div>
+
+<div class="gallery-section">
+<div class="gallery-title">저장 슬롯</div>
+<div class="gallery-slots" id="gallerySlots"></div>
 </div>
 
 <div class="export-wrap">
@@ -160,8 +175,81 @@ link.href=ec.toDataURL();
 link.click();
 }
 
+function saveSlot(slot){
+const key='hoit_pixel_slot_'+slot;
+const data={grid:grid,gridSize:gridSize,dataURL:canvas.toDataURL()};
+localStorage.setItem(key,JSON.stringify(data));
+renderGallery();
+}
+
+function loadSlot(slot){
+const key='hoit_pixel_slot_'+slot;
+const raw=localStorage.getItem(key);
+if(!raw) return;
+const data=JSON.parse(raw);
+gridSize=data.gridSize;
+document.getElementById('gridSize').value=gridSize;
+const maxW=Math.min(window.innerWidth-20,500);
+cellSize=Math.floor(maxW/gridSize);
+canvas.width=gridSize*cellSize;
+canvas.height=gridSize*cellSize;
+grid=data.grid;
+draw();
+}
+
+function renderGallery(){
+const container=document.getElementById('gallerySlots');
+while(container.firstChild) container.removeChild(container.firstChild);
+[1,2,3].forEach(slot=>{
+const key='hoit_pixel_slot_'+slot;
+const raw=localStorage.getItem(key);
+const wrap=document.createElement('div');
+wrap.className='gallery-slot';
+
+const label=document.createElement('div');
+label.style.cssText='font-size:11px;color:#888;width:100%;text-align:center';
+label.textContent='슬롯 '+slot;
+wrap.appendChild(label);
+
+if(raw){
+const data=JSON.parse(raw);
+const img=document.createElement('img');
+img.className='slot-thumb';
+img.src=data.dataURL;
+img.alt='슬롯 '+slot+' 미리보기';
+wrap.appendChild(img);
+}else{
+const placeholder=document.createElement('div');
+placeholder.className='slot-thumb empty';
+placeholder.textContent='비어있음';
+wrap.appendChild(placeholder);
+}
+
+const btnRow=document.createElement('div');
+btnRow.className='slot-btns';
+
+const saveBtn=document.createElement('button');
+saveBtn.className='s-save';
+saveBtn.textContent='저장';
+saveBtn.onclick=()=>saveSlot(slot);
+btnRow.appendChild(saveBtn);
+
+const loadBtn=document.createElement('button');
+loadBtn.className='s-load';
+loadBtn.textContent='불러오기';
+loadBtn.disabled=!raw;
+loadBtn.style.opacity=raw?'1':'0.4';
+loadBtn.onclick=()=>loadSlot(slot);
+btnRow.appendChild(loadBtn);
+
+wrap.appendChild(btnRow);
+container.appendChild(wrap);
+});
+}
+
 initPalette();
 initGrid();
+renderGallery();
 </script>
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 

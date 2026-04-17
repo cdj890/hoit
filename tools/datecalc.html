@@ -72,9 +72,22 @@ input[type=date]{color-scheme:dark}
 <script>
 let dir=1;
 const today=new Date().toISOString().split('T')[0];
-document.getElementById('d1').value=today;
-document.getElementById('d2').value=today;
-document.getElementById('d3').value=today;
+(function(){
+  var KEY='hoit_tool_datecalc';
+  var saved=JSON.parse(localStorage.getItem(KEY)||'{}');
+  document.getElementById('d1').value=saved.d1||today;
+  document.getElementById('d2').value=saved.d2||today;
+  document.getElementById('d3').value=saved.d3||today;
+  if(saved.ndays!==undefined)document.getElementById('ndays').value=saved.ndays;
+  document.querySelectorAll('input').forEach(function(el){
+    if(!el.id)return;
+    el.addEventListener('change',function(){
+      var d=JSON.parse(localStorage.getItem(KEY)||'{}');
+      d[el.id]=el.value;
+      localStorage.setItem(KEY,JSON.stringify(d));
+    });
+  });
+})();
 function setTab(n){document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===n));document.querySelectorAll('.panel').forEach((p,i)=>p.classList.toggle('active',i===n))}
 function setDir(d){dir=d;document.getElementById('btnAfter').classList.toggle('active',d===1);document.getElementById('btnBefore').classList.toggle('active',d===-1)}
 function calcDiff(){

@@ -15,11 +15,30 @@
 <div class="row"><label>16진</label><input id="h" value="FF" oninput="fromHex()"></div>
 </div></div>
 <script>
-function set(d){document.getElementById('d').value=d;document.getElementById('b').value=d.toString(2);document.getElementById('o').value=d.toString(8);document.getElementById('h').value=d.toString(16).toUpperCase();}
+function saveBase(){
+  var d={d:document.getElementById('d').value,b:document.getElementById('b').value,o:document.getElementById('o').value,h:document.getElementById('h').value};
+  localStorage.setItem('hoit_tool_base',JSON.stringify(d));
+}
+function set(val){
+  document.getElementById('d').value=val;
+  document.getElementById('b').value=val.toString(2);
+  document.getElementById('o').value=val.toString(8);
+  document.getElementById('h').value=val.toString(16).toUpperCase();
+  saveBase();
+}
 function fromDec(){const v=parseInt(document.getElementById('d').value);if(!isNaN(v))set(v);}
 function fromBin(){const v=parseInt(document.getElementById('b').value,2);if(!isNaN(v))set(v);}
 function fromOct(){const v=parseInt(document.getElementById('o').value,8);if(!isNaN(v))set(v);}
 function fromHex(){const v=parseInt(document.getElementById('h').value,16);if(!isNaN(v))set(v);}
+(function(){
+  var saved=JSON.parse(localStorage.getItem('hoit_tool_base')||'{}');
+  if(saved.d!==undefined){
+    document.getElementById('d').value=saved.d;
+    document.getElementById('b').value=saved.b||'';
+    document.getElementById('o').value=saved.o||'';
+    document.getElementById('h').value=saved.h||'';
+  }
+})();
 </script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 
 <style>

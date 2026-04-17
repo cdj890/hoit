@@ -41,6 +41,25 @@ textarea{width:100%;background:#1a1a2e;color:#fff;border:1px solid #333;padding:
 .entry-view .ev-mood{font-size:28px;margin-bottom:10px}
 .entry-view .ev-text{line-height:1.7;font-size:15px;white-space:pre-wrap}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#4fc3f7;color:#000;padding:10px 24px;border-radius:8px;font-weight:bold;display:none;z-index:999}
+.stats-panel{background:#1a1a2e;border:1px solid #333;border-radius:12px;padding:16px;margin-bottom:14px}
+.stats-title{font-size:14px;font-weight:bold;color:#4fc3f7;margin-bottom:12px;text-align:center}
+.streak-row{display:flex;justify-content:center;gap:16px;margin-bottom:14px}
+.streak-box{background:#0f0f1e;border-radius:10px;padding:10px 16px;text-align:center;min-width:80px}
+.streak-box .streak-num{font-size:28px;font-weight:bold;color:#4fc3f7;line-height:1}
+.streak-box .streak-label{font-size:11px;color:#888;margin-top:4px}
+.mood-stats-grid{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.mood-stat-row{display:flex;align-items:center;gap:8px}
+.mood-stat-emoji{font-size:18px;width:24px;text-align:center;flex-shrink:0}
+.mood-stat-bar-wrap{flex:1;background:#0f0f1e;border-radius:4px;height:12px;overflow:hidden}
+.mood-stat-bar{height:100%;border-radius:4px;background:#4fc3f7;transition:width 0.4s}
+.mood-stat-count{font-size:12px;color:#888;width:28px;text-align:right;flex-shrink:0}
+.heatmap-title{font-size:12px;color:#888;margin-bottom:6px;text-align:center}
+.heatmap-grid{display:flex;flex-wrap:wrap;gap:3px;justify-content:center}
+.heatmap-cell{width:16px;height:16px;border-radius:3px;background:#1e1e3a;position:relative}
+.heatmap-cell.lv1{background:#1e3a5f}
+.heatmap-cell.lv2{background:#1565a8}
+.heatmap-cell.lv3{background:#4fc3f7}
+.heatmap-cell[data-tip]:hover::after{content:attr(data-tip);position:absolute;bottom:20px;left:50%;transform:translateX(-50%);background:#333;color:#fff;font-size:11px;padding:2px 6px;border-radius:4px;white-space:nowrap;pointer-events:none;z-index:10}
 </style>
 </head>
 <body>
@@ -52,6 +71,7 @@ textarea{width:100%;background:#1a1a2e;color:#fff;border:1px solid #333;padding:
 <div class="tabs">
 <button class="active" onclick="switchTab('write')">쓰기</button>
 <button onclick="switchTab('calendar')">달력</button>
+<button onclick="switchTab('stats')">통계</button>
 <button onclick="switchTab('export')">내보내기</button>
 </div>
 
@@ -78,6 +98,10 @@ textarea{width:100%;background:#1a1a2e;color:#fff;border:1px solid #333;padding:
 <button class="btn secondary" onclick="editEntry()" style="margin-top:10px">수정</button>
 <button class="btn danger" onclick="deleteEntry()" style="margin-top:6px">삭제</button>
 </div>
+</div>
+
+<div class="panel" id="panelStats">
+<div class="stats-panel" id="statsContent"></div>
 </div>
 
 <div class="panel" id="panelExport">
@@ -150,11 +174,12 @@ showToast('저장완료!');
 
 function switchTab(tab){
 document.querySelectorAll('.tabs button').forEach((b,i)=>{
-const panels=['write','calendar','export'];
+const panels=['write','calendar','stats','export'];
 b.classList.toggle('active',panels[i]===tab);
 document.getElementById('panel'+panels[i].charAt(0).toUpperCase()+panels[i].slice(1)).classList.toggle('active',panels[i]===tab);
 });
 if(tab==='calendar') renderCalendar();
+if(tab==='stats') renderStats();
 }
 
 function changeMonth(d){
@@ -239,6 +264,129 @@ const t=document.getElementById('exportArea').value;
 if(!t) doExport();
 navigator.clipboard.writeText(document.getElementById('exportArea').value);
 showToast('복사완료!');
+}
+
+function calcStreak(){
+const today=new Date();
+let cur=new Date(today);
+let streak=0;
+while(true){
+const key=formatDate(cur);
+if(entries[key]){streak++;cur.setDate(cur.getDate()-1)}
+else break;
+}
+let longest=0;
+const keys=Object.keys(entries).sort();
+if(keys.length){
+let run=1;
+for(let i=1;i<keys.length;i++){
+const prev=new Date(keys[i-1]);
+const curr=new Date(keys[i]);
+const diff=(curr-prev)/(1000*60*60*24);
+if(diff===1){run++;if(run>longest)longest=run}
+else{if(run>longest)longest=run;run=1}
+}
+if(run>longest)longest=run;
+}
+return{current:streak,longest:Math.max(longest,streak)};
+}
+
+function renderStats(){
+const container=document.getElementById('statsContent');
+while(container.firstChild) container.removeChild(container.firstChild);
+
+const titleEl=document.createElement('div');
+titleEl.className='stats-title';
+titleEl.textContent='나의 일기 통계';
+container.appendChild(titleEl);
+
+// Streak
+const {current,longest}=calcStreak();
+const totalCount=Object.keys(entries).length;
+const streakRow=document.createElement('div');
+streakRow.className='streak-row';
+[
+{num:current,label:'연속 작성일'},
+{num:longest,label:'최장 연속'},
+{num:totalCount,label:'총 작성 수'}
+].forEach(item=>{
+const box=document.createElement('div');
+box.className='streak-box';
+const num=document.createElement('div');
+num.className='streak-num';
+num.textContent=item.num;
+const label=document.createElement('div');
+label.className='streak-label';
+label.textContent=item.label;
+box.appendChild(num);
+box.appendChild(label);
+streakRow.appendChild(box);
+});
+container.appendChild(streakRow);
+
+// Mood distribution
+const moodTitle=document.createElement('div');
+moodTitle.className='stats-title';
+moodTitle.style.fontSize='12px';
+moodTitle.style.marginBottom='8px';
+moodTitle.textContent='무드 분포';
+container.appendChild(moodTitle);
+
+const moodCounts=MOODS.map(()=>0);
+Object.values(entries).forEach(e=>{if(e.mood>=0&&e.mood<MOODS.length)moodCounts[e.mood]++});
+const maxCount=Math.max(...moodCounts,1);
+const grid=document.createElement('div');
+grid.className='mood-stats-grid';
+MOODS.forEach((m,i)=>{
+const row=document.createElement('div');
+row.className='mood-stat-row';
+const emojiEl=document.createElement('div');
+emojiEl.className='mood-stat-emoji';
+emojiEl.textContent=m.emoji;
+const barWrap=document.createElement('div');
+barWrap.className='mood-stat-bar-wrap';
+const bar=document.createElement('div');
+bar.className='mood-stat-bar';
+bar.style.width=Math.round((moodCounts[i]/maxCount)*100)+'%';
+barWrap.appendChild(bar);
+const count=document.createElement('div');
+count.className='mood-stat-count';
+count.textContent=moodCounts[i];
+row.appendChild(emojiEl);
+row.appendChild(barWrap);
+row.appendChild(count);
+grid.appendChild(row);
+});
+container.appendChild(grid);
+
+// 6-month heatmap
+const hmTitle=document.createElement('div');
+hmTitle.className='heatmap-title';
+hmTitle.textContent='최근 6개월 기록';
+container.appendChild(hmTitle);
+
+const hmGrid=document.createElement('div');
+hmGrid.className='heatmap-grid';
+const today2=new Date();
+const start=new Date(today2);
+start.setMonth(start.getMonth()-5);
+start.setDate(1);
+const cur2=new Date(start);
+while(cur2<=today2){
+const key=formatDate(cur2);
+const cell=document.createElement('div');
+cell.className='heatmap-cell';
+if(entries[key]){
+const mood=entries[key].mood;
+if(mood===0) cell.classList.add('lv3');
+else if(mood===1||mood===2) cell.classList.add('lv1');
+else cell.classList.add('lv2');
+cell.setAttribute('data-tip',key+' '+MOODS[mood].emoji);
+}
+hmGrid.appendChild(cell);
+cur2.setDate(cur2.getDate()+1);
+}
+container.appendChild(hmGrid);
 }
 
 function showToast(msg){

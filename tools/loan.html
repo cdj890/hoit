@@ -57,6 +57,39 @@ tr:nth-child(even){background:#0a0a16}
 <div class="tbl" id="tbl"></div>
 </div>
 <script>
+var loanHistory=JSON.parse(localStorage.getItem('hoit_hist_loan')||'[]');
+function renderLoanHistory(){
+  var existing=document.getElementById('loan-history');
+  if(existing)existing.parentNode.removeChild(existing);
+  if(loanHistory.length===0)return;
+  var wrap=document.querySelector('.wrap');
+  var box=document.createElement('div');
+  box.id='loan-history';
+  box.style.cssText='margin-top:16px;background:#1a1a2e;border-radius:12px;padding:16px';
+  var title=document.createElement('p');
+  title.style.cssText='color:#888;font-size:13px;margin-bottom:8px';
+  title.textContent='최근 계산 기록';
+  box.appendChild(title);
+  var ul=document.createElement('ul');
+  ul.style.cssText='list-style:none;padding:0;margin:0';
+  loanHistory.slice().reverse().forEach(function(item){
+    var li=document.createElement('li');
+    li.style.cssText='padding:6px 0;border-bottom:1px solid #0f0f1e;font-size:13px;color:#ccc';
+    li.textContent=item.time+' | '+item.principal+'만원 '+item.rate+'% '+item.years+'년 ('+item.type+') → 월 '+item.monthly;
+    ul.appendChild(li);
+  });
+  box.appendChild(ul);
+  var clearBtn=document.createElement('button');
+  clearBtn.textContent='히스토리 지우기';
+  clearBtn.style.cssText='margin-top:10px;padding:8px 16px;background:#333;color:#aaa;border:none;border-radius:8px;font-size:13px;cursor:pointer;width:100%';
+  clearBtn.addEventListener('click',function(){
+    loanHistory=[];
+    localStorage.removeItem('hoit_hist_loan');
+    renderLoanHistory();
+  });
+  box.appendChild(clearBtn);
+  wrap.appendChild(box);
+}
 let loanType=0;
 function setType(t){loanType=t;document.getElementById('t0').classList.toggle('active',t===0);document.getElementById('t1').classList.toggle('active',t===1)}
 function fmt(n){return Math.round(n).toLocaleString()}
@@ -66,8 +99,10 @@ function calc(){
   const n=parseInt(document.getElementById('years').value)*12;
   if(!P||!r||!n)return;
   let rows=[],totalInt=0,balance=P;
+  var monthlyAmt=0;
   if(loanType===0){
     const mp=P*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1);
+    monthlyAmt=mp;
     for(let i=1;i<=n;i++){
       const interest=balance*r;
       const principal=mp-interest;
@@ -85,17 +120,53 @@ function calc(){
       balance-=mp;
       rows.push([i,fmt(pay),fmt(mp),fmt(interest),fmt(Math.max(0,balance))]);
     }
-    document.getElementById('monthly').textContent=fmt(rows[0][1].replace(/,/g,''))+'원';
+    monthlyAmt=rows[0]?parseFloat(rows[0][1].replace(/,/g,'')):0;
+    document.getElementById('monthly').textContent=fmt(monthlyAmt)+'원';
   }
   document.getElementById('totalInt').textContent=fmt(totalInt)+'원';
   document.getElementById('totalPay').textContent=fmt(P+totalInt)+'원';
   document.getElementById('sum').style.display='grid';
-  let html='<table><thead><tr><th>회차</th><th>상환액</th><th>원금</th><th>이자</th><th>잔액</th></tr></thead><tbody>';
-  rows.forEach(r=>{html+='<tr>'+r.map(c=>'<td>'+c+'</td>').join('')+'</tr>'});
-  html+='</tbody></table>';
-  document.getElementById('tbl').innerHTML=html;
-  document.getElementById('tbl').style.display='block';
+  var tbl=document.getElementById('tbl');
+  tbl.style.display='block';
+  var table=document.createElement('table');
+  var thead=document.createElement('thead');
+  var headerRow=document.createElement('tr');
+  ['회차','상환액','원금','이자','잔액'].forEach(function(h){var th=document.createElement('th');th.textContent=h;headerRow.appendChild(th);});
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
+  var tbody=document.createElement('tbody');
+  rows.forEach(function(row){
+    var tr=document.createElement('tr');
+    row.forEach(function(cell){var td=document.createElement('td');td.textContent=cell;tr.appendChild(td);});
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+  while(tbl.firstChild)tbl.removeChild(tbl.firstChild);
+  tbl.appendChild(table);
+  var now=new Date();
+  var ts=(now.getMonth()+1)+'/'+(now.getDate())+' '+now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+  var principal=document.getElementById('principal').value;
+  var rate=document.getElementById('rate').value;
+  var years=document.getElementById('years').value;
+  loanHistory.push({time:ts,principal:principal,rate:rate,years:years,type:loanType===0?'원리금균등':'원금균등',monthly:fmt(monthlyAmt)+'원'});
+  if(loanHistory.length>5)loanHistory.shift();
+  localStorage.setItem('hoit_hist_loan',JSON.stringify(loanHistory));
+  renderLoanHistory();
 }
+(function(){
+  var KEY='hoit_tool_loan';
+  var saved=JSON.parse(localStorage.getItem(KEY)||'{}');
+  ['principal','rate','years'].forEach(function(id){var el=document.getElementById(id);if(el&&saved[id]!==undefined)el.value=saved[id];});
+  document.querySelectorAll('input').forEach(function(el){
+    if(!el.id)return;
+    el.addEventListener('change',function(){
+      var d=JSON.parse(localStorage.getItem(KEY)||'{}');
+      d[el.id]=el.value;
+      localStorage.setItem(KEY,JSON.stringify(d));
+    });
+  });
+  renderLoanHistory();
+})();
 </script>
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 

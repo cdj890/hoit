@@ -69,8 +69,29 @@ input[type=number]{-moz-appearance:textfield}
 </div>
 </div>
 <script>
-let gender='m';
-function setG(g){gender=g;document.getElementById('gm').classList.toggle('active',g==='m');document.getElementById('gf').classList.toggle('active',g==='f')}
+var _alcSaved=JSON.parse(localStorage.getItem('hoit_tool_alcohol')||'{}');
+let gender=_alcSaved.gender||'m';
+function setG(g){
+  gender=g;
+  document.getElementById('gm').classList.toggle('active',g==='m');
+  document.getElementById('gf').classList.toggle('active',g==='f');
+  var d=JSON.parse(localStorage.getItem('hoit_tool_alcohol')||'{}');
+  d.gender=g;
+  localStorage.setItem('hoit_tool_alcohol',JSON.stringify(d));
+}
+(function(){
+  if(_alcSaved.weight!==undefined){var el=document.getElementById('weight');if(el)el.value=_alcSaved.weight;}
+  ['beer','soju','wine'].forEach(function(id){var el=document.getElementById(id);if(el&&_alcSaved[id]!==undefined)el.value=_alcSaved[id];});
+  if(gender==='f'){document.getElementById('gm').classList.remove('active');document.getElementById('gf').classList.add('active');}
+  document.querySelectorAll('input[type=number]').forEach(function(el){
+    if(!el.id)return;
+    el.addEventListener('change',function(){
+      var d=JSON.parse(localStorage.getItem('hoit_tool_alcohol')||'{}');
+      d[el.id]=el.value;
+      localStorage.setItem('hoit_tool_alcohol',JSON.stringify(d));
+    });
+  });
+})();
 function calc(){
   const w=parseFloat(document.getElementById('weight').value)||70;
   const beer=parseInt(document.getElementById('beer').value)||0;

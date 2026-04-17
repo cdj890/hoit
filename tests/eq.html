@@ -92,13 +92,22 @@ const questions=[
 {q:"후배가 같은 실수를 반복하면?",cat:"social",a:[["짜증이 난다",1],["한번 더 설명해준다",3],["다른 방식으로 가르쳐본다",4]]},
 {q:"자신의 감정 상태를?",cat:"awareness",a:[["잘 모르겠다",1],["대략적으로 안다",2],["구체적으로 파악하고 있다",4]]},
 {q:"의견 충돌 시?",cat:"social",a:[["내 주장을 끝까지 한다",1],["적당히 양보한다",2],["서로 만족할 해결책을 찾는다",4]]},
-{q:"기분이 안 좋은 날?",cat:"regulation",a:[["주변에 티가 많이 난다",1],["혼자 삭인다",2],["원인을 찾고 기분전환한다",4]]}
+{q:"기분이 안 좋은 날?",cat:"regulation",a:[["주변에 티가 많이 난다",1],["혼자 삭인다",2],["원인을 찾고 기분전환한다",4]]},
+{q:"누군가 나를 오해하고 있다는 걸 알았을 때?",cat:"awareness",a:[["화가 나서 바로 반박한다",1],["억울하지만 시간이 지나길 기다린다",2],["차분하게 오해를 풀 기회를 만든다",4]]},
+{q:"친구가 내 생일을 잊어버렸다면?",cat:"empathy",a:[["서운함을 티내며 따진다",1],["서운하지만 말하지 않는다",2],["친구도 바빴겠지 하고 이해한다",4]]},
+{q:"중요한 일을 하기 전 나의 감정 준비는?",cat:"regulation",a:[["별로 신경 쓰지 않는다",1],["긴장을 억누르려 한다",2],["긴장을 인정하고 집중력으로 전환한다",4]]},
+{q:"처음 만나는 사람과 대화할 때?",cat:"social",a:[["무슨 말을 해야 할지 모르겠다",1],["기본적인 대화는 가능하다",2],["상대에게 관심을 보이며 자연스럽게 대화한다",4]]},
+{q:"내가 실수로 다른 사람을 불쾌하게 했을 때?",cat:"awareness",a:[["잘 모르고 지나칠 때가 많다",1],["알아채지만 어떻게 해야 할지 모른다",2],["즉시 사과하고 상황을 수습한다",4]]},
+{q:"힘든 일을 겪고 있는 동료에게?",cat:"empathy",a:[["특별히 행동을 바꾸지 않는다",1],["위로의 말을 건넨다",2],["무엇이 필요한지 묻고 도움을 제공한다",4]]},
+{q:"그룹에서 갈등이 생겼을 때 나의 역할은?",cat:"social",a:[["갈등 상황을 피한다",1],["중간에서 조용히 있는다",2],["적극적으로 중재하고 해결책을 찾는다",4]]},
+{q:"오랫동안 기분이 가라앉아 있을 때?",cat:"regulation",a:[["그냥 시간이 지나길 기다린다",1],["기분 전환을 위해 뭔가 해보려 한다",2],["원인을 찾아 스스로 해결하거나 도움을 구한다",4]]},
+{q:"상대방이 말을 많이 하지 않아도 감정을 파악하는 편인가?",cat:"empathy",a:[["거의 파악하기 어렵다",1],["친한 사람은 어느 정도 파악한다",2],["표정, 목소리, 태도로 대부분 파악한다",4]]}
 ];
 let cur=0,total=0,catScores={awareness:0,regulation:0,empathy:0,social:0},catMax={awareness:0,regulation:0,empathy:0,social:0};
 function startQuiz(){_shuf(questions);document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();}
 function showQ(){if(!window._qs){_shuf(questions);window._qs=1;}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';const qEl=document.getElementById('qText');qEl.textContent=(cur+1)+'. '+q.q;qEl.classList.remove('q-slide');void qEl.offsetWidth;qEl.classList.add('q-slide');const o=document.getElementById('opts');o.innerHTML='';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=function(){if(window._picking)return;window._picking=true;b.classList.add('selected');setTimeout(()=>{window._picking=false;pick(a[1],q.cat);},400);};o.appendChild(b);});}
 function pick(v,cat){total+=v;catScores[cat]=(catScores[cat]||0)+v;catMax[cat]=(catMax[cat]||0)+4;cur++;if(cur<questions.length)showQ();else showResult();}
-function showResult(){const score=Math.min(100,Math.round(total/40*100));const deg=-90+score*1.8;
+function showResult(){const score=Math.min(100,Math.round(total/80*100));const deg=-90+score*1.8;
 document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');
 setTimeout(()=>document.getElementById('needle').style.transform='translateX(-50%) rotate('+deg+'deg)',100);
 document.getElementById('scoreText').textContent=score+'점';

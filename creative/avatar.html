@@ -24,6 +24,17 @@ canvas{border-radius:12px;border:1px solid #333;background:#1a1a2e}
 .color-options{display:flex;flex-wrap:wrap;gap:6px}
 .color-options button{width:36px;height:36px;border-radius:50%;border:2px solid #333;cursor:pointer;padding:0;min-height:36px}
 .color-options button.active{border-color:#fff;box-shadow:0 0 6px #fff}
+.gallery-section{margin-top:16px}
+.gallery-title{font-size:13px;color:#aaa;text-align:center;margin-bottom:8px}
+.gallery-slots{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.gallery-slot{background:#1a1a2e;border:1px solid #333;border-radius:10px;padding:8px;display:flex;flex-direction:column;align-items:center;gap:6px;width:140px}
+.gallery-slot .slot-thumb{width:80px;height:80px;border-radius:8px;background:#0f0f1e;border:1px solid #2a2a3e;object-fit:cover}
+.gallery-slot .slot-thumb.empty{display:flex;align-items:center;justify-content:center;color:#444;font-size:11px}
+.gallery-slot .slot-label{font-size:11px;color:#888}
+.gallery-slot .slot-btns{display:flex;gap:4px;width:100%}
+.gallery-slot .slot-btns button{flex:1;font-size:12px;padding:6px 4px;border-radius:6px;border:1px solid #333;cursor:pointer;min-height:36px;touch-action:manipulation;font-family:inherit}
+.gallery-slot .slot-btns .s-save{background:#1e3a5f;color:#4fc3f7}
+.gallery-slot .slot-btns .s-load{background:#1a1a2e;color:#fff}
 </style>
 </head>
 <body>
@@ -68,6 +79,11 @@ canvas{border-radius:12px;border:1px solid #333;background:#1a1a2e}
 <div class="btn-row">
 <button class="btn" onclick="savePNG()">PNG 저장</button>
 <button class="btn secondary" onclick="randomize()">랜덤</button>
+</div>
+
+<div class="gallery-section">
+<div class="gallery-title">저장 슬롯</div>
+<div class="gallery-slots" id="gallerySlots"></div>
 </div>
 </div>
 
@@ -270,7 +286,74 @@ link.href=canvas.toDataURL();
 link.click();
 }
 
+function saveSlot(slot){
+const key='hoit_avatar_slot_'+slot;
+const data={state:JSON.parse(JSON.stringify(state)),dataURL:canvas.toDataURL()};
+localStorage.setItem(key,JSON.stringify(data));
+renderGallery();
+}
+
+function loadSlot(slot){
+const key='hoit_avatar_slot_'+slot;
+const raw=localStorage.getItem(key);
+if(!raw) return;
+const data=JSON.parse(raw);
+Object.assign(state,data.state);
 initUI();
+}
+
+function renderGallery(){
+const container=document.getElementById('gallerySlots');
+while(container.firstChild) container.removeChild(container.firstChild);
+[1,2,3].forEach(slot=>{
+const key='hoit_avatar_slot_'+slot;
+const raw=localStorage.getItem(key);
+const wrap=document.createElement('div');
+wrap.className='gallery-slot';
+
+const label=document.createElement('div');
+label.className='slot-label';
+label.textContent='슬롯 '+slot;
+wrap.appendChild(label);
+
+if(raw){
+const data=JSON.parse(raw);
+const img=document.createElement('img');
+img.className='slot-thumb';
+img.src=data.dataURL;
+img.alt='슬롯 '+slot+' 미리보기';
+wrap.appendChild(img);
+}else{
+const placeholder=document.createElement('div');
+placeholder.className='slot-thumb empty';
+placeholder.textContent='비어있음';
+wrap.appendChild(placeholder);
+}
+
+const btnRow=document.createElement('div');
+btnRow.className='slot-btns';
+
+const saveBtn=document.createElement('button');
+saveBtn.className='s-save';
+saveBtn.textContent='저장';
+saveBtn.onclick=()=>saveSlot(slot);
+btnRow.appendChild(saveBtn);
+
+const loadBtn=document.createElement('button');
+loadBtn.className='s-load';
+loadBtn.textContent='불러오기';
+loadBtn.disabled=!raw;
+loadBtn.style.opacity=raw?'1':'0.4';
+loadBtn.onclick=()=>loadSlot(slot);
+btnRow.appendChild(loadBtn);
+
+wrap.appendChild(btnRow);
+container.appendChild(wrap);
+});
+}
+
+initUI();
+renderGallery();
 </script>
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 

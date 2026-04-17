@@ -45,18 +45,27 @@ const chars=document.getElementById('chars');
 const nospace=document.getElementById('nospace');
 const words=document.getElementById('words');
 const bytes=document.getElementById('bytes');
+// 저장된 텍스트 복원
+(function(){
+  var saved=localStorage.getItem('hoit_tool_charcount');
+  if(saved)inp.value=saved;
+})();
 function update(){
   const t=inp.value;
   chars.textContent=t.length;
   nospace.textContent=t.replace(/\s/g,'').length;
   words.textContent=t.trim()?t.trim().split(/\s+/).length:0;
   bytes.textContent=new Blob([t]).size;
+  // 저장 (debounce)
+  clearTimeout(inp._saveTimer);
+  inp._saveTimer=setTimeout(function(){localStorage.setItem('hoit_tool_charcount',t);},500);
 }
 inp.addEventListener('input',update);
-document.getElementById('copyBtn').addEventListener('click',()=>{
+update();
+document.getElementById('copyBtn').addEventListener('click',function(){
   const t=inp.value;
-  const r=`글자수: ${t.length} | 공백제외: ${t.replace(/\s/g,'').length} | 단어수: ${t.trim()?t.trim().split(/\s+/).length:0} | 바이트: ${new Blob([t]).size}`;
-  navigator.clipboard.writeText(r).then(()=>{document.getElementById('copyBtn').textContent='복사됨!';setTimeout(()=>document.getElementById('copyBtn').textContent='결과 복사',1500)});
+  const r='글자수: '+t.length+' | 공백제외: '+t.replace(/\s/g,'').length+' | 단어수: '+(t.trim()?t.trim().split(/\s+/).length:0)+' | 바이트: '+new Blob([t]).size;
+  navigator.clipboard.writeText(r).then(function(){document.getElementById('copyBtn').textContent='복사됨!';setTimeout(function(){document.getElementById('copyBtn').textContent='결과 복사';},1500);});
 });
 </script>
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>

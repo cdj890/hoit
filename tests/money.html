@@ -76,23 +76,34 @@ const questions=[
 {q:"가계부를?",a:[["매일 쓴다",1],["앱으로 관리한다",2],["가끔 쓴다",3],["안 쓴다",4]]},
 {q:"갑자기 100만원이 생기면?",a:[["전액 저축",1],["80% 저축 20% 사용",2],["반반",3],["일단 쓰고 본다",4]]},
 {q:"택시 vs 버스?",a:[["무조건 버스",1],["보통 버스, 급할 때 택시",2],["상황에 따라 반반",3],["편한 게 최고 택시!",4]]},
-{q:"세일 기간에?",a:[["관심 없다",1],["필요한 것만 산다",2],["좀 사게 된다",3],["지름신 강림!",4]]}
+{q:"세일 기간에?",a:[["관심 없다",1],["필요한 것만 산다",2],["좀 사게 된다",3],["지름신 강림!",4]]},
+{q:"친구가 더치페이 대신 번갈아 내자고 하면?",a:[["불편하다, 항상 정확히 나누자",1],["친한 친구면 괜찮다",2],["자주 내는 편이 된다",3],["내가 먼저 내겠다고 한다",4]]},
+{q:"월말에 통장을 확인했을 때?",a:[["예상대로다",1],["조금 덜 남았지만 괜찮다",2],["생각보다 많이 썼다",3],["잔액 확인이 두렵다",4]]},
+{q:"신상품이 출시됐을 때?",a:[["별 관심 없다",1],["리뷰를 꼼꼼히 확인한 후 구매",2],["괜찮으면 사기도 한다",3],["바로 구매한다",4]]},
+{q:"점심값을 아끼는 방법은?",a:[["도시락을 싸온다",1],["할인 앱 이용",2],["가끔만 절약한다",3],["특별히 아끼지 않는다",4]]},
+{q:"보험에 대한 생각은?",a:[["꼼꼼하게 여러 개 가입",1],["필수적인 것만 가입",2],["있긴 하지만 잘 모른다",3],["거의 가입 안 함",4]]},
+{q:"중고거래(당근마켓 등)를 이용하는 편인가?",a:[["적극 이용한다",1],["가끔 이용한다",2],["별로 이용 안 한다",3],["안 한다",4]]},
+{q:"외식을 할 때 가격 대비 만족을 따지는 편인가?",a:[["꼭 따진다",1],["대충은 따진다",2],["맛 위주로 선택한다",3],["가격은 크게 신경 안 쓴다",4]]},
+{q:"영수증을 보관하거나 소비를 기록하는가?",a:[["항상 기록한다",1],["중요한 건 기록한다",2],["가끔 한다",3],["안 한다",4]]},
+{q:"연말정산/세금 환급을 얼마나 챙기나?",a:[["꼼꼼히 최대한 활용한다",1],["기본적인 건 챙긴다",2],["잘 모르지만 한다",3],["거의 신경 안 쓴다",4]]},
+{q:"카드 포인트나 마일리지를 활용하는가?",a:[["적극적으로 활용한다",1],["어느 정도 활용한다",2],["가끔 확인한다",3],["거의 안 챙긴다",4]]},
+{q:"갑자기 급전이 필요하다면?",a:[["비상금 통장에서 꺼낸다",1],["지인에게 빌린다",2],["신용카드를 쓴다",3],["카드론/대출도 고려한다",4]]}
 ];
 const types=[
-{min:8,max:13,e:"💎",n:"짠돌이/짠순이",d:"철저한 절약 정신의 소유자! 한 푼도 허투루 쓰지 않는 저축왕입니다.",a:"<strong>💡 재테크 조언:</strong><br>• 절약은 훌륭하지만 가끔은 자신에게 투자하세요<br>• 저축한 돈을 투자로 불리는 것도 고려해보세요<br>• 경험에 대한 소비도 가치 있답니다"},
-{min:14,max:19,e:"🐿️",n:"알뜰족",d:"현명한 소비와 저축의 균형! 필요한 곳에 쓰되 불필요한 지출은 꼭 줄이는 합리적 타입입니다.",a:"<strong>💡 재테크 조언:</strong><br>• 이미 좋은 습관을 가지고 있어요!<br>• 재테크 공부를 통해 자산을 늘려보세요<br>• 비상금은 월급의 3개월치를 추천해요"},
-{min:20,max:25,e:"⚖️",n:"밸런스형",d:"적당히 쓰고 적당히 모으는 타입! YOLO와 저축 사이에서 균형을 찾고 있어요.",a:"<strong>💡 재테크 조언:</strong><br>• 자동이체로 저축 비율을 조금 높여보세요<br>• 충동구매 전 24시간 룰을 적용해보세요<br>• 소비 기록을 시작하면 변화가 시작됩니다"},
-{min:26,max:32,e:"🛍️",n:"플렉스왕",d:"인생은 즐기는 거! 원하는 것에 과감히 투자하는 YOLO 타입입니다. 현재의 행복을 중시해요.",a:"<strong>💡 재테크 조언:</strong><br>• 월급의 최소 20%는 저축하는 습관을 만들어보세요<br>• 위시리스트를 만들고 우선순위를 정해보세요<br>• 구독 서비스 정리만으로도 큰 절약이 돼요"}
+{min:20,max:33,e:"💎",n:"짠돌이/짠순이",d:"철저한 절약 정신의 소유자! 한 푼도 허투루 쓰지 않는 저축왕입니다.",a:"<strong>💡 재테크 조언:</strong><br>• 절약은 훌륭하지만 가끔은 자신에게 투자하세요<br>• 저축한 돈을 투자로 불리는 것도 고려해보세요<br>• 경험에 대한 소비도 가치 있답니다"},
+{min:34,max:47,e:"🐿️",n:"알뜰족",d:"현명한 소비와 저축의 균형! 필요한 곳에 쓰되 불필요한 지출은 꼭 줄이는 합리적 타입입니다.",a:"<strong>💡 재테크 조언:</strong><br>• 이미 좋은 습관을 가지고 있어요!<br>• 재테크 공부를 통해 자산을 늘려보세요<br>• 비상금은 월급의 3개월치를 추천해요"},
+{min:48,max:61,e:"⚖️",n:"밸런스형",d:"적당히 쓰고 적당히 모으는 타입! YOLO와 저축 사이에서 균형을 찾고 있어요.",a:"<strong>💡 재테크 조언:</strong><br>• 자동이체로 저축 비율을 조금 높여보세요<br>• 충동구매 전 24시간 룰을 적용해보세요<br>• 소비 기록을 시작하면 변화가 시작됩니다"},
+{min:62,max:80,e:"🛍️",n:"플렉스왕",d:"인생은 즐기는 거! 원하는 것에 과감히 투자하는 YOLO 타입입니다. 현재의 행복을 중시해요.",a:"<strong>💡 재테크 조언:</strong><br>• 월급의 최소 20%는 저축하는 습관을 만들어보세요<br>• 위시리스트를 만들고 우선순위를 정해보세요<br>• 구독 서비스 정리만으로도 큰 절약이 돼요"}
 ];
 let cur=0,total=0;
 function startQuiz(){_shuf(questions);document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();}
 function showQ(){if(!window._qs){_shuf(questions);window._qs=1;}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';document.getElementById('quiz').classList.add('q-slide');setTimeout(()=>document.getElementById('quiz').classList.remove('q-slide'),350);q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=function(){this.classList.add('selected');setTimeout(()=>pick(a[1]),350)};o.appendChild(b);});}
 function pick(v){total+=v;cur++;if(cur<questions.length)showQ();else showResult();}
 function showResult(){const r=types.find(t=>total>=t.min&&total<=t.max)||types[2];document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');document.getElementById('rEmoji').textContent=r.e;document.getElementById('rType').textContent=r.n;document.getElementById('rDesc').textContent=r.d;document.getElementById('rAdvice').innerHTML=r.a;
-const pieData=total<=13?[60,15,10,10,5]:total<=19?[40,20,15,15,10]:total<=25?[25,25,20,20,10]:[10,15,25,30,20];
+const pieData=total<=33?[60,15,10,10,5]:total<=47?[40,20,15,15,10]:total<=61?[25,25,20,20,10]:[10,15,25,30,20];
 const pieLabels=['저축','주거','식비','쇼핑','여가'];const pieColors=['#00b894','#0984e3','#fdcb6e','#e17055','#6c5ce7'];
 drawPie(pieData,pieColors,pieLabels);
-const budgetMul=total<=13?{s:60,h:15,f:10,sh:10,l:5}:total<=19?{s:40,h:20,f:15,sh:15,l:10}:total<=25?{s:25,h:25,f:20,sh:20,l:10}:{s:10,h:15,f:25,sh:30,l:20};
+const budgetMul=total<=33?{s:60,h:15,f:10,sh:10,l:5}:total<=47?{s:40,h:20,f:15,sh:15,l:10}:total<=61?{s:25,h:25,f:20,sh:20,l:10}:{s:10,h:15,f:25,sh:30,l:20};
 document.getElementById('rBudget').innerHTML='<strong>💰 월 300만원 예상 지출</strong><br>'+
 ['저축 '+budgetMul.s*3+'만원','주거 '+budgetMul.h*3+'만원','식비 '+budgetMul.f*3+'만원','쇼핑 '+budgetMul.sh*3+'만원','여가 '+budgetMul.l*3+'만원'].join('<br>');
 const challenges=['매일 커피값 아끼기 (월 9만원 절약!)','무지출 챌린지 주 1회 도전','위시리스트 30일 냉각기 규칙','구독 서비스 3개 이하로 줄이기'];

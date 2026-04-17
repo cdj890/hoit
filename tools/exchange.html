@@ -157,6 +157,82 @@ function swap() {
 
 // Init
 fetchRates();
+
+// localStorage 자동 저장/복원
+(function(){
+  var KEY='hoit_tool_exchange';
+  var saved=JSON.parse(localStorage.getItem(KEY)||'{}');
+  ['amt','from','to'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el&&saved[id]!==undefined)el.value=saved[id];
+  });
+  document.querySelectorAll('input,select').forEach(function(el){
+    if(!el.id)return;
+    el.addEventListener('change',function(){
+      var d=JSON.parse(localStorage.getItem(KEY)||'{}');
+      d[el.id]=el.value;
+      localStorage.setItem(KEY,JSON.stringify(d));
+    });
+  });
+})();
+
+// 히스토리
+var exchangeHistory=JSON.parse(localStorage.getItem('hoit_hist_exchange')||'[]');
+function renderExchangeHistory(){
+  var existing=document.getElementById('exchange-history');
+  if(existing)existing.parentNode.removeChild(existing);
+  if(exchangeHistory.length===0)return;
+  var wrap=document.querySelector('.wrap');
+  var box=document.createElement('div');
+  box.id='exchange-history';
+  box.className='card';
+  box.style.cssText='text-align:left';
+  var title=document.createElement('p');
+  title.style.cssText='color:#888;font-size:13px;margin-bottom:8px';
+  title.textContent='최근 계산 기록';
+  box.appendChild(title);
+  var ul=document.createElement('ul');
+  ul.style.cssText='list-style:none;padding:0;margin:0';
+  exchangeHistory.slice().reverse().forEach(function(item){
+    var li=document.createElement('li');
+    li.style.cssText='padding:6px 0;border-bottom:1px solid #2a2a4a;font-size:13px;color:#ccc';
+    li.textContent=item.time+' | '+item.amt+' '+item.from+' = '+item.result+' '+item.to;
+    ul.appendChild(li);
+  });
+  box.appendChild(ul);
+  var clearBtn=document.createElement('button');
+  clearBtn.textContent='히스토리 지우기';
+  clearBtn.style.cssText='margin-top:10px;padding:8px 16px;background:#333;color:#aaa;border:none;border-radius:8px;font-size:13px;cursor:pointer;width:100%';
+  clearBtn.addEventListener('click',function(){
+    exchangeHistory=[];
+    localStorage.removeItem('hoit_hist_exchange');
+    renderExchangeHistory();
+  });
+  box.appendChild(clearBtn);
+  wrap.appendChild(box);
+}
+var _origCalc=calc;
+calc=function(){
+  _origCalc();
+  if(!rates)return;
+  var amt=parseFloat(document.getElementById('amt').value)||0;
+  var from=document.getElementById('from').value;
+  var to=document.getElementById('to').value;
+  if(!rates[from]||!rates[to]||!amt)return;
+  var inUSD=amt/rates[from];
+  var result=inUSD*rates[to];
+  var formatted;
+  if(Math.abs(result)>=1000)formatted=result.toLocaleString('ko',{maximumFractionDigits:2});
+  else if(Math.abs(result)>=1)formatted=result.toFixed(4);
+  else formatted=result.toFixed(6);
+  var now=new Date();
+  var ts=(now.getMonth()+1)+'/'+(now.getDate())+' '+now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+  exchangeHistory.push({time:ts,amt:amt,from:from,result:formatted,to:to});
+  if(exchangeHistory.length>5)exchangeHistory.shift();
+  localStorage.setItem('hoit_hist_exchange',JSON.stringify(exchangeHistory));
+  renderExchangeHistory();
+};
+renderExchangeHistory();
 </script>
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 

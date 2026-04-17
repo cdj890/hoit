@@ -6,7 +6,44 @@
 <meta property="og:url" content="https://hoit.me/tools/age.html">
 <link rel="canonical" href="https://hoit.me/tools/age.html"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;min-height:100vh}.wrap{max-width:450px;margin:0 auto;padding:50px 16px 30px;text-align:center}.card{background:#1a1a2e;border-radius:16px;padding:20px;margin:12px 0;border:1px solid #2a2a4a}input,select{background:#252545;border:2px solid #333;color:#fff;padding:10px 14px;border-radius:10px;font-size:16px;width:100%;margin:4px 0}input:focus,select:focus{border-color:#7B68EE;outline:none}.btn{background:#7B68EE;border:none;color:#fff;padding:12px 24px;border-radius:10px;font-size:16px;cursor:pointer;font-weight:bold;width:100%;margin:8px 0}.result{font-size:28px;font-weight:bold;color:#FFD700;margin:12px 0}.sub{color:#888;font-size:13px}body{overflow-x:hidden}.wrap,.container{max-width:100%;padding-left:12px;padding-right:12px}canvas{max-width:100%!important;height:auto!important}input,select,textarea,button{max-width:100%;font-size:16px!important}@media(max-width:600px){h1{font-size:22px!important}h2{font-size:18px!important}h3{font-size:15px!important}.wrap,.container{padding-left:10px;padding-right:10px;padding-top:45px}.card{padding:14px;margin:8px 0}.q-card{padding:16px}.q-text{font-size:15px!important}.opt{padding:12px;font-size:14px!important;min-height:44px}.btn{min-height:44px;font-size:15px!important}pre,code{font-size:11px!important;overflow-x:auto;word-break:break-all}.result{font-size:24px!important}.controls{flex-wrap:wrap}.controls button,.controls input{min-height:40px}.flow{flex-direction:column}.box{min-width:auto;width:100%}.arr{transform:rotate(90deg)}.grid{gap:4px}.cell{font-size:16px!important}}</style></head><body><a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
-<div class="wrap"><h1 style="font-size:24px;margin-bottom:5px">🎂 나이 계산기</h1><p style="color:#888;font-size:14px;margin-bottom:15px">만나이/한국나이</p><div class="card"><input id="bd" type="date"><button class="btn" onclick="calc()">계산</button></div><div class="card" id="r" style="display:none"></div><script>function calc(){const bd=new Date(document.getElementById("bd").value);if(isNaN(bd))return;const now=new Date();const k=now.getFullYear()-bd.getFullYear()+1;let i=now.getFullYear()-bd.getFullYear();if(now.getMonth()<bd.getMonth()||(now.getMonth()===bd.getMonth()&&now.getDate()<bd.getDate()))i--;const d=Math.floor((now-bd)/86400000);document.getElementById("r").style.display="block";document.getElementById("r").innerHTML="<div class=result>"+i+"세</div><p>만 나이: "+i+"세 | 한국 나이: "+k+"세</p><p class=sub>살아온 날: "+d.toLocaleString()+"일</p>";}</script></div><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+<div class="wrap"><h1 style="font-size:24px;margin-bottom:5px">🎂 나이 계산기</h1><p style="color:#888;font-size:14px;margin-bottom:15px">만나이/한국나이</p><div class="card"><input id="bd" type="date"><button class="btn" onclick="calc()">계산</button></div><div class="card" id="r" style="display:none"></div><script>
+function calc(){
+  var bd=new Date(document.getElementById("bd").value);
+  if(isNaN(bd))return;
+  var now=new Date();
+  var k=now.getFullYear()-bd.getFullYear()+1;
+  var i=now.getFullYear()-bd.getFullYear();
+  if(now.getMonth()<bd.getMonth()||(now.getMonth()===bd.getMonth()&&now.getDate()<bd.getDate()))i--;
+  var d=Math.floor((now-bd)/86400000);
+  var rEl=document.getElementById("r");
+  rEl.style.display="block";
+  var rd=document.createElement('div');
+  rd.className='result';
+  rd.textContent=i+'세';
+  var rp=document.createElement('p');
+  rp.textContent='만 나이: '+i+'세 | 한국 나이: '+k+'세';
+  var rp2=document.createElement('p');
+  rp2.className='sub';
+  rp2.textContent='살아온 날: '+d.toLocaleString()+'일';
+  while(rEl.firstChild)rEl.removeChild(rEl.firstChild);
+  rEl.appendChild(rd);
+  rEl.appendChild(rp);
+  rEl.appendChild(rp2);
+}
+(function(){
+  var KEY='hoit_tool_age';
+  var saved=JSON.parse(localStorage.getItem(KEY)||'{}');
+  ['bd'].forEach(function(id){var el=document.getElementById(id);if(el&&saved[id]!==undefined)el.value=saved[id];});
+  document.querySelectorAll('input,select').forEach(function(el){
+    if(!el.id)return;
+    el.addEventListener('change',function(){
+      var d=JSON.parse(localStorage.getItem(KEY)||'{}');
+      d[el.id]=el.value;
+      localStorage.setItem(KEY,JSON.stringify(d));
+    });
+  });
+})();
+</script></div><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 
 <style>
 .seo-content{max-width:700px;margin:40px auto 80px;padding:0 20px;color:#bbb;font-size:14px;line-height:1.8}
