@@ -81,6 +81,7 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 <button class="share-btn share-copy" onclick="copyResult()">결과 복사</button>
 <button class="share-btn share-other" onclick="location.href='career.html'">직업 적성</button>
 <button class="share-btn share-other" onclick="location.href='eq.html'">EQ 테스트</button>
+<button class="share-btn share-other" onclick="saveDiscImage()">📸 이미지 저장</button>
 </div>
 <button class="btn start-btn" onclick="location.reload()">다시 하기</button>
 </div>
@@ -115,6 +116,7 @@ document.getElementById('rConflict').innerHTML='<div class="card-title">갈등 �
 document.getElementById('rFamous').innerHTML='<strong>같은 유형 유명인:</strong><br>'+r.famous;
 localStorage.setItem('disc_result',JSON.stringify({type:r.n,emoji:r.e,date:new Date().toLocaleDateString('ko-KR')}));}
 function copyResult(){const t=document.getElementById('rType').textContent+'\n'+document.getElementById('rDesc').textContent;_copy('[DISC 성격 테스트 결과]\n'+t,document.querySelector('.share-btn'));}
+function saveDiscImage(){const rType=document.getElementById('rType');const rDesc=document.getElementById('rDesc');const rEmoji=document.getElementById('rEmoji');if(!rType||!rDesc)return;_saveResultImage({testName:'DISC 성격 유형 테스트',resultType:rType.textContent,emoji:rEmoji?rEmoji.textContent:'🎯',desc:rDesc.textContent,accentColor:'#e67e22',filename:'disc_result'});}
 (function(){const p=localStorage.getItem('disc_result');if(p){try{const d=JSON.parse(p);document.getElementById('prevResult').innerHTML='<div class="prev-result">이전 결과: '+d.emoji+' '+d.type+' ('+d.date+')</div>';}catch(e){}}})();
 </script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 
@@ -153,4 +155,5 @@ function copyResult(){const t=document.getElementById('rType').textContent+'\n'+
 <script src="../js/catalog.js"></script>
 <script src="../js/recommend.js"></script>
 <script src="../js/share.js"></script>
+<script src="../js/save-image.js"></script>
 </body></html>

@@ -38,8 +38,10 @@ document.getElementById('opt'+i).classList.add(i===q.a?'correct':'wrong');
 if(i!==q.a)document.getElementById('opt'+q.a).classList.add('correct');
 if(i===q.a)score++;
 const el=document.getElementById('explain');if(q.e){el.style.display='block';}
-setTimeout(()=>{cur++;render();},1500);}
+setTimeout(()=>{cur++;if(cur>=Q.length)_saveQuizScore('sql_quiz',score,Q.length);render();},1500);}
 render();
+function _saveQuizScore(k,s,t){const p=JSON.parse(localStorage.getItem('hoit_itknow_progress')||'{"visited":[],"quizScores":{}}');const pct=Math.round(s/t*100);if(!p.quizScores[k]||pct>p.quizScores[k])p.quizScores[k]=pct;localStorage.setItem('hoit_itknow_progress',JSON.stringify(p));}
+function _markVisited(k){const p=JSON.parse(localStorage.getItem('hoit_itknow_progress')||'{"visited":[],"quizScores":{}}');const alreadyVisited=p.visited.includes(k);if(!alreadyVisited)p.visited.push(k);localStorage.setItem('hoit_itknow_progress',JSON.stringify(p));if(alreadyVisited){const b=document.createElement('div');b.id='_itknow_badge';b.style.cssText='position:fixed;top:8px;right:8px;z-index:9999;background:#4CAF50;color:#fff;padding:6px 12px;border-radius:8px;font-size:13px;font-family:sans-serif;font-weight:bold';b.textContent='학습 완료 \u2713';document.body.appendChild(b);}}_markVisited('sql_quiz');
 </script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 
 <style>

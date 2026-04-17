@@ -147,10 +147,13 @@ function showResult(){
       <div class="share-row">
         <div class="share-btn2" onclick="_copy('나의 동물 성격: ${r.n} ${r.e}\\n${r.d}',this)">📋 결과 복사</div>
         <div class="share-btn2" onclick="_copy(location.href,this)">🔗 링크 공유</div>
+        <div class="share-btn2" id="animalSaveBtn">📸 결과 이미지 저장</div>
       </div>
       <button class="btn start-btn" onclick="location.reload()">다시 하기</button>
       <div class="recommend-section"><h3>🎯 다른 테스트 추천</h3><div class="recommend-links">${recs.map(r=>`<a href="${r.url}">${r.name}</a>`).join('')}</div></div>
     </div>`;
+  const saveBtn=document.getElementById('animalSaveBtn');
+  if(saveBtn){saveBtn.addEventListener('click',function(){_saveResultImage({testName:'동물 성격 테스트',resultType:r.n+' 타입',emoji:r.e,desc:r.d,accentColor:'#a29bfe',filename:'animal_'+top});});}
 }
 </script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 
@@ -189,4 +192,5 @@ function showResult(){
 <script src="../js/catalog.js"></script>
 <script src="../js/recommend.js"></script>
 <script src="../js/share.js"></script>
+<script src="../js/save-image.js"></script>
 </body></html>

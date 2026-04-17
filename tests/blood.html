@@ -142,6 +142,7 @@ function showResult(type){
       <div class="share-row">
         <div class="share-btn2" onclick="_copy('나의 혈액형: ${type}형 - ${d.title} ${d.emoji}',this)">📋 결과 복사</div>
         <div class="share-btn2" onclick="_copy(location.href,this)">🔗 링크 공유</div>
+        <div class="share-btn2" onclick="_saveResultImage({testName:'혈액형 성격 분석',resultType:'${type}형 ${d.title}',emoji:'${d.emoji}',desc:'${d.personality.replace(/'/g,String.fromCharCode(39))}',accentColor:'${d.color}',filename:'blood_${type}'})">📸 결과 이미지 저장</div>
       </div>
       <button class="btn" onclick="showSelect()">다른 혈액형 보기</button>
       <div class="recommend-section">
@@ -188,4 +189,5 @@ showSelect();
 <script src="../js/catalog.js"></script>
 <script src="../js/recommend.js"></script>
 <script src="../js/share.js"></script>
+<script src="../js/save-image.js"></script>
 </body></html>

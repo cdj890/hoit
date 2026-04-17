@@ -191,5 +191,6 @@ document.getElementById('urlInput').addEventListener('keydown',e=>{if(e.key==='E
 <script src="../js/catalog.js"></script>
 <script src="../js/recommend.js"></script>
 <script src="../js/share.js"></script>
+<script>(function(){var k='dns_explain';var p=JSON.parse(localStorage.getItem('hoit_itknow_progress')||'{"visited":[],"quizScores":{}}');var already=p.visited.includes(k);if(!already)p.visited.push(k);localStorage.setItem('hoit_itknow_progress',JSON.stringify(p));if(already){var b=document.createElement('div');b.style.cssText='position:fixed;top:8px;right:8px;z-index:9999;background:#4CAF50;color:#fff;padding:6px 12px;border-radius:8px;font-size:13px;font-family:sans-serif;font-weight:bold';b.textContent='학습 완료 \u2713';document.body.appendChild(b);}})();</script>
 </body>
 </html>

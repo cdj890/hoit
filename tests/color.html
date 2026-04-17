@@ -113,11 +113,17 @@ function showResult(i,j){
       <div class="combo-section"><h3 style="color:#9B59B6">🎨 컬러 하모니</h3><div class="combo-colors">${c.harmony.map(h=>`<div class="combo-swatch" style="background:${h}"></div>`).join('')}</div><p style="color:#ccc;font-size:13px">이 색들과 함께하면 당신의 매력이 배가됩니다</p></div>
       <div class="interior-tip"><h3 style="color:#FF8C00;font-size:14px;margin-bottom:6px">🏠 인테리어/패션 추천</h3>${c.interiorTip}</div>
       <button class="share-btn" onclick="copyResult()">결과 복사</button>
+      <button class="share-btn" id="colorSaveBtn">📸 결과 이미지 저장</button>
       <button class="btn" onclick="firstColor=-1;showColors()">다시 선택하기</button>
       <div class="recommend"><span style="color:#888;font-size:12px">다른 테스트 추천</span><br><a href="firstimp.html">첫인상</a><a href="empathy.html">공감 능력</a><a href="food.html">음식 성격</a></div>
     </div>`;
+  attachColorSave(c);
 }
 function copyResult(){const d=JSON.parse(localStorage.getItem('hoit_color'));_copy('[hoit.me] 색깔 심리: '+d.name+' - https://hoit.me/tests/color.html',document.querySelector('.share-btn'));}
+function attachColorSave(c){
+  const btn=document.getElementById('colorSaveBtn');
+  if(btn){btn.addEventListener('click',function(){_saveResultImage({testName:'색깔 심리 테스트',resultType:c.name+'을 선택한 당신',emoji:c.emoji,desc:c.psych,accentColor:c.bg,filename:'color_'+c.name});});}
+}
 showColors();
 </script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 
@@ -156,4 +162,5 @@ showColors();
 <script src="../js/catalog.js"></script>
 <script src="../js/recommend.js"></script>
 <script src="../js/share.js"></script>
+<script src="../js/save-image.js"></script>
 </body></html>

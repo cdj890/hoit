@@ -137,6 +137,7 @@ function render(){
       <div class="share-row">
         <div class="share-btn2" onclick="_copy('나의 연애 유형: ${r.title} ${r.emoji}\\n${r.desc}',this)">📋 결과 복사</div>
         <div class="share-btn2" onclick="_copy(location.href,this)">🔗 링크 공유</div>
+        <div class="share-btn2" onclick="_saveResultImage({testName:'연애 유형 테스트',resultType:'${r.title}',emoji:'${r.emoji}',desc:'${r.desc.replace(/'/g,String.fromCharCode(39))}',accentColor:'${r.color}',filename:'love_${top}'})">📸 결과 이미지 저장</div>
       </div>
       <button class="btn" onclick="cur=0;scores={P:0,W:0,F:0,S:0};window._started=false;render()">다시 하기</button>
       <div class="recommend-section"><h3>🎯 다른 테스트 추천</h3><div class="recommend-links">${recs.map(r=>`<a href="${r.url}">${r.name}</a>`).join('')}</div></div>
@@ -195,4 +196,5 @@ render();
 <script src="../js/catalog.js"></script>
 <script src="../js/recommend.js"></script>
 <script src="../js/share.js"></script>
+<script src="../js/save-image.js"></script>
 </body></html>

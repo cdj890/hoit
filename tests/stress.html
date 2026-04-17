@@ -127,6 +127,7 @@ function showResult(){
     <div class="share-row">
       <div class="share-btn2" onclick="_copy('나의 스트레스 지수: ${pct}% (${level}) ${emoji}',this)">📋 결과 복사</div>
       <div class="share-btn2" onclick="_copy(location.href,this)">🔗 링크 공유</div>
+      <div class="share-btn2" onclick="_saveResultImage({testName:'스트레스 지수 테스트',resultType:'스트레스 ${pct}% - ${level}',emoji:'${emoji}',desc:'${desc.replace(/'/g,String.fromCharCode(39))}',accentColor:'${color}',filename:'stress_result'})">📸 결과 이미지 저장</div>
     </div>
     <button class="btn" onclick="cur=0;total=0;Object.keys(catScores).forEach(k=>catScores[k]=0);window._started=false;render()">다시 하기</button>
     <div class="recommend-section"><h3>🎯 다른 테스트 추천</h3><div class="recommend-links">${testRecs.map(r=>`<a href="${r.url}">${r.name}</a>`).join('')}</div></div>
@@ -170,4 +171,5 @@ render();
 <script src="../js/catalog.js"></script>
 <script src="../js/recommend.js"></script>
 <script src="../js/share.js"></script>
+<script src="../js/save-image.js"></script>
 </body></html>

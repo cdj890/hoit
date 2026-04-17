@@ -6,7 +6,7 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://hoit.me/destiny/saju.html">
 <link rel="canonical" href="https://hoit.me/destiny/saju.html">
-<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center}.wrap{max-width:500px;width:100%;padding:20px;text-align:center}h1{font-size:30px;margin-bottom:8px}.sub{color:#888;margin-bottom:25px}.input-group{display:flex;gap:8px;justify-content:center;margin:20px 0}.input-group select,.input-group input{background:#1a1a2e;border:2px solid #333;color:#fff;padding:10px;border-radius:10px;font-size:15px;text-align:center}.input-group select:focus,.input-group input:focus{border-color:#FFD700;outline:none}.btn{background:linear-gradient(135deg,#FF6B6B,#FFD700);border:none;color:#000;padding:12px 30px;border-radius:10px;font-size:16px;cursor:pointer;font-weight:bold;width:100%;margin-top:15px}.result{background:#1a1a2e;border-radius:16px;padding:25px;border:1px solid #2a2a4a;text-align:left;margin-top:15px}.section{background:#252545;border-radius:10px;padding:13px;margin:10px 0}.section h3{font-size:14px;margin-bottom:6px}.section p{color:#ccc;font-size:13px;line-height:1.6}a.back{position:fixed;top:8px;left:8px;z-index:99;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent}a.back:hover{background:rgba(0,0,0,0.85)}</style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous">
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center}.wrap{max-width:500px;width:100%;padding:20px;text-align:center}h1{font-size:30px;margin-bottom:8px}.sub{color:#888;margin-bottom:25px}.input-group{display:flex;gap:8px;justify-content:center;margin:20px 0}.input-group select,.input-group input{background:#1a1a2e;border:2px solid #333;color:#fff;padding:10px;border-radius:10px;font-size:15px;text-align:center}.input-group select:focus,.input-group input:focus{border-color:#FFD700;outline:none}.btn{background:linear-gradient(135deg,#FF6B6B,#FFD700);border:none;color:#000;padding:12px 30px;border-radius:10px;font-size:16px;cursor:pointer;font-weight:bold;width:100%;margin-top:15px}.result{background:#1a1a2e;border-radius:16px;padding:25px;border:1px solid #2a2a4a;text-align:left;margin-top:15px;opacity:0;animation:sajuSlide .5s ease forwards}@keyframes sajuSlide{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}.section{background:#252545;border-radius:10px;padding:13px;margin:10px 0;opacity:0;animation:sajuSlide .45s ease forwards}.section h3{font-size:14px;margin-bottom:6px}.section p{color:#ccc;font-size:13px;line-height:1.6}a.back{position:fixed;top:8px;left:8px;z-index:99;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent}a.back:hover{background:rgba(0,0,0,0.85)}</style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous">
 function _copy(text,btn){
   if(navigator.clipboard&&navigator.clipboard.writeText){
     _copy(text,this).catch(()=>_copyFallback(text,btn));
@@ -92,12 +92,12 @@ function analyze(){
       <div style="font-size:32px;font-weight:bold;color:#FFD700;margin:10px 0">오늘의 운세: ${total}점</div>
     </div>
 
-    <div class="section"><h3 style="color:${오행색[오행idx]}">🌿 ${myElement}의 기운을 가진 당신</h3><p>${성격[myElement]}</p></div>
+    <div class="section" style="animation-delay:.1s"><h3 style="color:${오행색[오행idx]}">🌿 ${myElement}의 기운을 가진 당신</h3><p>${성격[myElement]}</p></div>
 
-    <div class="section"><h3 style="color:#FFD700">💰 재물운 ${scores.재물}점</h3><p>${운세메시지.재물[(rng(5)*6)|0]}</p></div>
-    <div class="section"><h3 style="color:#4CAF50">🏥 건강운 ${scores.건강}점</h3><p>${운세메시지.건강[(rng(6)*6)|0]}</p></div>
-    <div class="section"><h3 style="color:#FF69B4">💕 연애운 ${scores.연애}점</h3><p>${운세메시지.연애[(rng(7)*6)|0]}</p></div>
-    <div class="section"><h3 style="color:#64B5F6">📚 학업/직장운 ${scores.학업}점</h3><p>노력한 만큼 결실을 맺는 시기입니다. 꾸준한 자기 계발이 중요해요.</p></div>
+    <div class="section" style="animation-delay:.2s"><h3 style="color:#FFD700">💰 재물운 ${scores.재물}점</h3><p>${운세메시지.재물[(rng(5)*6)|0]}</p></div>
+    <div class="section" style="animation-delay:.3s"><h3 style="color:#4CAF50">🏥 건강운 ${scores.건강}점</h3><p>${운세메시지.건강[(rng(6)*6)|0]}</p></div>
+    <div class="section" style="animation-delay:.4s"><h3 style="color:#FF69B4">💕 연애운 ${scores.연애}점</h3><p>${운세메시지.연애[(rng(7)*6)|0]}</p></div>
+    <div class="section" style="animation-delay:.5s"><h3 style="color:#64B5F6">📚 학업/직장운 ${scores.학업}점</h3><p>노력한 만큼 결실을 맺는 시기입니다. 꾸준한 자기 계발이 중요해요.</p></div>
 
     <button class="btn" onclick="showInput()">다시 보기</button></div>`;
 }

@@ -222,6 +222,7 @@ function showResult(){
       <div class="share-row">
         <div class="share-btn2" onclick="_copy('나의 MBTI: ${type} (${info.title}) ${info.emoji}',this)">📋 결과 복사</div>
         <div class="share-btn2" onclick="_copy(location.href,this)">🔗 링크 공유</div>
+        <div class="share-btn2" onclick="_saveResultImage({testName:'MBTI 성격유형 테스트',resultType:'${type} ${info.title}',emoji:'${info.emoji}',desc:'${info.desc.replace(/'/g,String.fromCharCode(39))}',accentColor:'#7B68EE',filename:'mbti_${type}'})">📸 결과 이미지 저장</div>
       </div>
       <button class="btn" onclick="cur=0;answers={EI:0,SN:0,TF:0,JP:0};window._started=false;render()">다시 하기</button>
       <div class="recommend-section">
@@ -268,4 +269,5 @@ render();
 <script src="../js/catalog.js"></script>
 <script src="../js/recommend.js"></script>
 <script src="../js/share.js"></script>
+<script src="../js/save-image.js"></script>
 </body></html>
