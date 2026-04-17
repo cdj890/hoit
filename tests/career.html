@@ -7,7 +7,7 @@
 <meta property="og:url" content="https://hoit.me/tests/career.html">
 <link rel="canonical" href="https://hoit.me/tests/career.html">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:20px;flex-wrap:wrap;align-content:center}
+*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px;flex-direction:column}
 .card{background:#1a1a2e;border-radius:16px;padding:30px;max-width:500px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.4);text-align:center}
 h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-size:.9em}
 .progress{height:6px;background:#2a2a3e;border-radius:3px;margin-bottom:24px;overflow:hidden}
@@ -42,7 +42,7 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 .prev-result{background:#2a2a3e;border-radius:10px;padding:12px;margin-bottom:16px;font-size:.85em;color:#aaa}
 .time-est{color:#888;font-size:.85em;margin-top:8px}
 </style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
-<script>function _copy(t,b){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){if(b){b.textContent='복사 완료!';setTimeout(function(){b.textContent=b.dataset.orig||'📋 결과 복사'},1500);}}).catch(function(){_copyFB(t,b)});}else{_copyFB(t,b);}}function _copyFB(t,b){var ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;left:-9999px';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');if(b){b.textContent='복사 완료!';setTimeout(function(){b.textContent=b.dataset.orig||'📋 결과 복사'},1500);}}catch(e){alert('복사 실패');}document.body.removeChild(ta);}</script></head><body>
+<script>function _copy(t,b){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){if(b){b.textContent='복사 완료!';setTimeout(function(){b.textContent=b.dataset.orig||'📋 결과 복사'},1500)}}).catch(function(){_copyFB(t,b)})}else{_copyFB(t,b)}}function _copyFB(t,b){var ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;left:-9999px';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');if(b){b.textContent='복사 완료!';setTimeout(function(){b.textContent=b.dataset.orig||'📋 결과 복사'},1500)}}catch(e){alert('복사 실패')}document.body.removeChild(ta)}</script></head><body>
 <a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
 <div class="card">
 <div id="intro">
@@ -78,7 +78,7 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 <button class="btn start-btn" onclick="location.reload()">다시 하기</button>
 </div>
 </div>
-<script>function _shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
+<script>function _shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
 const questions=[
 {q:"주말에 하고 싶은 활동은?",a:[["DIY/만들기","R"],["과학 다큐 보기","I"],["그림/음악 감상","A"],["봉사활동","S"],["사업 아이디어 구상","E"],["정리정돈/계획짜기","C"]]},
 {q:"학교에서 좋아했던 과목은?",a:[["체육/기술","R"],["수학/과학","I"],["미술/음악","A"],["도덕/사회","S"]]},
@@ -107,20 +107,20 @@ S:{e:"🤝",n:"사회형 (Social)",d:"타인을 돕는 것에 보람을 느끼�
 E:{e:"📈",n:"기업형 (Enterprising)",d:"리더십과 추진력이 있으며, 목표 달성과 성취를 중시합니다.",careers:[{name:"스타트업 CEO",desc:"사업 기획 및 회사 경영",sal:4},{name:"마케팅 디렉터",desc:"브랜드 전략 및 마케팅 총괄",sal:3},{name:"변호사",desc:"법률 자문 및 소송 대리",sal:4},{name:"PD/프로듀서",desc:"방송/콘텐츠 기획 제작",sal:3},{name:"금융 트레이더",desc:"투자 분석 및 자산 운용",sal:4}],majors:"경영학, 법학, 미디어커뮤니케이션, 경제학, 행정학"},
 C:{e:"📊",n:"관습형 (Conventional)",d:"꼼꼼하고 체계적이며, 정확하고 안정적인 업무를 선호합니다.",careers:[{name:"공인회계사",desc:"회계 감사 및 재무 컨설팅",sal:4},{name:"공무원",desc:"공공 행정 서비스 및 정책 수행",sal:2},{name:"세무사",desc:"세금 관련 상담 및 신고 대행",sal:3},{name:"은행원",desc:"금융 상품 상담 및 자산 관리",sal:2},{name:"품질관리사",desc:"제품/서비스 품질 검수 관리",sal:2}],majors:"회계학, 행정학, 세무학, 금융학, 통계학"}};
 let cur=0,scores={};
-function startQuiz(){_shuf(questions);document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();}
-function showQ(){if(!window._qs){_shuf(questions);window._qs=1;}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';const qEl=document.getElementById('qText');qEl.textContent=(cur+1)+'. '+q.q;qEl.classList.remove('q-slide');void qEl.offsetWidth;qEl.classList.add('q-slide');const o=document.getElementById('opts');o.innerHTML='';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=function(){if(window._picking)return;window._picking=true;b.classList.add('selected');setTimeout(()=>{window._picking=false;pick(a[1]);},400);};o.appendChild(b);});}
-function pick(t){scores[t]=(scores[t]||0)+1;cur++;if(cur<questions.length)showQ();else showResult();}
+function startQuiz(){_shuf(questions);document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ()}
+function showQ(){if(!window._qs){_shuf(questions);window._qs=1}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';const qEl=document.getElementById('qText');qEl.textContent=(cur+1)+'. '+q.q;qEl.classList.remove('q-slide');void qEl.offsetWidth;qEl.classList.add('q-slide');const o=document.getElementById('opts');o.innerHTML='';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=function(){if(window._picking)return;window._picking=true;b.classList.add('selected');setTimeout(()=>{window._picking=false;pick(a[1])},400)};o.appendChild(b)})}
+function pick(t){scores[t]=(scores[t]||0)+1;cur++;if(cur<questions.length)showQ();else showResult()}
 function drawHexagon(scores){const c=document.getElementById('hexCanvas');const ctx=c.getContext('2d');const w=c.width,h=c.height,cx=w/2,cy=h/2,r=160;const labels=['R','I','A','S','E','C'];const names=['현실','탐구','예술','사회','기업','관습'];const colors=['#e74c3c','#3498db','#9b59b6','#2ecc71','#f39c12','#1abc9c'];const total=Object.values(scores).reduce((a,b)=>a+b,1);ctx.clearRect(0,0,w,h);
-for(let ring=4;ring>=1;ring--){ctx.beginPath();for(let i=0;i<6;i++){const angle=Math.PI/3*i-Math.PI/2;const rx=cx+r*(ring/4)*Math.cos(angle);const ry=cy+r*(ring/4)*Math.sin(angle);i===0?ctx.moveTo(rx,ry):ctx.lineTo(rx,ry);}ctx.closePath();ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.stroke();}
-ctx.beginPath();for(let i=0;i<6;i++){const angle=Math.PI/3*i-Math.PI/2;const val=Math.min(1,(scores[labels[i]]||0)/total*2.5);const rx=cx+r*val*Math.cos(angle);const ry=cy+r*val*Math.sin(angle);i===0?ctx.moveTo(rx,ry):ctx.lineTo(rx,ry);}ctx.closePath();ctx.fillStyle='rgba(253,121,168,0.3)';ctx.fill();ctx.strokeStyle='#fd79a8';ctx.lineWidth=2;ctx.stroke();
-for(let i=0;i<6;i++){const angle=Math.PI/3*i-Math.PI/2;const lx=cx+(r+25)*Math.cos(angle);const ly=cy+(r+25)*Math.sin(angle);ctx.fillStyle=colors[i];ctx.font='bold 22px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(names[i],lx,ly);}}
+for(let ring=4;ring>=1;ring--){ctx.beginPath();for(let i=0;i<6;i++){const angle=Math.PI/3*i-Math.PI/2;const rx=cx+r*(ring/4)*Math.cos(angle);const ry=cy+r*(ring/4)*Math.sin(angle);i===0?ctx.moveTo(rx,ry):ctx.lineTo(rx,ry)}ctx.closePath();ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.stroke()}
+ctx.beginPath();for(let i=0;i<6;i++){const angle=Math.PI/3*i-Math.PI/2;const val=Math.min(1,(scores[labels[i]]||0)/total*2.5);const rx=cx+r*val*Math.cos(angle);const ry=cy+r*val*Math.sin(angle);i===0?ctx.moveTo(rx,ry):ctx.lineTo(rx,ry)}ctx.closePath();ctx.fillStyle='rgba(253,121,168,0.3)';ctx.fill();ctx.strokeStyle='#fd79a8';ctx.lineWidth=2;ctx.stroke();
+for(let i=0;i<6;i++){const angle=Math.PI/3*i-Math.PI/2;const lx=cx+(r+25)*Math.cos(angle);const ly=cy+(r+25)*Math.sin(angle);ctx.fillStyle=colors[i];ctx.font='bold 22px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(names[i],lx,ly)}}
 function showResult(){const top=Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];const r=types[top];document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');document.getElementById('rEmoji').textContent=r.e;document.getElementById('rType').textContent=r.n;document.getElementById('rDesc').textContent=r.d;
 drawHexagon(scores);
-const salIcons=['','💰','💰💰','💰💰💰','💰💰💰💰'];const detailEl=document.getElementById('rCareersDetail');detailEl.innerHTML='';r.careers.forEach(c=>{detailEl.innerHTML+='<div class="career-item"><div class="career-name">'+c.name+'</div><div class="career-desc">'+c.desc+'</div><div class="career-salary">연봉 수준: '+salIcons[c.sal]+'</div></div>';});
+const salIcons=['','💰','💰💰','💰💰💰','💰💰💰💰'];const detailEl=document.getElementById('rCareersDetail');detailEl.innerHTML='';r.careers.forEach(c=>{detailEl.innerHTML+='<div class="career-item"><div class="career-name">'+c.name+'</div><div class="career-desc">'+c.desc+'</div><div class="career-salary">연봉 수준: '+salIcons[c.sal]+'</div></div>'});
 document.getElementById('rMajors').innerHTML='<strong>추천 학과/전공:</strong><br>'+r.majors.split(', ').map(m=>'• '+m).join('<br>');
 localStorage.setItem('career_result',JSON.stringify({type:r.n,emoji:r.e,date:new Date().toLocaleDateString('ko-KR')}));
 var careerCompBtn=document.getElementById('careerCompareBtn');
-if(careerCompBtn){careerCompBtn.onclick=function(){_compareGenLink({type:r.n,label:r.d.slice(0,20),emoji:r.e},careerCompBtn);};}
+if(careerCompBtn){careerCompBtn.onclick=function(){_compareGenLink({type:r.n,label:r.d.slice(0,20),emoji:r.e},careerCompBtn)}}
 }
 function _renderFriendCareer(data){
   var existing=document.getElementById('friendResultBox');
@@ -136,9 +136,9 @@ function _renderFriendCareer(data){
   var card=document.querySelector('.card');
   if(card)card.insertBefore(box,card.firstChild);
 }
-function copyResult(){const t=document.getElementById('rType').textContent+'\n'+document.getElementById('rDesc').textContent;_copy('[직업 적성 테스트 결과]\n'+t,document.querySelector('.share-btn'));}
-function saveCareerImage(){const rType=document.getElementById('rType');const rDesc=document.getElementById('rDesc');const rEmoji=document.getElementById('rEmoji');if(!rType||!rDesc)return;_saveResultImage({testName:'직업 적성 테스트',resultType:rType.textContent,emoji:rEmoji?rEmoji.textContent:'💼',desc:rDesc.textContent,accentColor:'#fd79a8',filename:'career_result'});}
-(function(){const p=localStorage.getItem('career_result');if(p){try{const d=JSON.parse(p);document.getElementById('prevResult').innerHTML='<div class="prev-result">이전 결과: '+d.emoji+' '+d.type+' ('+d.date+')</div>';}catch(e){}}})();
+function copyResult(){const t=document.getElementById('rType').textContent+'\n'+document.getElementById('rDesc').textContent;_copy('[직업 적성 테스트 결과]\n'+t,document.querySelector('.share-btn'))}
+function saveCareerImage(){const rType=document.getElementById('rType');const rDesc=document.getElementById('rDesc');const rEmoji=document.getElementById('rEmoji');if(!rType||!rDesc)return;_saveResultImage({testName:'직업 적성 테스트',resultType:rType.textContent,emoji:rEmoji?rEmoji.textContent:'💼',desc:rDesc.textContent,accentColor:'#fd79a8',filename:'career_result'})}
+(function(){const p=localStorage.getItem('career_result');if(p){try{const d=JSON.parse(p);document.getElementById('prevResult').innerHTML='<div class="prev-result">이전 결과: '+d.emoji+' '+d.type+' ('+d.date+')</div>'}catch(e){}}})();
 </script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 
 <style>

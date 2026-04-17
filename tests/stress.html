@@ -6,7 +6,7 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://hoit.me/tests/stress.html">
 <link rel="canonical" href="https://hoit.me/tests/stress.html">
-<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;flex-wrap:wrap;align-content:center}.wrap{max-width:500px;width:100%;padding:20px;text-align:center}h1{font-size:28px;margin-bottom:8px}.sub{color:#888;margin-bottom:20px}.q-card{background:#1a1a2e;border-radius:16px;padding:22px;border:1px solid #2a2a4a;margin-bottom:12px}.q-text{font-size:16px;margin-bottom:16px}.opts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}.opt{background:#252545;border:2px solid #333;border-radius:10px;padding:10px 18px;cursor:pointer;font-size:13px;transition:all .2s;min-width:60px}.opt:hover{border-color:#7B68EE;transform:scale(1.05)}
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center;flex-direction:column}.wrap{max-width:500px;width:100%;padding:20px;text-align:center}h1{font-size:28px;margin-bottom:8px}.sub{color:#888;margin-bottom:20px}.q-card{background:#1a1a2e;border-radius:16px;padding:22px;border:1px solid #2a2a4a;margin-bottom:12px}.q-text{font-size:16px;margin-bottom:16px}.opts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}.opt{background:#252545;border:2px solid #333;border-radius:10px;padding:10px 18px;cursor:pointer;font-size:13px;transition:all .2s;min-width:60px}.opt:hover{border-color:#7B68EE;transform:scale(1.05)}
 .opt.selected{border-color:#7B68EE;background:#3a3a6e;position:relative}
 .opt.selected::after{content:'✓';position:absolute;right:10px;top:50%;transform:translateY(-50%);color:#7B68EE;font-weight:bold;font-size:14px}
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(123,104,238,0.5)}70%{box-shadow:0 0 0 10px rgba(123,104,238,0)}100%{box-shadow:0 0 0 0 rgba(123,104,238,0)}}
@@ -41,10 +41,10 @@
 .prev-result{background:#252545;border-radius:8px;padding:8px 14px;font-size:12px;color:#888;margin-bottom:15px;display:inline-block}
 .time-est{color:#666;font-size:13px;margin-bottom:15px}
 .progress{background:#1a1a2e;border-radius:10px;height:8px;margin-bottom:15px;overflow:hidden}.progress-fill{background:linear-gradient(90deg,#4CAF50,#FF9800,#F44336);height:100%;border-radius:10px;transition:width .3s}.result{background:#1a1a2e;border-radius:16px;padding:28px;border:1px solid #2a2a4a}.meter{width:100%;height:24px;background:#252545;border-radius:12px;margin:15px 0;overflow:hidden}.meter-fill{height:100%;border-radius:12px;transition:width 1s}.btn{background:#7B68EE;border:none;color:#fff;padding:12px 30px;border-radius:10px;font-size:15px;cursor:pointer;margin-top:18px;font-weight:bold;width:100%}a.back{position:fixed;top:8px;left:8px;z-index:99;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent}a.back:hover{background:rgba(0,0,0,0.85)}</style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
-<script>function _copy(t,b){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){if(b){b.textContent='복사 완료!';setTimeout(function(){b.textContent=b.dataset.orig||'📋 결과 복사'},1500);}}).catch(function(){_copyFB(t,b)});}else{_copyFB(t,b);}}function _copyFB(t,b){var ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;left:-9999px';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');if(b){b.textContent='복사 완료!';setTimeout(function(){b.textContent=b.dataset.orig||'📋 결과 복사'},1500);}}catch(e){alert('복사 실패');}document.body.removeChild(ta);}</script></head><body>
+<script>function _copy(t,b){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){if(b){b.textContent='복사 완료!';setTimeout(function(){b.textContent=b.dataset.orig||'📋 결과 복사'},1500)}}).catch(function(){_copyFB(t,b)})}else{_copyFB(t,b)}}function _copyFB(t,b){var ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;left:-9999px';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');if(b){b.textContent='복사 완료!';setTimeout(function(){b.textContent=b.dataset.orig||'📋 결과 복사'},1500)}}catch(e){alert('복사 실패')}document.body.removeChild(ta)}</script></head><body>
 <a class="back" href="../index.html">← 뒤로</a>
 <div class="wrap" id="app"></div>
-<script>function _shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
+<script>function _shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
 const Q=_shuf([
   {t:"최근 잠을 잘 못 자고 있다",c:"신체"},{t:"사소한 일에 짜증이 난다",c:"정서"},{t:"집중이 잘 안 된다",c:"인지"},{t:"머리가 자주 아프거나 몸이 뻐근하다",c:"신체"},
   {t:"식욕이 줄었거나 폭식하게 된다",c:"신체"},{t:"미래에 대한 불안감이 있다",c:"인지"},{t:"혼자 있고 싶을 때가 많다",c:"사회"},{t:"일이나 공부에 의욕이 없다",c:"정서"},
@@ -57,7 +57,7 @@ const OPTS=[{t:'전혀 아님',s:0},{t:'가끔',s:1},{t:'자주',s:2},{t:'항상
 let cur=0,total=0;
 const catScores={신체:0,정서:0,사회:0,인지:0};
 const catCounts={신체:0,정서:0,사회:0,인지:0};
-Q.forEach(q=>{catCounts[q.c]=(catCounts[q.c]||0)+1;});
+Q.forEach(q=>{catCounts[q.c]=(catCounts[q.c]||0)+1});
 const ALL_TESTS=[{name:'MBTI 테스트 🧠',url:'mbti.html'},{name:'혈액형 성격 분석 🩸',url:'blood.html'},{name:'연애 유형 테스트 💕',url:'love.html'},{name:'동물 성격 테스트 🐾',url:'animal.html'}];
 
 function render(){
@@ -85,19 +85,19 @@ function pick(s,el){
   window._answering=true;
   total+=s;
   catScores[Q[cur].c]=(catScores[Q[cur].c]||0)+s;
-  if(el){el.classList.add('selected');}
+  if(el){el.classList.add('selected')}
   const card=document.querySelector('.q-card');
   if(card)card.classList.add('fade-out');
-  setTimeout(()=>{cur++;window._answering=false;render();},400);
+  setTimeout(()=>{cur++;window._answering=false;render()},400);
 }
 
 function showResult(){
   const max=Q.length*3,pct=(total/max*100)|0;
   let level,emoji,color,desc,tips,recs=[];
-  if(pct<=25){level='낮음';emoji='😊';color='#4CAF50';desc='스트레스가 거의 없는 안정적인 상태예요! 현재 생활 패턴을 잘 유지하고 계시네요.';tips=['현재 루틴을 꾸준히 유지하세요','주변 사람들에게도 긍정 에너지를 나눠주세요','가끔 자기 자신에게 작은 선물을 해보세요'];recs=['🧘 가벼운 스트레칭으로 하루 시작하기','📚 자기계발 독서 추천','🎵 기분 좋은 플레이리스트 만들기'];}
-  else if(pct<=50){level='보통';emoji='😐';color='#FF9800';desc='약간의 스트레스가 있지만 관리 가능한 수준이에요. 가벼운 스트레스 해소 활동을 추천해요.';tips=['규칙적인 운동 (하루 30분 걷기만으로도 OK!)','취미 생활에 시간을 투자하세요','충분한 수면을 확보하세요 (7-8시간)'];recs=['🏃 하루 30분 조깅 또는 걷기','🧘 명상 앱: 마보, Calm, Headspace','😴 수면 위생 개선: 취침 1시간 전 핸드폰 끄기'];}
-  else if(pct<=75){level='높음';emoji='😟';color='#FF5722';desc='스트레스 수준이 높아요. 적극적인 관리가 필요한 시점입니다. 혼자 감당하지 말고 주변에 도움을 요청해보세요.';tips=['매일 10분 명상이나 깊은 호흡 연습','신뢰할 수 있는 사람에게 고민 나누기','카페인과 알코올 줄이기','자연 속에서 시간 보내기'];recs=['🧘 명상 앱: 마보(하루 10분부터)','🏊 수영, 요가 등 이완 운동 추천','🌿 주말 자연 산책 (숲, 공원)','📝 감정 일기 쓰기'];}
-  else{level='매우 높음';emoji='😢';color='#F44336';desc='스트레스가 매우 높은 상태예요. 전문가 상담을 고려해보시는 것을 추천합니다. 당신의 마음 건강이 가장 중요해요.';tips=['전문 상담사와 상담 받아보기','무리한 일정 줄이기','충분한 휴식과 자기 돌봄','정신건강 위기상담전화: 1577-0199'];recs=['☎️ 정신건강 위기상담전화: 1577-0199','🏥 가까운 정신건강복지센터 방문','🧘 4-7-8 호흡법 (하루 3회)','😴 수면 스케줄 고정하기','📱 SNS 사용 시간 제한 설정'];}
+  if(pct<=25){level='낮음';emoji='😊';color='#4CAF50';desc='스트레스가 거의 없는 안정적인 상태예요! 현재 생활 패턴을 잘 유지하고 계시네요.';tips=['현재 루틴을 꾸준히 유지하세요','주변 사람들에게도 긍정 에너지를 나눠주세요','가끔 자기 자신에게 작은 선물을 해보세요'];recs=['🧘 가벼운 스트레칭으로 하루 시작하기','📚 자기계발 독서 추천','🎵 기분 좋은 플레이리스트 만들기']}
+  else if(pct<=50){level='보통';emoji='😐';color='#FF9800';desc='약간의 스트레스가 있지만 관리 가능한 수준이에요. 가벼운 스트레스 해소 활동을 추천해요.';tips=['규칙적인 운동 (하루 30분 걷기만으로도 OK!)','취미 생활에 시간을 투자하세요','충분한 수면을 확보하세요 (7-8시간)'];recs=['🏃 하루 30분 조깅 또는 걷기','🧘 명상 앱: 마보, Calm, Headspace','😴 수면 위생 개선: 취침 1시간 전 핸드폰 끄기']}
+  else if(pct<=75){level='높음';emoji='😟';color='#FF5722';desc='스트레스 수준이 높아요. 적극적인 관리가 필요한 시점입니다. 혼자 감당하지 말고 주변에 도움을 요청해보세요.';tips=['매일 10분 명상이나 깊은 호흡 연습','신뢰할 수 있는 사람에게 고민 나누기','카페인과 알코올 줄이기','자연 속에서 시간 보내기'];recs=['🧘 명상 앱: 마보(하루 10분부터)','🏊 수영, 요가 등 이완 운동 추천','🌿 주말 자연 산책 (숲, 공원)','📝 감정 일기 쓰기']}
+  else{level='매우 높음';emoji='😢';color='#F44336';desc='스트레스가 매우 높은 상태예요. 전문가 상담을 고려해보시는 것을 추천합니다. 당신의 마음 건강이 가장 중요해요.';tips=['전문 상담사와 상담 받아보기','무리한 일정 줄이기','충분한 휴식과 자기 돌봄','정신건강 위기상담전화: 1577-0199'];recs=['☎️ 정신건강 위기상담전화: 1577-0199','🏥 가까운 정신건강복지센터 방문','🧘 4-7-8 호흡법 (하루 3회)','😴 수면 스케줄 고정하기','📱 SNS 사용 시간 제한 설정']}
   localStorage.setItem('stress_result',pct+'% ('+level+')');
   const catColors={신체:'#FF6B6B',정서:'#FFD700',사회:'#4FC3F7',인지:'#7B68EE'};
   const gaugeAngle=pct/100*180;
@@ -115,7 +115,7 @@ function showResult(){
     <p style="color:#aaa;font-size:14px;line-height:1.7;margin:15px 0;text-align:left">${desc}</p>
     <div class="rec-box">
       <h3 style="color:#FFD700">📊 영역별 분석</h3>
-      ${Object.entries(catScores).map(([k,v])=>{const catMax=catCounts[k]*3;const cp=catMax?Math.round(v/catMax*100):0;return `<div class="cat-bar"><div class="cl">${k}</div><div class="cb"><div class="cf" style="width:${cp}%;background:${catColors[k]}"></div></div><div style="color:${catColors[k]};font-size:12px;width:30px">${cp}%</div></div>`;}).join('')}
+      ${Object.entries(catScores).map(([k,v])=>{const catMax=catCounts[k]*3;const cp=catMax?Math.round(v/catMax*100):0;return `<div class="cat-bar"><div class="cl">${k}</div><div class="cb"><div class="cf" style="width:${cp}%;background:${catColors[k]}"></div></div><div style="color:${catColors[k]};font-size:12px;width:30px">${cp}%</div></div>`}).join('')}
     </div>
     <div class="rec-box" style="text-align:left">
       <h3 style="color:#FFD700">💡 추천 관리법</h3>

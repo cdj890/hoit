@@ -11,9 +11,9 @@
 <meta property="og:url" content="https://hoit.me/games/tetris.html">
 <link rel="canonical" href="https://hoit.me/games/tetris.html">
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { background: #1a1a2e; display: flex; justify-content: center; align-items:flex-start; min-height: 100vh; font-family: 'Segoe UI', sans-serif; overflow-x:hidden; ;flex-wrap:wrap;align-content:center}
-canvas { border-radius: 12px; box-shadow: 0 0 40px rgba(100,100,255,0.2); }
+* { margin: 0; padding: 0; box-sizing: border-box}
+body { background: #1a1a2e; display: flex; justify-content: center; align-items:center; min-height: 100vh; font-family: 'Segoe UI', sans-serif; overflow-x:hidden; ;flex-direction:column}
+canvas { border-radius: 12px; box-shadow: 0 0 40px rgba(100,100,255,0.2)}
 canvas{max-width:100%!important;height:auto!important;display:block;margin:0 auto}body{overflow-x:hidden}
 .menu-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,15,30,0.97);display:flex;align-items:center;justify-content:center;z-index:100}
 .menu-box{background:#1a1a2e;border-radius:20px;padding:30px;text-align:center;max-width:420px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.6)}
@@ -31,7 +31,7 @@ canvas{max-width:100%!important;height:auto!important;display:block;margin:0 aut
 </head>
 <body>
 <a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
-<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
+<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h))}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)})}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{})})}</script>
 
 <div id="menuScreen" class="menu-overlay">
 <div class="menu-box">
@@ -56,7 +56,7 @@ canvas{max-width:100%!important;height:auto!important;display:block;margin:0 aut
 
 <canvas id="c"></canvas>
 <script>
-if(!CanvasRenderingContext2D.prototype.roundRect){CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){if(typeof r==='undefined')r=0;if(typeof r==='number')r={tl:r,tr:r,br:r,bl:r};this.beginPath();this.moveTo(x+r.tl,y);this.lineTo(x+w-r.tr,y);this.quadraticCurveTo(x+w,y,x+w,y+r.tr);this.lineTo(x+w,y+h-r.br);this.quadraticCurveTo(x+w,y+h,x+w-r.br,y+h);this.lineTo(x+r.bl,y+h);this.quadraticCurveTo(x,y+h,x,y+h-r.bl);this.lineTo(x,y+r.tl);this.quadraticCurveTo(x,y,x+r.tl,y);this.closePath();return this;};}
+if(!CanvasRenderingContext2D.prototype.roundRect){CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){if(typeof r==='undefined')r=0;if(typeof r==='number')r={tl:r,tr:r,br:r,bl:r};this.beginPath();this.moveTo(x+r.tl,y);this.lineTo(x+w-r.tr,y);this.quadraticCurveTo(x+w,y,x+w,y+r.tr);this.lineTo(x+w,y+h-r.br);this.quadraticCurveTo(x+w,y+h,x+w-r.br,y+h);this.lineTo(x+r.bl,y+h);this.quadraticCurveTo(x,y+h,x,y+h-r.bl);this.lineTo(x,y+r.tl);this.quadraticCurveTo(x,y,x+r.tl,y);this.closePath();return this}}
 const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
 
@@ -130,8 +130,8 @@ let challengeStartTime = 0;
 let challengeComplete = false;
 const CHALLENGE_GOAL = 40;
 
-function getTheme() { return THEMES[THEME_KEYS[selectedTheme]]; }
-function getColors() { return getTheme().colors; }
+function getTheme() { return THEMES[THEME_KEYS[selectedTheme]]}
+function getColors() { return getTheme().colors}
 
 function selectTheme(i, el) {
   selectedTheme = i;
@@ -220,7 +220,7 @@ function spawnPiece() {
 
   if (collides(currentShape, currentX, currentY)) {
     gameOver = true;
-    if (score > highScore) { highScore = score; localStorage.setItem('tetris_hs', highScore); }
+    if (score > highScore) { highScore = score; localStorage.setItem('tetris_hs', highScore)}
     _hub('tetris',score);
   }
 }
@@ -308,7 +308,7 @@ function place() {
       for (let x = 0; x < currentShape[y].length; x++)
         if (currentShape[y][x]) {
           const ny = currentY + y;
-          if (ny >= 0) { board[ny][currentX + x] = 1; boardColors[ny][currentX + x] = currentColor; }
+          if (ny >= 0) { board[ny][currentX + x] = 1; boardColors[ny][currentX + x] = currentColor}
         }
     applyGravity();
     scorePopups.push({x: BOARD_W/2, y: currentY*CELL+10, text: '⬇️중력!', life: 45, maxLife: 45, color: '#888'});
@@ -443,7 +443,7 @@ document.addEventListener('keydown', e => {
     }
     return;
   }
-  if (e.key === 'p' || e.key === 'P') { paused = !paused; return; }
+  if (e.key === 'p' || e.key === 'P') { paused = !paused; return}
   if (paused) return;
   if (['ArrowLeft','ArrowRight','ArrowDown','ArrowUp',' '].includes(e.key)) e.preventDefault();
   switch(e.key) {
@@ -454,14 +454,14 @@ document.addEventListener('keydown', e => {
       if (!collides(currentShape, currentX+1, currentY)) currentX++;
       break;
     case 'ArrowDown':
-      if (!collides(currentShape, currentX, currentY+1)) { currentY++; score += 1; }
+      if (!collides(currentShape, currentX, currentY+1)) { currentY++; score += 1}
       break;
     case 'ArrowUp': {
       const r = rotate(currentShape);
       let nx = currentX;
-      if (collides(r, nx, currentY)) { nx--; }
-      if (collides(r, nx, currentY)) { nx += 2; }
-      if (!collides(r, nx, currentY)) { currentShape = r; currentX = nx; }
+      if (collides(r, nx, currentY)) { nx--}
+      if (collides(r, nx, currentY)) { nx += 2}
+      if (!collides(r, nx, currentY)) { currentShape = r; currentX = nx}
       break;
     }
     case ' ':
@@ -789,12 +789,12 @@ canvas.addEventListener('touchend', e => {
   if (Math.abs(dx) < 15 && Math.abs(dy) < 15) {
     const r = rotate(currentShape);
     let nx = currentX;
-    if (collides(r, nx, currentY)) { nx--; }
-    if (collides(r, nx, currentY)) { nx += 2; }
-    if (!collides(r, nx, currentY)) { currentShape = r; currentX = nx; }
+    if (collides(r, nx, currentY)) { nx--}
+    if (collides(r, nx, currentY)) { nx += 2}
+    if (!collides(r, nx, currentY)) { currentShape = r; currentX = nx}
     return;
   }
-  if (Math.abs(dy) > Math.abs(dx) && dy > 30) { hardDrop(); return; }
+  if (Math.abs(dy) > Math.abs(dx) && dy > 30) { hardDrop(); return}
   if (Math.abs(dx) > Math.abs(dy)) {
     if (dx > 0 && !collides(currentShape, currentX+1, currentY)) currentX++;
     else if (dx < 0 && !collides(currentShape, currentX-1, currentY)) currentX--;

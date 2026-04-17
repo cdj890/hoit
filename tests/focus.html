@@ -7,7 +7,7 @@
 <meta property="og:url" content="https://hoit.me/tests/focus.html">
 <link rel="canonical" href="https://hoit.me/tests/focus.html">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:20px;flex-wrap:wrap;align-content:center}
+*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px;flex-direction:column}
 .card{background:#1a1a2e;border-radius:16px;padding:30px;max-width:500px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.4);text-align:center}
 h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-size:.9em}
 .btn{display:inline-block;padding:12px 24px;margin:6px;background:#2a2a3e;border:none;color:#e0e0e0;border-radius:10px;font-size:1.2em;cursor:pointer;transition:background .2s;min-width:60px}
@@ -37,13 +37,13 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 </style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous">
 function _copy(t,b){
   if(navigator.clipboard&&navigator.clipboard.writeText){
-    navigator.clipboard.writeText(t).then(()=>{if(b){b.textContent='복사 완료!';setTimeout(()=>b.textContent=b.dataset.orig||'📋 결과 복사',1500);}}).catch(()=>_copyFallback(t,b));
-  } else { _copyFallback(t,b); }
+    navigator.clipboard.writeText(t).then(()=>{if(b){b.textContent='복사 완료!';setTimeout(()=>b.textContent=b.dataset.orig||'📋 결과 복사',1500)}}).catch(()=>_copyFallback(t,b));
+  } else { _copyFallback(t,b)}
 }
 function _copyFallback(text,btn){
   const ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;left:-9999px';
   document.body.appendChild(ta);ta.select();
-  try{document.execCommand('copy');if(btn)btn.textContent='복사 완료!';}catch(e){alert('복사 실패. 수동으로 복사해주세요.');}
+  try{document.execCommand('copy');if(btn)btn.textContent='복사 완료!'}catch(e){alert('복사 실패. 수동으로 복사해주세요.')}
   document.body.removeChild(ta);
 }
 </script>
@@ -76,7 +76,7 @@ function _copyFallback(text,btn){
 </div>
 <script>
 let level=1,seq=[],userSeq=[],phase='',timerInt,reactionTime=0,reactionDone=false;
-function startGame(){document.getElementById('intro').classList.add('hidden');document.getElementById('game').classList.remove('hidden');nextRound();}
+function startGame(){document.getElementById('intro').classList.add('hidden');document.getElementById('game').classList.remove('hidden');nextRound()}
 function nextRound(){const len=level+2;seq=[];for(let i=0;i<len;i++)seq.push(Math.floor(Math.random()*10));userSeq=[];phase='show';
 document.getElementById('lvl').textContent='레벨 '+level+' (숫자 '+len+'개)';
 document.getElementById('status').textContent='숫자를 기억하세요!';document.getElementById('grid').innerHTML='';
@@ -84,40 +84,40 @@ const d=document.getElementById('display');d.textContent=seq.join(' ');
 document.getElementById('timer').style.width='100%';
 const showTime=1500+level*500;let elapsed=0;const step=50;
 timerInt=setInterval(()=>{elapsed+=step;document.getElementById('timer').style.width=((1-elapsed/showTime)*100)+'%';
-if(elapsed>=showTime){clearInterval(timerInt);startInput();}},step);}
+if(elapsed>=showTime){clearInterval(timerInt);startInput()}},step)}
 function startInput(){phase='input';document.getElementById('display').textContent='_ '.repeat(seq.length).trim();
 document.getElementById('status').textContent='숫자를 순서대로 눌러주세요!';
 const g=document.getElementById('grid');g.innerHTML='';
-for(let i=0;i<=9;i++){const b=document.createElement('button');b.className='btn';b.textContent=i;b.onclick=()=>pressNum(i);g.appendChild(b);}}
+for(let i=0;i<=9;i++){const b=document.createElement('button');b.className='btn';b.textContent=i;b.onclick=()=>pressNum(i);g.appendChild(b)}}
 function pressNum(n){if(phase!=='input')return;userSeq.push(n);
 const d=document.getElementById('display');let txt='';for(let i=0;i<seq.length;i++)txt+=(i<userSeq.length?userSeq[i]:'_')+' ';d.textContent=txt.trim();
 const idx=userSeq.length-1;
-if(userSeq[idx]!==seq[idx]){gameOver();return;}
+if(userSeq[idx]!==seq[idx]){gameOver();return}
 if(userSeq.length===seq.length){level++;document.getElementById('status').textContent='정답! 다음 레벨로...';phase='wait';
-if(level===4&&!reactionDone){reactionDone=true;setTimeout(startReaction,800);}else{setTimeout(nextRound,1200);}}}
+if(level===4&&!reactionDone){reactionDone=true;setTimeout(startReaction,800)}else{setTimeout(nextRound,1200)}}}
 function startReaction(){document.getElementById('display').textContent='';document.getElementById('status').textContent='화면이 초록색이 되면 터치하세요!';document.getElementById('grid').innerHTML='';
 const box=document.createElement('div');box.className='reaction-box';box.style.background='#e17055';box.textContent='기다리세요...';
 let canClick=false,startT;
-box.onclick=function(){if(!canClick){box.textContent='너무 빨라요! 다시...';box.style.background='#e17055';clearTimeout(box._t);box._t=setTimeout(()=>{box.textContent='기다리세요...';box._t=setTimeout(()=>{box.style.background='#00b894';box.textContent='지금! 터치!';canClick=true;startT=Date.now();},1500+Math.random()*2000);},800);return;}
+box.onclick=function(){if(!canClick){box.textContent='너무 빨라요! 다시...';box.style.background='#e17055';clearTimeout(box._t);box._t=setTimeout(()=>{box.textContent='기다리세요...';box._t=setTimeout(()=>{box.style.background='#00b894';box.textContent='지금! 터치!';canClick=true;startT=Date.now()},1500+Math.random()*2000)},800);return}
 reactionTime=Date.now()-startT;box.textContent=reactionTime+'ms!';box.style.background='#6c5ce7';
-setTimeout(nextRound,1200);};
-box._t=setTimeout(()=>{box.style.background='#00b894';box.textContent='지금! 터치!';canClick=true;startT=Date.now();},1500+Math.random()*2000);
-document.getElementById('grid').appendChild(box);}
+setTimeout(nextRound,1200)};
+box._t=setTimeout(()=>{box.style.background='#00b894';box.textContent='지금! 터치!';canClick=true;startT=Date.now()},1500+Math.random()*2000);
+document.getElementById('grid').appendChild(box)}
 function gameOver(){phase='done';clearInterval(timerInt);const streak=level-1;
 document.getElementById('game').classList.add('hidden');document.getElementById('result').classList.remove('hidden');
 let emoji,type,desc;
 let brainAge,pctText;
-if(streak>=8){emoji='🧠';type='천재급 집중력! (레벨 '+streak+')';desc='놀라운 집중력과 기억력의 소유자! 숫자 10개 이상을 기억하다니, 당신의 뇌는 슈퍼컴퓨터급입니다.';brainAge=20;pctText='상위 5%';}
-else if(streak>=5){emoji='🌟';type='우수한 집중력! (레벨 '+streak+')';desc='평균 이상의 뛰어난 집중력! 복잡한 정보도 잘 처리하는 능력을 가지고 있어요. 꾸준히 훈련하면 더 높은 레벨도 가능해요!';brainAge=25;pctText='상위 20%';}
-else if(streak>=3){emoji='👍';type='보통 집중력 (레벨 '+streak+')';desc='일반적인 수준의 집중력입니다. 짧은 시간 집중하는 건 잘하지만, 긴 시퀀스에선 어려움을 느낄 수 있어요. 명상이나 집중력 훈련을 추천해요!';brainAge=35;pctText='상위 50%';}
-else{emoji='💪';type='집중력 훈련 필요 (레벨 '+streak+')';desc='집중력을 키울 여지가 많아요! 하루 10분 명상, 숫자 외우기 게임 등으로 꾸준히 훈련해보세요. 분명 좋아질 거예요!';brainAge=45;pctText='상위 75%';}
-if(reactionTime>0){brainAge=Math.max(15,brainAge-Math.max(0,Math.floor((400-reactionTime)/30)));desc+=reactionTime<250?' 반응속도도 번개급! ('+reactionTime+'ms)':reactionTime<350?' 반응속도도 빠른 편! ('+reactionTime+'ms)':' 반응속도: '+reactionTime+'ms';}
+if(streak>=8){emoji='🧠';type='천재급 집중력! (레벨 '+streak+')';desc='놀라운 집중력과 기억력의 소유자! 숫자 10개 이상을 기억하다니, 당신의 뇌는 슈퍼컴퓨터급입니다.';brainAge=20;pctText='상위 5%'}
+else if(streak>=5){emoji='🌟';type='우수한 집중력! (레벨 '+streak+')';desc='평균 이상의 뛰어난 집중력! 복잡한 정보도 잘 처리하는 능력을 가지고 있어요. 꾸준히 훈련하면 더 높은 레벨도 가능해요!';brainAge=25;pctText='상위 20%'}
+else if(streak>=3){emoji='👍';type='보통 집중력 (레벨 '+streak+')';desc='일반적인 수준의 집중력입니다. 짧은 시간 집중하는 건 잘하지만, 긴 시퀀스에선 어려움을 느낄 수 있어요. 명상이나 집중력 훈련을 추천해요!';brainAge=35;pctText='상위 50%'}
+else{emoji='💪';type='집중력 훈련 필요 (레벨 '+streak+')';desc='집중력을 키울 여지가 많아요! 하루 10분 명상, 숫자 외우기 게임 등으로 꾸준히 훈련해보세요. 분명 좋아질 거예요!';brainAge=45;pctText='상위 75%'}
+if(reactionTime>0){brainAge=Math.max(15,brainAge-Math.max(0,Math.floor((400-reactionTime)/30)));desc+=reactionTime<250?' 반응속도도 번개급! ('+reactionTime+'ms)':reactionTime<350?' 반응속도도 빠른 편! ('+reactionTime+'ms)':' 반응속도: '+reactionTime+'ms'}
 document.getElementById('rEmoji').textContent=emoji;document.getElementById('rType').textContent=type;document.getElementById('rDesc').textContent=desc;
 document.getElementById('rBrain').textContent='두뇌 나이: '+brainAge+'세';
 document.getElementById('rPct').textContent=pctText+' 집중력입니다!';
-localStorage.setItem('hoit_focus',JSON.stringify({type:type,level:streak,brainAge:brainAge,date:new Date().toISOString()}));}
-function copyResult(){const d=JSON.parse(localStorage.getItem('hoit_focus'));_copy('[hoit.me] 집중력 테스트: 레벨 '+d.level+' (두뇌나이 '+d.brainAge+'세) - https://hoit.me/tests/focus.html',document.querySelector('.share-btn'));}
-(function(){const prev=localStorage.getItem('hoit_focus');if(prev){const d=JSON.parse(prev);document.querySelector('.sub').innerHTML='이전 결과: 레벨 '+d.level+' (두뇌나이 '+d.brainAge+'세)<br>다시 도전해볼까요?';}})();
+localStorage.setItem('hoit_focus',JSON.stringify({type:type,level:streak,brainAge:brainAge,date:new Date().toISOString()}))}
+function copyResult(){const d=JSON.parse(localStorage.getItem('hoit_focus'));_copy('[hoit.me] 집중력 테스트: 레벨 '+d.level+' (두뇌나이 '+d.brainAge+'세) - https://hoit.me/tests/focus.html',document.querySelector('.share-btn'))}
+(function(){const prev=localStorage.getItem('hoit_focus');if(prev){const d=JSON.parse(prev);document.querySelector('.sub').innerHTML='이전 결과: 레벨 '+d.level+' (두뇌나이 '+d.brainAge+'세)<br>다시 도전해볼까요?'}})();
 </script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 
 <style>

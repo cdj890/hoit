@@ -7,7 +7,7 @@
 <meta property="og:url" content="https://hoit.me/tests/eq.html">
 <link rel="canonical" href="https://hoit.me/tests/eq.html">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:20px;flex-wrap:wrap;align-content:center}
+*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px;flex-direction:column}
 .card{background:#1a1a2e;border-radius:16px;padding:30px;max-width:500px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.4);text-align:center}
 h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-size:.9em}
 .progress{height:6px;background:#2a2a3e;border-radius:3px;margin-bottom:24px;overflow:hidden}
@@ -45,7 +45,7 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 .prev-result{background:#2a2a3e;border-radius:10px;padding:12px;margin-bottom:16px;font-size:.85em;color:#aaa}
 .time-est{color:#888;font-size:.85em;margin-top:8px}
 </style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
-<script>function _copy(t,b){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){if(b){b.textContent='복사 완료!';setTimeout(function(){b.textContent=b.dataset.orig||'📋 결과 복사'},1500);}}).catch(function(){_copyFB(t,b)});}else{_copyFB(t,b);}}function _copyFB(t,b){var ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;left:-9999px';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');if(b){b.textContent='복사 완료!';setTimeout(function(){b.textContent=b.dataset.orig||'📋 결과 복사'},1500);}}catch(e){alert('복사 실패');}document.body.removeChild(ta);}</script></head><body>
+<script>function _copy(t,b){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){if(b){b.textContent='복사 완료!';setTimeout(function(){b.textContent=b.dataset.orig||'📋 결과 복사'},1500)}}).catch(function(){_copyFB(t,b)})}else{_copyFB(t,b)}}function _copyFB(t,b){var ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;left:-9999px';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');if(b){b.textContent='복사 완료!';setTimeout(function(){b.textContent=b.dataset.orig||'📋 결과 복사'},1500)}}catch(e){alert('복사 실패')}document.body.removeChild(ta)}</script></head><body>
 <a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
 <div class="card">
 <div id="intro">
@@ -82,7 +82,7 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 <button class="btn start-btn" onclick="location.reload()">다시 하기</button>
 </div>
 </div>
-<script>function _shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
+<script>function _shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
 const questions=[
 {q:"친구가 화가 나서 불합리한 말을 하면?",cat:"empathy",a:[["나도 화가 난다",1],["일단 들어주고 나중에 이야기한다",3],["왜 화가 났는지 이해하려 한다",4]]},
 {q:"실패했을 때 나의 반응은?",cat:"regulation",a:[["자책하며 오래 괴로워한다",1],["아쉽지만 빨리 털어낸다",3],["원인을 분석하고 다음에 반영한다",4]]},
@@ -105,9 +105,9 @@ const questions=[
 {q:"상대방이 말을 많이 하지 않아도 감정을 파악하는 편인가?",cat:"empathy",a:[["거의 파악하기 어렵다",1],["친한 사람은 어느 정도 파악한다",2],["표정, 목소리, 태도로 대부분 파악한다",4]]}
 ];
 let cur=0,total=0,catScores={awareness:0,regulation:0,empathy:0,social:0},catMax={awareness:0,regulation:0,empathy:0,social:0};
-function startQuiz(){_shuf(questions);document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();}
-function showQ(){if(!window._qs){_shuf(questions);window._qs=1;}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';const qEl=document.getElementById('qText');qEl.textContent=(cur+1)+'. '+q.q;qEl.classList.remove('q-slide');void qEl.offsetWidth;qEl.classList.add('q-slide');const o=document.getElementById('opts');o.innerHTML='';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=function(){if(window._picking)return;window._picking=true;b.classList.add('selected');setTimeout(()=>{window._picking=false;pick(a[1],q.cat);},400);};o.appendChild(b);});}
-function pick(v,cat){total+=v;catScores[cat]=(catScores[cat]||0)+v;catMax[cat]=(catMax[cat]||0)+4;cur++;if(cur<questions.length)showQ();else showResult();}
+function startQuiz(){_shuf(questions);document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ()}
+function showQ(){if(!window._qs){_shuf(questions);window._qs=1}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';const qEl=document.getElementById('qText');qEl.textContent=(cur+1)+'. '+q.q;qEl.classList.remove('q-slide');void qEl.offsetWidth;qEl.classList.add('q-slide');const o=document.getElementById('opts');o.innerHTML='';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=function(){if(window._picking)return;window._picking=true;b.classList.add('selected');setTimeout(()=>{window._picking=false;pick(a[1],q.cat)},400)};o.appendChild(b)})}
+function pick(v,cat){total+=v;catScores[cat]=(catScores[cat]||0)+v;catMax[cat]=(catMax[cat]||0)+4;cur++;if(cur<questions.length)showQ();else showResult()}
 function showResult(){const score=Math.min(100,Math.round(total/80*100));const deg=-90+score*1.8;
 document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');
 setTimeout(()=>document.getElementById('needle').style.transform='translateX(-50%) rotate('+deg+'deg)',100);
@@ -118,18 +118,18 @@ const catNames={awareness:'자기인식',regulation:'감정조절',empathy:'공�
 const catColors={awareness:'#e74c3c',regulation:'#3498db',empathy:'#2ecc71',social:'#f39c12'};
 const subEl=document.getElementById('rSubScores');subEl.innerHTML='';
 let weakest='awareness',weakVal=100;
-Object.keys(catNames).forEach(k=>{const v=Math.min(100,Math.round((catScores[k]||0)/(catMax[k]||1)*100));if(v<weakVal){weakVal=v;weakest=k;}const d=document.createElement('div');d.className='sub-score';d.innerHTML='<label><span>'+catNames[k]+'</span><span>'+v+'점</span></label><div class="bar"><div class="bar-fill" style="width:0;background:'+catColors[k]+'"></div></div>';subEl.appendChild(d);setTimeout(()=>d.querySelector('.bar-fill').style.width=v+'%',200);});
+Object.keys(catNames).forEach(k=>{const v=Math.min(100,Math.round((catScores[k]||0)/(catMax[k]||1)*100));if(v<weakVal){weakVal=v;weakest=k}const d=document.createElement('div');d.className='sub-score';d.innerHTML='<label><span>'+catNames[k]+'</span><span>'+v+'점</span></label><div class="bar"><div class="bar-fill" style="width:0;background:'+catColors[k]+'"></div></div>';subEl.appendChild(d);setTimeout(()=>d.querySelector('.bar-fill').style.width=v+'%',200)});
 const tips={awareness:'자기인식 향상 팁: 매일 잠들기 전 오늘 느낀 감정 3가지를 일기에 적어보세요. "왜 그런 감정을 느꼈는지"까지 쓰면 자기이해가 깊어집니다.',regulation:'감정조절 향상 팁: 감정이 격해질 때 4-7-8 호흡법(4초 들이쉬고, 7초 멈추고, 8초 내쉬기)을 시도해보세요. 반응하기 전 6초간 멈추는 습관이 큰 차이를 만듭니다.',empathy:'공감능력 향상 팁: 대화할 때 상대의 말을 그대로 반영해주세요. "그래서 네가 속상했구나"처럼 감정을 읽어주면 공감 능력이 크게 성장합니다.',social:'사회성 향상 팁: 하루에 한 명에게 먼저 인사하거나 안부를 물어보세요. 작은 사회적 상호작용을 늘리면 관계 능력이 자연스럽게 향상됩니다.'};
 document.getElementById('rTips').innerHTML='<strong>약점 보완 가이드:</strong><br>'+tips[weakest];
 let emoji,type,desc;
-if(score>=80){emoji='🌟';type='EQ 마스터';desc='당신의 감성지능은 매우 높습니다! 자신과 타인의 감정을 잘 이해하고, 갈등 상황에서도 현명하게 대처합니다. 주변 사람들에게 정서적 안정감을 주는 존재예요.';}
-else if(score>=60){emoji='😊';type='감성 우수';desc='꽤 높은 감성지능을 가지고 있어요! 대부분의 상황에서 공감과 소통을 잘 하며, 감정 조절도 양호합니다. 조금만 더 노력하면 EQ 마스터가 될 수 있어요.';}
-else if(score>=40){emoji='🙂';type='감성 보통';desc='평균적인 감성지능 수준입니다. 감정을 인식하는 능력은 있지만, 조절과 표현에서 개선의 여지가 있어요. 타인의 감정에 좀 더 관심을 가져보세요.';}
-else{emoji='💪';type='감성 성장 중';desc='감성지능을 키울 여지가 많아요! 자신의 감정을 일기로 기록하고, 상대방의 입장에서 생각하는 연습을 해보세요. 작은 노력이 큰 변화를 만들어요.';}
+if(score>=80){emoji='🌟';type='EQ 마스터';desc='당신의 감성지능은 매우 높습니다! 자신과 타인의 감정을 잘 이해하고, 갈등 상황에서도 현명하게 대처합니다. 주변 사람들에게 정서적 안정감을 주는 존재예요.'}
+else if(score>=60){emoji='😊';type='감성 우수';desc='꽤 높은 감성지능을 가지고 있어요! 대부분의 상황에서 공감과 소통을 잘 하며, 감정 조절도 양호합니다. 조금만 더 노력하면 EQ 마스터가 될 수 있어요.'}
+else if(score>=40){emoji='🙂';type='감성 보통';desc='평균적인 감성지능 수준입니다. 감정을 인식하는 능력은 있지만, 조절과 표현에서 개선의 여지가 있어요. 타인의 감정에 좀 더 관심을 가져보세요.'}
+else{emoji='💪';type='감성 성장 중';desc='감성지능을 키울 여지가 많아요! 자신의 감정을 일기로 기록하고, 상대방의 입장에서 생각하는 연습을 해보세요. 작은 노력이 큰 변화를 만들어요.'}
 document.getElementById('rEmoji').textContent=emoji;document.getElementById('rType').textContent=type+' ('+score+'점)';document.getElementById('rDesc').textContent=desc;
 localStorage.setItem('eq_result',JSON.stringify({score:score,type:type,date:new Date().toLocaleDateString('ko-KR')}));
 var eqCompBtn=document.getElementById('eqCompareBtn');
-if(eqCompBtn){eqCompBtn.onclick=function(){_compareGenLink({type:type,label:score+'점',emoji:emoji},eqCompBtn);};}
+if(eqCompBtn){eqCompBtn.onclick=function(){_compareGenLink({type:type,label:score+'점',emoji:emoji},eqCompBtn)}}
 }
 function _renderFriendEq(data){
   var existing=document.getElementById('friendResultBox');
@@ -145,9 +145,9 @@ function _renderFriendEq(data){
   var card=document.querySelector('.card');
   if(card)card.insertBefore(box,card.firstChild);
 }
-function copyResult(){const t=document.getElementById('rType').textContent+'\n'+document.getElementById('rPercentile').textContent;_copy('[EQ 테스트 결과]\n'+t,document.querySelector('.share-btn'));}
-function saveEqImage(){const rType=document.getElementById('rType');const rDesc=document.getElementById('rDesc');const rEmoji=document.getElementById('rEmoji');const rPct=document.getElementById('rPercentile');if(!rType||!rDesc)return;_saveResultImage({testName:'감성지능(EQ) 테스트',resultType:rType.textContent,emoji:rEmoji?rEmoji.textContent:'💛',desc:rPct?rPct.textContent:rDesc.textContent,accentColor:'#fdcb6e',filename:'eq_result'});}
-(function(){const p=localStorage.getItem('eq_result');if(p){try{const d=JSON.parse(p);document.getElementById('prevResult').innerHTML='<div class="prev-result">이전 결과: '+d.type+' - '+d.score+'점 ('+d.date+')</div>';}catch(e){}}})();
+function copyResult(){const t=document.getElementById('rType').textContent+'\n'+document.getElementById('rPercentile').textContent;_copy('[EQ 테스트 결과]\n'+t,document.querySelector('.share-btn'))}
+function saveEqImage(){const rType=document.getElementById('rType');const rDesc=document.getElementById('rDesc');const rEmoji=document.getElementById('rEmoji');const rPct=document.getElementById('rPercentile');if(!rType||!rDesc)return;_saveResultImage({testName:'감성지능(EQ) 테스트',resultType:rType.textContent,emoji:rEmoji?rEmoji.textContent:'💛',desc:rPct?rPct.textContent:rDesc.textContent,accentColor:'#fdcb6e',filename:'eq_result'})}
+(function(){const p=localStorage.getItem('eq_result');if(p){try{const d=JSON.parse(p);document.getElementById('prevResult').innerHTML='<div class="prev-result">이전 결과: '+d.type+' - '+d.score+'점 ('+d.date+')</div>'}catch(e){}}})();
 </script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 
 <style>

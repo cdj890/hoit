@@ -5,7 +5,7 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://hoit.me/itknow/sql_quiz.html">
 <link rel="canonical" href="https://hoit.me/itknow/sql_quiz.html"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;flex-wrap:wrap;align-content:center}
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center;flex-direction:column}
 .wrap{max-width:500px;width:100%;padding:20px;text-align:center}
 .progress{background:#1a1a2e;border-radius:10px;height:8px;margin-bottom:15px;overflow:hidden}.progress-fill{background:linear-gradient(90deg,#7B68EE,#FF6B6B);height:100%;border-radius:10px;transition:width .3s}
 .q-card{background:#1a1a2e;border-radius:16px;padding:22px;border:1px solid #2a2a4a;margin-bottom:12px}
@@ -19,7 +19,7 @@
 .btn{background:#7B68EE;border:none;color:#fff;padding:12px 30px;border-radius:10px;font-size:16px;cursor:pointer;margin-top:15px;font-weight:bold}body{overflow-x:hidden}.wrap,.container{max-width:100%;padding-left:12px;padding-right:12px}canvas{max-width:100%!important;height:auto!important}input,select,textarea,button{max-width:100%;font-size:16px!important}@media(max-width:600px){h1{font-size:22px!important}h2{font-size:18px!important}h3{font-size:15px!important}.wrap,.container{padding-left:10px;padding-right:10px;padding-top:45px}.card{padding:14px;margin:8px 0}.q-card{padding:16px}.q-text{font-size:15px!important}.opt{padding:12px;font-size:14px!important;min-height:44px}.btn{min-height:44px;font-size:15px!important}pre,code{font-size:11px!important;overflow-x:auto;word-break:break-all}.result{font-size:24px!important}.controls{flex-wrap:wrap}.controls button,.controls input{min-height:40px}.flow{flex-direction:column}.box{min-width:auto;width:100%}.arr{transform:rotate(90deg)}.grid{gap:4px}.cell{font-size:16px!important}}</style></head><body><a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation">← 뒤로</a>
 <div class="wrap" id="app"></div>
 <script>
-function _shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
+function _shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
 const Q=_shuf([{"q": "모든 레코드를 선택하는 SQL은?", "o": ["SELECT * FROM table", "GET ALL FROM table", "FETCH * FROM table", "READ ALL table"], "a": 0, "e": "SELECT *는 모든 컬럼을 선택합니다."}, {"q": "중복을 제거하는 키워드는?", "o": ["UNIQUE", "DISTINCT", "DIFFERENT", "SINGLE"], "a": 1, "e": "SELECT DISTINCT는 중복된 행을 제거합니다."}, {"q": "WHERE와 HAVING의 차이는?", "o": ["같다", "HAVING은 그룹에 조건", "WHERE가 더 빠르다", "HAVING은 인덱스 사용"], "a": 1, "e": "WHERE는 행 필터링, HAVING은 GROUP BY 후 그룹 필터링에 사용됩니다."}, {"q": "JOIN의 기본 타입은?", "o": ["LEFT JOIN", "RIGHT JOIN", "INNER JOIN", "OUTER JOIN"], "a": 2, "e": "JOIN만 쓰면 기본적으로 INNER JOIN으로 동작합니다."}, {"q": "NULL 비교 시 사용하는 연산자는?", "o": ["= NULL", "== NULL", "IS NULL", "EQUALS NULL"], "a": 2, "e": "NULL은 = 로 비교할 수 없고, IS NULL / IS NOT NULL을 사용합니다."}, {"q": "ORDER BY의 기본 정렬 방향은?", "o": ["ASC (오름차순)", "DESC (내림차순)", "랜덤", "삽입 순서"], "a": 0, "e": "ORDER BY는 기본적으로 ASC(오름차순)으로 정렬합니다."}, {"q": "GROUP BY와 함께 사용하는 함수가 아닌 것은?", "o": ["COUNT", "SUM", "CONCAT", "AVG"], "a": 2, "e": "COUNT, SUM, AVG, MAX, MIN 등이 집계 함수입니다."}, {"q": "테이블 생성 명령어는?", "o": ["MAKE TABLE", "CREATE TABLE", "NEW TABLE", "BUILD TABLE"], "a": 1, "e": "CREATE TABLE 테이블명 (컬럼 정의)으로 테이블을 생성합니다."}, {"q": "DELETE와 TRUNCATE의 차이는?", "o": ["같다", "TRUNCATE는 전체 삭제+초기화", "DELETE가 더 빠르다", "TRUNCATE는 조건 가능"], "a": 1, "e": "TRUNCATE는 WHERE 조건 없이 전체 삭제하고 테이블을 초기화합니다."}, {"q": "인덱스의 장점은?", "o": ["저장공간 절약", "검색 속도 향상", "보안 강화", "백업 용이"], "a": 1, "e": "인덱스는 검색 속도를 크게 향상시키지만, 삽입/수정 시 오버헤드가 있습니다."},
 {"q": "LEFT JOIN의 결과는?", "o": ["양쪽 테이블의 교집합", "왼쪽 테이블 전체 + 오른쪽 일치 행", "오른쪽 테이블 전체", "두 테이블의 합집합"], "a": 1, "e": "LEFT JOIN은 왼쪽 테이블의 모든 행을 반환하고, 오른쪽은 일치하는 행만 가져옵니다. 일치하지 않으면 NULL이 됩니다."},
 {"q": "서브쿼리(Subquery)란?", "o": ["두 테이블을 합치는 것", "쿼리 안에 중첩된 또 다른 쿼리", "임시 테이블 생성", "인덱스 생성 쿼리"], "a": 1, "e": "서브쿼리는 SELECT, WHERE, FROM 절 안에 포함된 쿼리입니다. 예: SELECT * FROM t WHERE id IN (SELECT id FROM t2)"},
@@ -42,22 +42,22 @@ function render(){
 const app=document.getElementById('app');
 if(cur>=Q.length){const grade=score>=9?'S':score>=7?'A':score>=5?'B':score>=3?'C':'D';
 const emoji2=score>=9?'🏆':score>=7?'👏':score>=5?'👍':score>=3?'😅':'💪';
-app.innerHTML=`<div style="font-size:50px">${emoji2}</div><h1 style="margin:10px 0">${score}/${Q.length}</h1><div style="font-size:40px;color:#FFD700;font-weight:bold;margin:10px 0">등급: ${grade}</div><p style="color:#aaa">${score>=7?'대단해요!':score>=5?'잘했어요!':'다음엔 더 잘할 수 있어요!'}</p><button class="btn" onclick="cur=0;score=0;_shuf(Q);render()">다시 하기</button>`;return;}
+app.innerHTML=`<div style="font-size:50px">${emoji2}</div><h1 style="margin:10px 0">${score}/${Q.length}</h1><div style="font-size:40px;color:#FFD700;font-weight:bold;margin:10px 0">등급: ${grade}</div><p style="color:#aaa">${score>=7?'대단해요!':score>=5?'잘했어요!':'다음엔 더 잘할 수 있어요!'}</p><button class="btn" onclick="cur=0;score=0;_shuf(Q);render()">다시 하기</button>`;return}
 const q=Q[cur],pct=(cur/Q.length*100)|0;
 app.innerHTML=`<div class="progress"><div class="progress-fill" style="width:${pct}%"></div></div>
 <div class="q-card"><div style="color:#888;font-size:13px;margin-bottom:8px">🗄️ ${cur+1}/${Q.length}</div>
 <div class="q-text">${q.q}</div>
 <div class="opts">${q.o.map((o,i)=>`<div class="opt" id="opt${i}" onclick="answer(${i})">${o}</div>`).join('')}</div>
-<div class="explain" id="explain">${q.e||''}</div></div>`;answered=false;}
+<div class="explain" id="explain">${q.e||''}</div></div>`;answered=false}
 function answer(i){if(answered)return;answered=true;const q=Q[cur];
 document.getElementById('opt'+i).classList.add(i===q.a?'correct':'wrong');
 if(i!==q.a)document.getElementById('opt'+q.a).classList.add('correct');
 if(i===q.a)score++;
-const el=document.getElementById('explain');if(q.e){el.style.display='block';}
-setTimeout(()=>{cur++;if(cur>=Q.length)_saveQuizScore('sql_quiz',score,Q.length);render();},1500);}
+const el=document.getElementById('explain');if(q.e){el.style.display='block'}
+setTimeout(()=>{cur++;if(cur>=Q.length)_saveQuizScore('sql_quiz',score,Q.length);render()},1500)}
 render();
-function _saveQuizScore(k,s,t){const p=JSON.parse(localStorage.getItem('hoit_itknow_progress')||'{"visited":[],"quizScores":{}}');const pct=Math.round(s/t*100);if(!p.quizScores[k]||pct>p.quizScores[k])p.quizScores[k]=pct;localStorage.setItem('hoit_itknow_progress',JSON.stringify(p));}
-function _markVisited(k){const p=JSON.parse(localStorage.getItem('hoit_itknow_progress')||'{"visited":[],"quizScores":{}}');const alreadyVisited=p.visited.includes(k);if(!alreadyVisited)p.visited.push(k);localStorage.setItem('hoit_itknow_progress',JSON.stringify(p));if(alreadyVisited){const b=document.createElement('div');b.id='_itknow_badge';b.style.cssText='position:fixed;top:8px;right:8px;z-index:9999;background:#4CAF50;color:#fff;padding:6px 12px;border-radius:8px;font-size:13px;font-family:sans-serif;font-weight:bold';b.textContent='학습 완료 \u2713';document.body.appendChild(b);}}_markVisited('sql_quiz');
+function _saveQuizScore(k,s,t){const p=JSON.parse(localStorage.getItem('hoit_itknow_progress')||'{"visited":[],"quizScores":{}}');const pct=Math.round(s/t*100);if(!p.quizScores[k]||pct>p.quizScores[k])p.quizScores[k]=pct;localStorage.setItem('hoit_itknow_progress',JSON.stringify(p))}
+function _markVisited(k){const p=JSON.parse(localStorage.getItem('hoit_itknow_progress')||'{"visited":[],"quizScores":{}}');const alreadyVisited=p.visited.includes(k);if(!alreadyVisited)p.visited.push(k);localStorage.setItem('hoit_itknow_progress',JSON.stringify(p));if(alreadyVisited){const b=document.createElement('div');b.id='_itknow_badge';b.style.cssText='position:fixed;top:8px;right:8px;z-index:9999;background:#4CAF50;color:#fff;padding:6px 12px;border-radius:8px;font-size:13px;font-family:sans-serif;font-weight:bold';b.textContent='학습 완료 \u2713';document.body.appendChild(b)}}_markVisited('sql_quiz');
 </script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 
 <style>

@@ -11,20 +11,20 @@
 <meta property="og:url" content="https://hoit.me/games/digging.html">
 <link rel="canonical" href="https://hoit.me/games/digging.html">
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { background: #0a0a1a; display: flex; justify-content: center; align-items:flex-start; min-height: 100vh; font-family: 'Segoe UI', sans-serif; overflow-x:hidden; ;flex-wrap:wrap;align-content:center}
-canvas { border-radius: 12px; box-shadow: 0 0 40px rgba(255,150,50,0.15); }
+* { margin: 0; padding: 0; box-sizing: border-box}
+body { background: #0a0a1a; display: flex; justify-content: center; align-items:center; min-height: 100vh; font-family: 'Segoe UI', sans-serif; overflow-x:hidden; ;flex-direction:column}
+canvas { border-radius: 12px; box-shadow: 0 0 40px rgba(255,150,50,0.15)}
 canvas{max-width:100%!important;height:auto!important;display:block;margin:0 auto}body{overflow-x:hidden}
 </style>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 </head>
 <body>
 <a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
-<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
+<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h))}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)})}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{})})}</script>
 <div id="startOverlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(10,10,26,0.93);z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:sans-serif;"></div>
 <canvas id="c"></canvas>
 <script>
-if(!CanvasRenderingContext2D.prototype.roundRect){CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){if(typeof r==='undefined')r=0;if(typeof r==='number')r={tl:r,tr:r,br:r,bl:r};this.beginPath();this.moveTo(x+r.tl,y);this.lineTo(x+w-r.tr,y);this.quadraticCurveTo(x+w,y,x+w,y+r.tr);this.lineTo(x+w,y+h-r.br);this.quadraticCurveTo(x+w,y+h,x+w-r.br,y+h);this.lineTo(x+r.bl,y+h);this.quadraticCurveTo(x,y+h,x,y+h-r.bl);this.lineTo(x,y+r.tl);this.quadraticCurveTo(x,y,x+r.tl,y);this.closePath();return this;};}
+if(!CanvasRenderingContext2D.prototype.roundRect){CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){if(typeof r==='undefined')r=0;if(typeof r==='number')r={tl:r,tr:r,br:r,bl:r};this.beginPath();this.moveTo(x+r.tl,y);this.lineTo(x+w-r.tr,y);this.quadraticCurveTo(x+w,y,x+w,y+r.tr);this.lineTo(x+w,y+h-r.br);this.quadraticCurveTo(x+w,y+h,x+w-r.br,y+h);this.lineTo(x+r.bl,y+h);this.quadraticCurveTo(x,y+h,x,y+h-r.bl);this.lineTo(x,y+r.tl);this.quadraticCurveTo(x,y,x+r.tl,y);this.closePath();return this}}
 const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
 const W = 400, H = 600;
@@ -88,27 +88,27 @@ function createPauseOverlay(){
 function togglePause(){
   if(state!=='playing')return;
   paused=!paused;
-  if(paused){createPauseOverlay();pauseOverlay.style.display='flex';}
-  else{if(pauseOverlay)pauseOverlay.style.display='none';requestAnimationFrame(gameLoop);}
+  if(paused){createPauseOverlay();pauseOverlay.style.display='flex'}
+  else{if(pauseOverlay)pauseOverlay.style.display='none';requestAnimationFrame(gameLoop)}
 }
 
 document.addEventListener('keydown', e => {
-  if(e.key==='Escape'){togglePause();return;}
+  if(e.key==='Escape'){togglePause();return}
   if(paused)return;
   if (['ArrowLeft','ArrowRight','ArrowDown','ArrowUp',' '].includes(e.key)) e.preventDefault();
   keys[e.key] = true;
-  if (state==='menu' && e.key===' ') { init(); state='playing'; }
-  if (state==='over' && e.key===' ') { init(); state='playing'; }
+  if (state==='menu' && e.key===' ') { init(); state='playing'}
+  if (state==='over' && e.key===' ') { init(); state='playing'}
   if (state==='over' && (e.key==='m'||e.key==='M')) state='menu';
 });
-document.addEventListener('keyup', e => { keys[e.key]=false; });
+document.addEventListener('keyup', e => { keys[e.key]=false});
 
 let digTouchX = null;
 canvas.addEventListener('touchstart', e => {
   e.preventDefault();
   digTouchX = e.touches[0].clientX;
-  if (state==='menu') { init(); state='playing'; }
-  else if (state==='over') { init(); state='playing'; }
+  if (state==='menu') { init(); state='playing'}
+  else if (state==='over') { init(); state='playing'}
 }, {passive: false});
 canvas.addEventListener('touchmove', e => {
   e.preventDefault();
@@ -116,9 +116,9 @@ canvas.addEventListener('touchmove', e => {
     const rect = canvas.getBoundingClientRect();
     const tx = (e.touches[0].clientX - rect.left) * (W / rect.width);
     const center = W/2;
-    if (tx < center - 30) { keys['ArrowLeft']=true; keys['ArrowRight']=false; }
-    else if (tx > center + 30) { keys['ArrowRight']=true; keys['ArrowLeft']=false; }
-    else { keys['ArrowLeft']=false; keys['ArrowRight']=false; }
+    if (tx < center - 30) { keys['ArrowLeft']=true; keys['ArrowRight']=false}
+    else if (tx > center + 30) { keys['ArrowRight']=true; keys['ArrowLeft']=false}
+    else { keys['ArrowLeft']=false; keys['ArrowRight']=false}
   }
 }, {passive: false});
 canvas.addEventListener('touchend', () => {
@@ -132,8 +132,8 @@ function update() {
 
   // Movement
   let moving = false;
-  if (keys['ArrowLeft']||keys['a']) { player.vx -= MOVE_ACCEL; moving=true; }
-  if (keys['ArrowRight']||keys['d']) { player.vx += MOVE_ACCEL; moving=true; }
+  if (keys['ArrowLeft']||keys['a']) { player.vx -= MOVE_ACCEL; moving=true}
+  if (keys['ArrowRight']||keys['d']) { player.vx += MOVE_ACCEL; moving=true}
   if (!moving) player.vx *= FRICTION;
   player.vx = Math.max(-MOVE_SPEED, Math.min(MOVE_SPEED, player.vx));
 
@@ -158,8 +158,8 @@ function update() {
   player.y += player.vy;
   // Wall collision (block, not wrap)
   const WALL = 16; // wall width
-  if (player.x < WALL) { player.x = WALL; player.vx = 0; }
-  else if (player.x + PW > W - WALL) { player.x = W - WALL - PW; player.vx = 0; }
+  if (player.x < WALL) { player.x = WALL; player.vx = 0}
+  else if (player.x + PW > W - WALL) { player.x = W - WALL - PW; player.vx = 0}
 
   // Landing
   if (!player.standPlat && player.vy > 0) {
@@ -168,7 +168,7 @@ function update() {
       if (!p.alive) continue;
       if (foot.x+foot.w<=p.x || foot.x>=p.x+p.w || foot.y+foot.h<=p.y || foot.y>=p.y+p.h) continue;
       if (player.y+PH-player.vy > p.y+4) continue;
-      if (p.type === PLAT_SPIKE) { die(); return; }
+      if (p.type === PLAT_SPIKE) { die(); return}
       player.y = p.y - PH; player.vy = 0;
       player.onGround = true; player.standPlat = p;
       landFlash = 10; shakeT = 5; shakeI = 3;
@@ -198,13 +198,13 @@ function update() {
   lavaSpeed = 0.55 + maxDepth/5000;
   lavaY += lavaSpeed;
   if (lavaY < camY - 180) lavaY = camY - 180;
-  if (player.y < lavaY + 5) { die(); return; }
-  if (player.y > camY + H + 150) { die(); return; }
+  if (player.y < lavaY + 5) { die(); return}
+  if (player.y > camY + H + 150) { die(); return}
 
   // Platforms update
   platforms.forEach(p => {
-    if (p.type===PLAT_MOVING) { p.x+=p.moveSpd; if(p.x<=18||p.x+p.w>=W-18) p.moveSpd*=-1; }
-    if (p.crumbling) { p.crumbleT++; if(p.crumbleT>25) p.alive=false; }
+    if (p.type===PLAT_MOVING) { p.x+=p.moveSpd; if(p.x<=18||p.x+p.w>=W-18) p.moveSpd*=-1}
+    if (p.crumbling) { p.crumbleT++; if(p.crumbleT>25) p.alive=false}
   });
   platforms = platforms.filter(p => p.alive && p.y > lavaY-50);
 
@@ -217,11 +217,11 @@ function update() {
   }
 
   // Particles
-  particles.forEach(p => { p.x+=p.vx; p.y+=p.vy; p.vy+=0.08; p.life--; });
+  particles.forEach(p => { p.x+=p.vx; p.y+=p.vy; p.vy+=0.08; p.life--});
   particles = particles.filter(p => p.life > 0);
-  pops.forEach(p => { p.y-=1.2; p.life--; });
+  pops.forEach(p => { p.y-=1.2; p.life--});
   pops = pops.filter(p => p.life > 0);
-  if (shakeT>0) { shakeT--; shakeI*=0.85; }
+  if (shakeT>0) { shakeT--; shakeI*=0.85}
   if (landFlash>0) landFlash--;
 
   // Lava spark
@@ -237,7 +237,7 @@ function update() {
 
 function die() {
   state = 'over';
-  if (score > highScore) { highScore = score; localStorage.setItem('dig_hs', highScore); }
+  if (score > highScore) { highScore = score; localStorage.setItem('dig_hs', highScore)}
   _hub('digging',score);
   for (let i = 0; i < 25; i++) {
     const a = Math.random()*Math.PI*2, sp=1+Math.random()*5;
@@ -256,9 +256,9 @@ function drawChar(px, py) {
 
   // Squash/stretch
   let sx=1, sy=1;
-  if (landFlash>0) { sx=1.2; sy=0.85; }
-  else if (!player.onGround && player.vy<-1) { sx=0.9; sy=1.15; }
-  else if (!player.onGround && player.vy>3) { sx=0.85; sy=1.1; }
+  if (landFlash>0) { sx=1.2; sy=0.85}
+  else if (!player.onGround && player.vy<-1) { sx=0.9; sy=1.15}
+  else if (!player.onGround && player.vy>3) { sx=0.85; sy=1.1}
 
   // Shadow
   ctx.fillStyle='rgba(0,0,0,0.3)';
@@ -539,7 +539,7 @@ function drawOver() {
 
 function gameLoop() {
   if(paused)return;
-  if (state==='menu') { drawMenu(); requestAnimationFrame(gameLoop); return; }
+  if (state==='menu') { drawMenu(); requestAnimationFrame(gameLoop); return}
 
   update();
   const ox = shakeT>0?(Math.random()-0.5)*shakeI*2:0;
@@ -573,7 +573,7 @@ function gameLoop() {
   ctx.restore();
 
   if (state==='over') {
-    particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=0.05;p.life--;});
+    particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=0.05;p.life--});
     particles=particles.filter(p=>p.life>0);
     drawOver();
   }

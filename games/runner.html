@@ -12,7 +12,7 @@
 <link rel="canonical" href="https://hoit.me/games/runner.html">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;overflow-x:hidden;user-select:none;flex-wrap:wrap;align-content:center}
+body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;overflow-x:hidden;user-select:none;flex-direction:column}
 #wrap{text-align:center;position:relative}
 canvas{border-radius:16px;display:block;margin:0 auto}
 #overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(15,15,30,0.92);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10}
@@ -27,7 +27,7 @@ canvas{max-width:100%!important;height:auto!important;display:block;margin:0 aut
 </head>
 <body>
 <a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
-<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
+<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h))}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)})}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{})})}</script>
 
 <div id="wrap">
 <div id="overlay">
@@ -55,7 +55,7 @@ function startGame(){
 
 function jump(){
  if(!running)return;
- if(!jumping){vy=JUMP;jumping=true;}
+ if(!jumping){vy=JUMP;jumping=true}
 }
 
 function spawnObstacle(){
@@ -64,8 +64,8 @@ function spawnObstacle(){
   {w:20,h:28,color:'#d63031',emoji:'🪨'},
   {w:30,h:24,color:'#6c5ce7',emoji:'📦'},
  ];
- if(score>30){types.push({w:18,h:50,color:'#fdcb6e',emoji:'🗼'});}
- if(score>60){types.push({w:36,h:18,color:'#00b894',emoji:'🐊'});}
+ if(score>30){types.push({w:18,h:50,color:'#fdcb6e',emoji:'🗼'})}
+ if(score>60){types.push({w:36,h:18,color:'#00b894',emoji:'🐊'})}
  let t=types[Math.floor(Math.random()*types.length)];
  const isMoving=score>50&&Math.random()<0.2;
  obstacles.push({x:W+20,y:GROUND-t.h,w:t.w,h:t.h,color:t.color,emoji:t.emoji,vy:isMoving?-1.5:0,baseY:GROUND-t.h,moving:isMoving});
@@ -142,10 +142,10 @@ function update(){
  speed=5+frame*0.002;
  // jump
  vy+=GRAVITY;py+=vy;
- if(py>=GROUND){py=GROUND;vy=0;jumping=false;}
+ if(py>=GROUND){py=GROUND;vy=0;jumping=false}
  // obstacles
  if(frame%Math.max(30,80-Math.floor(frame/100))===0)spawnObstacle();
- obstacles.forEach(o=>{o.x-=speed;if(o.moving){o.y+=o.vy;if(o.y<o.baseY-30||o.y>o.baseY)o.vy*=-1;}});
+ obstacles.forEach(o=>{o.x-=speed;if(o.moving){o.y+=o.vy;if(o.y<o.baseY-30||o.y>o.baseY)o.vy*=-1}});
  obstacles=obstacles.filter(o=>o.x+o.w>-20);
  // collision
  obstacles.forEach(o=>{
@@ -154,7 +154,7 @@ function update(){
   }
  });
  // particles
- particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.life-=0.03;});
+ particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.life-=0.03});
  particles=particles.filter(p=>p.life>0);
 }
 
@@ -163,7 +163,7 @@ function gameOverFn(){
  for(let i=0;i<15;i++)particles.push({x:px,y:py-18,vx:(Math.random()-0.5)*6,vy:(Math.random()-0.5)*6,r:Math.random()*4+2,life:1});
  draw();
  let hi=parseInt(localStorage.getItem('runner_hi')||'0');
- if(score>hi){hi=score;localStorage.setItem('runner_hi',hi);}
+ if(score>hi){hi=score;localStorage.setItem('runner_hi',hi)}
  document.getElementById('hi').textContent='최고 기록: '+hi+'m';
  _hub('runner',score);
  setTimeout(()=>{
@@ -187,22 +187,22 @@ function createPauseOverlay(){
 function togglePause(){
  if(!running)return;
  paused=!paused;
- if(paused){createPauseOverlay();pauseOverlay.style.display='flex';}
- else{if(pauseOverlay)pauseOverlay.style.display='none';requestAnimationFrame(loop);}
+ if(paused){createPauseOverlay();pauseOverlay.style.display='flex'}
+ else{if(pauseOverlay)pauseOverlay.style.display='none';requestAnimationFrame(loop)}
 }
 
 function loop(){
- if(!running){draw();return;}
+ if(!running){draw();return}
  if(paused)return;
  update();draw();animID=requestAnimationFrame(loop);
 }
 
 document.addEventListener('keydown',e=>{
- if(e.key==='Escape'){togglePause();return;}
- if(e.code==='Space'){e.preventDefault();jump();}
+ if(e.key==='Escape'){togglePause();return}
+ if(e.code==='Space'){e.preventDefault();jump()}
 });
 cv.addEventListener('click',jump);
-cv.addEventListener('touchstart',e=>{e.preventDefault();jump();},{passive:false});
+cv.addEventListener('touchstart',e=>{e.preventDefault();jump()},{passive:false});
 draw();
 </script>
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>

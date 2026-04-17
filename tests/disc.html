@@ -7,7 +7,7 @@
 <meta property="og:url" content="https://hoit.me/tests/disc.html">
 <link rel="canonical" href="https://hoit.me/tests/disc.html">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:20px;flex-wrap:wrap;align-content:center}
+*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px;flex-direction:column}
 .card{background:#1a1a2e;border-radius:16px;padding:30px;max-width:500px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.4);text-align:center}
 h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-size:.9em}
 .progress{height:6px;background:#2a2a3e;border-radius:3px;margin-bottom:24px;overflow:hidden}
@@ -43,7 +43,7 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 .prev-result{background:#2a2a3e;border-radius:10px;padding:12px;margin-bottom:16px;font-size:.85em;color:#aaa}
 .time-est{color:#888;font-size:.85em;margin-top:8px}
 </style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
-<script>function _copy(t,b){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){if(b){b.textContent='복사 완료!';setTimeout(function(){b.textContent=b.dataset.orig||'📋 결과 복사'},1500);}}).catch(function(){_copyFB(t,b)});}else{_copyFB(t,b);}}function _copyFB(t,b){var ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;left:-9999px';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');if(b){b.textContent='복사 완료!';setTimeout(function(){b.textContent=b.dataset.orig||'📋 결과 복사'},1500);}}catch(e){alert('복사 실패');}document.body.removeChild(ta);}</script></head><body>
+<script>function _copy(t,b){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){if(b){b.textContent='복사 완료!';setTimeout(function(){b.textContent=b.dataset.orig||'📋 결과 복사'},1500)}}).catch(function(){_copyFB(t,b)})}else{_copyFB(t,b)}}function _copyFB(t,b){var ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;left:-9999px';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');if(b){b.textContent='복사 완료!';setTimeout(function(){b.textContent=b.dataset.orig||'📋 결과 복사'},1500)}}catch(e){alert('복사 실패')}document.body.removeChild(ta)}</script></head><body>
 <a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
 <div class="card">
 <div id="intro">
@@ -87,7 +87,7 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 <button class="btn start-btn" onclick="location.reload()">다시 하기</button>
 </div>
 </div>
-<script>function _shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
+<script>function _shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
 const questions=[
 {q:"회의에서 의견 충돌이 생기면?",a:[["내 의견을 강하게 주장한다","D"],["분위기를 풀어 합의를 이끈다","I"],["다수 의견을 따른다","S"],["데이터로 논리적 판단한다","C"]]},
 {q:"새 프로젝트를 맡으면?",a:[["바로 실행한다","D"],["팀원들과 아이디어 회의","I"],["기존 방법을 참고한다","S"],["철저히 계획을 세운다","C"]]},
@@ -103,23 +103,23 @@ I:{e:"🌟",n:"I - 사교형 (Influence)",d:"밝은 에너지로 사람들을 �
 S:{e:"🕊️",n:"S - 안정형 (Steadiness)",d:"믿음직하고 따뜻한 팀의 기둥! 안정적이고 인내심이 강합니다.",t:"<strong>💪 강점:</strong> 인내심, 경청, 협조성, 신뢰감<br><strong>🏢 업무 스타일:</strong> 꾸준한 실행, 팀워크 중시, 안정적<br><strong>⚠️ 주의점:</strong> 자기 의견을 더 표현하면 성장이 빨라져요",work:"🤲 업무 스타일: 꾸준하고 성실하게 업무를 수행합니다. 급격한 변화보다 안정적인 환경에서 최고의 성과를 냅니다.",team:"팀 역할: 팀의 중재자, 꾸준한 실행자. 갈등을 조율하고 팀원들의 이야기를 경청합니다.",conflict:"갈등 해결법: 의견이 있으면 참지 말고 부드럽게 표현하세요. '저는 이렇게 생각하는데요'로 시작하면 부담 없이 말할 수 있어요.",famous:"유명인 예시: 간디, 넬슨 만델라, 이순신, 마더 테레사"},
 C:{e:"🔍",n:"C - 신중형 (Conscientiousness)",d:"정확하고 분석적인 완벽주의자! 품질과 정확성을 최우선으로 합니다.",t:"<strong>💪 강점:</strong> 분석력, 정확성, 체계성, 전문성<br><strong>🏢 업무 스타일:</strong> 데이터 기반, 완벽 추구, 체계적 관리<br><strong>⚠️ 주의점:</strong> 완벽하지 않아도 된다는 여유를 가져보세요",work:"📐 업무 스타일: 철저한 분석과 계획 후에 실행합니다. 데이터와 근거를 중시하며, 높은 품질 기준을 유지합니다.",team:"팀 역할: 품질 관리자, 데이터 분석 담당. 팀의 결정에 객관적 근거를 제공합니다.",conflict:"갈등 해결법: 감정보다 사실에 집중하되, 상대의 감정도 인정해주세요. '당신 말도 일리가 있지만, 데이터를 보면...'이 효과적입니다.",famous:"유명인 예시: 빌 게이츠, 아인슈타인, 셜록 홈즈, 마리 퀴리"}};
 let cur=0,scores={};
-function startQuiz(){_shuf(questions);document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();}
-function showQ(){if(!window._qs){_shuf(questions);window._qs=1;}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';const qEl=document.getElementById('qText');qEl.textContent=(cur+1)+'. '+q.q;qEl.classList.remove('q-slide');void qEl.offsetWidth;qEl.classList.add('q-slide');const o=document.getElementById('opts');o.innerHTML='';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=function(){if(window._picking)return;window._picking=true;b.classList.add('selected');setTimeout(()=>{window._picking=false;pick(a[1]);},400);};o.appendChild(b);});}
-function pick(t){scores[t]=(scores[t]||0)+1;cur++;if(cur<questions.length)showQ();else showResult();}
+function startQuiz(){_shuf(questions);document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ()}
+function showQ(){if(!window._qs){_shuf(questions);window._qs=1}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';const qEl=document.getElementById('qText');qEl.textContent=(cur+1)+'. '+q.q;qEl.classList.remove('q-slide');void qEl.offsetWidth;qEl.classList.add('q-slide');const o=document.getElementById('opts');o.innerHTML='';q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=function(){if(window._picking)return;window._picking=true;b.classList.add('selected');setTimeout(()=>{window._picking=false;pick(a[1])},400)};o.appendChild(b)})}
+function pick(t){scores[t]=(scores[t]||0)+1;cur++;if(cur<questions.length)showQ();else showResult()}
 function showResult(){const top=Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];const r=types[top];document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');document.getElementById('rEmoji').textContent=r.e;document.getElementById('rType').textContent=r.n;document.getElementById('rDesc').textContent=r.d;document.getElementById('rTraits').innerHTML=r.t;
 document.getElementById('q'+top).classList.add('active');
 const total=(scores.D||0)+(scores.I||0)+(scores.S||0)+(scores.C||0)||1;const dPct=(scores.D||0)/total,iPct=(scores.I||0)/total,sPct=(scores.S||0)/total,cPct=(scores.C||0)/total;
 const dot=document.getElementById('qDot');const xPct=50+(iPct-sPct)*100+(dPct-cPct)*30;const yPct=50+(sPct-dPct)*100+(cPct-iPct)*30;
-setTimeout(()=>{dot.style.left=Math.max(5,Math.min(92,xPct))+'%';dot.style.top=Math.max(5,Math.min(92,yPct))+'%';},200);
+setTimeout(()=>{dot.style.left=Math.max(5,Math.min(92,xPct))+'%';dot.style.top=Math.max(5,Math.min(92,yPct))+'%'},200);
 document.getElementById('rWorkStyle').innerHTML='<div class="card-title">업무 스타일</div>'+r.work;
 document.getElementById('rTeamRole').innerHTML='<div class="card-title">팀 역할 추천</div>'+r.team;
 document.getElementById('rConflict').innerHTML='<div class="card-title">갈등 해결 팁</div>'+r.conflict;
 document.getElementById('rFamous').innerHTML='<strong>같은 유형 유명인:</strong><br>'+r.famous;
 localStorage.setItem('disc_result',JSON.stringify({type:r.n,emoji:r.e,date:new Date().toLocaleDateString('ko-KR')}));
 var discCompBtn=document.getElementById('discCompareBtn');
-if(discCompBtn){discCompBtn.onclick=function(){_compareGenLink({type:r.n,label:r.d.slice(0,20),emoji:r.e},discCompBtn);};}
+if(discCompBtn){discCompBtn.onclick=function(){_compareGenLink({type:r.n,label:r.d.slice(0,20),emoji:r.e},discCompBtn)}}
 }
-function copyResult(){const t=document.getElementById('rType').textContent+'\n'+document.getElementById('rDesc').textContent;_copy('[DISC 성격 테스트 결과]\n'+t,document.querySelector('.share-btn'));}
+function copyResult(){const t=document.getElementById('rType').textContent+'\n'+document.getElementById('rDesc').textContent;_copy('[DISC 성격 테스트 결과]\n'+t,document.querySelector('.share-btn'))}
 function _renderFriendDisc(data){
   var existing=document.getElementById('friendResultBox');
   if(existing)existing.parentNode.removeChild(existing);
@@ -134,8 +134,8 @@ function _renderFriendDisc(data){
   var card=document.querySelector('.card');
   if(card)card.insertBefore(box,card.firstChild);
 }
-function saveDiscImage(){const rType=document.getElementById('rType');const rDesc=document.getElementById('rDesc');const rEmoji=document.getElementById('rEmoji');if(!rType||!rDesc)return;_saveResultImage({testName:'DISC 성격 유형 테스트',resultType:rType.textContent,emoji:rEmoji?rEmoji.textContent:'🎯',desc:rDesc.textContent,accentColor:'#e67e22',filename:'disc_result'});}
-(function(){const p=localStorage.getItem('disc_result');if(p){try{const d=JSON.parse(p);document.getElementById('prevResult').innerHTML='<div class="prev-result">이전 결과: '+d.emoji+' '+d.type+' ('+d.date+')</div>';}catch(e){}}})();
+function saveDiscImage(){const rType=document.getElementById('rType');const rDesc=document.getElementById('rDesc');const rEmoji=document.getElementById('rEmoji');if(!rType||!rDesc)return;_saveResultImage({testName:'DISC 성격 유형 테스트',resultType:rType.textContent,emoji:rEmoji?rEmoji.textContent:'🎯',desc:rDesc.textContent,accentColor:'#e67e22',filename:'disc_result'})}
+(function(){const p=localStorage.getItem('disc_result');if(p){try{const d=JSON.parse(p);document.getElementById('prevResult').innerHTML='<div class="prev-result">이전 결과: '+d.emoji+' '+d.type+' ('+d.date+')</div>'}catch(e){}}})();
 </script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 
 <style>

@@ -12,7 +12,7 @@
 <link rel="canonical" href="https://hoit.me/games/shooting.html">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;overflow-x:hidden;user-select:none;flex-wrap:wrap;align-content:center}
+body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;overflow-x:hidden;user-select:none;flex-direction:column}
 #wrap{text-align:center;position:relative}
 canvas{border-radius:16px;display:block;margin:0 auto;cursor:crosshair}
 #overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(15,15,30,0.92);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10}
@@ -27,7 +27,7 @@ canvas{max-width:100%!important;height:auto!important;display:block;margin:0 aut
 </head>
 <body>
 <a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
-<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
+<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h))}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)})}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{})})}</script>
 
 <div id="wrap">
 <div id="overlay">
@@ -67,7 +67,7 @@ function tick(){
  if(timeLeft<=0){
   running=false;clearInterval(timerID);clearTimeout(spawnTimeoutID);
   let hi=parseInt(localStorage.getItem('shoot_hi')||'0');
-  if(score>hi){hi=score;localStorage.setItem('shoot_hi',hi);}
+  if(score>hi){hi=score;localStorage.setItem('shoot_hi',hi)}
   document.getElementById('hi').textContent='최고 점수: '+hi;
   _hub('shooting',score);
   let acc=shots>0?Math.round(hits/shots*100):0;
@@ -187,7 +187,7 @@ function update(){
    if(t.y-t.r<40||t.y+t.r>H-20)t.vy=-t.vy;
   }
  });
- particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.life-=0.03;});
+ particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.life-=0.03});
  particles=particles.filter(p=>p.life>0);
 }
 
@@ -215,10 +215,10 @@ function togglePause(){
   requestAnimationFrame(loop);
  }
 }
-document.addEventListener('keydown',e=>{if(e.key==='Escape')togglePause();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')togglePause()});
 
 function loop(){
- if(!running){draw();return;}
+ if(!running){draw();return}
  if(paused)return;
  update();draw();requestAnimationFrame(loop);
 }

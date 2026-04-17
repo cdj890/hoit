@@ -11,26 +11,26 @@
 <meta property="og:url" content="https://hoit.me/games/gomoku.html">
 <link rel="canonical" href="https://hoit.me/games/gomoku.html">
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { background: #1a1a2e; display: flex; justify-content: center; align-items:flex-start; min-height: 100vh; font-family: 'Segoe UI', sans-serif; overflow-x:hidden; ;flex-wrap:wrap;align-content:center}
-#wrap { text-align: center; }
-canvas { border-radius: 12px; box-shadow: 0 0 40px rgba(200,170,100,0.2); cursor: pointer; display: block; margin: 0 auto; }
-#menu { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; background: rgba(20,20,40,0.97); z-index: 10; }
-#menu.hidden { display: none; }
-#menu h1 { color: #fff; font-size: 42px; margin-bottom: 8px; }
-#menu p { color: #aaa; font-size: 16px; margin-bottom: 30px; }
-.menu-btn { background: #2a2a4a; border: 2px solid #555; border-radius: 12px; padding: 14px 36px; color: #fff; font-size: 18px; cursor: pointer; margin: 6px; min-width: 200px; transition: all 0.2s; }
-.menu-btn:hover { border-color: #FFD700; background: #3a3a5a; transform: scale(1.05); }
-.menu-section { margin: 15px 0; }
-.menu-label { color: #888; font-size: 14px; margin-bottom: 8px; }
-#info { color: #aaa; font-size: 14px; margin-top: 10px; height: 30px; }
+* { margin: 0; padding: 0; box-sizing: border-box}
+body { background: #1a1a2e; display: flex; justify-content: center; align-items:center; min-height: 100vh; font-family: 'Segoe UI', sans-serif; overflow-x:hidden; ;flex-direction:column}
+#wrap { text-align: center}
+canvas { border-radius: 12px; box-shadow: 0 0 40px rgba(200,170,100,0.2); cursor: pointer; display: block; margin: 0 auto}
+#menu { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; background: rgba(20,20,40,0.97); z-index: 10}
+#menu.hidden { display: none}
+#menu h1 { color: #fff; font-size: 42px; margin-bottom: 8px}
+#menu p { color: #aaa; font-size: 16px; margin-bottom: 30px}
+.menu-btn { background: #2a2a4a; border: 2px solid #555; border-radius: 12px; padding: 14px 36px; color: #fff; font-size: 18px; cursor: pointer; margin: 6px; min-width: 200px; transition: all 0.2s}
+.menu-btn:hover { border-color: #FFD700; background: #3a3a5a; transform: scale(1.05)}
+.menu-section { margin: 15px 0}
+.menu-label { color: #888; font-size: 14px; margin-bottom: 8px}
+#info { color: #aaa; font-size: 14px; margin-top: 10px; height: 30px}
 canvas{max-width:100%!important;height:auto!important;display:block;margin:0 auto}body{overflow-x:hidden}
 </style>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 </head>
 <body>
 <a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
-<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
+<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h))}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)})}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{})})}</script>
 <div id="wrap">
   <canvas id="c"></canvas>
   <div id="info"></div>
@@ -50,7 +50,7 @@ canvas{max-width:100%!important;height:auto!important;display:block;margin:0 aut
   </div>
 </div>
 <script>
-if(!CanvasRenderingContext2D.prototype.roundRect){CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){if(typeof r==='undefined')r=0;if(typeof r==='number')r={tl:r,tr:r,br:r,bl:r};this.beginPath();this.moveTo(x+r.tl,y);this.lineTo(x+w-r.tr,y);this.quadraticCurveTo(x+w,y,x+w,y+r.tr);this.lineTo(x+w,y+h-r.br);this.quadraticCurveTo(x+w,y+h,x+w-r.br,y+h);this.lineTo(x+r.bl,y+h);this.quadraticCurveTo(x,y+h,x,y+h-r.bl);this.lineTo(x,y+r.tl);this.quadraticCurveTo(x,y,x+r.tl,y);this.closePath();return this;};}
+if(!CanvasRenderingContext2D.prototype.roundRect){CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){if(typeof r==='undefined')r=0;if(typeof r==='number')r={tl:r,tr:r,br:r,bl:r};this.beginPath();this.moveTo(x+r.tl,y);this.lineTo(x+w-r.tr,y);this.quadraticCurveTo(x+w,y,x+w,y+r.tr);this.lineTo(x+w,y+h-r.br);this.quadraticCurveTo(x+w,y+h,x+w-r.br,y+h);this.lineTo(x+r.bl,y+h);this.quadraticCurveTo(x,y+h,x,y+h-r.bl);this.lineTo(x,y+r.tl);this.quadraticCurveTo(x,y,x+r.tl,y);this.closePath();return this}}
 const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
 const SIZE = 15, CELL = 36, MARGIN = 30;
@@ -91,7 +91,7 @@ function isHumanTurn() {
   return mode === '2p' || current === humanColor;
 }
 
-function gtp(r, c) { return [MARGIN + c*CELL, MARGIN + r*CELL]; }
+function gtp(r, c) { return [MARGIN + c*CELL, MARGIN + r*CELL]}
 function ptg(mx, my) {
   const c = Math.round((mx - MARGIN) / CELL);
   const r = Math.round((my - MARGIN) / CELL);
@@ -105,15 +105,15 @@ function place(r, c) {
   history.push([r, c, current]);
   const [win, stones] = checkWin(r, c, current);
   if (win) { gameOver = true; winner = current; winStones = stones;
-    if(mode==='1p'&&current===humanColor){const w=parseInt(localStorage.getItem('gomoku_wins')||'0')+1;localStorage.setItem('gomoku_wins',w);_hub('gomoku',w);}}
-  else if (history.length === SIZE*SIZE) { gameOver = true; }
+    if(mode==='1p'&&current===humanColor){const w=parseInt(localStorage.getItem('gomoku_wins')||'0')+1;localStorage.setItem('gomoku_wins',w);_hub('gomoku',w)}}
+  else if (history.length === SIZE*SIZE) { gameOver = true}
   current = current === 1 ? 2 : 1;
   return true;
 }
 
 function undo() {
   if (history.length === 0) return;
-  if (gameOver) { gameOver = false; winner = 0; winStones = []; }
+  if (gameOver) { gameOver = false; winner = 0; winStones = []}
   const count = mode === '1p' && history.length >= 2 ? 2 : 1;
   for (let i = 0; i < count && history.length > 0; i++) {
     const [r, c, p] = history.pop();
@@ -148,13 +148,13 @@ function aiMove() {
   // Immediate win
   for (const [r,c] of cands) {
     board[r][c] = aiP;
-    if (checkWin(r,c,aiP)[0]) { board[r][c]=0; return [r,c]; }
+    if (checkWin(r,c,aiP)[0]) { board[r][c]=0; return [r,c]}
     board[r][c] = 0;
   }
   // Block human win
   for (const [r,c] of cands) {
     board[r][c] = huP;
-    if (checkWin(r,c,huP)[0]) { board[r][c]=0; return [r,c]; }
+    if (checkWin(r,c,huP)[0]) { board[r][c]=0; return [r,c]}
     board[r][c] = 0;
   }
   // Score-based
@@ -169,7 +169,7 @@ function aiMove() {
     const center = SIZE/2;
     const dist = Math.abs(r-center) + Math.abs(c-center);
     const total = attack * 1.1 + defense * 0.9 + (SIZE - dist) * 2;
-    if (total > best) { best = total; bestMove = [r,c]; }
+    if (total > best) { best = total; bestMove = [r,c]}
   }
   return bestMove;
 }
@@ -194,8 +194,8 @@ function evalLine(line, p) {
   while (i < line.length) {
     if (line[i] === p) {
       let count = 0, start = i;
-      while (i < line.length && line[i] === p) { count++; i++; }
-      if (count >= 5) { score += 100000; continue; }
+      while (i < line.length && line[i] === p) { count++; i++}
+      if (count >= 5) { score += 100000; continue}
       const openL = start > 0 && line[start-1] === 0;
       const openR = i < line.length && line[i] === 0;
       const opens = (openL?1:0)+(openR?1:0);
@@ -384,7 +384,7 @@ canvas.addEventListener('touchstart', e => {
 
 document.addEventListener('keydown', e => {
   if (e.key === 'z') undo();
-  if (e.key === 'r') { resetBoard(); draw(); if (mode==='1p'&&!isHumanTurn()) setTimeout(doAI,300); }
+  if (e.key === 'r') { resetBoard(); draw(); if (mode==='1p'&&!isHumanTurn()) setTimeout(doAI,300)}
   if (e.key === 'm') {
     document.getElementById('menu').classList.remove('hidden');
     document.getElementById('color-section').style.display = 'none';

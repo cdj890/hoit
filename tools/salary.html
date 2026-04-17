@@ -13,7 +13,7 @@
 <link rel="canonical" href="https://hoit.me/tools/salary.html">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0f0f1e;color:#e0e0e0;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;justify-content:center;flex-wrap:wrap;align-content:center}
+body{background:#0f0f1e;color:#e0e0e0;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;justify-content:center;flex-direction:column}
 .wrap{width:100%;max-width:500px;padding:60px 16px 30px}
 h1{text-align:center;font-size:22px;margin-bottom:20px;color:#fff}
 label{font-size:14px;color:#aaa;display:block;margin:12px 0 6px}
@@ -151,7 +151,7 @@ function calc(){
 (function(){
   var KEY='hoit_tool_salary';
   var saved=JSON.parse(localStorage.getItem(KEY)||'{}');
-  ['salary','dep'].forEach(function(id){var el=document.getElementById(id);if(el&&saved[id]!==undefined)el.value=saved[id];});
+  ['salary','dep'].forEach(function(id){var el=document.getElementById(id);if(el&&saved[id]!==undefined)el.value=saved[id]});
   document.querySelectorAll('input,select').forEach(function(el){
     if(!el.id)return;
     el.addEventListener('change',function(){
@@ -161,7 +161,7 @@ function calc(){
     });
   });
   renderSalaryHistory();
-  document.addEventListener('keydown',function(e){if(e.key==='Enter'&&document.activeElement&&['INPUT','SELECT'].includes(document.activeElement.tagName))calc();});
+  document.addEventListener('keydown',function(e){if(e.key==='Enter'&&document.activeElement&&['INPUT','SELECT'].includes(document.activeElement.tagName))calc()});
 })();
 </script>
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
@@ -203,9 +203,9 @@ function calc(){
 (function(){
   var btn=null,toast=null;
   function showToast(){
-    if(!toast){toast=document.createElement('div');toast.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 20px;border-radius:20px;font-size:14px;z-index:99999;pointer-events:none;transition:opacity 0.3s';document.body.appendChild(toast);}
+    if(!toast){toast=document.createElement('div');toast.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 20px;border-radius:20px;font-size:14px;z-index:99999;pointer-events:none;transition:opacity 0.3s';document.body.appendChild(toast)}
     toast.textContent='복사되었습니다!';toast.style.opacity='1';
-    setTimeout(function(){toast.style.opacity='0';},2000);
+    setTimeout(function(){toast.style.opacity='0'},2000);
   }
   function copyResult(){
     var res=document.getElementById('res');
@@ -218,8 +218,8 @@ function calc(){
     });
     text=text.trim();
     if(!text)return;
-    if(navigator.clipboard){navigator.clipboard.writeText(text).then(showToast);}
-    else{var ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast();}
+    if(navigator.clipboard){navigator.clipboard.writeText(text).then(showToast)}
+    else{var ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast()}
   }
   function checkResult(){
     var res=document.getElementById('res');

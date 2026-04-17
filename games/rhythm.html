@@ -11,19 +11,19 @@
 <meta property="og:url" content="https://hoit.me/games/rhythm.html">
 <link rel="canonical" href="https://hoit.me/games/rhythm.html">
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { background: #0a0a1a; display: flex; justify-content: center; align-items:flex-start; min-height: 100vh; font-family: 'Segoe UI', sans-serif; overflow-x:hidden; ;flex-wrap:wrap;align-content:center}
-canvas { border-radius: 12px; box-shadow: 0 0 60px rgba(150,100,255,0.2); }
+* { margin: 0; padding: 0; box-sizing: border-box}
+body { background: #0a0a1a; display: flex; justify-content: center; align-items:center; min-height: 100vh; font-family: 'Segoe UI', sans-serif; overflow-x:hidden; ;flex-direction:column}
+canvas { border-radius: 12px; box-shadow: 0 0 60px rgba(150,100,255,0.2)}
 canvas{max-width:100%!important;height:auto!important;display:block;margin:0 auto}body{overflow-x:hidden}
 </style>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 </head>
 <body>
 <a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
-<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
+<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h))}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)})}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{})})}</script>
 <canvas id="c"></canvas>
 <script>
-if(!CanvasRenderingContext2D.prototype.roundRect){CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){if(typeof r==='undefined')r=0;if(typeof r==='number')r={tl:r,tr:r,br:r,bl:r};this.beginPath();this.moveTo(x+r.tl,y);this.lineTo(x+w-r.tr,y);this.quadraticCurveTo(x+w,y,x+w,y+r.tr);this.lineTo(x+w,y+h-r.br);this.quadraticCurveTo(x+w,y+h,x+w-r.br,y+h);this.lineTo(x+r.bl,y+h);this.quadraticCurveTo(x,y+h,x,y+h-r.bl);this.lineTo(x,y+r.tl);this.quadraticCurveTo(x,y,x+r.tl,y);this.closePath();return this;};}
+if(!CanvasRenderingContext2D.prototype.roundRect){CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){if(typeof r==='undefined')r=0;if(typeof r==='number')r={tl:r,tr:r,br:r,bl:r};this.beginPath();this.moveTo(x+r.tl,y);this.lineTo(x+w-r.tr,y);this.quadraticCurveTo(x+w,y,x+w,y+r.tr);this.lineTo(x+w,y+h-r.br);this.quadraticCurveTo(x+w,y+h,x+w-r.br,y+h);this.lineTo(x+r.bl,y+h);this.quadraticCurveTo(x,y+h,x,y+h-r.bl);this.lineTo(x,y+r.tl);this.quadraticCurveTo(x,y,x+r.tl,y);this.closePath();return this}}
 const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
 const W = 500, H = 650;
@@ -91,7 +91,7 @@ function generateNotes(song) {
   const seen = new Set();
   notes.forEach(n => {
     const key = `${Math.round(n.time*100)}_${n.lane}`;
-    if (!seen.has(key)) { seen.add(key); unique.push(n); }
+    if (!seen.has(key)) { seen.add(key); unique.push(n)}
   });
   return unique.sort((a,b) => a.time - b.time);
 }
@@ -108,7 +108,7 @@ let particles = [];
 let bgPulse = 0;
 let frame = 0;
 let highScores;
-try{highScores=JSON.parse(localStorage.getItem('rhythm_hs')||'[0,0,0]');}catch(e){highScores=[0,0,0];}
+try{highScores=JSON.parse(localStorage.getItem('rhythm_hs')||'[0,0,0]')}catch(e){highScores=[0,0,0]}
 if(!Array.isArray(highScores)||highScores.length<3)highScores=[0,0,0];
 
 function startGame(songIdx) {
@@ -140,7 +140,7 @@ function hitLane(lane) {
   notes.forEach((n, i) => {
     if (noteStates[i] !== null || n.lane !== lane) return;
     const dist = Math.abs(n.time - now);
-    if (dist < bestDist) { bestDist = dist; bestIdx = i; }
+    if (dist < bestDist) { bestDist = dist; bestIdx = i}
   });
 
   if (bestIdx >= 0 && bestDist < JUDGE_WINDOW.ok / 60) {
@@ -177,17 +177,17 @@ function releaseLane(lane) {
 }
 
 document.addEventListener('keydown', e => {
-  if(e.key==='Escape'){togglePause();return;}
+  if(e.key==='Escape'){togglePause();return}
   if(paused)return;
   if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) e.preventDefault();
   if (state === 'menu') {
-    if (e.code === 'ArrowUp') { selectedSong = (selectedSong - 1 + SONGS.length) % SONGS.length; }
-    if (e.code === 'ArrowDown') { selectedSong = (selectedSong + 1) % SONGS.length; }
-    if (e.code === 'Space' || e.code === 'Enter') { startGame(selectedSong); }
+    if (e.code === 'ArrowUp') { selectedSong = (selectedSong - 1 + SONGS.length) % SONGS.length}
+    if (e.code === 'ArrowDown') { selectedSong = (selectedSong + 1) % SONGS.length}
+    if (e.code === 'Space' || e.code === 'Enter') { startGame(selectedSong)}
     return;
   }
   if (state === 'results') {
-    if (e.code === 'Space' || e.code === 'Enter') { state = 'menu'; }
+    if (e.code === 'Space' || e.code === 'Enter') { state = 'menu'}
     return;
   }
   const idx = KEY_CODES.indexOf(e.code);
@@ -200,8 +200,8 @@ document.addEventListener('keyup', e => {
 
 canvas.addEventListener('touchstart', e => {
   e.preventDefault();
-  if (state === 'menu') { startGame(selectedSong); return; }
-  if (state === 'results') { state = 'menu'; return; }
+  if (state === 'menu') { startGame(selectedSong); return}
+  if (state === 'results') { state = 'menu'; return}
   for (const touch of e.changedTouches) {
     const rect = canvas.getBoundingClientRect();
     const tx = (touch.clientX - rect.left) * (W / rect.width);
@@ -247,11 +247,11 @@ function update() {
   }
 
   // Update
-  laneFlash.forEach((f,i) => { if (f > 0) laneFlash[i]--; });
+  laneFlash.forEach((f,i) => { if (f > 0) laneFlash[i]--});
   bgPulse *= 0.92;
   judgePops.forEach(p => p.life--);
   judgePops = judgePops.filter(p => p.life > 0);
-  particles.forEach(p => { p.x+=p.vx; p.y+=p.vy; p.vy+=0.12; p.life--; });
+  particles.forEach(p => { p.x+=p.vx; p.y+=p.vy; p.vy+=0.12; p.life--});
   particles = particles.filter(p => p.life > 0);
 }
 
@@ -556,8 +556,8 @@ function createPauseOverlay(){
 function togglePause(){
   if(state!=='playing')return;
   paused=!paused;
-  if(paused){createPauseOverlay();pauseOverlay.style.display='flex';}
-  else{if(pauseOverlay)pauseOverlay.style.display='none';requestAnimationFrame(gameLoop);}
+  if(paused){createPauseOverlay();pauseOverlay.style.display='flex'}
+  else{if(pauseOverlay)pauseOverlay.style.display='none';requestAnimationFrame(gameLoop)}
 }
 
 function gameLoop() {

@@ -13,7 +13,7 @@
 <link rel="canonical" href="https://hoit.me/tools/roulette.html">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0f0f1e;color:#e0e0e0;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;justify-content:center;flex-wrap:wrap;align-content:center}
+body{background:#0f0f1e;color:#e0e0e0;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;justify-content:center;flex-direction:column}
 .wrap{width:100%;max-width:500px;padding:60px 16px 30px;text-align:center}
 h1{font-size:22px;margin-bottom:20px;color:#fff}
 .canvas-wrap{position:relative;margin:0 auto 20px;width:300px;height:300px}
@@ -150,16 +150,16 @@ renderItems();
 (function(){
   var toast=null;
   function showToast(){
-    if(!toast){toast=document.createElement('div');toast.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 20px;border-radius:20px;font-size:14px;z-index:99999;pointer-events:none;transition:opacity 0.3s';document.body.appendChild(toast);}
+    if(!toast){toast=document.createElement('div');toast.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 20px;border-radius:20px;font-size:14px;z-index:99999;pointer-events:none;transition:opacity 0.3s';document.body.appendChild(toast)}
     toast.textContent='복사되었습니다!';toast.style.opacity='1';
-    setTimeout(function(){toast.style.opacity='0';},2000);
+    setTimeout(function(){toast.style.opacity='0'},2000);
   }
   function copyResult(){
     var el=document.getElementById('result');
     var text=el?el.textContent.trim():'';
     if(!text)return;
-    if(navigator.clipboard){navigator.clipboard.writeText(text).then(showToast);}
-    else{var ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast();}
+    if(navigator.clipboard){navigator.clipboard.writeText(text).then(showToast)}
+    else{var ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast()}
   }
   var btn=document.createElement('button');
   btn.textContent='복사';

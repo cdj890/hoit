@@ -6,7 +6,7 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://hoit.me/destiny/tarot.html">
 <link rel="canonical" href="https://hoit.me/destiny/tarot.html">
-<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0a0a18;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;flex-wrap:wrap;align-content:center}.wrap{max-width:550px;width:100%;padding:20px;text-align:center}h1{font-size:30px;margin-bottom:8px}.sub{color:#888;margin-bottom:20px}
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0a0a18;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center;flex-direction:column}.wrap{max-width:550px;width:100%;padding:20px;text-align:center}h1{font-size:30px;margin-bottom:8px}.sub{color:#888;margin-bottom:20px}
 .cards-row{display:flex;gap:12px;justify-content:center;margin:25px 0;perspective:800px}
 .card{width:100px;height:150px;border-radius:12px;cursor:pointer;position:relative;transform-style:preserve-3d;transition:transform 0.6s;background:linear-gradient(135deg,#2a1a4a,#1a1a3e);border:2px solid #4a3a6a;display:flex;align-items:center;justify-content:center;font-size:36px}
 .card:hover{border-color:#FFD700;transform:scale(1.05)}
@@ -24,12 +24,12 @@ a.back{position:fixed;top:8px;left:8px;z-index:99;background:rgba(0,0,0,0.75);co
 function _copy(text,btn){
   if(navigator.clipboard&&navigator.clipboard.writeText){
     _copy(text,this).catch(()=>_copyFallback(text,btn));
-  } else { _copyFallback(text,btn); }
+  } else { _copyFallback(text,btn)}
 }
 function _copyFallback(text,btn){
   const ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;left:-9999px';
   document.body.appendChild(ta);ta.select();
-  try{document.execCommand('copy');if(btn)btn.textContent='복사 완료!';}catch(e){alert('복사 실패. 수동으로 복사해주세요.');}
+  try{document.execCommand('copy');if(btn)btn.textContent='복사 완료!'}catch(e){alert('복사 실패. 수동으로 복사해주세요.')}
   document.body.removeChild(ta);
 }
 </script>
@@ -62,13 +62,13 @@ const MAJOR=[
   {name:'세계',emoji:'🌍',num:21,up:'완성, 성취, 통합, 여행',down:'미완성, 목표 부재, 지연'},
 ];
 
-function seed(str){var h=0;for(var i=0;i<str.length;i++){h=((h<<5)-h)+str.charCodeAt(i);h|=0;}return function(){h=h*16807%2147483647;return(h-1)/2147483646;};}
-function getTodayStr(){const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+function seed(str){var h=0;for(var i=0;i<str.length;i++){h=((h<<5)-h)+str.charCodeAt(i);h|=0}return function(){h=h*16807%2147483647;return(h-1)/2147483646}}
+function getTodayStr(){const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
 let picked=[], state='pick';
 
 function shuffle(a){
   const r=seed(getTodayStr()+'tarot');
-  for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a;
 }
 
 function show(){
@@ -143,7 +143,7 @@ function showResult(){
     const track=document.createElement('div');track.style.cssText='background:rgba(255,255,255,.1);border-radius:5px;height:8px;overflow:hidden';
     const fill=document.createElement('div');fill.style.height='100%';fill.style.borderRadius='5px';fill.style.transition='width 1s ease';fill.style.width='0';
     fill.style.background='linear-gradient(90deg,#e84040,#e8d030 50%,#7B68EE)';fill.style.backgroundSize='200% 100%';fill.style.backgroundPosition=(100-item.val)+'% 0';
-    track.appendChild(fill);row.appendChild(track);summaryDiv.appendChild(row);setTimeout(()=>{fill.style.width=item.val+'%';},80);
+    track.appendChild(fill);row.appendChild(track);summaryDiv.appendChild(row);setTimeout(()=>{fill.style.width=item.val+'%'},80);
   });
   app.appendChild(summaryDiv);
   const btn=document.createElement('button');btn.className='btn';btn.onclick=show;btn.textContent='다시 뽑기';app.appendChild(btn);

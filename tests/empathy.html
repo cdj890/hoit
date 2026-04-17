@@ -7,7 +7,7 @@
 <meta property="og:url" content="https://hoit.me/tests/empathy.html">
 <link rel="canonical" href="https://hoit.me/tests/empathy.html">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:20px;flex-wrap:wrap;align-content:center}
+*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px;flex-direction:column}
 .card{background:#1a1a2e;border-radius:16px;padding:30px;max-width:500px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.4);text-align:center}
 h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-size:.9em}
 .progress{height:6px;background:#2a2a3e;border-radius:3px;margin-bottom:24px;overflow:hidden}
@@ -37,13 +37,13 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 </style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous">
 function _copy(t,b){
   if(navigator.clipboard&&navigator.clipboard.writeText){
-    navigator.clipboard.writeText(t).then(()=>{if(b){b.textContent='복사 완료!';setTimeout(()=>b.textContent=b.dataset.orig||'📋 결과 복사',1500);}}).catch(()=>_copyFallback(t,b));
-  } else { _copyFallback(t,b); }
+    navigator.clipboard.writeText(t).then(()=>{if(b){b.textContent='복사 완료!';setTimeout(()=>b.textContent=b.dataset.orig||'📋 결과 복사',1500)}}).catch(()=>_copyFallback(t,b));
+  } else { _copyFallback(t,b)}
 }
 function _copyFallback(text,btn){
   const ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;left:-9999px';
   document.body.appendChild(ta);ta.select();
-  try{document.execCommand('copy');if(btn)btn.textContent='복사 완료!';}catch(e){alert('복사 실패. 수동으로 복사해주세요.');}
+  try{document.execCommand('copy');if(btn)btn.textContent='복사 완료!'}catch(e){alert('복사 실패. 수동으로 복사해주세요.')}
   document.body.removeChild(ta);
 }
 </script>
@@ -73,7 +73,7 @@ function _copyFallback(text,btn){
 <div class="recommend"><span style="color:#888;font-size:.85em">다른 테스트 추천</span><br><a href="firstimp.html">첫인상</a><a href="leader.html">리더십</a><a href="mental.html">멘탈 강도</a></div>
 </div>
 </div>
-<script>function _shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
+<script>function _shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
 const qEmojis=["😢","🎬","😰","🏚️","💔","📺","😅","💬","📱","🎉","🤔","🙏","😞","🌧️","👫","🎁","🐾","🔥","🌸","🫶"];
 const questions=[
 {q:"친구가 시험에 떨어져서 울고 있어요.",a:[["다음에 잘 하면 되지!",1,"sa"],["많이 속상하겠다...",3,"ot"],["같이 슬퍼지고 눈물이 난다",4,"em"]]},
@@ -97,30 +97,30 @@ const questions=[
 {q:"상대방이 억지로 웃고 있다고 느낄 때?",a:[["그냥 웃는 거겠지 하고 넘긴다",1,"ot"],["신경 쓰이지만 아무 말 안 한다",2,"em"],["조용히 '힘든 거 아니야?'라고 물어본다",4,"em"]]}
 ];
 let cur=0,total=0,dimScores={sa:0,ot:0,em:0,ca:0,co:0};
-function startQuiz(){_shuf(questions);document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();}
-function showQ(){if(!window._qs){_shuf(questions);window._qs=1;}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').innerHTML='<div class="scenario-emoji">'+qEmojis[questions.indexOf(q)]+'</div>'+(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';document.getElementById('quiz').classList.add('q-slide');setTimeout(()=>document.getElementById('quiz').classList.remove('q-slide'),350);q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=function(){this.classList.add('selected');setTimeout(()=>pick(a[1],a[2]),350)};o.appendChild(b);});}
-function pick(v,dim){total+=v;if(dim)dimScores[dim]=(dimScores[dim]||0)+v;cur++;if(cur<questions.length)showQ();else showResult();}
+function startQuiz(){_shuf(questions);document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ()}
+function showQ(){if(!window._qs){_shuf(questions);window._qs=1}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').innerHTML='<div class="scenario-emoji">'+qEmojis[questions.indexOf(q)]+'</div>'+(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';document.getElementById('quiz').classList.add('q-slide');setTimeout(()=>document.getElementById('quiz').classList.remove('q-slide'),350);q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=function(){this.classList.add('selected');setTimeout(()=>pick(a[1],a[2]),350)};o.appendChild(b)})}
+function pick(v,dim){total+=v;if(dim)dimScores[dim]=(dimScores[dim]||0)+v;cur++;if(cur<questions.length)showQ();else showResult()}
 function showResult(){const score=Math.min(100,Math.round(total/80*100));
 document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');
 document.getElementById('rScore').textContent=score+'점';
 let emoji,type,desc;
-if(score>=85){emoji='💖';type='공감 마스터';desc='당신은 타인의 감정을 깊이 느끼고 이해하는 놀라운 공감 능력의 소유자! 주변 사람들이 당신 곁에서 편안함과 위로를 느낍니다. 감정적 지지가 필요한 사람에게 큰 힘이 되는 존재예요.';}
-else if(score>=65){emoji='🤗';type='높은 공감 능력';desc='대부분의 상황에서 타인의 감정을 잘 이해하고 공감해요! 적절한 위로와 지지를 할 줄 아는 따뜻한 사람입니다. 가끔은 자신의 감정도 돌보는 것을 잊지 마세요.';}
-else if(score>=45){emoji='🙂';type='보통 공감 능력';desc='공감 능력이 평균적인 수준이에요. 가까운 사람에게는 잘 공감하지만, 낯선 상황에서는 어려울 수 있어요. 상대방의 입장에서 생각하는 연습을 해보세요.';}
-else{emoji='🌱';type='공감 능력 성장 중';desc='공감 능력을 키울 여지가 많아요! 타인의 이야기에 더 귀 기울여보고, 감정을 표현하는 연습을 해보세요. 소설이나 영화 감상도 공감 능력 향상에 도움이 됩니다.';}
+if(score>=85){emoji='💖';type='공감 마스터';desc='당신은 타인의 감정을 깊이 느끼고 이해하는 놀라운 공감 능력의 소유자! 주변 사람들이 당신 곁에서 편안함과 위로를 느낍니다. 감정적 지지가 필요한 사람에게 큰 힘이 되는 존재예요.'}
+else if(score>=65){emoji='🤗';type='높은 공감 능력';desc='대부분의 상황에서 타인의 감정을 잘 이해하고 공감해요! 적절한 위로와 지지를 할 줄 아는 따뜻한 사람입니다. 가끔은 자신의 감정도 돌보는 것을 잊지 마세요.'}
+else if(score>=45){emoji='🙂';type='보통 공감 능력';desc='공감 능력이 평균적인 수준이에요. 가까운 사람에게는 잘 공감하지만, 낯선 상황에서는 어려울 수 있어요. 상대방의 입장에서 생각하는 연습을 해보세요.'}
+else{emoji='🌱';type='공감 능력 성장 중';desc='공감 능력을 키울 여지가 많아요! 타인의 이야기에 더 귀 기울여보고, 감정을 표현하는 연습을 해보세요. 소설이나 영화 감상도 공감 능력 향상에 도움이 됩니다.'}
 document.getElementById('rEmoji').textContent=emoji;document.getElementById('rType').textContent=type;document.getElementById('rDesc').textContent=desc;
 const dims=['자기인식','타인이해','감정읽기','배려','소통'];const dimKeys=['sa','ot','em','ca','co'];
 const maxPer=16;const radarVals=dimKeys.map(k=>Math.min(100,Math.round((dimScores[k]||0)/maxPer*100)));
 drawRadar(radarVals,dims);
 const weakIdx=radarVals.indexOf(Math.min(...radarVals));const weakTips={0:'자기 감정을 매일 일기로 기록해보세요. 감정 인식이 공감의 시작입니다.',1:'상대방의 입장에서 생각하는 연습을 해보세요. "나라면 어떨까?"를 자주 물어보세요.',2:'미세한 표정 변화에 주목하는 연습을 해보세요. 감정 관련 영화나 드라마도 도움이 됩니다.',3:'작은 배려부터 실천해보세요. 문 잡아주기, 안부 묻기 등 사소한 것이 큰 차이를 만듭니다.',4:'경청의 기술을 연습하세요. 상대가 말할 때 끝까지 들어주고, 맞장구를 쳐주세요.'};
 document.getElementById('rImprove').innerHTML='<strong>💡 '+dims[weakIdx]+' 향상 팁</strong><br>'+weakTips[weakIdx];
-localStorage.setItem('hoit_empathy',JSON.stringify({type:type,score:score,date:new Date().toISOString()}));}
+localStorage.setItem('hoit_empathy',JSON.stringify({type:type,score:score,date:new Date().toISOString()}))}
 function drawRadar(vals,labels){const c=document.getElementById('radarCanvas');const ctx=c.getContext('2d');const cx=110,cy=110,r=80;const n=5;ctx.clearRect(0,0,220,220);
-for(let lv=1;lv<=4;lv++){ctx.beginPath();for(let i=0;i<n;i++){const a=Math.PI*2*i/n-Math.PI/2;const x=cx+r*lv/4*Math.cos(a);const y=cy+r*lv/4*Math.sin(a);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.closePath();ctx.strokeStyle='#2a2a3e';ctx.stroke();}
-ctx.beginPath();for(let i=0;i<n;i++){const a=Math.PI*2*i/n-Math.PI/2;const v=vals[i]/100;const x=cx+r*v*Math.cos(a);const y=cy+r*v*Math.sin(a);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.closePath();ctx.fillStyle='rgba(232,67,147,0.3)';ctx.fill();ctx.strokeStyle='#fd79a8';ctx.lineWidth=2;ctx.stroke();
-for(let i=0;i<n;i++){const a=Math.PI*2*i/n-Math.PI/2;const x=cx+(r+18)*Math.cos(a);const y=cy+(r+18)*Math.sin(a);ctx.fillStyle='#aaa';ctx.font='11px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(labels[i],x,y);}}
-function copyResult(){const d=JSON.parse(localStorage.getItem('hoit_empathy'));_copy('[hoit.me] 공감 능력: '+d.type+' ('+d.score+'점) - https://hoit.me/tests/empathy.html',document.querySelector('.share-btn'));}
-(function(){const prev=localStorage.getItem('hoit_empathy');if(prev){const d=JSON.parse(prev);document.querySelector('.sub').textContent='이전 결과: '+d.type+' ('+d.score+'점) | 다시 해볼까요?';}})();
+for(let lv=1;lv<=4;lv++){ctx.beginPath();for(let i=0;i<n;i++){const a=Math.PI*2*i/n-Math.PI/2;const x=cx+r*lv/4*Math.cos(a);const y=cy+r*lv/4*Math.sin(a);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)}ctx.closePath();ctx.strokeStyle='#2a2a3e';ctx.stroke()}
+ctx.beginPath();for(let i=0;i<n;i++){const a=Math.PI*2*i/n-Math.PI/2;const v=vals[i]/100;const x=cx+r*v*Math.cos(a);const y=cy+r*v*Math.sin(a);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)}ctx.closePath();ctx.fillStyle='rgba(232,67,147,0.3)';ctx.fill();ctx.strokeStyle='#fd79a8';ctx.lineWidth=2;ctx.stroke();
+for(let i=0;i<n;i++){const a=Math.PI*2*i/n-Math.PI/2;const x=cx+(r+18)*Math.cos(a);const y=cy+(r+18)*Math.sin(a);ctx.fillStyle='#aaa';ctx.font='11px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(labels[i],x,y)}}
+function copyResult(){const d=JSON.parse(localStorage.getItem('hoit_empathy'));_copy('[hoit.me] 공감 능력: '+d.type+' ('+d.score+'점) - https://hoit.me/tests/empathy.html',document.querySelector('.share-btn'))}
+(function(){const prev=localStorage.getItem('hoit_empathy');if(prev){const d=JSON.parse(prev);document.querySelector('.sub').textContent='이전 결과: '+d.type+' ('+d.score+'점) | 다시 해볼까요?'}})();
 </script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 
 <style>

@@ -6,7 +6,7 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://hoit.me/destiny/clover.html">
 <link rel="canonical" href="https://hoit.me/destiny/clover.html">
-<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;flex-wrap:wrap;align-content:center}.wrap{max-width:500px;width:100%;padding:20px;text-align:center}h1{font-size:30px;margin-bottom:8px}.sub{color:#888;margin-bottom:20px}
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center;flex-direction:column}.wrap{max-width:500px;width:100%;padding:20px;text-align:center}h1{font-size:30px;margin-bottom:8px}.sub{color:#888;margin-bottom:20px}
 .field{position:relative;width:100%;height:300px;background:linear-gradient(180deg,#1a3a1a,#0f2a0f);border-radius:16px;overflow:hidden;cursor:pointer;margin:20px 0;border:2px solid #2a4a2a}
 .clover{position:absolute;font-size:28px;transition:all .3s;cursor:pointer;filter:drop-shadow(0 0 5px rgba(0,255,0,0.3))}
 .clover:hover{transform:scale(1.3);filter:drop-shadow(0 0 10px rgba(0,255,0,0.6))}
@@ -18,12 +18,12 @@ a.back{position:fixed;top:8px;left:8px;z-index:99;background:rgba(0,0,0,0.75);co
 function _copy(text,btn){
   if(navigator.clipboard&&navigator.clipboard.writeText){
     _copy(text,this).catch(()=>_copyFallback(text,btn));
-  } else { _copyFallback(text,btn); }
+  } else { _copyFallback(text,btn)}
 }
 function _copyFallback(text,btn){
   const ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;left:-9999px';
   document.body.appendChild(ta);ta.select();
-  try{document.execCommand('copy');if(btn)btn.textContent='복사 완료!';}catch(e){alert('복사 실패. 수동으로 복사해주세요.');}
+  try{document.execCommand('copy');if(btn)btn.textContent='복사 완료!'}catch(e){alert('복사 실패. 수동으로 복사해주세요.')}
   document.body.removeChild(ta);
 }
 </script>
@@ -41,8 +41,8 @@ const FORTUNES=[
 
 let clovers=[];
 
-function seed(str){var h=0;for(var i=0;i<str.length;i++){h=((h<<5)-h)+str.charCodeAt(i);h|=0;}return function(){h=h*16807%2147483647;return(h-1)/2147483646;};}
-function getTodayStr(){const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+function seed(str){var h=0;for(var i=0;i<str.length;i++){h=((h<<5)-h)+str.charCodeAt(i);h|=0}return function(){h=h*16807%2147483647;return(h-1)/2147483646}}
+function getTodayStr(){const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
 function showField(){
   clovers=[];
   const dailySeed=seed(getTodayStr()+'clover');
@@ -86,7 +86,7 @@ function mkCloverBar(label,val,parentEl){
   fill.style.background='linear-gradient(90deg,#e84040,#e8d030 50%,#30c830)';
   fill.style.backgroundSize='200% 100%';fill.style.backgroundPosition=(100-val)+'% 0';
   track.appendChild(fill);row.appendChild(track);parentEl.appendChild(row);
-  setTimeout(()=>{fill.style.width=val+'%';},80);
+  setTimeout(()=>{fill.style.width=val+'%'},80);
 }
 function pickClover(i){
   const c=clovers[i];
@@ -118,7 +118,7 @@ function pickClover(i){
   const leafBox=document.createElement('div');leafBox.style.cssText='background:#252545;border-radius:10px;padding:15px;margin:15px 0;text-align:left';
   const leafTitle=document.createElement('h3');leafTitle.style.cssText='color:#FFD700;font-size:14px;margin-bottom:8px';leafTitle.textContent='🍀 클로버 잎사귀의 의미';leafBox.appendChild(leafTitle);
   const leafLines=['🌿 1잎: 기도 · 희망의 시작','🌿 2잎: 사랑 · 인연','☘️ 3잎: 믿음 · 사랑 · 희망','🍀 4잎: 행운! (믿음+사랑+희망+행운)','✨ 5잎: 재물운 대박!'];
-  leafLines.forEach((line,idx)=>{const lp=document.createElement('p');lp.style.cssText='color:#ccc;font-size:12px;line-height:1.8'+(idx>0?';margin-top:2px':'');lp.textContent=line;leafBox.appendChild(lp);});
+  leafLines.forEach((line,idx)=>{const lp=document.createElement('p');lp.style.cssText='color:#ccc;font-size:12px;line-height:1.8'+(idx>0?';margin-top:2px':'');lp.textContent=line;leafBox.appendChild(lp)});
   wrap.appendChild(leafBox);
 
   const btn=document.createElement('button');btn.className='btn';btn.textContent='다시 뽑기';btn.onclick=showField;wrap.appendChild(btn);

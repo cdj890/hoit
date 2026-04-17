@@ -12,7 +12,7 @@
 <link rel="canonical" href="https://hoit.me/games/minesweeper.html">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;overflow-x:hidden;user-select:none;flex-wrap:wrap;align-content:center}
+body{background:#0f0f1e;color:#fff;font-family:'Segoe UI',sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;overflow-x:hidden;user-select:none;flex-direction:column}
 #wrap{text-align:center}
 h1{font-size:40px;margin-bottom:6px;color:#74b9ff}
 .sub{font-size:14px;color:#aaa;margin-bottom:12px}
@@ -36,7 +36,7 @@ canvas{max-width:100%!important;height:auto!important;display:block;margin:0 aut
 </head>
 <body>
 <a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
-<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
+<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h))}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)})}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{})})}</script>
 
 <div id="wrap">
 <div id="overlay">
@@ -78,7 +78,7 @@ function placeMines(sr,sc){
   if(Math.abs(r-sr)<=1&&Math.abs(c-sc)<=1)continue;
   mines.add(r*C+c);
  }
- mines.forEach(m=>{grid[Math.floor(m/C)][m%C]=-1;});
+ mines.forEach(m=>{grid[Math.floor(m/C)][m%C]=-1});
  for(let r=0;r<R;r++)for(let c=0;c<C;c++){
   if(grid[r][c]===-1)continue;
   let cnt=0;
@@ -108,11 +108,11 @@ function cellClick(r,c){
  if(gameOver||flagged[r][c])return;
  if(firstClick){
   firstClick=false;placeMines(r,c);
-  timerID=setInterval(()=>{seconds++;document.getElementById('timer').textContent=seconds;},1000);
+  timerID=setInterval(()=>{seconds++;document.getElementById('timer').textContent=seconds},1000);
  }
  if(grid[r][c]===-1){
   gameOver=true;clearInterval(timerID);
-  mines.forEach(m=>{revealed[Math.floor(m/C)][m%C]=true;});
+  mines.forEach(m=>{revealed[Math.floor(m/C)][m%C]=true});
   render();
   setTimeout(()=>{
    let ov=document.getElementById('overlay');
@@ -148,8 +148,8 @@ function render(){
  for(let r=0;r<R;r++)for(let c=0;c<C;c++){
   let d=document.createElement('div');d.className='cell';
   if(revealed[r][c]){
-   if(grid[r][c]===-1){d.className+=' cell-mine';d.textContent='💣';}
-   else{d.className+=' cell-revealed';if(grid[r][c]>0){d.textContent=grid[r][c];d.style.color=NUMCOLORS[grid[r][c]];}}
+   if(grid[r][c]===-1){d.className+=' cell-mine';d.textContent='💣'}
+   else{d.className+=' cell-revealed';if(grid[r][c]>0){d.textContent=grid[r][c];d.style.color=NUMCOLORS[grid[r][c]]}}
   }else if(flagged[r][c]){
    d.className+=' cell-flag';d.textContent='🚩';
   }else{
@@ -158,9 +158,9 @@ function render(){
   d.addEventListener('click',()=>cellClick(r,c));
   d.addEventListener('contextmenu',e=>cellRightClick(e,r,c));
   let longT;
-  d.addEventListener('touchstart',e=>{e.preventDefault();longT=setTimeout(()=>{if(gameOver||revealed[r][c]){longT=null;return;}flagged[r][c]=!flagged[r][c];let fc=0;for(let i=0;i<R;i++)for(let j=0;j<C;j++)if(flagged[i][j])fc++;document.getElementById('mcount').textContent=MINES-fc;render();longT=null;},500);},{passive:false});
-  d.addEventListener('touchend',()=>{if(longT){clearTimeout(longT);longT=null;}});
-  d.addEventListener('touchmove',()=>{if(longT){clearTimeout(longT);longT=null;}});
+  d.addEventListener('touchstart',e=>{e.preventDefault();longT=setTimeout(()=>{if(gameOver||revealed[r][c]){longT=null;return}flagged[r][c]=!flagged[r][c];let fc=0;for(let i=0;i<R;i++)for(let j=0;j<C;j++)if(flagged[i][j])fc++;document.getElementById('mcount').textContent=MINES-fc;render();longT=null},500)},{passive:false});
+  d.addEventListener('touchend',()=>{if(longT){clearTimeout(longT);longT=null}});
+  d.addEventListener('touchmove',()=>{if(longT){clearTimeout(longT);longT=null}});
   b.appendChild(d);
  }
 }

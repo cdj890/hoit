@@ -7,7 +7,7 @@
 <meta property="og:url" content="https://hoit.me/tests/mental.html">
 <link rel="canonical" href="https://hoit.me/tests/mental.html">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:20px;flex-wrap:wrap;align-content:center}
+*{margin:0;padding:0;box-sizing:border-box}body{background:#0f0f1e;color:#e0e0e0;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px;flex-direction:column}
 .card{background:#1a1a2e;border-radius:16px;padding:30px;max-width:500px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.4);text-align:center}
 h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-size:.9em}
 .progress{height:6px;background:#2a2a3e;border-radius:3px;margin-bottom:24px;overflow:hidden}
@@ -46,13 +46,13 @@ h1{font-size:1.6em;margin-bottom:8px}.sub{color:#888;margin-bottom:20px;font-siz
 </style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous">
 function _copy(t,b){
   if(navigator.clipboard&&navigator.clipboard.writeText){
-    navigator.clipboard.writeText(t).then(()=>{if(b){b.textContent='복사 완료!';setTimeout(()=>b.textContent=b.dataset.orig||'📋 결과 복사',1500);}}).catch(()=>_copyFallback(t,b));
-  } else { _copyFallback(t,b); }
+    navigator.clipboard.writeText(t).then(()=>{if(b){b.textContent='복사 완료!';setTimeout(()=>b.textContent=b.dataset.orig||'📋 결과 복사',1500)}}).catch(()=>_copyFallback(t,b));
+  } else { _copyFallback(t,b)}
 }
 function _copyFallback(text,btn){
   const ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;left:-9999px';
   document.body.appendChild(ta);ta.select();
-  try{document.execCommand('copy');if(btn)btn.textContent='복사 완료!';}catch(e){alert('복사 실패. 수동으로 복사해주세요.');}
+  try{document.execCommand('copy');if(btn)btn.textContent='복사 완료!'}catch(e){alert('복사 실패. 수동으로 복사해주세요.')}
   document.body.removeChild(ta);
 }
 </script>
@@ -86,7 +86,7 @@ function _copyFallback(text,btn){
 <div class="recommend"><span style="color:#888;font-size:.85em">다른 테스트 추천</span><br><a href="empathy.html">공감 능력</a><a href="focus.html">집중력</a><a href="leader.html">리더십</a></div>
 </div>
 </div>
-<script>function _shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
+<script>function _shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
 const questions=[
 {q:"큰 실패를 경험하면?",a:[["오래 좌절하고 무기력해진다",1],["슬프지만 시간이 지나면 회복",2],["빠르게 다음 계획을 세운다",4]]},
 {q:"악성 댓글이나 비난을 받으면?",a:[["상처받아 계속 생각난다",1],["기분 나쁘지만 넘긴다",2],["신경 안 쓴다",4]]},
@@ -109,31 +109,31 @@ const questions=[
 {q:"매우 힘든 시기를 보낸 후 나의 변화는?",a:[["상처가 오래 남는다",1],["어느 정도 회복되지만 흔적이 남는다",2],["더 단단해지고 성장한다",4]]}
 ];
 let cur=0,total=0;
-function startQuiz(){_shuf(questions);document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ();}
-function showQ(){if(!window._qs){_shuf(questions);window._qs=1;}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';document.getElementById('quiz').classList.add('q-slide');setTimeout(()=>document.getElementById('quiz').classList.remove('q-slide'),350);q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=function(){this.classList.add('selected');setTimeout(()=>pick(a[1]),350)};o.appendChild(b);});}
-function pick(v){total+=v;cur++;if(cur<questions.length)showQ();else showResult();}
+function startQuiz(){_shuf(questions);document.getElementById('intro').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');showQ()}
+function showQ(){if(!window._qs){_shuf(questions);window._qs=1}const q=questions[cur];document.getElementById('prog').style.width=((cur/questions.length)*100)+'%';document.getElementById('qText').textContent=(cur+1)+'. '+q.q;const o=document.getElementById('opts');o.innerHTML='';document.getElementById('quiz').classList.add('q-slide');setTimeout(()=>document.getElementById('quiz').classList.remove('q-slide'),350);q.a.forEach(a=>{const b=document.createElement('button');b.className='btn';b.textContent=a[0];b.onclick=function(){this.classList.add('selected');setTimeout(()=>pick(a[1]),350)};o.appendChild(b)})}
+function pick(v){total+=v;cur++;if(cur<questions.length)showQ();else showResult()}
 function showResult(){const score=Math.min(100,Math.round(total/80*100));
 document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');
 document.getElementById('rScore').textContent='멘탈 강도: '+score+'점';
 const fill=document.getElementById('meterFill');fill.style.width=score+'%';
 let emoji,type,desc,tips,color;
-if(score>=80){emoji='🏔️';type='강철 멘탈';desc='당신의 멘탈은 강철처럼 단단합니다! 어떤 어려움에도 흔들리지 않는 놀라운 회복 탄력성을 가지고 있어요.';tips='<strong>💡 유지 팁:</strong><br>• 지금의 강한 멘탈을 유지하세요<br>• 주변 사람들에게도 힘이 되어주세요<br>• 가끔은 약한 모습을 보여도 괜찮아요';color='#00b894';}
-else if(score>=60){emoji='🔩';type='단단한 멘탈';desc='꽤 강한 멘탈의 소유자! 대부분의 상황에서 잘 버텨내며, 회복력도 좋은 편이에요.';tips='<strong>💡 강화 팁:</strong><br>• 규칙적인 운동으로 스트레스 관리<br>• 긍정적 자기대화 연습하기<br>• 실패를 성장의 기회로 재해석하기';color='#74b9ff';}
-else if(score>=40){emoji='🪨';type='보통 멘탈';desc='평균적인 멘탈 강도입니다. 일상적인 스트레스는 잘 견디지만, 큰 충격에는 흔들릴 수 있어요.';tips='<strong>💡 강화 팁:</strong><br>• 하루 10분 명상/호흡 연습<br>• 감정 일기 쓰기<br>• 작은 성공 경험 쌓기<br>• 신뢰할 수 있는 사람과 대화하기';color='#fdcb6e';}
-else{emoji='🫧';type='유리 멘탈';desc='섬세하고 감수성이 풍부한 당신! 쉽게 상처받을 수 있지만, 그만큼 세상을 깊이 느끼는 사람이에요.';tips='<strong>💡 강화 팁:</strong><br>• 전문 상담을 통한 마음 케어 추천<br>• SNS 디톡스로 비교심 줄이기<br>• 자기 긍정 확언 매일 3가지<br>• 충분한 수면과 규칙적 생활<br>• 나를 위한 작은 보상 주기';color='#ff7675';}
+if(score>=80){emoji='🏔️';type='강철 멘탈';desc='당신의 멘탈은 강철처럼 단단합니다! 어떤 어려움에도 흔들리지 않는 놀라운 회복 탄력성을 가지고 있어요.';tips='<strong>💡 유지 팁:</strong><br>• 지금의 강한 멘탈을 유지하세요<br>• 주변 사람들에게도 힘이 되어주세요<br>• 가끔은 약한 모습을 보여도 괜찮아요';color='#00b894'}
+else if(score>=60){emoji='🔩';type='단단한 멘탈';desc='꽤 강한 멘탈의 소유자! 대부분의 상황에서 잘 버텨내며, 회복력도 좋은 편이에요.';tips='<strong>💡 강화 팁:</strong><br>• 규칙적인 운동으로 스트레스 관리<br>• 긍정적 자기대화 연습하기<br>• 실패를 성장의 기회로 재해석하기';color='#74b9ff'}
+else if(score>=40){emoji='🪨';type='보통 멘탈';desc='평균적인 멘탈 강도입니다. 일상적인 스트레스는 잘 견디지만, 큰 충격에는 흔들릴 수 있어요.';tips='<strong>💡 강화 팁:</strong><br>• 하루 10분 명상/호흡 연습<br>• 감정 일기 쓰기<br>• 작은 성공 경험 쌓기<br>• 신뢰할 수 있는 사람과 대화하기';color='#fdcb6e'}
+else{emoji='🫧';type='유리 멘탈';desc='섬세하고 감수성이 풍부한 당신! 쉽게 상처받을 수 있지만, 그만큼 세상을 깊이 느끼는 사람이에요.';tips='<strong>💡 강화 팁:</strong><br>• 전문 상담을 통한 마음 케어 추천<br>• SNS 디톡스로 비교심 줄이기<br>• 자기 긍정 확언 매일 3가지<br>• 충분한 수면과 규칙적 생활<br>• 나를 위한 작은 보상 주기';color='#ff7675'}
 fill.style.background=color;document.getElementById('rEmoji').textContent=emoji;document.getElementById('rType').textContent=type;document.getElementById('rDesc').textContent=desc;document.getElementById('rTips').innerHTML=tips;
 const hpEl=document.getElementById('hpFill');hpEl.style.setProperty('--hp',score+'%');hpEl.style.background=color;
 document.getElementById('hpLabel').textContent='HP '+score+'/100';
 let badge,badgeColor;
-if(score>=90){badge='다이아';badgeColor='#00cec9';}else if(score>=75){badge='강철';badgeColor='#b2bec3';}else if(score>=60){badge='돌';badgeColor='#636e72';}else if(score>=45){badge='나무';badgeColor='#00b894';}else if(score>=30){badge='종이';badgeColor='#fdcb6e';}else{badge='유리';badgeColor='#ff7675';}
+if(score>=90){badge='다이아';badgeColor='#00cec9'}else if(score>=75){badge='강철';badgeColor='#b2bec3'}else if(score>=60){badge='돌';badgeColor='#636e72'}else if(score>=45){badge='나무';badgeColor='#00b894'}else if(score>=30){badge='종이';badgeColor='#fdcb6e'}else{badge='유리';badgeColor='#ff7675'}
 document.getElementById('rBadge').textContent=badge+' 멘탈';document.getElementById('rBadge').style.background=badgeColor;document.getElementById('rBadge').style.color=score>=60?'#1a1a2e':'#fff';
 const stressScenarios=[{s:'발표 중 마이크 고장',v:score>=60?'침착하게 대처':'패닉 가능성 높음'},{s:'갑작스런 이사 통보',v:score>=50?'적응 가능':'큰 스트레스'},{s:'프로젝트 마감 D-1',v:score>=70?'집중력 발휘':'압박감에 위축'}];
 document.getElementById('rStress').innerHTML='<strong>🎭 스트레스 시뮬레이션</strong><br>'+stressScenarios.map(x=>'• '+x.s+' → <span style="color:'+color+'">'+x.v+'</span>').join('<br>');
 const resilienceTips=score>=60?'<strong>🏋️ 회복력 강화 훈련</strong><br>• 고강도 인터벌 운동으로 스트레스 내성 강화<br>• 불편한 상황에 의도적으로 노출 (콜드샤워 등)<br>• 감사 일기 작성으로 긍정 회로 강화':'<strong>🏋️ 회복력 강화 훈련</strong><br>• 하루 10분 명상으로 마음 근육 키우기<br>• 매일 작은 성공 경험 기록하기<br>• 규칙적인 수면/운동 루틴 만들기<br>• 신뢰할 수 있는 사람과 주 1회 대화';
 document.getElementById('rResilience').innerHTML=resilienceTips;
-localStorage.setItem('hoit_mental',JSON.stringify({type:type,score:score,badge:badge,date:new Date().toISOString()}));}
-function copyResult(){const d=JSON.parse(localStorage.getItem('hoit_mental'));_copy('[hoit.me] 멘탈 강도: '+d.type+' ('+d.badge+' 멘탈, '+d.score+'점) - https://hoit.me/tests/mental.html',document.querySelector('.share-btn'));}
-(function(){const prev=localStorage.getItem('hoit_mental');if(prev){const d=JSON.parse(prev);document.querySelector('.sub').textContent='이전 결과: '+d.badge+' 멘탈 ('+d.score+'점) | 다시 해볼까요?';}})();
+localStorage.setItem('hoit_mental',JSON.stringify({type:type,score:score,badge:badge,date:new Date().toISOString()}))}
+function copyResult(){const d=JSON.parse(localStorage.getItem('hoit_mental'));_copy('[hoit.me] 멘탈 강도: '+d.type+' ('+d.badge+' 멘탈, '+d.score+'점) - https://hoit.me/tests/mental.html',document.querySelector('.share-btn'))}
+(function(){const prev=localStorage.getItem('hoit_mental');if(prev){const d=JSON.parse(prev);document.querySelector('.sub').textContent='이전 결과: '+d.badge+' 멘탈 ('+d.score+'점) | 다시 해볼까요?'}})();
 </script><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 
 <style>

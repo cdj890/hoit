@@ -11,19 +11,19 @@
 <meta property="og:url" content="https://hoit.me/games/flappy.html">
 <link rel="canonical" href="https://hoit.me/games/flappy.html">
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { background: #1a1a2e; display: flex; justify-content: center; align-items:flex-start; min-height: 100vh; font-family: 'Segoe UI', sans-serif; overflow-x:hidden; ;flex-wrap:wrap;align-content:center}
-canvas { border-radius: 12px; cursor: pointer; box-shadow: 0 0 40px rgba(255,200,100,0.15); }
+* { margin: 0; padding: 0; box-sizing: border-box}
+body { background: #1a1a2e; display: flex; justify-content: center; align-items:center; min-height: 100vh; font-family: 'Segoe UI', sans-serif; overflow-x:hidden; ;flex-direction:column}
+canvas { border-radius: 12px; cursor: pointer; box-shadow: 0 0 40px rgba(255,200,100,0.15)}
 canvas{max-width:100%!important;height:auto!important;display:block;margin:0 auto}body{overflow-x:hidden}
 </style>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968188107783039" crossorigin="anonymous"></script>
 </head>
 <body>
 <a href="../index.html" style="position:fixed;top:8px;left:8px;z-index:9999;background:rgba(0,0,0,0.75);color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-size:15px;font-family:sans-serif;font-weight:bold;min-width:44px;min-height:44px;display:flex;align-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">← 뒤로</a>
-<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h));}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)});}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{});});}</script>
+<script>const _FB="https://hoit-f1e53-default-rtdb.asia-southeast1.firebasedatabase.app";function _hub(id,s){const h=JSON.parse(localStorage.getItem('game_hub')||'{}');if(!h.scores)h.scores={};if(!h.scores[id]||s>h.scores[id])h.scores[id]=s;localStorage.setItem('game_hub',JSON.stringify(h));let nick=h.nick;if(!nick){const c=parseInt(localStorage.getItem('noname_counter')||'0')+1;localStorage.setItem('noname_counter',String(c));nick='nonamed'+String(c).padStart(4,'0');h.nick=nick;localStorage.setItem('game_hub',JSON.stringify(h))}const today=new Date().toISOString().slice(0,10);const data={nick:nick,score:s,date:today,ts:Date.now()};fetch(_FB+'/scores/'+today+'/'+id+'.json').then(r=>r.json()).then(d=>{const entries=d?Object.values(d):[];const ex=entries.find(e=>e.nick===nick);if(!ex||s>ex.score){fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)})}}).catch(()=>{fetch(_FB+'/scores/'+today+'/'+id+'.json',{method:'POST',body:JSON.stringify(data)}).catch(()=>{})})}</script>
 <canvas id="c"></canvas>
 <script>
-if(!CanvasRenderingContext2D.prototype.roundRect){CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){if(typeof r==='undefined')r=0;if(typeof r==='number')r={tl:r,tr:r,br:r,bl:r};this.beginPath();this.moveTo(x+r.tl,y);this.lineTo(x+w-r.tr,y);this.quadraticCurveTo(x+w,y,x+w,y+r.tr);this.lineTo(x+w,y+h-r.br);this.quadraticCurveTo(x+w,y+h,x+w-r.br,y+h);this.lineTo(x+r.bl,y+h);this.quadraticCurveTo(x,y+h,x,y+h-r.bl);this.lineTo(x,y+r.tl);this.quadraticCurveTo(x,y,x+r.tl,y);this.closePath();return this;};}
+if(!CanvasRenderingContext2D.prototype.roundRect){CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){if(typeof r==='undefined')r=0;if(typeof r==='number')r={tl:r,tr:r,br:r,bl:r};this.beginPath();this.moveTo(x+r.tl,y);this.lineTo(x+w-r.tr,y);this.quadraticCurveTo(x+w,y,x+w,y+r.tr);this.lineTo(x+w,y+h-r.br);this.quadraticCurveTo(x+w,y+h,x+w-r.br,y+h);this.lineTo(x+r.bl,y+h);this.quadraticCurveTo(x,y+h,x,y+h-r.bl);this.lineTo(x,y+r.tl);this.quadraticCurveTo(x,y,x+r.tl,y);this.closePath();return this}}
 const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
 const W = 400, H = 600;
@@ -55,7 +55,7 @@ function init() {
 
 function flap() {
   if (gameOver) return;
-  if (!started) { started = true; init(); }
+  if (!started) { started = true; init()}
   bird.vy = FLAP;
   bird.wingFrame = 10;
   // feather particles
@@ -83,21 +83,21 @@ function createPauseOverlay(){
 function togglePause(){
   if(!started||gameOver)return;
   paused=!paused;
-  if(paused){createPauseOverlay();pauseOverlay.style.display='flex';}
-  else{if(pauseOverlay)pauseOverlay.style.display='none';requestAnimationFrame(gameLoop);}
+  if(paused){createPauseOverlay();pauseOverlay.style.display='flex'}
+  else{if(pauseOverlay)pauseOverlay.style.display='none';requestAnimationFrame(gameLoop)}
 }
 
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { togglePause(); return; }
+  if (e.key === 'Escape') { togglePause(); return}
   if (paused) return;
-  if (e.key === ' ') { e.preventDefault(); flap(); }
-  if (gameOver && (e.key === ' ' || e.key === 'r')) { init(); started = true; }
+  if (e.key === ' ') { e.preventDefault(); flap()}
+  if (gameOver && (e.key === ' ' || e.key === 'r')) { init(); started = true}
 });
 canvas.addEventListener('click', () => {
   if (paused) return;
-  if (gameOver) { init(); started = true; } else flap();
+  if (gameOver) { init(); started = true} else flap();
 });
-canvas.addEventListener('touchstart', e => { e.preventDefault(); if (paused) return; if (gameOver) { init(); started = true; } else flap(); });
+canvas.addEventListener('touchstart', e => { e.preventDefault(); if (paused) return; if (gameOver) { init(); started = true} else flap()});
 
 function update() {
   if (!started || gameOver) return;
@@ -110,8 +110,8 @@ function update() {
   if (bird.wingFrame > 0) bird.wingFrame--;
 
   // ground collision
-  if (bird.y + 15 > H - GROUND_H) { die(); return; }
-  if (bird.y < -10) { bird.y = -10; bird.vy = 0; }
+  if (bird.y + 15 > H - GROUND_H) { die(); return}
+  if (bird.y < -10) { bird.y = -10; bird.vy = 0}
 
   // difficulty scaling
   gameSpeed = BASE_PIPE_SPEED + score * 0.08;
@@ -136,7 +136,7 @@ function update() {
     const pGap = p.gap || currentGap;
     const bx = bird.x - 12, by = bird.y - 12, bw = 24, bh = 24;
     if (bx + bw > p.x && bx < p.x + PIPE_W) {
-      if (by < p.topH || by + bh > p.topH + pGap) { die(); }
+      if (by < p.topH || by + bh > p.topH + pGap) { die()}
     }
   });
   pipes = pipes.filter(p => p.x > -PIPE_W - 10);
@@ -157,7 +157,7 @@ function update() {
 function die() {
   gameOver = true;
   flashAlpha = 1;
-  if (score > highScore) { highScore = score; localStorage.setItem('flappy_hs', highScore); }
+  if (score > highScore) { highScore = score; localStorage.setItem('flappy_hs', highScore)}
   _hub('flappy',score);
   for (let i = 0; i < 15; i++) {
     const a = Math.random()*Math.PI*2;
@@ -384,10 +384,10 @@ function drawGameOver() {
 
   // Medal system
   let medal = '', medalColor = '';
-  if (score >= 40) { medal = 'PLATINUM'; medalColor = '#E5E4E2'; }
-  else if (score >= 20) { medal = 'GOLD'; medalColor = '#FFD700'; }
-  else if (score >= 10) { medal = 'SILVER'; medalColor = '#C0C0C0'; }
-  else if (score >= 5) { medal = 'BRONZE'; medalColor = '#CD7F32'; }
+  if (score >= 40) { medal = 'PLATINUM'; medalColor = '#E5E4E2'}
+  else if (score >= 20) { medal = 'GOLD'; medalColor = '#FFD700'}
+  else if (score >= 10) { medal = 'SILVER'; medalColor = '#C0C0C0'}
+  else if (score >= 5) { medal = 'BRONZE'; medalColor = '#CD7F32'}
   if (medal) {
     const pulse = 0.9 + Math.sin(Date.now()/250)*0.1;
     ctx.save();
@@ -429,7 +429,7 @@ function drawGameOver() {
 }
 
 function updateParticles() {
-  particles.forEach(p => { p.x += p.vx; p.y += p.vy; p.vy += 0.08; p.life--; });
+  particles.forEach(p => { p.x += p.vx; p.y += p.vy; p.vy += 0.08; p.life--});
   particles = particles.filter(p => p.life > 0);
 }
 
@@ -446,7 +446,7 @@ function drawParticles() {
 init();
 function gameLoop() {
   if (paused) return;
-  if (!started) { drawStart(); requestAnimationFrame(gameLoop); return; }
+  if (!started) { drawStart(); requestAnimationFrame(gameLoop); return}
 
   update();
   updateParticles();

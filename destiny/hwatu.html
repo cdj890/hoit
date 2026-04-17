@@ -6,7 +6,7 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://hoit.me/destiny/hwatu.html">
 <link rel="canonical" href="https://hoit.me/destiny/hwatu.html">
-<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#1a0a0a;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;flex-wrap:wrap;align-content:center}.wrap{max-width:550px;width:100%;padding:20px;text-align:center}h1{font-size:30px;margin-bottom:8px;color:#FFD700}.sub{color:#888;margin-bottom:20px}
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#1a0a0a;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center;flex-direction:column}.wrap{max-width:550px;width:100%;padding:20px;text-align:center}h1{font-size:30px;margin-bottom:8px;color:#FFD700}.sub{color:#888;margin-bottom:20px}
 .cards{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:20px 0}
 .hcard-wrap{width:70px;height:105px;perspective:600px;display:inline-block}
 .hcard{width:70px;height:105px;background:linear-gradient(135deg,#8B0000,#4a0000);border:2px solid #B8860B;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;flex-direction:column;transition:transform .3s,box-shadow .3s;position:relative;overflow:hidden;transform-style:preserve-3d;backface-visibility:hidden}
@@ -24,12 +24,12 @@ a.back{position:fixed;top:8px;left:8px;z-index:99;background:rgba(0,0,0,0.75);co
 function _copy(text,btn){
   if(navigator.clipboard&&navigator.clipboard.writeText){
     _copy(text,this).catch(()=>_copyFallback(text,btn));
-  } else { _copyFallback(text,btn); }
+  } else { _copyFallback(text,btn)}
 }
 function _copyFallback(text,btn){
   const ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;left:-9999px';
   document.body.appendChild(ta);ta.select();
-  try{document.execCommand('copy');if(btn)btn.textContent='복사 완료!';}catch(e){alert('복사 실패. 수동으로 복사해주세요.');}
+  try{document.execCommand('copy');if(btn)btn.textContent='복사 완료!'}catch(e){alert('복사 실패. 수동으로 복사해주세요.')}
   document.body.removeChild(ta);
 }
 </script>
@@ -52,12 +52,12 @@ const MONTHS=[
   {m:12,name:'비',flower:'🌧️',emoji:'⛩️',desc:'비와 대감',fortune:'비 온 뒤 땅이 굳는다! 힘든 시기가 지나고 단단해집니다.',love:'시련 후 더 강한 사랑',money:'어려움 뒤 큰 보상',lucky:'북쪽',loveScore:68,moneyScore:70,healthScore:75,workScore:75},
 ];
 
-function seed(str){var h=0;for(var i=0;i<str.length;i++){h=((h<<5)-h)+str.charCodeAt(i);h|=0;}return function(){h=h*16807%2147483647;return(h-1)/2147483646;};}
-function getTodayStr(){const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+function seed(str){var h=0;for(var i=0;i<str.length;i++){h=((h<<5)-h)+str.charCodeAt(i);h|=0}return function(){h=h*16807%2147483647;return(h-1)/2147483646}}
+function getTodayStr(){const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
 function seededShuffle(arr){
   const r=seed(getTodayStr()+'hwatu');
   const a=[...arr];
-  for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}
   return a;
 }
 let picked=[];
@@ -95,7 +95,7 @@ function mkHwaBar(label,val,parentEl){
   const track=document.createElement('div');track.style.cssText='background:rgba(255,255,255,.1);border-radius:5px;height:8px;overflow:hidden';
   const fill=document.createElement('div');fill.style.height='100%';fill.style.borderRadius='5px';fill.style.transition='width 1s ease';fill.style.width='0';
   fill.style.background='linear-gradient(90deg,#e84040,#e8d030 50%,#30c830)';fill.style.backgroundSize='200% 100%';fill.style.backgroundPosition=(100-val)+'% 0';
-  track.appendChild(fill);row.appendChild(track);parentEl.appendChild(row);setTimeout(()=>{fill.style.width=val+'%';},80);
+  track.appendChild(fill);row.appendChild(track);parentEl.appendChild(row);setTimeout(()=>{fill.style.width=val+'%'},80);
 }
 function showResult(){
   const labels=['첫째 패: 현재 상황','둘째 패: 조언','셋째 패: 미래 전망'];
@@ -119,7 +119,7 @@ function showResult(){
     mkHwaBar('💕 연애운',m.loveScore,scoreDiv);mkHwaBar('💰 금전운',m.moneyScore,scoreDiv);mkHwaBar('💪 건강운',m.healthScore,scoreDiv);mkHwaBar('💼 직장운',m.workScore,scoreDiv);
     card.appendChild(scoreDiv);
     const tagsDiv=document.createElement('div');tagsDiv.style.cssText='display:flex;gap:8px;margin-top:8px;flex-wrap:wrap';
-    [{text:'💕 '+m.love},{text:'💰 '+m.money},{text:'🧭 행운방향: '+m.lucky}].forEach(t=>{const sp=document.createElement('span');sp.style.cssText='background:#252545;padding:4px 10px;border-radius:6px;font-size:11px';sp.textContent=t.text;tagsDiv.appendChild(sp);});
+    [{text:'💕 '+m.love},{text:'💰 '+m.money},{text:'🧭 행운방향: '+m.lucky}].forEach(t=>{const sp=document.createElement('span');sp.style.cssText='background:#252545;padding:4px 10px;border-radius:6px;font-size:11px';sp.textContent=t.text;tagsDiv.appendChild(sp)});
     card.appendChild(tagsDiv);app.appendChild(card);
   });
   const btn=document.createElement('button');btn.className='btn';btn.textContent='다시 뽑기';btn.onclick=show;app.appendChild(btn);

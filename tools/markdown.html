@@ -13,7 +13,7 @@
 <link rel="canonical" href="https://hoit.me/tools/markdown.html">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0f0f1e;color:#e0e0e0;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;justify-content:center;flex-wrap:wrap;align-content:center}
+body{background:#0f0f1e;color:#e0e0e0;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;justify-content:center;flex-direction:column}
 .wrap{width:100%;max-width:500px;padding:60px 16px 30px}
 h1{text-align:center;font-size:22px;margin-bottom:16px;color:#fff}
 .tabs{display:flex;gap:8px;margin-bottom:12px}
@@ -59,8 +59,8 @@ function showTab(t){
   document.getElementById('preview').style.display=t==='preview'?'':'none';
   if(t==='preview')render();
 }
-function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function safeUrl(u){u=u.trim();if(/^(https?:\/\/|\/|#)/i.test(u))return u;return'';}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function safeUrl(u){u=u.trim();if(/^(https?:\/\/|\/|#)/i.test(u))return u;return''}
 function render(){
   let md=esc(document.getElementById('editor').value);
   // code blocks
@@ -75,7 +75,7 @@ function render(){
   md=md.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
   md=md.replace(/\*(.+?)\*/g,'<em>$1</em>');
   // links (safe URL only)
-  md=md.replace(/\[([^\]]+)\]\(([^)]+)\)/g,function(_,text,url){return'<a href="'+safeUrl(url)+'" target="_blank" rel="noopener">'+text+'</a>';});
+  md=md.replace(/\[([^\]]+)\]\(([^)]+)\)/g,function(_,text,url){return'<a href="'+safeUrl(url)+'" target="_blank" rel="noopener">'+text+'</a>'});
   // blockquote
   md=md.replace(/^&gt; (.+)$/gm,'<blockquote>$1</blockquote>');
   // unordered list
