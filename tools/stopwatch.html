@@ -9,7 +9,7 @@
 <div class="wrap"><h1 style="font-size:24px;margin-bottom:5px">⏲️ 스톱워치</h1><p style="color:#888;font-size:14px;margin-bottom:15px">랩 기능</p><div class="card"><div class="result" id="d">00:00.000</div><div style="display:flex;gap:8px;justify-content:center"><button class="btn" onclick="tog()" id="b" style=width:auto>▶️</button><button class="btn" onclick="lap()" style="width:auto;background:#FF9800">🏁</button><button class="btn" onclick="rst()" style="width:auto;background:#EF5350">⏹</button></div></div><div class="card" id="laps" style=display:none></div><script>let on=false,st=0,el=0,t,ls=[];function tog(){if(on){clearInterval(t);on=false;document.getElementById("b").textContent="▶️";}else{st=Date.now()-el;on=true;document.getElementById("b").textContent="⏸";t=setInterval(upd,10);}}function upd(){el=Date.now()-st;const ms=el%1000,s=Math.floor(el/1000)%60,m=Math.floor(el/60000);document.getElementById("d").textContent=String(m).padStart(2,"0")+":"+String(s).padStart(2,"0")+"."+String(ms).padStart(3,"0");}function lap(){if(!on)return;ls.push(el);const d=document.getElementById("laps");d.style.display="block";d.innerHTML=ls.map((l,i)=>{const ms=l%1000,s=Math.floor(l/1000)%60,m=Math.floor(l/60000);return"#"+(i+1)+" "+String(m).padStart(2,"0")+":"+String(s).padStart(2,"0")+"."+String(ms).padStart(3,"0")+"<br>";}).reverse().join("");}function rst(){clearInterval(t);on=false;el=0;ls=[];document.getElementById("d").textContent="00:00.000";document.getElementById("b").textContent="▶️";document.getElementById("laps").style.display="none";}</script></div><div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 
 <style>
-.seo-content{max-width:700px;margin:40px auto 80px;padding:0 20px;color:#bbb;font-size:14px;line-height:1.8}
+.seo-content{max-width:700px;margin:40px auto 80px;padding:0 20px;color:#bbb;font-size:14px;line-height:1.8;width:100%;clear:both;position:relative;flex-shrink:0;flex-basis:100%}
 .seo-content h2{color:#FFD700;font-size:20px;margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid #2a2a4a}
 .seo-content h3{color:#ddd;font-size:16px;margin:16px 0 8px}
 .seo-content p{margin:8px 0;color:#999}
@@ -20,6 +20,7 @@
 .seo-content .seo-nav{margin-top:20px;padding-top:16px;border-top:1px solid #2a2a4a;text-align:center}
 .seo-content .seo-nav a{color:#666;text-decoration:none;font-size:12px;margin:0 10px}
 .seo-content .seo-nav a:hover{color:#FFD700}
+@media(max-width:768px){.seo-content{margin:20px auto 80px}.seo-content .seo-toggle{display:block;background:#1a1a2e;border:1px solid #2a2a4a;color:#888;padding:10px;border-radius:10px;font-size:13px;cursor:pointer;width:100%;text-align:center;margin-bottom:10px}.seo-content .seo-body{display:none}.seo-content .seo-body.open{display:block}}@media(min-width:769px){.seo-content .seo-toggle{display:none}}
 </style>
 <section class="seo-content" aria-label="스톱워치 소개">
 <h2>스톱워치</h2>
