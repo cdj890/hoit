@@ -26,30 +26,236 @@ h1{font-size:1.5rem;margin-bottom:20px}
 <h1>드럼 패드</h1>
 <div class="grid" id="grid"></div>
 <p class="tip">패드를 터치하거나 클릭하세요</p>
+<div id="recControls"></div>
 
 <script>
 let audioCtx;
+
+// --- 드럼 음색 개선 ---
+function playKick(c){
+  const now=c.currentTime;
+  // 저주파 sweep: 60Hz → 30Hz
+  const osc=c.createOscillator();
+  const g=c.createGain();
+  osc.type='sine';
+  osc.frequency.setValueAtTime(60,now);
+  osc.frequency.exponentialRampToValueAtTime(30,now+0.15);
+  g.gain.setValueAtTime(1.0,now);
+  g.gain.exponentialRampToValueAtTime(0.001,now+0.35);
+  osc.connect(g);g.connect(c.destination);
+  osc.start(now);osc.stop(now+0.35);
+
+  // noise burst (타격감)
+  const bufLen=Math.floor(c.sampleRate*0.04);
+  const buf=c.createBuffer(1,bufLen,c.sampleRate);
+  const d=buf.getChannelData(0);
+  for(let i=0;i<bufLen;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/bufLen,4);
+  const nb=c.createBufferSource();nb.buffer=buf;
+  const ng=c.createGain();ng.gain.value=0.5;
+  nb.connect(ng);ng.connect(c.destination);nb.start(now);
+}
+
+function playSnare(c){
+  const now=c.currentTime;
+  // 중주파 톤 200Hz
+  const osc=c.createOscillator();
+  const og=c.createGain();
+  osc.type='triangle';osc.frequency.value=200;
+  og.gain.setValueAtTime(0.5,now);
+  og.gain.exponentialRampToValueAtTime(0.001,now+0.12);
+  osc.connect(og);og.connect(c.destination);
+  osc.start(now);osc.stop(now+0.12);
+
+  // 화이트 노이즈 mix
+  const bufLen=Math.floor(c.sampleRate*0.18);
+  const buf=c.createBuffer(1,bufLen,c.sampleRate);
+  const d=buf.getChannelData(0);
+  for(let i=0;i<bufLen;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/bufLen,1.8);
+  const nb=c.createBufferSource();nb.buffer=buf;
+  const ng=c.createGain();ng.gain.value=0.7;
+  nb.connect(ng);ng.connect(c.destination);nb.start(now);
+}
+
+function playHihat(c){
+  const now=c.currentTime;
+  // 고주파 노이즈 + bandpass 8000Hz + 짧은 디케이
+  const bufLen=Math.floor(c.sampleRate*0.06);
+  const buf=c.createBuffer(1,bufLen,c.sampleRate);
+  const d=buf.getChannelData(0);
+  for(let i=0;i<bufLen;i++)d[i]=(Math.random()*2-1);
+  const nb=c.createBufferSource();nb.buffer=buf;
+  const bp=c.createBiquadFilter();
+  bp.type='bandpass';bp.frequency.value=8000;bp.Q.value=1.5;
+  const g=c.createGain();
+  g.gain.setValueAtTime(0.4,now);
+  g.gain.exponentialRampToValueAtTime(0.001,now+0.06);
+  nb.connect(bp);bp.connect(g);g.connect(c.destination);nb.start(now);
+}
+
+function playTom(c,freq,dur){
+  const now=c.currentTime;
+  const osc=c.createOscillator();
+  const g=c.createGain();
+  osc.type='sine';
+  osc.frequency.setValueAtTime(freq,now);
+  osc.frequency.exponentialRampToValueAtTime(freq*0.6,now+dur);
+  g.gain.setValueAtTime(0.7,now);
+  g.gain.exponentialRampToValueAtTime(0.001,now+dur);
+  osc.connect(g);g.connect(c.destination);
+  osc.start(now);osc.stop(now+dur);
+}
+
+function playCrash(c){
+  const now=c.currentTime;
+  const bufLen=Math.floor(c.sampleRate*0.5);
+  const buf=c.createBuffer(1,bufLen,c.sampleRate);
+  const d=buf.getChannelData(0);
+  for(let i=0;i<bufLen;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/bufLen,1.2);
+  const nb=c.createBufferSource();nb.buffer=buf;
+  const bp=c.createBiquadFilter();
+  bp.type='bandpass';bp.frequency.value=5000;bp.Q.value=0.5;
+  const g=c.createGain();g.gain.value=0.45;
+  nb.connect(bp);bp.connect(g);g.connect(c.destination);nb.start(now);
+}
+
+function playRimshot(c){
+  const now=c.currentTime;
+  const osc=c.createOscillator();
+  const g=c.createGain();
+  osc.type='triangle';osc.frequency.value=900;
+  g.gain.setValueAtTime(0.5,now);
+  g.gain.exponentialRampToValueAtTime(0.001,now+0.07);
+  osc.connect(g);g.connect(c.destination);
+  osc.start(now);osc.stop(now+0.07);
+}
+
+function playCowbell(c){
+  const now=c.currentTime;
+  const osc=c.createOscillator();
+  const g=c.createGain();
+  osc.type='square';osc.frequency.value=560;
+  g.gain.setValueAtTime(0.3,now);
+  g.gain.exponentialRampToValueAtTime(0.001,now+0.18);
+  osc.connect(g);g.connect(c.destination);
+  osc.start(now);osc.stop(now+0.18);
+}
+
 const pads=[
-{name:'킥',emoji:'🥁',play:c=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(150,c.currentTime);o.frequency.exponentialRampToValueAtTime(30,c.currentTime+.15);g.gain.setValueAtTime(.8,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.3);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.3)}},
-{name:'스네어',emoji:'🪘',play:c=>{const n=c.createBufferSource(),buf=c.createBuffer(1,c.sampleRate*.15,c.sampleRate),d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,2);n.buffer=buf;const g=c.createGain();g.gain.value=.6;n.connect(g);g.connect(c.destination);n.start()}},
-{name:'하이햇',emoji:'🎵',play:c=>{const n=c.createBufferSource(),buf=c.createBuffer(1,c.sampleRate*.05,c.sampleRate),d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,3);n.buffer=buf;const hp=c.createBiquadFilter();hp.type='highpass';hp.frequency.value=7000;const g=c.createGain();g.gain.value=.3;n.connect(hp);hp.connect(g);g.connect(c.destination);n.start()}},
-{name:'하이탐',emoji:'🔔',play:c=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=300;g.gain.setValueAtTime(.5,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.2);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.2)}},
-{name:'미드탐',emoji:'🎶',play:c=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=200;g.gain.setValueAtTime(.5,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.25);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.25)}},
-{name:'로우탐',emoji:'🎼',play:c=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=120;g.gain.setValueAtTime(.5,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.3);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.3)}},
-{name:'크래시',emoji:'💥',play:c=>{const n=c.createBufferSource(),buf=c.createBuffer(1,c.sampleRate*.4,c.sampleRate),d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,1.5);n.buffer=buf;const bp=c.createBiquadFilter();bp.type='bandpass';bp.frequency.value=5000;bp.Q.value=.5;const g=c.createGain();g.gain.value=.4;n.connect(bp);bp.connect(g);g.connect(c.destination);n.start()}},
-{name:'림샷',emoji:'🥢',play:c=>{const o=c.createOscillator(),g=c.createGain();o.type='triangle';o.frequency.value=800;g.gain.setValueAtTime(.4,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.08);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.08)}},
-{name:'카우벨',emoji:'🔔',play:c=>{const o=c.createOscillator(),g=c.createGain();o.type='square';o.frequency.value=560;g.gain.setValueAtTime(.3,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.15);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.15)}},
+  {name:'킥',   emoji:'🥁', key:'1', play:c=>playKick(c)},
+  {name:'스네어',emoji:'🪘', key:'2', play:c=>playSnare(c)},
+  {name:'하이햇',emoji:'🎵', key:'3', play:c=>playHihat(c)},
+  {name:'하이탐',emoji:'🔔', key:'4', play:c=>playTom(c,300,0.22)},
+  {name:'미드탐',emoji:'🎶', key:'5', play:c=>playTom(c,200,0.27)},
+  {name:'로우탐',emoji:'🎼', key:'6', play:c=>playTom(c,120,0.33)},
+  {name:'크래시',emoji:'💥', key:'7', play:c=>playCrash(c)},
+  {name:'림샷',  emoji:'🥢', key:'8', play:c=>playRimshot(c)},
+  {name:'카우벨',emoji:'🔔', key:'9', play:c=>playCowbell(c)},
 ];
+
+// --- 녹음/재생 상태 ---
+let isRecording=false;
+let recStartTime=0;
+let recording=[];
+let playbackTimers=[];
+
+function hitPad(padIndex, padEl){
+  if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  pads[padIndex].play(audioCtx);
+  padEl.classList.add('hit');
+  setTimeout(()=>padEl.classList.remove('hit'),100);
+  if(isRecording){
+    const t=performance.now()-recStartTime;
+    recording.push({padIndex,t});
+  }
+}
+
 const grid=document.getElementById('grid');
-pads.forEach(p=>{
-const d=document.createElement('div');d.className='pad';
-d.innerHTML=p.emoji+'<span>'+p.name+'</span>';
-d.onpointerdown=e=>{
-e.preventDefault();
-if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();
-p.play(audioCtx);d.classList.add('hit');setTimeout(()=>d.classList.remove('hit'),100);
-};
-grid.appendChild(d);
+const padEls=[];
+pads.forEach((p,i)=>{
+  const d=document.createElement('div');d.className='pad';
+  const em=document.createElement('span');em.textContent=p.emoji;
+  em.style.fontSize='2.2rem';
+  const nm=document.createElement('span');nm.textContent=p.name;
+  d.appendChild(em);d.appendChild(nm);
+  d.onpointerdown=e=>{e.preventDefault();hitPad(i,d)};
+  grid.appendChild(d);
+  padEls.push(d);
+});
+
+// 키보드 단축키
+document.addEventListener('keydown',e=>{
+  const idx=pads.findIndex(p=>p.key===e.key);
+  if(idx>=0)hitPad(idx,padEls[idx]);
+});
+
+// --- 녹음/재생 버튼 ---
+const recContainer=document.getElementById('recControls');
+recContainer.style.cssText='display:flex;gap:10px;margin:16px 0;justify-content:center;flex-wrap:wrap';
+
+const btnRec=document.createElement('button');
+btnRec.textContent='⏺ 녹음 시작';
+btnRec.style.cssText='background:#e53935;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:15px;cursor:pointer;font-weight:bold;min-height:44px';
+
+const btnStop=document.createElement('button');
+btnStop.textContent='⏹ 녹음 중지';
+btnStop.style.cssText='background:#555;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:15px;cursor:pointer;font-weight:bold;min-height:44px';
+btnStop.disabled=true;
+
+const btnPlay=document.createElement('button');
+btnPlay.textContent='▶ 재생';
+btnPlay.style.cssText='background:#1e88e5;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:15px;cursor:pointer;font-weight:bold;min-height:44px';
+btnPlay.disabled=true;
+
+const recStatus=document.createElement('span');
+recStatus.style.cssText='color:#aaa;font-size:13px;align-self:center';
+
+recContainer.appendChild(btnRec);
+recContainer.appendChild(btnStop);
+recContainer.appendChild(btnPlay);
+recContainer.appendChild(recStatus);
+
+btnRec.addEventListener('click',()=>{
+  playbackTimers.forEach(id=>clearTimeout(id));
+  playbackTimers=[];
+  recording=[];
+  isRecording=true;
+  recStartTime=performance.now();
+  btnRec.style.background='#b71c1c';
+  btnRec.textContent='⏺ 녹음 중...';
+  btnStop.disabled=false;
+  btnPlay.disabled=true;
+  recStatus.textContent='녹음 중';
+});
+
+btnStop.addEventListener('click',()=>{
+  isRecording=false;
+  btnRec.style.background='#e53935';
+  btnRec.textContent='⏺ 녹음 시작';
+  btnStop.disabled=true;
+  btnPlay.disabled=recording.length===0;
+  recStatus.textContent=recording.length>0?`${recording.length}개 히트 저장됨`:'저장된 히트 없음';
+});
+
+btnPlay.addEventListener('click',()=>{
+  if(recording.length===0)return;
+  playbackTimers.forEach(id=>clearTimeout(id));
+  playbackTimers=[];
+  recStatus.textContent='재생 중...';
+  btnPlay.disabled=true;
+
+  recording.forEach(ev=>{
+    const id=setTimeout(()=>{
+      hitPad(ev.padIndex,padEls[ev.padIndex]);
+    },ev.t);
+    playbackTimers.push(id);
+  });
+
+  const lastT=recording[recording.length-1].t;
+  const endId=setTimeout(()=>{
+    recStatus.textContent=`${recording.length}개 히트 저장됨`;
+    btnPlay.disabled=false;
+  },lastT+800);
+  playbackTimers.push(endId);
 });
 </script>
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>

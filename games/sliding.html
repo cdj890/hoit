@@ -138,6 +138,24 @@ document.addEventListener('keydown',e=>{
  else if(e.key==='ArrowRight'&&ec>0)ti=er*4+(ec-1);
  if(ti>=0){e.preventDefault();clickTile(ti);}
 });
+
+// touch swipe support
+let _tx,_ty;
+document.addEventListener('touchstart',function(e){_tx=e.touches[0].clientX;_ty=e.touches[0].clientY;},{passive:true});
+document.addEventListener('touchend',function(e){
+ if(gameOver)return;
+ let dx=e.changedTouches[0].clientX-_tx,dy=e.changedTouches[0].clientY-_ty;
+ if(Math.abs(dx)<30&&Math.abs(dy)<30)return;
+ let er=Math.floor(emptyIdx/4),ec=emptyIdx%4,ti=-1;
+ if(Math.abs(dx)>Math.abs(dy)){
+  if(dx>0&&ec>0)ti=er*4+(ec-1); // swipe right → move tile from left of empty
+  else if(dx<0&&ec<3)ti=er*4+(ec+1); // swipe left → move tile from right of empty
+ }else{
+  if(dy>0&&er>0)ti=(er-1)*4+ec; // swipe down → move tile from above empty
+  else if(dy<0&&er<3)ti=(er+1)*4+ec; // swipe up → move tile from below empty
+ }
+ if(ti>=0)clickTile(ti);
+});
 </script>
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f1e;padding:4px 0;text-align:center"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2968188107783039" data-ad-slot="4435401854" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 
